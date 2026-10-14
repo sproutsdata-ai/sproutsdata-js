@@ -1,4 +1,4 @@
-# sprouts-js
+# sproutsdata-js
 
 The official JavaScript / TypeScript SDK for the **Sprouts Data API** — search
 and enrich companies, people, patents, news, funding rounds, job openings and
@@ -127,7 +127,7 @@ a browser. Call from a server you control; the client never prints the key.
   [quickstart](docs/quickstart.md)
 - Runnable programs, type-checked by `npm test`: [`examples/`](examples/)
 - What changed, and how to migrate: [`packages/sdk/CHANGELOG.md`](packages/sdk/CHANGELOG.md)
-- The API contract, vendored from sprouts-py: [`spec/`](spec/)
+- The API contract, vendored from sproutsdata-py: [`spec/`](spec/)
 - Contributing, and the design rules: [`CONTRIBUTING.md`](CONTRIBUTING.md)
 - Reporting a vulnerability: [`SECURITY.md`](SECURITY.md)
 
@@ -147,4 +147,10 @@ workspace symlink to its `dist/`.
 
 ## License
 
-MIT
+The SDK code is released under the [MIT License](LICENSE).
+
+The licence covers this code only. Use of the Sprouts Data API, and of the data
+it returns, is governed by the Sprouts
+[Terms and Conditions](https://sprouts.ai/terms-and-conditions) and
+[Privacy Policy](https://sprouts.ai/privacy-policy), or by your agreement with
+Sprouts Inc. if you have one.

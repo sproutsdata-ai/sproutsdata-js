@@ -6,7 +6,7 @@ An npm-workspaces monorepo: the core SDK plus AI-framework adapter packages,
 each a separately versioned package.
 
 ```
-spec/             the shared SDK spec, vendored from sprouts-py — never edited here
+spec/             the shared SDK spec, vendored from sproutsdata-py — never edited here
 scripts/          spec sync and the code generators
 packages/
   sdk/            sproutsdata — the core SDK (zero runtime dependencies)
@@ -105,15 +105,15 @@ secret scanner can run with push protection and never cry wolf:
 ## Keeping up with the API
 
 The backend (`dsp-backend`) is the source of truth, described for the SDKs by
-the shared spec in sprouts-py's `spec/` directory: `openapi.json`,
+the shared spec in sproutsdata-py's `spec/` directory: `openapi.json`,
 `error-codes.json`, `routes.json` (each route's retry class),
 `retry-policy.json`, `defaults.json`, `surface-map.json` and the behavioural
 `conformance/` cases. This repo vendors an exact copy in `spec/`, with every
 file's SHA-256 in `spec/PIN.json`. A case that looks wrong is fixed in
-sprouts-py first, then re-synced — never edited here.
+sproutsdata-py first, then re-synced — never edited here.
 
 ```bash
-npm run spec:sync        # copy ../sprouts-py/spec (or: node scripts/sync-spec.mjs --from <dir>)
+npm run spec:sync        # copy ../sproutsdata-py/spec (or: node scripts/sync-spec.mjs --from <dir>)
 npm run generate         # regenerate src/openapi.gen.ts and src/error-codes.gen.ts
 npm run check:generated  # spec matches PIN.json, generated files match the spec
 ```

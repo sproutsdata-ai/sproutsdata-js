@@ -1,0 +1,12 @@
+# The last matching rule wins. Every owner must have write access to this repo.
+
+# Default owners: the SDK maintainers.
+*                @aniruddha-sprouts @adarsh414
+
+# The vendored API contract. It changes only by re-syncing from sproutsdata-py,
+# so a diff here should match a merged change there.
+/spec/           @aniruddha-sprouts @zargarjunaid
+
+# Workflows can publish to npm. A change here changes what runs with release
+# permissions, so it needs a second pair of eyes.
+/.github/        @zargarjunaid @aniruddha-sprouts

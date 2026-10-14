@@ -5,7 +5,7 @@
 //
 //   node scripts/check-links.mjs
 //
-// `spec/` is vendored from sprouts-py and checked there; external links
+// `spec/` is vendored from sproutsdata-py and checked there; external links
 // (`http:`, `https:`, `mailto:`) are not fetched.
 
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';

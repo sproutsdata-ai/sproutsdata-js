@@ -1,0 +1,93 @@
+# Quality gate for the JS monorepo. Nothing here touches the network: the live
+# smoke test is run by hand with a test key.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    # Everything that does not depend on the Node.js version runs once.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Vendored spec and generated code are current
+        # spec/ must match the checksums in spec/PIN.json (a hand edit fails
+        # here), and the generated types, error codes and tool specs must match
+        # what the generators produce from that spec.
+        run: npm run check:generated
+      - name: Types
+        run: npm run typecheck
+      - name: Package contents
+        # What `npm publish` would upload. A missing dist/ or a stray file shows
+        # up here, not after the release.
+        run: |
+          npm run build
+          for ws in packages/sdk packages/langchain packages/ai-sdk; do
+            npm pack --dry-run -w "$ws"
+          done
+
+  test:
+    # The adapters need Node.js 22.12+ (the `ai` package sets that floor), so
+    # the full suite runs on 22 and 24.
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [22, 24]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      - run: npm ci
+      - name: Tests, example type-check and links
+        run: npm test
+
+  sdk-node-20:
+    # The sdk and the LangChain adapter support Node.js 20. vitest 4 runs there.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build -w packages/sdk
+      - run: npm test -w packages/sdk -w packages/langchain
+
+  sdk-node-18:
+    # The sdk claims Node.js 18, where vitest cannot run. Build on 22, then load
+    # the built package on 18 and make one call against a local stub.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build -w packages/sdk
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 18
+      - run: node scripts/smoke-node-floor.mjs

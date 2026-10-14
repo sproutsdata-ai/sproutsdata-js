@@ -1,6 +1,6 @@
 {
   "name": "@sproutsdata.ai/langchain",
-  "version": "0.2.0",
+  "version": "0.0.1",
   "description": "The Sprouts Data tools (search, look-alike and entity lookup) and search retriever for LangChain.",
   "license": "MIT",
   "repository": {
@@ -60,12 +60,12 @@
   ],
   "peerDependencies": {
     "@langchain/core": "^1.0.0",
-    "sproutsdata": "^0.4.0"
+    "sproutsdata": ">=0.0.1 <0.1.0"
   },
   "devDependencies": {
     "@langchain/core": "^1.0.0",
     "@types/node": "^20.14.0",
-    "sproutsdata": "^0.4.0",
+    "sproutsdata": ">=0.0.1 <0.1.0",
     "tsup": "^8.2.0",
     "typescript": "^5.5.0",
     "vitest": "^4.1.11"

@@ -1,6 +1,6 @@
 {
   "name": "@sproutsdata.ai/ai-sdk",
-  "version": "0.2.0",
+  "version": "0.0.1",
   "description": "The Sprouts Data tools (search, look-alike and entity lookup) for the Vercel AI SDK.",
   "license": "MIT",
   "repository": {
@@ -61,12 +61,12 @@
   ],
   "peerDependencies": {
     "ai": "^7.0.0",
-    "sproutsdata": "^0.4.0"
+    "sproutsdata": ">=0.0.1 <0.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
     "ai": "^7.0.0",
-    "sproutsdata": "^0.4.0",
+    "sproutsdata": ">=0.0.1 <0.1.0",
     "tsup": "^8.2.0",
     "typescript": "^5.5.0",
     "vitest": "^4.1.11"

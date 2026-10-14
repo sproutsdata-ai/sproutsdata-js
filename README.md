@@ -126,7 +126,7 @@ a browser. Call from a server you control; the client never prints the key.
 - The guide: [`docs/`](docs/README.md) — start with the
   [quickstart](docs/quickstart.md)
 - Runnable programs, type-checked by `npm test`: [`examples/`](examples/)
-- What changed, and how to migrate: [`packages/sdk/CHANGELOG.md`](packages/sdk/CHANGELOG.md)
+- What changed in each release: [`packages/sdk/CHANGELOG.md`](packages/sdk/CHANGELOG.md)
 - The API contract, vendored from sproutsdata-py: [`spec/`](spec/)
 - Contributing, and the design rules: [`CONTRIBUTING.md`](CONTRIBUTING.md)
 - Reporting a vulnerability: [`SECURITY.md`](SECURITY.md)

@@ -1,8 +1,8 @@
 # Release one package from a tag.
 #
-#   v0.4.0             -> packages/sdk        (sproutsdata)
-#   langchain-v0.2.0   -> packages/langchain  (@sproutsdata.ai/langchain)
-#   ai-sdk-v0.2.0      -> packages/ai-sdk     (@sproutsdata.ai/ai-sdk)
+#   v0.0.1             -> packages/sdk        (sproutsdata)
+#   langchain-v0.0.1   -> packages/langchain  (@sproutsdata.ai/langchain)
+#   ai-sdk-v0.0.1      -> packages/ai-sdk     (@sproutsdata.ai/ai-sdk)
 #
 # Same scheme as sproutsdata-py: the plain `v*` namespace is the core SDK, and an
 # adapter's tag carries its directory name. Each package versions independently.

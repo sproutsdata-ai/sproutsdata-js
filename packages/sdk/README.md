@@ -576,7 +576,7 @@ redacted.
 - The guide: [`docs/`](../../docs/README.md) — start with the
   [quickstart](../../docs/quickstart.md)
 - Runnable programs: [`examples/`](../../examples/)
-- What changed, and how to migrate: [`CHANGELOG.md`](CHANGELOG.md)
+- What changed in each release: [`CHANGELOG.md`](CHANGELOG.md)
 - The API's own changes: [`spec/CHANGELOG.md`](../../spec/CHANGELOG.md)
 - Reporting a vulnerability: [`SECURITY.md`](../../SECURITY.md)
 

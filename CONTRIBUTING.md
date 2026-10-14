@@ -134,14 +134,14 @@ test and a `CHANGELOG.md` entry in the package it touches.
 ## Releases
 
 Each package versions independently and releases from its own tag:
-`v0.4.0` for `sproutsdata`, `langchain-v0.2.0` and `ai-sdk-v0.2.0` for the
+`v0.0.1` for `sproutsdata`, `langchain-v0.0.1` and `ai-sdk-v0.0.1` for the
 adapters. An adapter's peer range on `sproutsdata` must be satisfiable from
 npm, so the sdk always publishes first.
 
 1. Open a PR that bumps `version` in the package's `package.json` and
    `src/version.ts`, and adds its `CHANGELOG.md` entry. Merge it after review.
 2. Tag the merge commit on `main` and push the tag:
-   `git tag v0.4.1 && git push origin v0.4.1`.
+   `git tag v0.0.2 && git push origin v0.0.2`.
 3. The release workflow re-runs the gate and waits for approval in the `npm`
    environment. A required reviewer approves it in the Actions tab.
 4. The package is published to npm with provenance, then the GitHub Release is

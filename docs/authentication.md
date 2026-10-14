@@ -159,9 +159,9 @@ const client = new SproutsData({
 | `timeoutMs` | — | `60000` |
 | `maxRetries` | — | `2` |
 
-An option wins over the environment. The pre-0.4 environment variable names
-are still read when the new ones are unset, with a deprecation warning, until
-1.0; the [changelog](../packages/sdk/CHANGELOG.md) lists them. The path prefix
+An option wins over the environment. The older `DSP_API_KEY` and `DSP_BASE_URL`
+names are still read when the new ones are unset, with a deprecation warning,
+until 1.0. The path prefix
 is part of the base URL: `/v1` does not sit at the host root on every
 deployment.
 

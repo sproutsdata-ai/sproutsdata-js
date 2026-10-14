@@ -31,5 +31,5 @@ npm install sproutsdata
 
 - Runnable programs: [`examples/`](../examples/)
 - The package README, a one-page tour: [`packages/sdk/README.md`](../packages/sdk/README.md)
-- What changed, and how to migrate: [`packages/sdk/CHANGELOG.md`](../packages/sdk/CHANGELOG.md)
+- What changed in each release: [`packages/sdk/CHANGELOG.md`](../packages/sdk/CHANGELOG.md)
 - The API contract both SDKs keep: [`spec/`](../spec/)

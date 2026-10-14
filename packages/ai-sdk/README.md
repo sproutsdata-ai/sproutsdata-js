@@ -121,7 +121,7 @@ Generated from `package.json`; `tests/readme.test.ts` fails when they differ.
 | --- | --- |
 | Node.js | >=22.12.0 |
 | `ai` | ^7.0.0 |
-| `sproutsdata` | ^0.4.0 |
+| `sproutsdata` | >=0.0.1 <0.1.0 |
 <!-- compat:end -->
 
 ## Cost

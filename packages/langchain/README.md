@@ -194,3 +194,13 @@ response says `environment: "test"`, and nothing is charged.
 - [`@sproutsdata.ai/ai-sdk`](../ai-sdk) — the same tools for the Vercel AI SDK.
 - [Integrations](../../docs/integrations/README.md) — the same tools in frameworks without a
   package of their own, and the MCP route.
+
+## License
+
+The SDK code is released under the [MIT License](LICENSE).
+
+The licence covers this code only. Use of the Sprouts Data API, and of the data
+it returns, is governed by the Sprouts
+[Terms and Conditions](https://sprouts.ai/terms-and-conditions) and
+[Privacy Policy](https://sprouts.ai/privacy-policy), or by your agreement with
+Sprouts Inc. if you have one.

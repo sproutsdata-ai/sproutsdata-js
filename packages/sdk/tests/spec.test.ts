@@ -1,5 +1,5 @@
 /**
- * The SDK held to the vendored spec (`spec/`, synced from sprouts-py): the
+ * The SDK held to the vendored spec (`spec/`, synced from sproutsdata-py): the
  * files are the pinned ones, and the defaults, the retry table, the error
  * taxonomy, the record types and the public surface all agree with them.
  */
@@ -40,7 +40,7 @@ describe('spec/PIN.json', () => {
     expect(vendored).toEqual(Object.keys(pin.files).sort());
   });
 
-  it('matches every vendored file byte for byte (re-sync from sprouts-py; never edit spec/)', () => {
+  it('matches every vendored file byte for byte (re-sync from sproutsdata-py; never edit spec/)', () => {
     for (const [path, digest] of Object.entries(pin.files)) {
       const actual = createHash('sha256').update(readFileSync(join(SPEC, path))).digest('hex');
       expect(actual, path).toBe(digest);

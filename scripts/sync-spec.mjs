@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-// Vendors the shared SDK spec (sprouts-py's `spec/` directory) into `spec/`
+// Vendors the shared SDK spec (sproutsdata-py's `spec/` directory) into `spec/`
 // and pins every file's SHA-256 in `spec/PIN.json`.
 //
-//   node scripts/sync-spec.mjs                 # copy from ../sprouts-py/spec
+//   node scripts/sync-spec.mjs                 # copy from ../sproutsdata-py/spec
 //   node scripts/sync-spec.mjs --from <dir>    # copy from another checkout
 //   node scripts/sync-spec.mjs --check         # verify spec/ against PIN.json
 //
 // The vendored copy is never edited by hand: a case that looks wrong is fixed
-// in sprouts-py first and re-synced here (contract 02 §14). `--check` is what
+// in sproutsdata-py first and re-synced here (contract 02 §14). `--check` is what
 // catches a hand edit — any file whose hash differs from its pin, any file
 // added, and any pinned file removed.
 
@@ -20,9 +20,9 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SPEC_DIR = join(ROOT, 'spec');
 const PIN_FILE = join(SPEC_DIR, 'PIN.json');
 const PIN_NAME = 'PIN.json';
-const DEFAULT_SOURCE = '../sprouts-py/spec';
+const DEFAULT_SOURCE = '../sproutsdata-py/spec';
 /** Recorded in PIN.json so a reader knows where the files came from. */
-const SOURCE_LABEL = 'sprouts-py/spec';
+const SOURCE_LABEL = 'sproutsdata-py/spec';
 
 /** Every regular file under `dir`, as sorted POSIX paths relative to it. Dotfiles are skipped. */
 function listFiles(dir) {
@@ -65,7 +65,7 @@ function check() {
   if (problems.length > 0) {
     console.error(
       `spec/ does not match spec/PIN.json:\n  ${problems.join('\n  ')}\n` +
-        'The vendored spec is changed only by re-syncing from sprouts-py (node scripts/sync-spec.mjs).',
+        'The vendored spec is changed only by re-syncing from sproutsdata-py (node scripts/sync-spec.mjs).',
     );
     return 1;
   }
@@ -76,7 +76,7 @@ function check() {
 function sync(sourceArg) {
   const source = resolve(ROOT, sourceArg);
   if (!existsSync(source) || !statSync(source).isDirectory()) {
-    console.error(`No spec directory at ${source}. Pass --from <path to sprouts-py/spec>.`);
+    console.error(`No spec directory at ${source}. Pass --from <path to sproutsdata-py/spec>.`);
     return 1;
   }
   rmSync(SPEC_DIR, { recursive: true, force: true });

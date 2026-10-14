@@ -1,6 +1,6 @@
 /**
  * Runs the shared behavioural fixtures in `spec/conformance/cases/` (vendored
- * from sprouts-py; see `spec/conformance/README.md`).
+ * from sproutsdata-py; see `spec/conformance/README.md`).
  *
  * The cases are the specification and this file is the implementation. Every
  * case runs against the route class `spec/routes.json` gives its request, over

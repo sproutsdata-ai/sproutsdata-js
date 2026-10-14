@@ -1,5 +1,5 @@
 {
-  "source": "sprouts-py/spec",
+  "source": "sproutsdata-py/spec",
   "files": {
     "CHANGELOG.md": "ed50c7e4c1e8c2b8cb2e71708db3ea20c9c9ba614ee4868e504dd1b8a08311e6",
     "conformance/README.md": "6be09f3bea60ea3c12d9caa7c31876b787c3354e56709d6a4129691400bb9902",

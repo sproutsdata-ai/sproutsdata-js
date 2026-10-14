@@ -5,12 +5,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sproutsdata-ai/sprouts-js.git",
+    "url": "git+https://github.com/sproutsdata-ai/sproutsdata-js.git",
     "directory": "packages/langchain"
   },
-  "homepage": "https://github.com/sproutsdata-ai/sprouts-js/tree/main/packages/langchain#readme",
+  "homepage": "https://github.com/sproutsdata-ai/sproutsdata-js/tree/main/packages/langchain#readme",
   "bugs": {
-    "url": "https://github.com/sproutsdata-ai/sprouts-js/issues"
+    "url": "https://github.com/sproutsdata-ai/sproutsdata-js/issues"
   },
   "type": "module",
   "main": "./dist/index.cjs",

@@ -1,4 +1,4 @@
-# sprouts-js
+# sproutsdata-js
 
 The official JavaScript / TypeScript SDK for the **Sprouts Data API** — search
 and enrich companies, people, patents, news, funding rounds, job openings and
@@ -127,7 +127,7 @@ a browser. Call from a server you control; the client never prints the key.
   [quickstart](docs/quickstart.md)
 - Runnable programs, type-checked by `npm test`: [`examples/`](examples/)
 - What changed, and how to migrate: [`packages/sdk/CHANGELOG.md`](packages/sdk/CHANGELOG.md)
-- The API contract, vendored from sprouts-py: [`spec/`](spec/)
+- The API contract, vendored from sproutsdata-py: [`spec/`](spec/)
 - Contributing, and the design rules: [`CONTRIBUTING.md`](CONTRIBUTING.md)
 - Reporting a vulnerability: [`SECURITY.md`](SECURITY.md)
 

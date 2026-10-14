@@ -130,3 +130,22 @@ and do not mirror new server-side bounds locally (rule 4).
 Conventional commits (`feat:`, `fix:`, `docs:`, `chore:`, `feat!:` for a
 breaking change). One logical change per PR. Every behavioural change needs a
 test and a `CHANGELOG.md` entry in the package it touches.
+
+## Releases
+
+Each package versions independently and releases from its own tag:
+`v0.4.0` for `sproutsdata`, `langchain-v0.2.0` and `ai-sdk-v0.2.0` for the
+adapters. An adapter's peer range on `sproutsdata` must be satisfiable from
+npm, so the sdk always publishes first.
+
+1. Open a PR that bumps `version` in the package's `package.json` and
+   `src/version.ts`, and adds its `CHANGELOG.md` entry. Merge it after review.
+2. Tag the merge commit on `main` and push the tag:
+   `git tag v0.4.1 && git push origin v0.4.1`.
+3. The release workflow re-runs the gate and waits for approval in the `npm`
+   environment. A required reviewer approves it in the Actions tab.
+4. The package is published to npm with provenance, then the GitHub Release is
+   created.
+
+To rehearse, run the release workflow by hand. It runs `npm publish --dry-run`
+and shows exactly what would be uploaded.

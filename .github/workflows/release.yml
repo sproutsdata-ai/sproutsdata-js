@@ -1,0 +1,195 @@
+# Release one package from a tag.
+#
+#   v0.4.0             -> packages/sdk        (sproutsdata)
+#   langchain-v0.2.0   -> packages/langchain  (@sproutsdata.ai/langchain)
+#   ai-sdk-v0.2.0      -> packages/ai-sdk     (@sproutsdata.ai/ai-sdk)
+#
+# Same scheme as sproutsdata-py: the plain `v*` namespace is the core SDK, and an
+# adapter's tag carries its directory name. Each package versions independently.
+#
+# How a release happens:
+#   1. A PR bumps `version` in the package's package.json and src/version.ts,
+#      and adds the CHANGELOG entry.
+#      It is reviewed and merged like any change.
+#   2. Someone tags that commit on main and pushes the tag.
+#   3. This workflow re-runs the full gate, checks the tag matches the version
+#      and sits on main, and waits in the `npm` environment.
+#   4. A required reviewer approves the deployment. Only then is the package
+#      published to npm, with provenance, and the GitHub Release created.
+#
+# Authentication: npm Trusted Publishing (OIDC). npm trusts this repository,
+# this workflow file and the `npm` environment, so no token is stored. As far as
+# we know, a trusted publisher can only be added to a package that already
+# exists, so the FIRST publish of each package uses an NPM_TOKEN environment
+# secret: a granular token with a short expiry. After that first publish, add
+# the trusted publisher on npmjs.com and delete the secret.
+#
+# Two switches keep a tag from publishing before the safeguards exist:
+#   - the repository must be public (GitHub Free offers environment reviewers
+#     only on public repositories, and npm provenance needs a public repo), and
+#   - the repository variable PUBLISH_ENABLED must be `true`. Set it only after
+#     the `npm` environment has a required reviewer.
+# Without them a tag still verifies and creates a GitHub Release.
+#
+# Rehearsal: run this workflow by hand. It runs the gate and `npm publish
+# --dry-run`, which shows exactly what would be uploaded, without uploading.
+name: release
+
+on:
+  push:
+    tags: ["v*", "langchain-v*", "ai-sdk-v*"]
+  workflow_dispatch:
+    inputs:
+      package:
+        description: "Package to rehearse (dry run only; real publishes come from tags)"
+        type: choice
+        options: [sdk, langchain, ai-sdk]
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    outputs:
+      dir: ${{ steps.resolve.outputs.dir }}
+      name: ${{ steps.resolve.outputs.name }}
+      version: ${{ steps.resolve.outputs.version }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          # Full history, so the "is this commit on main" check below can run.
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Resolve the package
+        id: resolve
+        env:
+          INPUT_PACKAGE: ${{ inputs.package }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            DIR="packages/$INPUT_PACKAGE"
+          else
+            case "$GITHUB_REF_NAME" in
+              v*)           DIR=packages/sdk;       TAG_VERSION="${GITHUB_REF_NAME#v}" ;;
+              langchain-v*) DIR=packages/langchain; TAG_VERSION="${GITHUB_REF_NAME#langchain-v}" ;;
+              ai-sdk-v*)    DIR=packages/ai-sdk;    TAG_VERSION="${GITHUB_REF_NAME#ai-sdk-v}" ;;
+              *) echo "::error::unknown tag $GITHUB_REF_NAME"; exit 1 ;;
+            esac
+          fi
+          NAME=$(node -p "require('./$DIR/package.json').name")
+          VERSION=$(node -p "require('./$DIR/package.json').version")
+          if [ -n "${TAG_VERSION:-}" ] && [ "$TAG_VERSION" != "$VERSION" ]; then
+            echo "::error::tag is $GITHUB_REF_NAME but $DIR/package.json says $VERSION"
+            exit 1
+          fi
+          SRC_VERSION=$(node -e "const m=require('fs').readFileSync('$DIR/src/version.ts','utf8').match(/VERSION\s*=\s*'([^']+)'/); console.log(m ? m[1] : '')")
+          if [ "$SRC_VERSION" != "$VERSION" ]; then
+            echo "::error::$DIR/src/version.ts says '$SRC_VERSION' but package.json says $VERSION"
+            exit 1
+          fi
+          {
+            echo "dir=$DIR"
+            echo "name=$NAME"
+            echo "version=$VERSION"
+          } >> "$GITHUB_OUTPUT"
+          echo "releasing $NAME $VERSION from $DIR"
+
+      - name: Tagged commit is on main
+        # A tag on an unmerged branch would publish code nobody reviewed.
+        if: github.ref_type == 'tag'
+        run: |
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::$GITHUB_REF_NAME points at a commit that is not on main"
+            exit 1
+          fi
+
+      - run: npm ci
+      - name: Full gate
+        run: |
+          npm run lint
+          npm run check:generated
+          npm run typecheck
+          npm test
+
+      - name: What would be published
+        env:
+          DIR: ${{ steps.resolve.outputs.dir }}
+        run: npm publish --dry-run -w "$DIR"
+
+      - name: Say why nothing will be published
+        if: github.ref_type == 'tag' && (github.event.repository.private || vars.PUBLISH_ENABLED != 'true')
+        run: echo "::notice::Publishing is switched off (repository private or PUBLISH_ENABLED not 'true'). Creating the GitHub Release only."
+
+  publish:
+    needs: verify
+    if: >-
+      github.event_name == 'push'
+      && github.ref_type == 'tag'
+      && !github.event.repository.private
+      && vars.PUBLISH_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    # The required reviewer on this environment is the approval step.
+    environment:
+      name: npm
+      url: https://www.npmjs.com/package/${{ needs.verify.outputs.name }}
+    permissions:
+      contents: read
+      # OIDC for Trusted Publishing and for the provenance statement.
+      id-token: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+          cache: npm
+      - name: npm with Trusted Publishing support
+        # Trusted Publishing needs npm 11.5.1 or later; Node 22 ships npm 10.
+        run: npm install -g npm@11.19.1
+      - run: npm ci
+      - name: Build the sdk
+        # The adapters' prepublishOnly runs their tests, which import the sdk
+        # from its workspace build.
+        run: npm run build -w packages/sdk
+      - name: Publish
+        env:
+          DIR: ${{ needs.verify.outputs.dir }}
+          # Empty once Trusted Publishing is set up; npm then uses OIDC.
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        # prepublishOnly re-runs the package's typecheck, tests and build, so
+        # what is uploaded is built in this job from the tagged commit.
+        run: npm publish -w "$DIR" --provenance --access public
+
+  github-release:
+    needs: [verify, publish]
+    if: >-
+      always()
+      && github.event_name == 'push'
+      && github.ref_type == 'tag'
+      && needs.verify.result == 'success'
+      && (needs.publish.result == 'success' || needs.publish.result == 'skipped')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NAME: ${{ needs.verify.outputs.name }}
+          VERSION: ${{ needs.verify.outputs.version }}
+          DIR: ${{ needs.verify.outputs.dir }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 && { echo "release exists"; exit 0; }
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$NAME $VERSION" \
+            --notes "See [$DIR/CHANGELOG.md](https://github.com/$GH_REPO/blob/$GITHUB_REF_NAME/$DIR/CHANGELOG.md)."

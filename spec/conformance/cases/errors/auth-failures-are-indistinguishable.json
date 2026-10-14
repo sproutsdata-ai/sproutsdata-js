@@ -1,0 +1,26 @@
+{
+  "name": "auth_unauthorized_carries_a_request_id",
+  "description": "The API answers every pre-auth failure identically on purpose, so request_id is the only handle support has. Losing it makes the error undiagnosable.",
+  "responses": [
+    {
+      "status": 401,
+      "headers": {
+        "X-Request-Id": "req_auth"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/auth-unauthorized",
+        "title": "Unauthorized",
+        "status": 401,
+        "code": "auth.unauthorized",
+        "detail": "Authentication required. Send a valid `X-API-Key`."
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "error": {
+      "concept": "authentication",
+      "request_id": "req_auth"
+    }
+  }
+}

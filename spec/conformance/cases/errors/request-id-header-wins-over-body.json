@@ -1,0 +1,27 @@
+{
+  "name": "request_id_on_an_error_comes_from_the_header_first",
+  "description": "The X-Request-Id header is what support searches by; the body copy is a fallback for responses that lack the header.",
+  "max_retries": 0,
+  "responses": [
+    {
+      "status": 404,
+      "headers": {
+        "X-Request-Id": "req_header"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/history-not-found",
+        "title": "Not found",
+        "status": 404,
+        "code": "history.not_found",
+        "request_id": "req_body"
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "error": {
+      "concept": "not_found",
+      "request_id": "req_header"
+    }
+  }
+}

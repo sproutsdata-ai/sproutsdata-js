@@ -1,0 +1,40 @@
+{
+  "name": "export_not_enabled_is_a_not_found_and_is_not_retried",
+  "description": "CSV export answers 404 export.not_enabled on a deployment where it is switched off. Retrying will not turn it on.",
+  "request": {
+    "method": "POST",
+    "path": "/v1/search/export",
+    "body": {
+      "items": [
+        {
+          "entity_category": "company",
+          "entity_id": "stripe.com"
+        }
+      ]
+    }
+  },
+  "responses": [
+    {
+      "status": 404,
+      "headers": {
+        "X-Request-Id": "req_export"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/export-not-enabled",
+        "title": "CSV export is not enabled in this deployment",
+        "status": 404,
+        "code": "export.not_enabled",
+        "detail": "CSV export is not available."
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "no_sleep": true,
+    "error": {
+      "concept": "not_found",
+      "status": 404,
+      "code": "export.not_enabled"
+    }
+  }
+}

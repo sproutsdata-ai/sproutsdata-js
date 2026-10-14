@@ -1,0 +1,57 @@
+{
+  "$comment": "Every sentence the tools modules write to a model themselves — validation refusals, rule refusals, caveats, and the errors that have no problem document to quote. Shared so that the same failure reads the same in every language (fixtures/ compares results byte for byte). `{name}` is a placeholder, substituted verbatim; no other braces carry meaning. README.md documents when each one is used.",
+  "version": 1,
+  "validation": {
+    "summary": "Invalid arguments: fix the listed fields and call again.",
+    "not_json": "Arguments are not valid JSON. Send a JSON object.",
+    "not_an_object": "Arguments must be a JSON object.",
+    "root": "arguments",
+    "unknown_argument": "unknown argument. Allowed here: {allowed}.",
+    "required": "required.",
+    "type": "expected {expected}.",
+    "enum": "must be one of {allowed}.",
+    "min_length": "must be at least {limit} characters.",
+    "max_length": "must be at most {limit} characters.",
+    "min_items": "must have at least {limit} items.",
+    "max_items": "must have at most {limit} items.",
+    "minimum": "must be at least {limit}.",
+    "maximum": "must be at most {limit}."
+  },
+  "rules": {
+    "needs_query_or_filters": "Provide `query`, `filters`, or both. A search with neither has nothing to match on.",
+    "auto_needs_query": "`category: \"auto\"` asks the engine to classify your words, so it needs `query`. Name the category to search with filters alone.",
+    "auto_needs_auto_mode": "`category: \"auto\"` requires `mode: \"auto\"`: classification is itself a model call, and `fast` runs none. Set both, or name the category and keep `fast`.",
+    "auto_takes_query_only": "`category: \"auto\"` accepts only `query`: filters, domain lists and `sort` are category-specific. Name the category to use them.",
+    "auto_conflicts_with_application": "`category: \"auto\"` cannot apply the constraints this application sets on every search. Name the category.",
+    "domains_need_entity_category": "`include_domains` and `exclude_domains` apply to company, person and job_opening, not `{category}`: a document has no domain of its own.",
+    "sort_duplicate_field": "`sort` names `{field}` twice. Two directions for one field is a contradiction.",
+    "by_not_accepted": "`{category}` accepts no `by`: its ids already are record ids.",
+    "by_not_valid": "`by: \"{by}\"` is not valid for `{category}`. Allowed: {allowed}.",
+    "person_has_no_domain": "`by: \"domain\"` is not valid for `person`: a person has no domain. Use `li_url` or `name`."
+  },
+  "caveats": {
+    "degradation": "{reason}: {detail} (impact: {impact})",
+    "parser_not_run": "parser_not_run: `fast` mode did not parse the query, so a constraint stated only in words (a country, a headcount, an industry) was not applied. Use `mode: \"auto\"` or put it in `filters`.",
+    "coverage_truncated": "coverage_truncated: {enumerated} of {universe} matching records were enumerated before {truncated_by} stopped it.",
+    "constraint_unmet": "constraint_unmet: {constraint}",
+    "application_filter": "application_filter: `filters.{path}` is fixed by this application to {value}; your {requested} was not applied.",
+    "limit_capped": "limit_capped: you asked for {requested} rows; this application returns at most {limit} per call.",
+    "rows_without_lookup": "rows_without_lookup: {count} of {shown} rows carry no domain or LinkedIn URL, so they have no `lookup` value and cannot be looked up.",
+    "anchors_unreported": "anchors_unreported: the API does not report which of the {count} anchors resolved. Say the results are based on the anchors provided, not that they match every one.",
+    "anchors_by_name": "anchors_by_name: {names} — resolved by name with no disambiguation, so a same-named company may have been used. Prefer a domain.",
+    "anchors_zero_weight": "anchors_zero_weight: {names} — weight 0, so no influence on the result.",
+    "anchors_removed": "anchors_removed: {ids} — returned as a look-alike of itself and removed.",
+    "search_ids_not_found": "search_ids_not_found: {ids} — search-result ids are not record ids and are never found here. Look the row up by its `lookup` value (domain or LinkedIn URL); this miss does not mean the record is not held.",
+    "raw_values_without_by": "raw_values_without_by: {ids} — read as record ids because `by` was not set. Call again with `by: \"domain\"` or `by: \"li_url\"`.",
+    "record_unavailable": "record_unavailable: {ids} — resolved, but no record came back. This is not a miss."
+  },
+  "errors": {
+    "unknown_tool": "No tool named `{name}` is available here. Available: {available}.",
+    "timeout_sent": "The request timed out after it was sent. This call is charged once the server has done the work, so a charge may already have happened; it was not repeated. Do not retry it automatically.",
+    "connection_sent": "The connection failed after the request was sent. This call is charged once the server has done the work, so a charge may already have happened; it was not repeated. Do not retry it automatically.",
+    "connection_unsent": "Could not reach the Sprouts API. The request was never sent and nothing was charged; retrying later may succeed.",
+    "gateway_no_answer": "A gateway answered {status} without a result. The request may have reached the service and been charged; it was not repeated. Do not retry it automatically.",
+    "response_invalid": "The API answered in a shape this SDK version cannot read. The call may have been charged; do not retry it.",
+    "http_status": "HTTP {status}"
+  }
+}

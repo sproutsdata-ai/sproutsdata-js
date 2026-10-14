@@ -1,0 +1,37 @@
+{
+  "name": "billed_call_is_retried_when_it_never_reached_the_server",
+  "description": "A refused connection proves the request was never sent, so nothing was charged and a retry is safe.",
+  "responses": [
+    {
+      "network": "connect_refused"
+    },
+    {
+      "status": 200,
+      "headers": {
+        "X-Request-Id": "req_ok"
+      },
+      "body": {
+        "results": [],
+        "total": 0,
+        "total_is_estimate": false,
+        "has_more": false,
+        "next_cursor": null,
+        "resolved_search": null,
+        "attribution": [],
+        "degradation": [],
+        "meta": {
+          "request_id": "req_ok",
+          "environment": "test",
+          "as_of": "2026-08-13T00:00:00Z",
+          "credential": "api_key"
+        }
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 2,
+    "success": {
+      "request_id": "req_ok"
+    }
+  }
+}

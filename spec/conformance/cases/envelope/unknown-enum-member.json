@@ -1,0 +1,46 @@
+{
+  "name": "unknown_enum_member_does_not_break_parsing",
+  "description": "A category or degradation reason this version has never heard of must pass through as a string, not raise.",
+  "responses": [
+    {
+      "status": 200,
+      "headers": {},
+      "body": {
+        "results": [
+          {
+            "id": "x",
+            "category": "a_category_invented_later",
+            "score": 1.0
+          }
+        ],
+        "total": 1,
+        "total_is_estimate": false,
+        "has_more": false,
+        "next_cursor": null,
+        "resolved_search": null,
+        "attribution": [],
+        "degradation": [
+          {
+            "reason": "a_reason_invented_later",
+            "detail": "…",
+            "impact": "recall"
+          }
+        ],
+        "meta": {
+          "request_id": "req_ok",
+          "environment": "test",
+          "as_of": "2026-08-13T00:00:00Z",
+          "credential": "api_key"
+        }
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "success": {
+      "results_length": 1,
+      "first_category": "a_category_invented_later",
+      "first_degradation_reason": "a_reason_invented_later"
+    }
+  }
+}

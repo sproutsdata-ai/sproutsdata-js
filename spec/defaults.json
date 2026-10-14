@@ -1,0 +1,51 @@
+{
+  "$comment": "Configuration defaults every SDK applies (contract 02 §3). Durations are in seconds here; the JS SDK takes milliseconds at its API surface and converts. Resolution order for a setting is always: the argument, then the environment variable, then the deprecated environment variable (with a warning naming its replacement), then the default below.",
+  "version": 1,
+  "base_url": "https://api.sproutsdata.ai",
+  "base_url_rule": "https:// is required. Plain http:// is accepted only when the host is one of plain_http_hosts.",
+  "plain_http_hosts": [
+    "localhost",
+    "127.0.0.1"
+  ],
+  "api_key_pattern": "^sk_[a-z0-9]+_(live|test)_[A-Za-z0-9_-]+$",
+  "api_key_split": "Split with a bounded split(\"_\", 3): the secret contains '_'.",
+  "missing_api_key": "Refused at construction.",
+  "env": {
+    "api_key": "SPROUTSDATA_API_KEY",
+    "base_url": "SPROUTSDATA_BASE_URL",
+    "deprecated": {
+      "python": {
+        "api_key": "SPROUTS_API_KEY",
+        "base_url": "SPROUTS_BASE_URL"
+      },
+      "js": {
+        "api_key": "DSP_API_KEY",
+        "base_url": "DSP_BASE_URL"
+      }
+    },
+    "deprecated_removed_at": "1.0.0"
+  },
+  "timeout_seconds": 60,
+  "connect_timeout_seconds": {
+    "python": 10
+  },
+  "max_retries": 2,
+  "backoff": {
+    "kind": "full_jitter",
+    "formula": "uniform(0, min(cap_seconds, initial_seconds * 2^(n-1))) before attempt n",
+    "initial_seconds": 0.5,
+    "cap_seconds": 8
+  },
+  "retry_after_cap_seconds": 60,
+  "follow_redirects": false,
+  "stream_idle_timeout_seconds": 60,
+  "run_wait": {
+    "deadline_seconds": 900,
+    "poll_initial_seconds": 3,
+    "poll_multiplier": 1.5,
+    "poll_max_seconds": 15
+  },
+  "browser": {
+    "js": "Refused unless dangerouslyAllowBrowser: true."
+  }
+}

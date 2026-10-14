@@ -1,0 +1,39 @@
+{
+  "name": "billed_call_is_not_repeated_after_a_read_timeout",
+  "description": "Search charges once it has done the work, so a request that timed out after it was sent may already be charged. A repeat that returns different rows is charged for them, so it is raised rather than repeated.",
+  "responses": [
+    {
+      "network": "read_timeout"
+    },
+    {
+      "status": 200,
+      "headers": {
+        "X-Request-Id": "req_ok"
+      },
+      "body": {
+        "results": [],
+        "total": 0,
+        "total_is_estimate": false,
+        "has_more": false,
+        "next_cursor": null,
+        "resolved_search": null,
+        "attribution": [],
+        "degradation": [],
+        "meta": {
+          "request_id": "req_ok",
+          "environment": "test",
+          "as_of": "2026-08-13T00:00:00Z",
+          "credential": "api_key"
+        }
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "no_sleep": true,
+    "error": {
+      "concept": "timeout",
+      "reached_server": true
+    }
+  }
+}

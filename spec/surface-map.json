@@ -1,0 +1,354 @@
+{
+  "$comment": "The public surface both SDKs expose (contract 02 §2): each group, the endpoints it wraps as `METHOD path` exactly as openapi.json spells them, and the client attribute paths that reach them in each language. Page-iteration helpers (`auto_paginate`, `*Pages`) are left out: §6 lets each language keep its own idiom there. Case follows the language; the shape does not. `absent` lists attribute names that must not exist on a client — the old `usage` namespace collided with credits.usage.",
+  "version": 1,
+  "groups": [
+    {
+      "group": "search",
+      "endpoints": [
+        "POST /v1/search"
+      ],
+      "python": [
+        "search"
+      ],
+      "js": [
+        "search"
+      ]
+    },
+    {
+      "group": "similar",
+      "endpoints": [
+        "POST /v1/similar"
+      ],
+      "python": [
+        "similar"
+      ],
+      "js": [
+        "similar"
+      ]
+    },
+    {
+      "group": "filter_values",
+      "endpoints": [
+        "GET /v1/search/filters/{name}"
+      ],
+      "python": [
+        "filter_values",
+        "iter_filter_values"
+      ],
+      "js": [
+        "filterValues",
+        "iterFilterValues"
+      ]
+    },
+    {
+      "group": "document_filter_values",
+      "endpoints": [
+        "GET /v1/search/filters/{category}/{name}"
+      ],
+      "python": [
+        "document_filter_values",
+        "iter_document_filter_values"
+      ],
+      "js": [
+        "documentFilterValues",
+        "iterDocumentFilterValues"
+      ]
+    },
+    {
+      "group": "sorts",
+      "endpoints": [
+        "GET /v1/sorts/{category}"
+      ],
+      "python": [
+        "sorts"
+      ],
+      "js": [
+        "sorts"
+      ]
+    },
+    {
+      "group": "coverage",
+      "endpoints": [
+        "GET /v1/coverage"
+      ],
+      "python": [
+        "coverage"
+      ],
+      "js": [
+        "coverage"
+      ]
+    },
+    {
+      "group": "entities",
+      "endpoints": [
+        "POST /v1/entities/companies",
+        "POST /v1/entities/persons",
+        "POST /v1/entities/patents",
+        "POST /v1/entities/news",
+        "POST /v1/entities/trends",
+        "POST /v1/entities/market-reports",
+        "POST /v1/entities/fundings",
+        "POST /v1/entities/academic-reports",
+        "POST /v1/entities/job-openings"
+      ],
+      "python": [
+        "entities.companies",
+        "entities.persons",
+        "entities.patents",
+        "entities.news",
+        "entities.trends",
+        "entities.market_reports",
+        "entities.fundings",
+        "entities.academic_reports",
+        "entities.job_openings"
+      ],
+      "js": [
+        "entities.companies",
+        "entities.persons",
+        "entities.patents",
+        "entities.news",
+        "entities.trends",
+        "entities.marketReports",
+        "entities.fundings",
+        "entities.academicReports",
+        "entities.jobOpenings"
+      ]
+    },
+    {
+      "group": "relationships",
+      "endpoints": [
+        "POST /v1/relationships"
+      ],
+      "python": [
+        "relationships.find"
+      ],
+      "js": [
+        "relationships.find"
+      ]
+    },
+    {
+      "group": "relationships_reach",
+      "endpoints": [
+        "POST /v1/relationships/reach"
+      ],
+      "python": [
+        "relationships.reach"
+      ],
+      "js": [
+        "relationships.reach"
+      ]
+    },
+    {
+      "group": "relationships_institutions",
+      "endpoints": [
+        "POST /v1/relationships/institutions"
+      ],
+      "python": [
+        "relationships.institutions"
+      ],
+      "js": [
+        "relationships.institutions"
+      ]
+    },
+    {
+      "group": "relationships_ask",
+      "endpoints": [
+        "POST /v1/relationships/ask"
+      ],
+      "python": [
+        "relationships.ask"
+      ],
+      "js": [
+        "relationships.ask"
+      ]
+    },
+    {
+      "group": "org_chart",
+      "endpoints": [
+        "POST /v1/org-chart",
+        "POST /v1/org-chart/departments",
+        "POST /v1/org-chart/locations"
+      ],
+      "python": [
+        "org_chart.retrieve",
+        "org_chart.departments",
+        "org_chart.locations"
+      ],
+      "js": [
+        "orgChart.retrieve",
+        "orgChart.departments",
+        "orgChart.locations"
+      ]
+    },
+    {
+      "group": "runs",
+      "endpoints": [
+        "POST /v1/agents/runs",
+        "GET /v1/agents/runs",
+        "GET /v1/agents/runs/{run_id}",
+        "POST /v1/agents/runs/{run_id}/cancel",
+        "GET /v1/agents/runs/{run_id}/events",
+        "GET /v1/agents/runs/{run_id}/results"
+      ],
+      "python": [
+        "runs.create",
+        "runs.list",
+        "runs.retrieve",
+        "runs.cancel",
+        "runs.wait",
+        "runs.events",
+        "runs.results"
+      ],
+      "js": [
+        "runs.create",
+        "runs.list",
+        "runs.retrieve",
+        "runs.cancel",
+        "runs.wait",
+        "runs.events",
+        "runs.results"
+      ]
+    },
+    {
+      "group": "credits",
+      "endpoints": [
+        "GET /v1/credits"
+      ],
+      "python": [
+        "credits.retrieve"
+      ],
+      "js": [
+        "credits.retrieve"
+      ]
+    },
+    {
+      "group": "key_usage",
+      "endpoints": [
+        "GET /v1/keys/usage"
+      ],
+      "python": [
+        "credits.usage"
+      ],
+      "js": [
+        "credits.usage"
+      ]
+    },
+    {
+      "group": "history",
+      "endpoints": [
+        "GET /v1/usage/history",
+        "GET /v1/usage/history/{run_id}",
+        "GET /v1/usage/metrics"
+      ],
+      "python": [
+        "history.list",
+        "history.retrieve",
+        "history.metrics"
+      ],
+      "js": [
+        "history.list",
+        "history.retrieve",
+        "history.metrics"
+      ]
+    },
+    {
+      "group": "feedback",
+      "endpoints": [
+        "POST /v1/feedback",
+        "GET /v1/feedback",
+        "GET /v1/feedback/tags"
+      ],
+      "python": [
+        "feedback.create",
+        "feedback.list",
+        "feedback.tags"
+      ],
+      "js": [
+        "feedback.create",
+        "feedback.list",
+        "feedback.tags"
+      ]
+    },
+    {
+      "group": "feedback_votes",
+      "endpoints": [
+        "PUT /v1/feedback/votes",
+        "GET /v1/feedback/votes"
+      ],
+      "python": [
+        "feedback.votes.cast",
+        "feedback.votes.list"
+      ],
+      "js": [
+        "feedback.votes.cast",
+        "feedback.votes.list"
+      ]
+    },
+    {
+      "group": "members",
+      "endpoints": [
+        "POST /v1/members/resolve"
+      ],
+      "python": [
+        "members.resolve"
+      ],
+      "js": [
+        "members.resolve"
+      ]
+    },
+    {
+      "group": "lists",
+      "endpoints": [
+        "GET /v1/lists",
+        "POST /v1/lists",
+        "PATCH /v1/lists/{list_id}",
+        "DELETE /v1/lists/{list_id}",
+        "GET /v1/lists/{list_id}/items",
+        "POST /v1/lists/{list_id}/items",
+        "DELETE /v1/lists/{list_id}/items",
+        "POST /v1/lists/{list_id}/export"
+      ],
+      "python": [
+        "lists.list",
+        "lists.create",
+        "lists.rename",
+        "lists.delete",
+        "lists.items",
+        "lists.add_items",
+        "lists.remove_items",
+        "lists.export"
+      ],
+      "js": [
+        "lists.list",
+        "lists.create",
+        "lists.rename",
+        "lists.delete",
+        "lists.items",
+        "lists.addItems",
+        "lists.removeItems",
+        "lists.export"
+      ]
+    },
+    {
+      "group": "search_export",
+      "endpoints": [
+        "POST /v1/search/export"
+      ],
+      "python": [
+        "search_export"
+      ],
+      "js": [
+        "searchExport"
+      ]
+    }
+  ],
+  "absent": {
+    "python": [
+      "usage"
+    ],
+    "js": [
+      "usage",
+      "agents"
+    ]
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "name": "retry_after_as_an_http_date_is_honoured_and_capped",
+  "description": "Retry-After may be an HTTP date. One years away is far beyond the 60-second cap, so the client raises at once instead of retrying with backoff.",
+  "responses": [
+    {
+      "status": 429,
+      "headers": {
+        "Retry-After": "Wed, 01 Jan 2031 00:00:00 GMT"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/quota-monthly-exhausted",
+        "title": "Monthly quota exhausted",
+        "status": 429,
+        "code": "quota.monthly_exhausted"
+      }
+    },
+    {
+      "status": 200,
+      "headers": {
+        "X-Request-Id": "req_ok"
+      },
+      "body": {
+        "results": [],
+        "total": 0,
+        "total_is_estimate": false,
+        "has_more": false,
+        "next_cursor": null,
+        "resolved_search": null,
+        "attribution": [],
+        "degradation": [],
+        "meta": {
+          "request_id": "req_ok",
+          "environment": "test",
+          "as_of": "2026-08-13T00:00:00Z",
+          "credential": "api_key"
+        }
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "no_sleep": true,
+    "error": {
+      "concept": "rate_limit"
+    }
+  }
+}

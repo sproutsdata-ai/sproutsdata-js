@@ -1,0 +1,23 @@
+{
+  "description": "A call to a tool this toolset does not offer is answered with an error, so the conversation stays valid.",
+  "tool": "sprouts_relationships",
+  "options": {},
+  "arguments": {
+    "companies": [
+      "stripe.com",
+      "adyen.com"
+    ]
+  },
+  "response": null,
+  "expected_request": null,
+  "expected_output": {
+    "error": {
+      "code": "unknown_tool",
+      "field_errors": [],
+      "message": "No tool named `sprouts_relationships` is available here. Available: sprouts_search, sprouts_similar, sprouts_entity_lookup.",
+      "request_id": null,
+      "retry_after": null,
+      "retryable": false
+    }
+  }
+}

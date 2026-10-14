@@ -1,0 +1,34 @@
+{
+  "name": "not_implemented_is_never_retried",
+  "description": "A 501 names a capability the server cannot provide for this request. Retrying cannot help: the answer will not change until the feature ships.",
+  "request": {
+    "method": "POST",
+    "path": "/v1/search",
+    "body": {
+      "query": "fintech",
+      "mode": "deep"
+    }
+  },
+  "responses": [
+    {
+      "status": 501,
+      "headers": {
+        "X-Request-Id": "req_501"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/not-implemented",
+        "title": "Not implemented",
+        "status": 501,
+        "code": "not_implemented",
+        "detail": "`mode: deep` is not available yet."
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "no_sleep": true,
+    "error": {
+      "concept": "feature_not_available"
+    }
+  }
+}

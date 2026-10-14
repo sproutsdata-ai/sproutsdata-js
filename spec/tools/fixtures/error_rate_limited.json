@@ -1,0 +1,53 @@
+{
+  "description": "A 429 with `Retry-After`. Returned as data, `retryable: true`, with the wait in seconds. (Run with retries disabled, so the SDK's own retry does not absorb it.)",
+  "tool": "sprouts_similar",
+  "options": {},
+  "arguments": {
+    "anchors": [
+      {
+        "value": "adyen.com"
+      }
+    ]
+  },
+  "response": {
+    "status": 429,
+    "headers": {
+      "X-Request-Id": "req_19c7e4f0aa",
+      "Retry-After": "2"
+    },
+    "body": {
+      "type": "https://docs.sprouts.ai/errors/quota-burst-exceeded",
+      "title": "Too many requests",
+      "status": 429,
+      "code": "quota.burst_exceeded",
+      "detail": "Burst limit of 10 requests per second exceeded.",
+      "request_id": "req_19c7e4f0aa"
+    }
+  },
+  "expected_request": {
+    "method": "POST",
+    "path": "/v1/similar",
+    "body": {
+      "anchors": [
+        {
+          "value": "adyen.com",
+          "by": "domain",
+          "weight": 1
+        }
+      ],
+      "category": "company",
+      "combine": "and",
+      "limit": 10
+    }
+  },
+  "expected_output": {
+    "error": {
+      "code": "quota.burst_exceeded",
+      "field_errors": [],
+      "message": "Burst limit of 10 requests per second exceeded.",
+      "request_id": "req_19c7e4f0aa",
+      "retry_after": 2,
+      "retryable": true
+    }
+  }
+}

@@ -1,0 +1,269 @@
+{
+  "description": "A person search with explicit filters and `fields`. Rows are projected to the named fields plus `id` and `category`; the `lookup` hint is computed from the full row (LinkedIn URL) even though `linkedin_url` was not asked for. `total_is_estimate` stays true, and a row without a LinkedIn URL is called out.",
+  "tool": "sprouts_search",
+  "options": {},
+  "arguments": {
+    "query": "marketing leaders",
+    "category": "person",
+    "filters": {
+      "seniority": {
+        "include": [
+          "VP",
+          "Director / Head"
+        ]
+      },
+      "department": {
+        "include": [
+          "Marketing"
+        ]
+      },
+      "geo": {
+        "places": [
+          {
+            "value": "germany",
+            "level": "country"
+          }
+        ]
+      }
+    },
+    "fields": [
+      "contact_name",
+      "title",
+      "seniority",
+      "skills",
+      "account_name"
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "X-Request-Id": "req_c07e5a19b4"
+    },
+    "body": {
+      "results": [
+        {
+          "id": "00871f2ea4c39b06",
+          "category": "person",
+          "score": 12.41,
+          "contact_name": "Lena Hoffmann",
+          "title": "VP Marketing",
+          "seniority": "VP",
+          "department": "Marketing",
+          "skills": [
+            "Demand Generation",
+            "Marketing Strategy",
+            "B2B Marketing",
+            "Account-Based Marketing",
+            "SEO",
+            "Content Strategy",
+            "Marketing Automation",
+            "HubSpot",
+            "Salesforce",
+            "Team Leadership",
+            "Product Marketing",
+            "Brand Management",
+            "Go-to-Market Strategy",
+            "Public Speaking",
+            "Budgeting",
+            "Analytics",
+            "Event Marketing",
+            "Partnerships"
+          ],
+          "location": "Berlin, Germany",
+          "country": "Germany",
+          "linkedin_url": "https://www.linkedin.com/in/lena-hoffmann-example",
+          "account_name": "Brightloop",
+          "domain": "brightloop.io",
+          "company_linkedin_url": "https://www.linkedin.com/company/brightloop",
+          "employee_count": 240
+        },
+        {
+          "id": "5be0c7a41f9d2e63",
+          "category": "person",
+          "score": 11.9,
+          "contact_name": "Jonas Weber",
+          "title": "Director of Brand Marketing",
+          "seniority": "Director / Head",
+          "department": "Marketing",
+          "skills": [
+            "Brand Strategy",
+            "Content Marketing"
+          ],
+          "account_name": "Quillstack",
+          "linkedin_url": null
+        }
+      ],
+      "total": 1843,
+      "total_is_estimate": true,
+      "has_more": false,
+      "next_cursor": null,
+      "resolved_search": {
+        "parser_version": "none",
+        "mode": "fast",
+        "category": "person",
+        "query": "marketing leaders",
+        "filters": {
+          "seniority": {
+            "include": [
+              "VP",
+              "Director / Head"
+            ]
+          },
+          "department": {
+            "include": [
+              "Marketing"
+            ]
+          },
+          "geo": {
+            "places": [
+              {
+                "value": "germany",
+                "level": "country",
+                "scope": "subject",
+                "negate": false
+              }
+            ]
+          }
+        },
+        "filters_source": "caller",
+        "semantic_query": null,
+        "sort": [],
+        "conflicts": [],
+        "overrides": []
+      },
+      "suggestion": null,
+      "coverage": null,
+      "attribution": [
+        {
+          "source_corpus": "companies",
+          "domain": null,
+          "as_of": "2026-09-28T00:00:00Z",
+          "url": null,
+          "quote": null
+        }
+      ],
+      "degradation": [],
+      "columns": null,
+      "meta": {
+        "request_id": "req_c07e5a19b4",
+        "environment": "test",
+        "as_of": "2026-10-01T09:12:44Z",
+        "credential": "api_key"
+      }
+    }
+  },
+  "expected_request": {
+    "method": "POST",
+    "path": "/v1/search",
+    "body": {
+      "category": "person",
+      "query": "marketing leaders",
+      "mode": "fast",
+      "limit": 10,
+      "filters": {
+        "seniority": {
+          "include": [
+            "VP",
+            "Director / Head"
+          ]
+        },
+        "department": {
+          "include": [
+            "Marketing"
+          ]
+        },
+        "geo": {
+          "places": [
+            {
+              "value": "germany",
+              "level": "country"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "expected_output": {
+    "caveats": [
+      "rows_without_lookup: 1 of 2 rows carry no domain or LinkedIn URL, so they have no `lookup` value and cannot be looked up."
+    ],
+    "environment": "test",
+    "has_more": false,
+    "interpreted_as": {
+      "conflicts": [],
+      "filters": {
+        "department": {
+          "include": [
+            "Marketing"
+          ]
+        },
+        "geo": {
+          "places": [
+            {
+              "level": "country",
+              "negate": false,
+              "scope": "subject",
+              "value": "germany"
+            }
+          ]
+        },
+        "seniority": {
+          "include": [
+            "VP",
+            "Director / Head"
+          ]
+        }
+      },
+      "source": "caller"
+    },
+    "next_cursor": null,
+    "request_id": "req_c07e5a19b4",
+    "results": [
+      {
+        "account_name": "Brightloop",
+        "category": "person",
+        "contact_name": "Lena Hoffmann",
+        "id": "00871f2ea4c39b06",
+        "lookup": {
+          "by": "li_url",
+          "value": "https://www.linkedin.com/in/lena-hoffmann-example"
+        },
+        "seniority": "VP",
+        "skills": [
+          "Demand Generation",
+          "Marketing Strategy",
+          "B2B Marketing",
+          "Account-Based Marketing",
+          "SEO",
+          "Content Strategy",
+          "Marketing Automation",
+          "HubSpot",
+          "Salesforce",
+          "Team Leadership",
+          "Product Marketing",
+          "Brand Management",
+          "Go-to-Market Strategy",
+          "Public Speaking",
+          "Budgeting",
+          "… +3 more"
+        ],
+        "title": "VP Marketing"
+      },
+      {
+        "account_name": "Quillstack",
+        "category": "person",
+        "contact_name": "Jonas Weber",
+        "id": "5be0c7a41f9d2e63",
+        "seniority": "Director / Head",
+        "skills": [
+          "Brand Strategy",
+          "Content Marketing"
+        ],
+        "title": "Director of Brand Marketing"
+      }
+    ],
+    "suggestion": null,
+    "total": 1843,
+    "total_is_estimate": true
+  }
+}

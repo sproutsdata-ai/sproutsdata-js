@@ -1,0 +1,27 @@
+{
+  "name": "sprouts-js-monorepo",
+  "private": true,
+  "version": "0.0.0",
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w packages/sdk && npm run build --workspaces --if-present",
+    "typecheck": "npm run build -w packages/sdk && npm run typecheck --workspaces && npm run typecheck:examples",
+    "typecheck:examples": "tsc -p examples/tsconfig.json",
+    "test": "npm run build -w packages/sdk && npm run test --workspaces && npm run typecheck:examples && npm run check:links",
+    "lint": "eslint .",
+    "spec:sync": "node scripts/sync-spec.mjs",
+    "generate": "node scripts/gen-types.mjs && node scripts/gen-error-codes.mjs && node scripts/gen-tool-specs.mjs",
+    "check:generated": "node scripts/sync-spec.mjs --check && node scripts/gen-types.mjs --check && node scripts/gen-error-codes.mjs --check && node scripts/gen-tool-specs.mjs --check",
+    "check:links": "node scripts/check-links.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.11.0",
+    "openapi-typescript": "^7.13.0",
+    "typescript-eslint": "^8.71.0"
+  }
+}

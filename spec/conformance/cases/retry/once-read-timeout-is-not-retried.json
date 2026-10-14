@@ -1,0 +1,37 @@
+{
+  "name": "feedback_is_not_filed_twice_after_a_read_timeout",
+  "description": "Feedback is free, but repeating a POST that may have landed files a duplicate report.",
+  "request": {
+    "method": "POST",
+    "path": "/v1/feedback",
+    "body": {
+      "subject": {
+        "kind": "request",
+        "id": "req_abc"
+      },
+      "target": {
+        "kind": "result_set"
+      },
+      "sentiment": "bad",
+      "comment": "wrong rows"
+    }
+  },
+  "responses": [
+    {
+      "network": "read_timeout"
+    },
+    {
+      "status": 201,
+      "headers": {},
+      "body": {}
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "no_sleep": true,
+    "error": {
+      "concept": "timeout",
+      "reached_server": true
+    }
+  }
+}

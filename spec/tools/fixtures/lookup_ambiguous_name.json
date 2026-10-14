@@ -1,0 +1,134 @@
+{
+  "description": "A company lookup by name that matched four companies. `ambiguous` is true and three matches are shown, then a marker for the rest.",
+  "tool": "sprouts_entity_lookup",
+  "options": {},
+  "arguments": {
+    "category": "company",
+    "ids": [
+      "Mercury"
+    ],
+    "by": "name"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "X-Request-Id": "req_0a9d3c5e81"
+    },
+    "body": {
+      "results": [
+        {
+          "id": "Mercury",
+          "category": "company",
+          "found": true,
+          "matches": [
+            {
+              "id": "mercury.com",
+              "account_name": "Mercury",
+              "domain": "mercury.com",
+              "industry": "Financial Services",
+              "employee_count": 1100,
+              "country": "United States"
+            },
+            {
+              "id": "mercuryinsurance.com",
+              "account_name": "Mercury Insurance",
+              "domain": "mercuryinsurance.com",
+              "industry": "Insurance",
+              "employee_count": 4300,
+              "country": "United States"
+            },
+            {
+              "id": "mercurysystems.com",
+              "account_name": "Mercury Systems",
+              "domain": "mercurysystems.com",
+              "industry": "Aerospace & Defense",
+              "employee_count": 2400,
+              "country": "United States"
+            },
+            {
+              "id": "mercury-marine.com",
+              "account_name": "Mercury Marine",
+              "domain": "mercury-marine.com",
+              "industry": "Manufacturing",
+              "employee_count": 6000,
+              "country": "United States"
+            }
+          ]
+        }
+      ],
+      "total": 1,
+      "total_is_estimate": false,
+      "has_more": false,
+      "next_cursor": null,
+      "resolved_search": null,
+      "suggestion": null,
+      "coverage": null,
+      "attribution": [
+        {
+          "source_corpus": "companies",
+          "domain": null,
+          "as_of": "2026-09-28T00:00:00Z",
+          "url": null,
+          "quote": null
+        }
+      ],
+      "degradation": [],
+      "columns": null,
+      "meta": {
+        "request_id": "req_0a9d3c5e81",
+        "environment": "test",
+        "as_of": "2026-10-01T09:12:44Z",
+        "credential": "api_key"
+      }
+    }
+  },
+  "expected_request": {
+    "method": "POST",
+    "path": "/v1/entities/companies",
+    "body": {
+      "ids": [
+        "Mercury"
+      ],
+      "by": "name"
+    }
+  },
+  "expected_output": {
+    "caveats": [],
+    "environment": "test",
+    "request_id": "req_0a9d3c5e81",
+    "results": [
+      {
+        "ambiguous": true,
+        "found": true,
+        "id": "Mercury",
+        "matches": [
+          {
+            "account_name": "Mercury",
+            "country": "United States",
+            "domain": "mercury.com",
+            "employee_count": 1100,
+            "id": "mercury.com",
+            "industry": "Financial Services"
+          },
+          {
+            "account_name": "Mercury Insurance",
+            "country": "United States",
+            "domain": "mercuryinsurance.com",
+            "employee_count": 4300,
+            "id": "mercuryinsurance.com",
+            "industry": "Insurance"
+          },
+          {
+            "account_name": "Mercury Systems",
+            "country": "United States",
+            "domain": "mercurysystems.com",
+            "employee_count": 2400,
+            "id": "mercurysystems.com",
+            "industry": "Aerospace & Defense"
+          },
+          "… +1 more"
+        ]
+      }
+    ]
+  }
+}

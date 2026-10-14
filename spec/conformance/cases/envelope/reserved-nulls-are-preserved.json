@@ -1,0 +1,47 @@
+{
+  "name": "reserved_null_attribution_fields_are_preserved",
+  "description": "attribution[].url and .quote are reserved and always null today. They must be readable as null rather than absent, so the day they carry values is a data change and not a client change.",
+  "responses": [
+    {
+      "status": 200,
+      "headers": {},
+      "body": {
+        "results": [
+          {
+            "id": "a.com",
+            "category": "company",
+            "score": 1.0
+          }
+        ],
+        "total": 1,
+        "total_is_estimate": false,
+        "has_more": false,
+        "next_cursor": null,
+        "resolved_search": null,
+        "attribution": [
+          {
+            "source_corpus": "gtm_index",
+            "domain": null,
+            "as_of": "2026-08-13T00:00:00Z",
+            "url": null,
+            "quote": null
+          }
+        ],
+        "degradation": [],
+        "meta": {
+          "request_id": "req_ok",
+          "environment": "test",
+          "as_of": "2026-08-13T00:00:00Z",
+          "credential": "api_key"
+        }
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "success": {
+      "attribution_length": 1,
+      "attribution_url_is_none": true
+    }
+  }
+}

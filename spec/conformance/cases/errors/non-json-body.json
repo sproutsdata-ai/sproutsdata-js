@@ -1,0 +1,19 @@
+{
+  "name": "non_json_error_body_does_not_mask_the_failure",
+  "description": "A proxy's HTML 502 page must not become a JSON decode error. The real failure is the 502.",
+  "responses": [
+    {
+      "status": 502,
+      "headers": {},
+      "raw_body": "<html><body>Bad Gateway</body></html>",
+      "content_type": "text/html"
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "error": {
+      "concept": "api_status",
+      "status": 502
+    }
+  }
+}

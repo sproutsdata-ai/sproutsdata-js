@@ -1,0 +1,427 @@
+{
+  "name": "sprouts_similar",
+  "description": "Find companies that resemble 1-10 ANCHOR COMPANIES you name: for \"more like these\", never for a description. If you have examples, do not paraphrase them into words. Prefer anchors by domain; a name is matched with no disambiguation step and may resolve to a same-named company. `combine: \"and\"` reads as \"like all of these together\" and is usually what \"more companies like our best customers\" means. `filters` narrow which look-alikes come back without changing who counts as similar.\n\nThe API does not report which anchors resolved. If some fail, the call still succeeds on the rest, so never claim the results match every anchor you sent. Rows and totals read exactly as in a search result: check `caveats`, and treat `total` as a floor when `total_is_estimate` is true.\n\nBilled 2 credits for the first 10 results, then 1 per next 10; a call that finds nothing is free. `environment: \"test\"` in a result means a test key: real records, zero credits.",
+  "description_hints": {
+    "sprouts_search": "For people, or for a description rather than examples, use sprouts_search.",
+    "sprouts_entity_lookup": "To get a row's full record, call sprouts_entity_lookup with the row's `lookup` value (`by: \"domain\"` and the domain). Never pass a row's `id`: it cannot be looked up."
+  },
+  "refused_arguments": {
+    "category": "Look-alike search is company-only. Remove `category`: anything else is refused rather than quietly answering a different question.",
+    "query": "Look-alike search takes anchor companies, not a description. Put the companies in `anchors`."
+  },
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "anchors": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 10,
+        "description": "The companies to find look-alikes for.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "description": "A domain (preferred), LinkedIn company URL or company name."
+            },
+            "by": {
+              "type": "string",
+              "enum": [
+                "domain",
+                "li_url",
+                "name"
+              ],
+              "default": "domain",
+              "description": "What `value` is. A record id is not accepted."
+            },
+            "weight": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 1,
+              "description": "Relative influence; 0 effectively drops the anchor."
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "combine": {
+        "type": "string",
+        "enum": [
+          "and",
+          "or"
+        ],
+        "default": "and",
+        "description": "`and`: one combined signal, \"like ALL of these together\". `or`: \"like ANY one of these\", broader. Ignored with a single anchor."
+      },
+      "filters": {
+        "type": "object",
+        "description": "Narrow which look-alikes come back: \"like Stripe, but in Germany\" is `geo`. Anchors decide similarity; filters only subset the result.",
+        "properties": {
+          "industry": {
+            "type": "object",
+            "description": "Industry labels, for example `Software & Technology`.",
+            "properties": {
+              "include": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "exclude": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "b2b_b2c": {
+            "type": "object",
+            "description": "Business model, for example `B2B`.",
+            "properties": {
+              "include": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "exclude": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "geo": {
+            "type": "object",
+            "description": "Location, the only geography filter: {\"places\":[{\"value\":\"germany\",\"level\":\"country\"}]}.",
+            "properties": {
+              "places": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "level": {
+                      "type": "string",
+                      "enum": [
+                        "country",
+                        "state",
+                        "city",
+                        "region"
+                      ]
+                    },
+                    "negate": {
+                      "type": "boolean",
+                      "description": "Exclude this place instead of requiring it."
+                    }
+                  },
+                  "required": [
+                    "value",
+                    "level"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "places"
+            ],
+            "additionalProperties": false
+          },
+          "employee_count": {
+            "type": "object",
+            "description": "Headcount range, both bounds inclusive: {\"gte\":50,\"lte\":500}.",
+            "properties": {
+              "gte": {
+                "type": "integer"
+              },
+              "lte": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "limit": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100,
+        "default": 10,
+        "description": "Rows per page. The application may cap it lower; the result says so in `caveats`."
+      },
+      "cursor": {
+        "type": "string",
+        "description": "From a previous result's `next_cursor`. Resend the same request unchanged plus the cursor."
+      },
+      "fields": {
+        "type": "array",
+        "description": "Return only these record fields (plus `id` and `category`). Omit for a compact default set.",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "required": [
+      "anchors"
+    ],
+    "additionalProperties": false
+  },
+  "strict_input_schema": {
+    "type": "object",
+    "properties": {
+      "anchors": {
+        "description": "The companies to find look-alikes for. 1-10 items.",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "description": "A domain (preferred), LinkedIn company URL or company name. Not empty.",
+              "type": "string"
+            },
+            "by": {
+              "description": "What `value` is. A record id is not accepted. Default: `domain`.",
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "domain",
+                "li_url",
+                "name",
+                null
+              ]
+            },
+            "weight": {
+              "description": "Relative influence; 0 effectively drops the anchor. Between 0 and 1. Default: 1.",
+              "type": [
+                "number",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "value",
+            "by",
+            "weight"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "combine": {
+        "description": "`and`: one combined signal, \"like ALL of these together\". `or`: \"like ANY one of these\", broader. Ignored with a single anchor. Default: `and`.",
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "and",
+          "or",
+          null
+        ]
+      },
+      "filters": {
+        "description": "Narrow which look-alikes come back: \"like Stripe, but in Germany\" is `geo`. Anchors decide similarity; filters only subset the result.",
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "industry": {
+            "description": "Industry labels, for example `Software & Technology`.",
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "include": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "exclude": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "include",
+              "exclude"
+            ],
+            "additionalProperties": false
+          },
+          "b2b_b2c": {
+            "description": "Business model, for example `B2B`.",
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "include": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "exclude": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "include",
+              "exclude"
+            ],
+            "additionalProperties": false
+          },
+          "geo": {
+            "description": "Location, the only geography filter: {\"places\":[{\"value\":\"germany\",\"level\":\"country\"}]}.",
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "places": {
+                "description": "At least one item.",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "description": "Not empty.",
+                      "type": "string"
+                    },
+                    "level": {
+                      "type": "string",
+                      "enum": [
+                        "country",
+                        "state",
+                        "city",
+                        "region"
+                      ]
+                    },
+                    "negate": {
+                      "description": "Exclude this place instead of requiring it.",
+                      "type": [
+                        "boolean",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "value",
+                    "level",
+                    "negate"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "places"
+            ],
+            "additionalProperties": false
+          },
+          "employee_count": {
+            "description": "Headcount range, both bounds inclusive: {\"gte\":50,\"lte\":500}.",
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "gte": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "lte": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "gte",
+              "lte"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "industry",
+          "b2b_b2c",
+          "geo",
+          "employee_count"
+        ],
+        "additionalProperties": false
+      },
+      "limit": {
+        "description": "Rows per page. The application may cap it lower; the result says so in `caveats`. Between 1 and 100. Default: 10.",
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "cursor": {
+        "description": "From a previous result's `next_cursor`. Resend the same request unchanged plus the cursor.",
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "fields": {
+        "description": "Return only these record fields (plus `id` and `category`). Omit for a compact default set.",
+        "type": [
+          "array",
+          "null"
+        ],
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "required": [
+      "anchors",
+      "combine",
+      "filters",
+      "limit",
+      "cursor",
+      "fields"
+    ],
+    "additionalProperties": false
+  }
+}

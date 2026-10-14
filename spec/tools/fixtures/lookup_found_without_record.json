@@ -1,0 +1,77 @@
+{
+  "description": "A person lookup that resolved but returned no record. Reported as `found: true` with empty `matches`, never as a miss, and explained in `caveats`.",
+  "tool": "sprouts_entity_lookup",
+  "options": {},
+  "arguments": {
+    "category": "person",
+    "ids": [
+      "https://www.linkedin.com/in/ada-example"
+    ],
+    "by": "li_url"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "X-Request-Id": "req_6c2e90b1d4"
+    },
+    "body": {
+      "results": [
+        {
+          "id": "https://www.linkedin.com/in/ada-example",
+          "category": "person",
+          "found": true,
+          "matches": []
+        }
+      ],
+      "total": 1,
+      "total_is_estimate": false,
+      "has_more": false,
+      "next_cursor": null,
+      "resolved_search": null,
+      "suggestion": null,
+      "coverage": null,
+      "attribution": [
+        {
+          "source_corpus": "companies",
+          "domain": null,
+          "as_of": "2026-09-28T00:00:00Z",
+          "url": null,
+          "quote": null
+        }
+      ],
+      "degradation": [],
+      "columns": null,
+      "meta": {
+        "request_id": "req_6c2e90b1d4",
+        "environment": "test",
+        "as_of": "2026-10-01T09:12:44Z",
+        "credential": "api_key"
+      }
+    }
+  },
+  "expected_request": {
+    "method": "POST",
+    "path": "/v1/entities/persons",
+    "body": {
+      "ids": [
+        "https://www.linkedin.com/in/ada-example"
+      ],
+      "by": "li_url"
+    }
+  },
+  "expected_output": {
+    "caveats": [
+      "record_unavailable: https://www.linkedin.com/in/ada-example — resolved, but no record came back. This is not a miss."
+    ],
+    "environment": "test",
+    "request_id": "req_6c2e90b1d4",
+    "results": [
+      {
+        "ambiguous": false,
+        "found": true,
+        "id": "https://www.linkedin.com/in/ada-example",
+        "matches": []
+      }
+    ]
+  }
+}

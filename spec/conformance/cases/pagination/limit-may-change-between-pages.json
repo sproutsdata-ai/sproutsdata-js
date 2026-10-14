@@ -1,0 +1,78 @@
+{
+  "name": "limit_is_the_one_field_that_may_change",
+  "description": "limit is excluded from the cursor fingerprint, so varying it is legal where varying anything else is not.",
+  "request": {
+    "method": "POST",
+    "path": "/v1/search",
+    "body": {
+      "query": "fintech",
+      "limit": 1
+    }
+  },
+  "responses": [
+    {
+      "status": 200,
+      "headers": {},
+      "body": {
+        "results": [
+          {
+            "id": "a.com",
+            "category": "company",
+            "score": 1.0
+          }
+        ],
+        "total": 9,
+        "total_is_estimate": false,
+        "has_more": true,
+        "next_cursor": "CURSOR_L",
+        "resolved_search": null,
+        "attribution": [],
+        "degradation": [],
+        "meta": {
+          "request_id": "req_ok",
+          "environment": "test",
+          "as_of": "2026-08-13T00:00:00Z",
+          "credential": "api_key"
+        }
+      }
+    },
+    {
+      "status": 200,
+      "headers": {},
+      "body": {
+        "results": [
+          {
+            "id": "b.com",
+            "category": "company",
+            "score": 0.9
+          }
+        ],
+        "total": 9,
+        "total_is_estimate": false,
+        "has_more": false,
+        "next_cursor": null,
+        "resolved_search": null,
+        "attribution": [],
+        "degradation": [],
+        "meta": {
+          "request_id": "req_ok",
+          "environment": "test",
+          "as_of": "2026-08-13T00:00:00Z",
+          "credential": "api_key"
+        }
+      }
+    }
+  ],
+  "paginate": "next_page",
+  "next_page_limit": 50,
+  "expect": {
+    "attempts": 2,
+    "sent": [
+      {},
+      {
+        "cursor": "CURSOR_L",
+        "limit": 50
+      }
+    ]
+  }
+}

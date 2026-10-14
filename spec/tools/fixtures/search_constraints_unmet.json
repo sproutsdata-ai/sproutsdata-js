@@ -1,0 +1,180 @@
+{
+  "description": "A company search whose query asked for more than the search can express. Each `coverage.constraints_unmet` entry is a string in the query's own words and becomes one `constraint_unmet` caveat, in the server's order. Nothing was truncated, so there is no `coverage_truncated` caveat, and the parser ran, so there is no `parser_not_run`.",
+  "tool": "sprouts_search",
+  "options": {},
+  "arguments": {
+    "query": "German fintech companies that raised a Series B since 2024 and are hiring a CFO",
+    "mode": "auto",
+    "limit": 2
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "X-Request-Id": "req_5d81c0ae42"
+    },
+    "body": {
+      "results": [
+        {
+          "id": "paylane.de",
+          "category": "company",
+          "score": 0.7914,
+          "account_name": "Paylane",
+          "domain": "paylane.de",
+          "industry": "Financial Services",
+          "employee_count": 310,
+          "funding_stage": "Series B",
+          "country": "Germany"
+        },
+        {
+          "id": "3b0e9d4c71a2f856",
+          "category": "company",
+          "score": 0.7702,
+          "account_name": "Kontora",
+          "linkedin_url": "https://www.linkedin.com/company/kontora",
+          "industry": "Financial Services",
+          "employee_count": 95,
+          "country": "Germany"
+        }
+      ],
+      "total": 412,
+      "total_is_estimate": false,
+      "has_more": true,
+      "next_cursor": "eyJvIjoyfQ.7b2e",
+      "resolved_search": {
+        "parser_version": "2026-08-30",
+        "mode": "auto",
+        "category": "company",
+        "query": "German fintech companies that raised a Series B since 2024 and are hiring a CFO",
+        "filters": {
+          "industry": {
+            "include": [
+              "Financial Services"
+            ]
+          },
+          "geo": {
+            "include": [
+              {
+                "level": "country",
+                "value": "Germany"
+              }
+            ]
+          }
+        },
+        "filters_source": "parser",
+        "semantic_query": "fintech companies",
+        "sort": [],
+        "conflicts": [],
+        "overrides": []
+      },
+      "suggestion": null,
+      "coverage": {
+        "universe": 412,
+        "universe_is_exact": false,
+        "enumerated": 2,
+        "enumeration_recall": null,
+        "universe_exhausted": false,
+        "truncated_by": null,
+        "constraints_unmet": [
+          "raised a Series B since 2024",
+          "hiring a CFO"
+        ],
+        "audited": true,
+        "criteria": [],
+        "similarity": [],
+        "linkage": [],
+        "linkage_coverage": null,
+        "linkage_coverage_is_lower_bound": false
+      },
+      "attribution": [
+        {
+          "source_corpus": "companies",
+          "domain": null,
+          "as_of": "2026-09-28T00:00:00Z",
+          "url": null,
+          "quote": null
+        }
+      ],
+      "degradation": [],
+      "columns": null,
+      "meta": {
+        "request_id": "req_5d81c0ae42",
+        "environment": "test",
+        "as_of": "2026-10-01T10:02:17Z",
+        "credential": "api_key"
+      }
+    }
+  },
+  "expected_request": {
+    "method": "POST",
+    "path": "/v1/search",
+    "body": {
+      "category": "company",
+      "query": "German fintech companies that raised a Series B since 2024 and are hiring a CFO",
+      "mode": "auto",
+      "limit": 2
+    }
+  },
+  "expected_output": {
+    "caveats": [
+      "constraint_unmet: raised a Series B since 2024",
+      "constraint_unmet: hiring a CFO"
+    ],
+    "environment": "test",
+    "has_more": true,
+    "interpreted_as": {
+      "conflicts": [],
+      "filters": {
+        "geo": {
+          "include": [
+            {
+              "level": "country",
+              "value": "Germany"
+            }
+          ]
+        },
+        "industry": {
+          "include": [
+            "Financial Services"
+          ]
+        }
+      },
+      "source": "parser"
+    },
+    "next_cursor": "eyJvIjoyfQ.7b2e",
+    "request_id": "req_5d81c0ae42",
+    "results": [
+      {
+        "account_name": "Paylane",
+        "category": "company",
+        "country": "Germany",
+        "domain": "paylane.de",
+        "employee_count": 310,
+        "funding_stage": "Series B",
+        "id": "paylane.de",
+        "industry": "Financial Services",
+        "lookup": {
+          "by": "domain",
+          "value": "paylane.de"
+        },
+        "score": 0.7914
+      },
+      {
+        "account_name": "Kontora",
+        "category": "company",
+        "country": "Germany",
+        "employee_count": 95,
+        "id": "3b0e9d4c71a2f856",
+        "industry": "Financial Services",
+        "linkedin_url": "https://www.linkedin.com/company/kontora",
+        "lookup": {
+          "by": "li_url",
+          "value": "https://www.linkedin.com/company/kontora"
+        },
+        "score": 0.7702
+      }
+    ],
+    "suggestion": null,
+    "total": 412,
+    "total_is_estimate": false
+  }
+}

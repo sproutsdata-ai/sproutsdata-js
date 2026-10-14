@@ -1,0 +1,316 @@
+{
+  "description": "A company search whose filters the parser inferred from the words. Shows projection to the default company fields, a 300-character cut, a `technology` list capped at 15 with the inferred `HubSpot` moved to the front, `lookup` hints (by domain, by LinkedIn URL, and a row with neither), `interpreted_as` from `resolved_search`, and a degradation caveat.",
+  "tool": "sprouts_search",
+  "options": {},
+  "arguments": {
+    "query": "B2B software companies using HubSpot",
+    "mode": "auto",
+    "limit": 3
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "X-Request-Id": "req_9f2c41d07a"
+    },
+    "body": {
+      "results": [
+        {
+          "id": "brightloop.io",
+          "category": "company",
+          "score": 0.8731,
+          "account_name": "Brightloop",
+          "domain": "brightloop.io",
+          "linkedin_url": "https://www.linkedin.com/company/brightloop",
+          "industry": "Software & Technology",
+          "sub_industry": "Marketing Software",
+          "employee_count": 240,
+          "revenue": 31000000,
+          "founded_year": 2016,
+          "funding_stage": "Series B",
+          "total_funding": 48500000,
+          "technology": [
+            "Google Tag Manager",
+            "Google Analytics",
+            "Cloudflare",
+            "Amazon Web Services",
+            "React",
+            "Stripe",
+            "Intercom",
+            "Segment",
+            "Hotjar",
+            "Zendesk",
+            "Slack",
+            "Jira",
+            "Confluence",
+            "GitHub",
+            "Datadog",
+            "Sentry",
+            "PostgreSQL",
+            "Redis",
+            "Kubernetes",
+            "Terraform",
+            "Figma",
+            "Notion",
+            "Okta",
+            "Gong",
+            "Outreach",
+            "Salesforce",
+            "Marketo",
+            "Optimizely",
+            "LaunchDarkly",
+            "Snowflake",
+            "dbt",
+            "HubSpot",
+            "Looker",
+            "Mixpanel"
+          ],
+          "description": "Brightloop builds lifecycle marketing software for B2B revenue teams: it unifies product usage, CRM and billing data into one customer timeline, scores accounts on intent, and triggers multi-channel journeys across email, in-app and paid media. Customers use it to shorten sales cycles and expand existing accounts. The platform integrates natively with major CRMs and data warehouses.",
+          "location": "Austin, Texas, United States",
+          "country": "United States",
+          "city": "Austin",
+          "naics": [
+            "511210"
+          ],
+          "avatar": null
+        },
+        {
+          "id": "9c41e2a07b3d5f18",
+          "category": "company",
+          "score": 0.8612,
+          "account_name": "Quillstack",
+          "domain": null,
+          "linkedin_url": "https://www.linkedin.com/company/quillstack",
+          "industry": "Software & Technology",
+          "employee_count": 58,
+          "technology": [
+            "WordPress",
+            "Google Analytics",
+            "jQuery",
+            "Cloudflare",
+            "Mailchimp",
+            "Calendly",
+            "Typeform",
+            "Zapier",
+            "Webflow",
+            "Vimeo",
+            "Hotjar",
+            "Pipedrive",
+            "Notion",
+            "Slack",
+            "Stripe",
+            "Airtable",
+            "Hubspot CRM",
+            "HubSpot"
+          ],
+          "description": "Document automation for legal operations teams.",
+          "country": "Germany",
+          "revenue": null
+        },
+        {
+          "id": "0f7a39dd2e81c6b4",
+          "category": "company",
+          "score": 0.8507,
+          "account_name": "Northwind Analytics",
+          "industry": "Software & Technology",
+          "employee_count": 12,
+          "technology": [
+            "HubSpot",
+            "Google Analytics"
+          ],
+          "country": "United Kingdom",
+          "sub_industry": ""
+        }
+      ],
+      "total": 13137,
+      "total_is_estimate": false,
+      "has_more": true,
+      "next_cursor": "eyJvIjozfQ.c1a9",
+      "resolved_search": {
+        "parser_version": "2026-08-30",
+        "mode": "auto",
+        "category": "company",
+        "query": "B2B software companies using HubSpot",
+        "filters": {
+          "industry": {
+            "include": [
+              "Software & Technology"
+            ]
+          },
+          "b2b_b2c": {
+            "include": [
+              "B2B"
+            ]
+          },
+          "technology": {
+            "include": [
+              "hubspot"
+            ]
+          }
+        },
+        "filters_source": "parser",
+        "semantic_query": "B2B software companies",
+        "sort": [],
+        "conflicts": [],
+        "overrides": []
+      },
+      "suggestion": null,
+      "coverage": null,
+      "attribution": [
+        {
+          "source_corpus": "companies",
+          "domain": null,
+          "as_of": "2026-09-28T00:00:00Z",
+          "url": null,
+          "quote": null
+        }
+      ],
+      "degradation": [
+        {
+          "reason": "vector_coverage_incomplete",
+          "detail": "12% of company records have no embedding and were matched lexically only.",
+          "impact": "recall",
+          "source_corpus": "companies"
+        }
+      ],
+      "columns": null,
+      "meta": {
+        "request_id": "req_9f2c41d07a",
+        "environment": "test",
+        "as_of": "2026-10-01T09:12:44Z",
+        "credential": "api_key"
+      }
+    }
+  },
+  "expected_request": {
+    "method": "POST",
+    "path": "/v1/search",
+    "body": {
+      "category": "company",
+      "query": "B2B software companies using HubSpot",
+      "mode": "auto",
+      "limit": 3
+    }
+  },
+  "expected_output": {
+    "caveats": [
+      "vector_coverage_incomplete: 12% of company records have no embedding and were matched lexically only. (impact: recall)",
+      "rows_without_lookup: 1 of 3 rows carry no domain or LinkedIn URL, so they have no `lookup` value and cannot be looked up."
+    ],
+    "environment": "test",
+    "has_more": true,
+    "interpreted_as": {
+      "conflicts": [],
+      "filters": {
+        "b2b_b2c": {
+          "include": [
+            "B2B"
+          ]
+        },
+        "industry": {
+          "include": [
+            "Software & Technology"
+          ]
+        },
+        "technology": {
+          "include": [
+            "hubspot"
+          ]
+        }
+      },
+      "source": "parser"
+    },
+    "next_cursor": "eyJvIjozfQ.c1a9",
+    "request_id": "req_9f2c41d07a",
+    "results": [
+      {
+        "account_name": "Brightloop",
+        "category": "company",
+        "country": "United States",
+        "description": "Brightloop builds lifecycle marketing software for B2B revenue teams: it unifies product usage, CRM and billing data into one customer timeline, scores accounts on intent, and triggers multi-channel journeys across email, in-app and paid media. Customers use it to shorten sales cycles and expand exi…",
+        "domain": "brightloop.io",
+        "employee_count": 240,
+        "founded_year": 2016,
+        "funding_stage": "Series B",
+        "id": "brightloop.io",
+        "industry": "Software & Technology",
+        "linkedin_url": "https://www.linkedin.com/company/brightloop",
+        "location": "Austin, Texas, United States",
+        "lookup": {
+          "by": "domain",
+          "value": "brightloop.io"
+        },
+        "revenue": 31000000,
+        "score": 0.8731,
+        "sub_industry": "Marketing Software",
+        "technology": [
+          "HubSpot",
+          "Google Tag Manager",
+          "Google Analytics",
+          "Cloudflare",
+          "Amazon Web Services",
+          "React",
+          "Stripe",
+          "Intercom",
+          "Segment",
+          "Hotjar",
+          "Zendesk",
+          "Slack",
+          "Jira",
+          "Confluence",
+          "GitHub",
+          "… +19 more"
+        ],
+        "total_funding": 48500000
+      },
+      {
+        "account_name": "Quillstack",
+        "category": "company",
+        "country": "Germany",
+        "description": "Document automation for legal operations teams.",
+        "employee_count": 58,
+        "id": "9c41e2a07b3d5f18",
+        "industry": "Software & Technology",
+        "linkedin_url": "https://www.linkedin.com/company/quillstack",
+        "lookup": {
+          "by": "li_url",
+          "value": "https://www.linkedin.com/company/quillstack"
+        },
+        "score": 0.8612,
+        "technology": [
+          "HubSpot",
+          "WordPress",
+          "Google Analytics",
+          "jQuery",
+          "Cloudflare",
+          "Mailchimp",
+          "Calendly",
+          "Typeform",
+          "Zapier",
+          "Webflow",
+          "Vimeo",
+          "Hotjar",
+          "Pipedrive",
+          "Notion",
+          "Slack",
+          "… +3 more"
+        ]
+      },
+      {
+        "account_name": "Northwind Analytics",
+        "category": "company",
+        "country": "United Kingdom",
+        "employee_count": 12,
+        "id": "0f7a39dd2e81c6b4",
+        "industry": "Software & Technology",
+        "score": 0.8507,
+        "technology": [
+          "HubSpot",
+          "Google Analytics"
+        ]
+      }
+    ],
+    "suggestion": null,
+    "total": 13137,
+    "total_is_estimate": false
+  }
+}

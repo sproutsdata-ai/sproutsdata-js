@@ -1,0 +1,42 @@
+{
+  "name": "feedback_is_not_filed_twice_after_a_server_error",
+  "description": "A 500 on feedback may come after the report was stored, and feedback has no idempotency key, so it is raised rather than repeated.",
+  "request": {
+    "method": "POST",
+    "path": "/v1/feedback",
+    "body": {
+      "subject": {
+        "kind": "request",
+        "id": "req_abc"
+      },
+      "target": {
+        "kind": "result_set"
+      },
+      "sentiment": "bad",
+      "comment": "wrong rows"
+    }
+  },
+  "responses": [
+    {
+      "status": 500,
+      "headers": {},
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/internal",
+        "title": "Internal error",
+        "status": 500,
+        "code": "internal"
+      }
+    },
+    {
+      "status": 201,
+      "headers": {},
+      "body": {}
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "error": {
+      "concept": "internal"
+    }
+  }
+}

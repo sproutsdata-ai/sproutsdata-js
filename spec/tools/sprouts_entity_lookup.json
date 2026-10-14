@@ -1,0 +1,121 @@
+{
+  "name": "sprouts_entity_lookup",
+  "description": "Full records for IDENTIFIERS YOU ALREADY HOLD: domains, LinkedIn URLs, names, or record ids. The enrichment tool; do not search for something you can look up.\n\nSay what the ids are with `by`: a company by `domain` or `li_url`, a person by `li_url` (a person has no domain), `name` for either, or `auto` to classify each value. A row from a search or look-alike result carries a `lookup` value: pass its `by` and value, never the row's `id`, which is not a record id and comes back not found.\n\nEvery id is answered, in order. `found: false` is a miss: we hold no record under that identifier, which is not proof the entity does not exist. `found: true` with empty `matches` means the record exists but none came back. `ambiguous: true` means several records matched (a name is not a unique key): show them rather than picking the first. At most 3 matches are shown per id. Company and person records are trimmed to a compact default set unless you name `fields`.\n\nBatch ceilings: 1,000 ids for company and person, 50 when `by` is set, 100 for document categories (50 by name). Billed 1 credit per record found; a miss is free. `environment: \"test\"` in a result means a test key: real records, zero credits.",
+  "description_hints": {},
+  "refused_arguments": {
+    "kind": "This tool takes `category`, not `kind`.",
+    "identifiers": "This tool takes `ids`, not `identifiers`."
+  },
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "category": {
+        "type": "string",
+        "enum": [
+          "company",
+          "person",
+          "patent",
+          "news_article",
+          "trend",
+          "market_report",
+          "funding_round",
+          "academic_report",
+          "job_opening"
+        ],
+        "description": "Which kind of record to look up. Decides what `by` accepts."
+      },
+      "ids": {
+        "type": "array",
+        "minItems": 1,
+        "description": "The identifiers to resolve: raw values (domains, LinkedIn URLs, names) when `by` is set, record ids when it is not.",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "by": {
+        "type": "string",
+        "enum": [
+          "auto",
+          "domain",
+          "li_url",
+          "name",
+          "id"
+        ],
+        "description": "What the ids are. `company`: auto, domain, li_url or name. `person`: auto, li_url or name. `news_article`, `funding_round`, `job_opening`, `market_report`: id (the default) or name (a headline, the funded company, a job title or a report title; one name can match several documents). `patent`, `trend`, `academic_report`: omit it, their ids already are record ids. Omit it for company and person only when you hold record ids."
+      },
+      "fields": {
+        "type": "array",
+        "description": "Return only these record fields. Omit for a compact default set; ask for more by name.",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "required": [
+      "category",
+      "ids"
+    ],
+    "additionalProperties": false
+  },
+  "strict_input_schema": {
+    "type": "object",
+    "properties": {
+      "category": {
+        "description": "Which kind of record to look up. Decides what `by` accepts.",
+        "type": "string",
+        "enum": [
+          "company",
+          "person",
+          "patent",
+          "news_article",
+          "trend",
+          "market_report",
+          "funding_round",
+          "academic_report",
+          "job_opening"
+        ]
+      },
+      "ids": {
+        "description": "The identifiers to resolve: raw values (domains, LinkedIn URLs, names) when `by` is set, record ids when it is not. At least one item.",
+        "type": "array",
+        "items": {
+          "description": "Not empty.",
+          "type": "string"
+        }
+      },
+      "by": {
+        "description": "What the ids are. `company`: auto, domain, li_url or name. `person`: auto, li_url or name. `news_article`, `funding_round`, `job_opening`, `market_report`: id (the default) or name (a headline, the funded company, a job title or a report title; one name can match several documents). `patent`, `trend`, `academic_report`: omit it, their ids already are record ids. Omit it for company and person only when you hold record ids.",
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "auto",
+          "domain",
+          "li_url",
+          "name",
+          "id",
+          null
+        ]
+      },
+      "fields": {
+        "description": "Return only these record fields. Omit for a compact default set; ask for more by name.",
+        "type": [
+          "array",
+          "null"
+        ],
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "required": [
+      "category",
+      "ids",
+      "by",
+      "fields"
+    ],
+    "additionalProperties": false
+  }
+}

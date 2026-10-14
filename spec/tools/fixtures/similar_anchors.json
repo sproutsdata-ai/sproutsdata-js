@@ -1,0 +1,170 @@
+{
+  "description": "A look-alike search from a domain anchor and a name anchor, narrowed to Germany. The domain anchor came back as its own look-alike and is removed; the caveats say the API does not report which anchors resolved and that a name anchor has no disambiguation. No `resolved_search` came back, and `interpreted_as` is still present.",
+  "tool": "sprouts_similar",
+  "options": {},
+  "arguments": {
+    "anchors": [
+      {
+        "value": "stripe.com"
+      },
+      {
+        "value": "Adyen",
+        "by": "name"
+      }
+    ],
+    "filters": {
+      "geo": {
+        "places": [
+          {
+            "value": "germany",
+            "level": "country"
+          }
+        ]
+      }
+    },
+    "limit": 3
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "X-Request-Id": "req_77d2b9e104"
+    },
+    "body": {
+      "results": [
+        {
+          "id": "stripe.com",
+          "category": "company",
+          "score": 0.97,
+          "account_name": "Stripe",
+          "domain": "stripe.com"
+        },
+        {
+          "id": "mollie.com",
+          "category": "company",
+          "score": 0.874,
+          "account_name": "Mollie",
+          "domain": "mollie.com",
+          "industry": "Financial Services",
+          "employee_count": 870,
+          "country": "Netherlands",
+          "linkedin_url": "https://www.linkedin.com/company/mollie"
+        },
+        {
+          "id": "unzer.com",
+          "category": "company",
+          "score": 0.861,
+          "account_name": "Unzer",
+          "domain": "unzer.com",
+          "industry": "Financial Services",
+          "employee_count": 1100,
+          "country": "Germany"
+        }
+      ],
+      "total": 214,
+      "total_is_estimate": true,
+      "has_more": true,
+      "next_cursor": "eyJvIjozfQ.s2b7",
+      "resolved_search": null,
+      "suggestion": null,
+      "coverage": null,
+      "attribution": [
+        {
+          "source_corpus": "companies",
+          "domain": null,
+          "as_of": "2026-09-28T00:00:00Z",
+          "url": null,
+          "quote": null
+        }
+      ],
+      "degradation": [],
+      "columns": null,
+      "meta": {
+        "request_id": "req_77d2b9e104",
+        "environment": "test",
+        "as_of": "2026-10-01T09:12:44Z",
+        "credential": "api_key"
+      }
+    }
+  },
+  "expected_request": {
+    "method": "POST",
+    "path": "/v1/similar",
+    "body": {
+      "anchors": [
+        {
+          "value": "stripe.com",
+          "by": "domain",
+          "weight": 1
+        },
+        {
+          "value": "Adyen",
+          "by": "name",
+          "weight": 1
+        }
+      ],
+      "category": "company",
+      "filters": {
+        "geo": {
+          "places": [
+            {
+              "value": "germany",
+              "level": "country"
+            }
+          ]
+        }
+      },
+      "combine": "and",
+      "limit": 3
+    }
+  },
+  "expected_output": {
+    "caveats": [
+      "anchors_unreported: the API does not report which of the 2 anchors resolved. Say the results are based on the anchors provided, not that they match every one.",
+      "anchors_by_name: Adyen — resolved by name with no disambiguation, so a same-named company may have been used. Prefer a domain.",
+      "anchors_removed: stripe.com — returned as a look-alike of itself and removed."
+    ],
+    "environment": "test",
+    "has_more": true,
+    "interpreted_as": {
+      "conflicts": [],
+      "filters": {},
+      "source": "none"
+    },
+    "next_cursor": "eyJvIjozfQ.s2b7",
+    "request_id": "req_77d2b9e104",
+    "results": [
+      {
+        "account_name": "Mollie",
+        "category": "company",
+        "country": "Netherlands",
+        "domain": "mollie.com",
+        "employee_count": 870,
+        "id": "mollie.com",
+        "industry": "Financial Services",
+        "linkedin_url": "https://www.linkedin.com/company/mollie",
+        "lookup": {
+          "by": "domain",
+          "value": "mollie.com"
+        },
+        "score": 0.874
+      },
+      {
+        "account_name": "Unzer",
+        "category": "company",
+        "country": "Germany",
+        "domain": "unzer.com",
+        "employee_count": 1100,
+        "id": "unzer.com",
+        "industry": "Financial Services",
+        "lookup": {
+          "by": "domain",
+          "value": "unzer.com"
+        },
+        "score": 0.861
+      }
+    ],
+    "suggestion": null,
+    "total": 214,
+    "total_is_estimate": true
+  }
+}

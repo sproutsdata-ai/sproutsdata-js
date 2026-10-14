@@ -1,0 +1,34 @@
+{
+  "name": "creating_a_list_is_not_repeated_after_a_server_error",
+  "description": "A 500 on list creation may come after the list was stored, and a repeat would make a second list with the same name, so it is raised rather than repeated.",
+  "request": {
+    "method": "POST",
+    "path": "/v1/lists",
+    "body": {
+      "name": "Fintech targets"
+    }
+  },
+  "responses": [
+    {
+      "status": 500,
+      "headers": {},
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/internal",
+        "title": "Internal error",
+        "status": 500,
+        "code": "internal"
+      }
+    },
+    {
+      "status": 201,
+      "headers": {},
+      "body": {}
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "error": {
+      "concept": "internal"
+    }
+  }
+}

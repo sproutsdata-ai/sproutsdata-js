@@ -1,0 +1,37 @@
+{
+  "name": "has_more_matches_next_cursor_presence",
+  "description": "The server guarantees has_more == (next_cursor is not null). A client must not paper over a violation by inventing a page.",
+  "responses": [
+    {
+      "status": 200,
+      "headers": {},
+      "body": {
+        "results": [
+          {
+            "id": "a.com",
+            "category": "company",
+            "score": 1.0
+          }
+        ],
+        "total": 1,
+        "total_is_estimate": false,
+        "has_more": false,
+        "next_cursor": null,
+        "resolved_search": null,
+        "attribution": [],
+        "degradation": [],
+        "meta": {
+          "request_id": "req_ok",
+          "environment": "test",
+          "as_of": "2026-08-13T00:00:00Z",
+          "credential": "api_key"
+        }
+      }
+    }
+  ],
+  "paginate": "next_page",
+  "expect": {
+    "attempts": 1,
+    "no_next_page": true
+  }
+}

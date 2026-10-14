@@ -1,0 +1,25 @@
+{
+  "name": "unknown_error_code_falls_back_to_status",
+  "description": "New codes ship without a major version. A client that raised on one it did not recognise would turn a handled error into a crash.",
+  "responses": [
+    {
+      "status": 403,
+      "headers": {
+        "X-Request-Id": "req_new"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/auth-something-invented-later",
+        "title": "Forbidden",
+        "status": 403,
+        "code": "auth.something_invented_later"
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "error": {
+      "concept": "permission_denied",
+      "request_id": "req_new"
+    }
+  }
+}

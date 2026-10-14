@@ -1,0 +1,90 @@
+{
+  "name": "caller_request_id_is_not_carried_to_page_two",
+  "description": "A caller's request id names one request. Page 2 is another request, so it goes without the caller's id rather than reusing it; everything else in the body is resent unchanged.",
+  "request_id": "req_caller_1",
+  "responses": [
+    {
+      "status": 200,
+      "headers": {
+        "X-Request-Id": "req_caller_1"
+      },
+      "body": {
+        "results": [
+          {
+            "id": "a.com",
+            "category": "company",
+            "score": 1.0
+          }
+        ],
+        "total": 2,
+        "total_is_estimate": false,
+        "has_more": true,
+        "next_cursor": "cur_2",
+        "resolved_search": null,
+        "attribution": [],
+        "degradation": [],
+        "meta": {
+          "request_id": "req_caller_1",
+          "environment": "test",
+          "as_of": "2026-08-13T00:00:00Z",
+          "credential": "api_key"
+        }
+      }
+    },
+    {
+      "status": 200,
+      "headers": {
+        "X-Request-Id": "req_p2"
+      },
+      "body": {
+        "results": [
+          {
+            "id": "b.com",
+            "category": "company",
+            "score": 0.9
+          }
+        ],
+        "total": 2,
+        "total_is_estimate": false,
+        "has_more": false,
+        "next_cursor": null,
+        "resolved_search": null,
+        "attribution": [],
+        "degradation": [],
+        "meta": {
+          "request_id": "req_p2",
+          "environment": "test",
+          "as_of": "2026-08-13T00:00:00Z",
+          "credential": "api_key"
+        }
+      }
+    }
+  ],
+  "paginate": "next_page",
+  "expect": {
+    "attempts": 2,
+    "sent": [
+      {
+        "body_equals_index": null,
+        "headers_equal": {
+          "X-Request-Id": "req_caller_1"
+        }
+      },
+      {
+        "body_equals_index": 0,
+        "except_keys": [
+          "cursor"
+        ],
+        "cursor": "cur_2",
+        "headers_absent": [
+          "X-Request-Id"
+        ]
+      }
+    ],
+    "success": {
+      "results_length": 1,
+      "has_more": false,
+      "request_id": "req_p2"
+    }
+  }
+}

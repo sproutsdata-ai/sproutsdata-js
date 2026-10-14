@@ -1,0 +1,24 @@
+{
+  "description": "A `query` of only whitespace says nothing, and a `filters` whose members are all `null` is empty once the nulls are removed (as OpenAI strict mode sends it), so both count as absent: refused before any request.",
+  "tool": "sprouts_search",
+  "options": {},
+  "arguments": {
+    "query": " \n\t ",
+    "filters": {
+      "industry": null,
+      "employee_count": null
+    }
+  },
+  "response": null,
+  "expected_request": null,
+  "expected_output": {
+    "error": {
+      "code": "invalid_arguments",
+      "field_errors": [],
+      "message": "Provide `query`, `filters`, or both. A search with neither has nothing to match on.",
+      "request_id": null,
+      "retry_after": null,
+      "retryable": false
+    }
+  }
+}

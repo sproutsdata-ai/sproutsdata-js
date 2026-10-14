@@ -1,0 +1,21 @@
+{
+  "description": "A search with neither `query` nor `filters` is refused before any request is sent.",
+  "tool": "sprouts_search",
+  "options": {},
+  "arguments": {
+    "mode": "fast",
+    "limit": 10
+  },
+  "response": null,
+  "expected_request": null,
+  "expected_output": {
+    "error": {
+      "code": "invalid_arguments",
+      "field_errors": [],
+      "message": "Provide `query`, `filters`, or both. A search with neither has nothing to match on.",
+      "request_id": null,
+      "retry_after": null,
+      "retryable": false
+    }
+  }
+}

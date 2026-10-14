@@ -1,0 +1,26 @@
+{
+  "name": "credits_unknown_action_is_never_retried",
+  "description": "A missing price row is a server misconfiguration that will not self-heal, and retrying must never become a way to get the work for free. This is the one 500 that is not retried.",
+  "responses": [
+    {
+      "status": 500,
+      "headers": {
+        "X-Request-Id": "req_500"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/credits-unknown-action",
+        "title": "Unknown action",
+        "status": 500,
+        "code": "credits.unknown_action"
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "no_sleep": true,
+    "error": {
+      "concept": "internal",
+      "code": "credits.unknown_action"
+    }
+  }
+}

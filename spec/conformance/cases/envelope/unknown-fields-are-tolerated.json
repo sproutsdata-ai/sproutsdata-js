@@ -1,0 +1,46 @@
+{
+  "name": "unknown_response_fields_do_not_break_parsing",
+  "description": "The API adds response fields without a version bump, by policy. A client that rejected them would treat every routine server release as an outage.",
+  "responses": [
+    {
+      "status": 200,
+      "headers": {},
+      "body": {
+        "results": [
+          {
+            "id": "a.com",
+            "category": "company",
+            "score": 1.0,
+            "a_field_invented_later": 42
+          }
+        ],
+        "total": 1,
+        "total_is_estimate": false,
+        "has_more": false,
+        "next_cursor": null,
+        "resolved_search": null,
+        "attribution": [],
+        "degradation": [],
+        "meta": {
+          "request_id": "req_ok",
+          "environment": "test",
+          "as_of": "2026-08-13T00:00:00Z",
+          "credential": "api_key"
+        },
+        "a_top_level_field_invented_later": {
+          "nested": true
+        }
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "success": {
+      "results_length": 1,
+      "hit_extra_field": [
+        "a_field_invented_later",
+        42
+      ]
+    }
+  }
+}

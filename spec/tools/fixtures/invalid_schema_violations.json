@@ -1,0 +1,46 @@
+{
+  "description": "Arguments that break the schema in several places: a retired argument, an unknown key, a wrong type, a value outside an enum, a bound, and a missing required property. Every problem is listed, in a fixed order, and nothing is sent.",
+  "tool": "sprouts_search",
+  "options": {},
+  "arguments": {
+    "query": "x",
+    "page": 2,
+    "country": "Germany",
+    "mode": "deep",
+    "limit": 0,
+    "filters": {
+      "seniority": {
+        "include": "VP"
+      },
+      "geo": {
+        "places": [
+          {
+            "value": "germany"
+          }
+        ]
+      },
+      "employee_count": {
+        "gte": "fifty"
+      }
+    }
+  },
+  "response": null,
+  "expected_request": null,
+  "expected_output": {
+    "error": {
+      "code": "invalid_arguments",
+      "field_errors": [
+        "page: This tool has no `page`. Pass `cursor` from the previous result's `next_cursor` instead.",
+        "country: unknown argument. Allowed here: query, category, mode, filters, sort, include_domains, exclude_domains, limit, cursor, fields.",
+        "mode: must be one of fast, auto.",
+        "filters.geo.places.0.level: required.",
+        "filters.employee_count.gte: expected integer.",
+        "limit: must be at least 1."
+      ],
+      "message": "Invalid arguments: fix the listed fields and call again.",
+      "request_id": null,
+      "retry_after": null,
+      "retryable": false
+    }
+  }
+}

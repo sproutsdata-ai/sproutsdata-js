@@ -1,0 +1,41 @@
+{
+  "name": "free_call_is_retried_after_a_read_timeout",
+  "description": "A GET has no side effect, so a lost response is simply asked for again.",
+  "request": {
+    "method": "GET",
+    "path": "/v1/usage/history"
+  },
+  "responses": [
+    {
+      "network": "read_timeout"
+    },
+    {
+      "status": 200,
+      "headers": {
+        "X-Request-Id": "req_ok"
+      },
+      "body": {
+        "results": [],
+        "total": 0,
+        "total_is_estimate": false,
+        "has_more": false,
+        "next_cursor": null,
+        "resolved_search": null,
+        "attribution": [],
+        "degradation": [],
+        "meta": {
+          "request_id": "req_ok",
+          "environment": "test",
+          "as_of": "2026-08-13T00:00:00Z",
+          "credential": "api_key"
+        }
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 2,
+    "success": {
+      "request_id": "req_ok"
+    }
+  }
+}

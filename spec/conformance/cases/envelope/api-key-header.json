@@ -1,0 +1,39 @@
+{
+  "name": "client_authenticates_with_the_x_api_key_header",
+  "description": "The API uses a custom header, not Authorization: Bearer. Getting this wrong is a 401 that looks like a bad key.",
+  "responses": [
+    {
+      "status": 200,
+      "headers": {},
+      "body": {
+        "results": [],
+        "total": 0,
+        "total_is_estimate": false,
+        "has_more": false,
+        "next_cursor": null,
+        "resolved_search": null,
+        "attribution": [],
+        "degradation": [],
+        "meta": {
+          "request_id": "req_ok",
+          "environment": "test",
+          "as_of": "2026-08-13T00:00:00Z",
+          "credential": "api_key"
+        }
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "sent": [
+      {
+        "headers_present": [
+          "x-api-key"
+        ],
+        "headers_absent": [
+          "authorization"
+        ]
+      }
+    ]
+  }
+}

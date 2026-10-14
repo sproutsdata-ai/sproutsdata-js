@@ -1,0 +1,181 @@
+{
+  "description": "Developer settings over model input: a fixed category (absent from the model's schema), a row cap of 10, and a baseline `geo` filter. The model's own `geo` and its `limit: 50` are both overridden, and the result says so in `caveats`; its `employee_count` filter survives the per-key merge.",
+  "tool": "sprouts_search",
+  "options": {
+    "fixed": {
+      "sprouts_search": {
+        "category": "company"
+      }
+    },
+    "max_results": 10,
+    "baseline_filters": {
+      "geo": {
+        "places": [
+          {
+            "value": "united states",
+            "level": "country"
+          }
+        ]
+      }
+    }
+  },
+  "arguments": {
+    "query": "fintech companies",
+    "limit": 50,
+    "filters": {
+      "geo": {
+        "places": [
+          {
+            "value": "germany",
+            "level": "country"
+          }
+        ]
+      },
+      "employee_count": {
+        "gte": 50
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "X-Request-Id": "req_31aa8c0e5f"
+    },
+    "body": {
+      "results": [
+        {
+          "id": "ledgerline.com",
+          "category": "company",
+          "score": 0.79,
+          "account_name": "Ledgerline",
+          "domain": "ledgerline.com",
+          "industry": "Financial Services",
+          "employee_count": 310,
+          "funding_stage": "Series C",
+          "country": "United States"
+        }
+      ],
+      "total": 4210,
+      "total_is_estimate": false,
+      "has_more": true,
+      "next_cursor": "eyJvIjoxfQ.f0d3",
+      "resolved_search": {
+        "parser_version": "none",
+        "mode": "fast",
+        "category": "company",
+        "query": "fintech companies",
+        "filters": {
+          "geo": {
+            "places": [
+              {
+                "value": "united states",
+                "level": "country",
+                "scope": "subject",
+                "negate": false
+              }
+            ]
+          },
+          "employee_count": {
+            "gte": 50
+          }
+        },
+        "filters_source": "caller",
+        "semantic_query": null,
+        "sort": [],
+        "conflicts": [],
+        "overrides": []
+      },
+      "suggestion": null,
+      "coverage": null,
+      "attribution": [
+        {
+          "source_corpus": "companies",
+          "domain": null,
+          "as_of": "2026-09-28T00:00:00Z",
+          "url": null,
+          "quote": null
+        }
+      ],
+      "degradation": [],
+      "columns": null,
+      "meta": {
+        "request_id": "req_31aa8c0e5f",
+        "environment": "test",
+        "as_of": "2026-10-01T09:12:44Z",
+        "credential": "api_key"
+      }
+    }
+  },
+  "expected_request": {
+    "method": "POST",
+    "path": "/v1/search",
+    "body": {
+      "category": "company",
+      "query": "fintech companies",
+      "mode": "fast",
+      "limit": 10,
+      "filters": {
+        "geo": {
+          "places": [
+            {
+              "value": "united states",
+              "level": "country"
+            }
+          ]
+        },
+        "employee_count": {
+          "gte": 50
+        }
+      }
+    }
+  },
+  "expected_output": {
+    "caveats": [
+      "application_filter: `filters.geo.places` is fixed by this application to [{\"level\":\"country\",\"value\":\"united states\"}]; your [{\"level\":\"country\",\"value\":\"germany\"}] was not applied.",
+      "limit_capped: you asked for 50 rows; this application returns at most 10 per call."
+    ],
+    "environment": "test",
+    "has_more": true,
+    "interpreted_as": {
+      "conflicts": [],
+      "filters": {
+        "employee_count": {
+          "gte": 50
+        },
+        "geo": {
+          "places": [
+            {
+              "level": "country",
+              "negate": false,
+              "scope": "subject",
+              "value": "united states"
+            }
+          ]
+        }
+      },
+      "source": "caller"
+    },
+    "next_cursor": "eyJvIjoxfQ.f0d3",
+    "request_id": "req_31aa8c0e5f",
+    "results": [
+      {
+        "account_name": "Ledgerline",
+        "category": "company",
+        "country": "United States",
+        "domain": "ledgerline.com",
+        "employee_count": 310,
+        "funding_stage": "Series C",
+        "id": "ledgerline.com",
+        "industry": "Financial Services",
+        "lookup": {
+          "by": "domain",
+          "value": "ledgerline.com"
+        },
+        "score": 0.79
+      }
+    ],
+    "suggestion": null,
+    "total": 4210,
+    "total_is_estimate": false
+  }
+}

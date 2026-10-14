@@ -1,0 +1,55 @@
+{
+  "name": "service_unavailable_is_retried",
+  "description": "A 503 from retrieval is answered before any charge, so a retry costs nothing and often succeeds.",
+  "responses": [
+    {
+      "status": 503,
+      "headers": {
+        "Retry-After": "5"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/upstream-unavailable",
+        "title": "Service unavailable",
+        "status": 503,
+        "code": "upstream.unavailable"
+      }
+    },
+    {
+      "status": 200,
+      "headers": {
+        "X-Request-Id": "req_ok2"
+      },
+      "body": {
+        "results": [
+          {
+            "id": "b.com",
+            "category": "company",
+            "score": 0.9
+          }
+        ],
+        "total": 1,
+        "total_is_estimate": false,
+        "has_more": false,
+        "next_cursor": null,
+        "resolved_search": null,
+        "attribution": [],
+        "degradation": [],
+        "meta": {
+          "request_id": "req_ok2",
+          "environment": "test",
+          "as_of": "2026-08-13T00:00:00Z",
+          "credential": "api_key"
+        }
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 2,
+    "slept": [
+      5.0
+    ],
+    "success": {
+      "results_length": 1
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "description": "`filters: {}` constrains nothing, so with no `query` it counts as absent: refused before any request, with the same message as a call that sent neither.",
+  "tool": "sprouts_search",
+  "options": {},
+  "arguments": {
+    "filters": {},
+    "limit": 10
+  },
+  "response": null,
+  "expected_request": null,
+  "expected_output": {
+    "error": {
+      "code": "invalid_arguments",
+      "field_errors": [],
+      "message": "Provide `query`, `filters`, or both. A search with neither has nothing to match on.",
+      "request_id": null,
+      "retry_after": null,
+      "retryable": false
+    }
+  }
+}

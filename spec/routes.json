@@ -1,0 +1,315 @@
+{
+  "$comment": "Every API-key operation both SDKs wrap, and its route class (contract 02 §4). The class decides what may be retried: `safe` — no charge, and a repeat changes nothing the first call did not (every GET, run cancel, member resolve, and the free idempotent writes: list rename, list item add and remove, feedback vote), retried whenever the outcome allows; `billed` — charged once the work is done (the CSV exports too: free today, but the server prices them through the same meter once export pricing ships); the server recognises a same-day repeat with the same Idempotency-Key that returns the same rows, but one that returns different rows is charged for them, so a request that may have been sent is never repeated; `keyed` — the server requires Idempotency-Key, so a repeat with the same key is recognised and safe; `once` — free, but a repeat is not the same as one call: it files a duplicate (feedback, a new list) or answers differently (deleting a list twice says 404 the second time). The retry decisions per class are in retry-policy.json. The operation list is openapi.json's: every operation whose security includes APIKeyHeader, plus the public GET /v1/feedback/tags the SDKs also wrap. A test fails if an API-key operation in openapi.json is neither classified here nor listed under not_wrapped.",
+  "version": 1,
+  "classes": [
+    "safe",
+    "billed",
+    "keyed",
+    "once"
+  ],
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/v1/agents/runs",
+      "operation_id": "agent_runs_list",
+      "class": "safe"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/agents/runs",
+      "operation_id": "agent_run_create",
+      "class": "keyed"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/agents/runs/{run_id}",
+      "operation_id": "agent_run_get",
+      "class": "safe"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/agents/runs/{run_id}/cancel",
+      "operation_id": "agent_run_cancel",
+      "class": "safe"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/agents/runs/{run_id}/events",
+      "operation_id": "agent_run_events",
+      "class": "safe"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/agents/runs/{run_id}/results",
+      "operation_id": "agent_run_results",
+      "class": "safe"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/coverage",
+      "operation_id": "coverage",
+      "class": "safe"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/credits",
+      "operation_id": "credits",
+      "class": "safe"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/entities/academic-reports",
+      "operation_id": "entities_academic_reports",
+      "class": "billed"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/entities/companies",
+      "operation_id": "entities_companies",
+      "class": "billed"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/entities/fundings",
+      "operation_id": "entities_fundings",
+      "class": "billed"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/entities/job-openings",
+      "operation_id": "entities_job_openings",
+      "class": "billed"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/entities/market-reports",
+      "operation_id": "entities_market_reports",
+      "class": "billed"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/entities/news",
+      "operation_id": "entities_news",
+      "class": "billed"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/entities/patents",
+      "operation_id": "entities_patents",
+      "class": "billed"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/entities/persons",
+      "operation_id": "entities_persons",
+      "class": "billed"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/entities/trends",
+      "operation_id": "entities_trends",
+      "class": "billed"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/feedback",
+      "operation_id": "list_feedback",
+      "class": "safe"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/feedback",
+      "operation_id": "report_search",
+      "class": "once"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/feedback/tags",
+      "operation_id": "list_feedback_tags",
+      "class": "safe",
+      "note": "Public: needs no key. Listed because both SDKs wrap it."
+    },
+    {
+      "method": "GET",
+      "path": "/v1/feedback/votes",
+      "operation_id": "feedback_votes_list",
+      "class": "safe"
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/feedback/votes",
+      "operation_id": "feedback_vote_cast",
+      "class": "safe"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/keys/usage",
+      "operation_id": "key_usage",
+      "class": "safe"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/lists",
+      "operation_id": "lists_list",
+      "class": "safe"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/lists",
+      "operation_id": "lists_create",
+      "class": "once"
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/lists/{list_id}",
+      "operation_id": "lists_rename",
+      "class": "safe"
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/lists/{list_id}",
+      "operation_id": "lists_delete",
+      "class": "once"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/lists/{list_id}/export",
+      "operation_id": "lists_export",
+      "class": "billed"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/lists/{list_id}/items",
+      "operation_id": "lists_items",
+      "class": "safe"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/lists/{list_id}/items",
+      "operation_id": "lists_add_items",
+      "class": "safe"
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/lists/{list_id}/items",
+      "operation_id": "lists_remove_items",
+      "class": "safe"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/members/resolve",
+      "operation_id": "members_resolve",
+      "class": "safe"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/org-chart",
+      "operation_id": "org_chart",
+      "class": "billed"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/org-chart/departments",
+      "operation_id": "org_chart_departments",
+      "class": "billed"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/org-chart/locations",
+      "operation_id": "org_chart_locations",
+      "class": "billed"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/relationships",
+      "operation_id": "relationships",
+      "class": "billed"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/relationships/ask",
+      "operation_id": "relationships_ask",
+      "class": "billed"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/relationships/institutions",
+      "operation_id": "relationships_institutions",
+      "class": "billed"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/relationships/reach",
+      "operation_id": "relationships_reach",
+      "class": "billed"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/search",
+      "operation_id": "search",
+      "class": "billed"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/search/export",
+      "operation_id": "search_export",
+      "class": "billed"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/search/filters/{category}/{name}",
+      "operation_id": "document_filter_values",
+      "class": "safe"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/search/filters/{name}",
+      "operation_id": "filter_values",
+      "class": "safe"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/similar",
+      "operation_id": "similar",
+      "class": "billed"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/sorts/{category}",
+      "operation_id": "sort_catalog",
+      "class": "safe"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/usage/history",
+      "operation_id": "usage_history",
+      "class": "safe"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/usage/history/{run_id}",
+      "operation_id": "usage_history_detail",
+      "class": "safe"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/usage/metrics",
+      "operation_id": "usage_metrics",
+      "class": "safe"
+    }
+  ],
+  "not_wrapped": [
+    {
+      "method": "POST",
+      "path": "/v1/billing/top-up/intents",
+      "operation_id": "topup_intent_create",
+      "note": "Not wrapped by the SDKs: a top-up opens a page a person signs in to and pays on, which belongs to the MCP server and the dashboard. Its error code is still mapped."
+    },
+    {
+      "method": "GET",
+      "path": "/v1/billing/top-up/intents/{topup_id}",
+      "operation_id": "topup_intent_status",
+      "note": "Not wrapped by the SDKs: a top-up opens a page a person signs in to and pays on, which belongs to the MCP server and the dashboard. Its error code is still mapped."
+    }
+  ]
+}

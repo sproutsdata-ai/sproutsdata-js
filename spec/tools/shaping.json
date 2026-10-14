@@ -1,0 +1,119 @@
+{
+  "$comment": "The numbers and tables every language's tools module shapes results with (contract 02 §12.2). A tool result lands in a model's context window, so rows are projected, long text is cut and long lists are capped — identically in every SDK, which is what lets fixtures/ hold them to byte-identical output. README.md explains each entry.",
+  "version": 1,
+  "list_max_entries": 15,
+  "text_max_chars": 300,
+  "matches_max": 3,
+  "ellipsis": "…",
+  "more_marker": "… +{count} more",
+  "max_results_ceiling": 25,
+  "identity_fields": [
+    "id",
+    "category"
+  ],
+  "default_projection": {
+    "company": [
+      "id",
+      "category",
+      "score",
+      "account_name",
+      "domain",
+      "linkedin_url",
+      "industry",
+      "sub_industry",
+      "employee_count",
+      "revenue",
+      "founded_year",
+      "funding_stage",
+      "total_funding",
+      "technology",
+      "description",
+      "location",
+      "country"
+    ],
+    "person": [
+      "id",
+      "category",
+      "score",
+      "contact_name",
+      "title",
+      "seniority",
+      "department",
+      "governance_level",
+      "employment_type",
+      "skills",
+      "location",
+      "country",
+      "linkedin_url",
+      "account_name",
+      "domain",
+      "industry",
+      "employee_count"
+    ]
+  },
+  "domain_categories": [
+    "company",
+    "person",
+    "job_opening"
+  ],
+  "lookup_by": {
+    "company": {
+      "accepts": [
+        "auto",
+        "domain",
+        "li_url",
+        "name"
+      ],
+      "default": null
+    },
+    "person": {
+      "accepts": [
+        "auto",
+        "li_url",
+        "name"
+      ],
+      "default": null
+    },
+    "patent": {
+      "accepts": [],
+      "default": null
+    },
+    "trend": {
+      "accepts": [],
+      "default": null
+    },
+    "academic_report": {
+      "accepts": [],
+      "default": null
+    },
+    "news_article": {
+      "accepts": [
+        "id",
+        "name"
+      ],
+      "default": "id"
+    },
+    "market_report": {
+      "accepts": [
+        "id",
+        "name"
+      ],
+      "default": "id"
+    },
+    "funding_round": {
+      "accepts": [
+        "id",
+        "name"
+      ],
+      "default": "id"
+    },
+    "job_opening": {
+      "accepts": [
+        "id",
+        "name"
+      ],
+      "default": "id"
+    }
+  },
+  "search_id_pattern": "^[0-9a-f]{16}$"
+}

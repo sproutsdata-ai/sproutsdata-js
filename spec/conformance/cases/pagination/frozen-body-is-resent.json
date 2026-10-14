@@ -1,0 +1,98 @@
+{
+  "name": "page_two_resends_page_one_body_plus_cursor",
+  "description": "The load-bearing case. Cursors are signed against a fingerprint of the request, so the second body must be identical to the first apart from the cursor. Anything else is a 422.",
+  "request": {
+    "method": "POST",
+    "path": "/v1/search",
+    "body": {
+      "query": "fintech",
+      "category": "company",
+      "mode": "auto",
+      "limit": 2
+    }
+  },
+  "responses": [
+    {
+      "status": 200,
+      "headers": {
+        "X-Request-Id": "req_p1"
+      },
+      "body": {
+        "results": [
+          {
+            "id": "a.com",
+            "category": "company",
+            "score": 1.0
+          },
+          {
+            "id": "b.com",
+            "category": "company",
+            "score": 0.9
+          }
+        ],
+        "total": 5,
+        "total_is_estimate": false,
+        "has_more": true,
+        "next_cursor": "CURSOR_1",
+        "resolved_search": null,
+        "attribution": [],
+        "degradation": [],
+        "meta": {
+          "request_id": "req_p1",
+          "environment": "test",
+          "as_of": "2026-08-13T00:00:00Z",
+          "credential": "api_key"
+        }
+      }
+    },
+    {
+      "status": 200,
+      "headers": {
+        "X-Request-Id": "req_p2"
+      },
+      "body": {
+        "results": [
+          {
+            "id": "c.com",
+            "category": "company",
+            "score": 0.8
+          }
+        ],
+        "total": 5,
+        "total_is_estimate": false,
+        "has_more": false,
+        "next_cursor": null,
+        "resolved_search": null,
+        "attribution": [],
+        "degradation": [],
+        "meta": {
+          "request_id": "req_p2",
+          "environment": "test",
+          "as_of": "2026-08-13T00:00:00Z",
+          "credential": "api_key"
+        }
+      }
+    }
+  ],
+  "paginate": "next_page",
+  "expect": {
+    "attempts": 2,
+    "sent": [
+      {
+        "body_equals_index": null
+      },
+      {
+        "body_equals_index": 0,
+        "except_keys": [
+          "cursor"
+        ],
+        "cursor": "CURSOR_1"
+      }
+    ],
+    "success": {
+      "results_length": 1,
+      "has_more": false,
+      "request_id": "req_p2"
+    }
+  }
+}

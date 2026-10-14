@@ -1,0 +1,25 @@
+{
+  "name": "retry_after_beyond_the_cap_is_surfaced_not_slept",
+  "description": "A monthly quota can reset hours away. Blocking the caller's thread until then is never what they wanted, so the client raises instead.",
+  "responses": [
+    {
+      "status": 429,
+      "headers": {
+        "Retry-After": "36000"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/quota-monthly-exhausted",
+        "title": "Monthly quota exhausted",
+        "status": 429,
+        "code": "quota.monthly_exhausted"
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "no_sleep": true,
+    "error": {
+      "concept": "rate_limit"
+    }
+  }
+}

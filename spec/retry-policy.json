@@ -1,0 +1,114 @@
+{
+  "$comment": "The retry table of contract 02 §4.1, as data. Each outcome row gives, per route class (routes.json), `retry` or `raise`. A retry is bounded by max_retries and waits per defaults.json `backoff`, unless a Retry-After of at most `retry_after_cap_seconds` is present, which wins. Rows are checked in order and the first match decides. Normative: an SDK whose decision differs from this table has a bug.",
+  "version": 1,
+  "classes": [
+    "safe",
+    "billed",
+    "keyed",
+    "once"
+  ],
+  "retry_after_cap_seconds": 60,
+  "outcomes": [
+    {
+      "outcome": "not_sent",
+      "description": "The request provably never reached the server: connection refused, DNS failure, connect timeout.",
+      "network": [
+        "connect_refused",
+        "dns_failure",
+        "connect_timeout"
+      ],
+      "safe": "retry",
+      "billed": "retry",
+      "keyed": "retry",
+      "once": "retry"
+    },
+    {
+      "outcome": "sent_no_answer",
+      "description": "The request may have been processed: read timeout, connection reset after send, a 502 from a proxy in front of the server, or a 408 from one that gave up waiting for the server.",
+      "network": [
+        "read_timeout",
+        "reset_after_send"
+      ],
+      "status": [
+        408,
+        502
+      ],
+      "safe": "retry",
+      "billed": "raise",
+      "keyed": "retry",
+      "once": "raise",
+      "notes": [
+        "billed: the error carries reached_server=True (Python) / reachedServer: true (JS), and its message says a charge may have happened.",
+        "keyed: the retry resends the same Idempotency-Key, so the server recognises the repeat."
+      ]
+    },
+    {
+      "outcome": "rate_limited",
+      "description": "429 with a Retry-After of at most retry_after_cap_seconds, or none.",
+      "status": [
+        429
+      ],
+      "safe": "retry",
+      "billed": "retry",
+      "keyed": "retry",
+      "once": "retry"
+    },
+    {
+      "outcome": "rate_limited_long",
+      "description": "429 with a Retry-After above retry_after_cap_seconds. Raised at once with the value attached; never slept through.",
+      "status": [
+        429
+      ],
+      "safe": "raise",
+      "billed": "raise",
+      "keyed": "raise",
+      "once": "raise"
+    },
+    {
+      "outcome": "never_retried",
+      "description": "Deterministic answers: repeating the request cannot change them. credits.unknown_action is a 500, but the server has no price for the action, which will not fix itself.",
+      "status": [
+        400,
+        401,
+        402,
+        403,
+        404,
+        409,
+        413,
+        415,
+        422,
+        501
+      ],
+      "codes": [
+        "credits.unknown_action"
+      ],
+      "safe": "raise",
+      "billed": "raise",
+      "keyed": "raise",
+      "once": "raise"
+    },
+    {
+      "outcome": "internal_error",
+      "description": "500 with any code except credits.unknown_action. A billed route charges as its last step, so its error is all but always uncharged, and the retry resends the same Idempotency-Key.",
+      "status": [
+        500
+      ],
+      "safe": "retry",
+      "billed": "retry",
+      "keyed": "retry",
+      "once": "raise"
+    },
+    {
+      "outcome": "unavailable",
+      "description": "503 and 504. Answered before any charge, so a retry cannot pay twice.",
+      "status": [
+        503,
+        504
+      ],
+      "safe": "retry",
+      "billed": "retry",
+      "keyed": "retry",
+      "once": "retry"
+    }
+  ]
+}

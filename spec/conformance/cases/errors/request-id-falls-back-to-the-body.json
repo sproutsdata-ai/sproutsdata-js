@@ -1,0 +1,25 @@
+{
+  "name": "request_id_on_an_error_falls_back_to_the_body",
+  "description": "An unhandled server error may carry the request id only in the body. It must still reach the exception.",
+  "max_retries": 0,
+  "responses": [
+    {
+      "status": 500,
+      "headers": {},
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/internal",
+        "title": "Internal error",
+        "status": 500,
+        "code": "internal",
+        "request_id": "req_body_only"
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "error": {
+      "concept": "internal",
+      "request_id": "req_body_only"
+    }
+  }
+}

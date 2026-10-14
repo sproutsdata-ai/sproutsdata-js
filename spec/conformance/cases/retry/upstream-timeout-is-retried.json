@@ -1,0 +1,48 @@
+{
+  "name": "upstream_timeout_is_retried",
+  "description": "A 504 means the work was abandoned and not billed, so it is safe to repeat.",
+  "responses": [
+    {
+      "status": 504,
+      "headers": {
+        "Retry-After": "5"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/upstream-timeout",
+        "title": "Upstream timeout",
+        "status": 504,
+        "code": "upstream.timeout"
+      }
+    },
+    {
+      "status": 504,
+      "headers": {
+        "Retry-After": "5"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/upstream-timeout",
+        "title": "Upstream timeout",
+        "status": 504,
+        "code": "upstream.timeout"
+      }
+    },
+    {
+      "status": 504,
+      "headers": {
+        "Retry-After": "5"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/upstream-timeout",
+        "title": "Upstream timeout",
+        "status": 504,
+        "code": "upstream.timeout"
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 3,
+    "error": {
+      "concept": "upstream_timeout"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "depth_exceeded_is_distinct_and_not_retried",
+  "description": "Paging past 10,000 is capped deliberately. The caller needs to narrow the search, which is different advice from any other 422.",
+  "responses": [
+    {
+      "status": 422,
+      "headers": {},
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/pagination-depth-exceeded",
+        "title": "Pagination too deep",
+        "status": 422,
+        "code": "pagination.depth_exceeded",
+        "detail": "Cannot page beyond 10000 results. Narrow the search instead."
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "error": {
+      "concept": "pagination_depth_exceeded"
+    }
+  }
+}

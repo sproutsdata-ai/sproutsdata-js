@@ -1,0 +1,410 @@
+{
+  "$comment": "The error taxonomy every SDK maps. Mirrors dsp-backend app/errors/codes.py, which is a closed StrEnum. `concept` is the language-neutral name used by conformance cases; each SDK maps it to an idiomatic class. `retry` is normative: an SDK that retries a code marked false is a bug.",
+  "version": "v1",
+  "problem_media_type": "application/problem+json",
+  "docs_base": "https://dashboard.sproutsdata.ai/errors/",
+  "type_uri_rule": "docs_base + code with '.' and '_' replaced by '-'",
+  "notes": [
+    "Branch on `code`. Never on `title` or `detail` — those are prose and may be reworded.",
+    "Error bodies are rendered with exclude_none, so any field except type/title/status/code may be absent.",
+    "An unrecognised code must fall back to the class for the HTTP status, never raise.",
+    "402 and 429 are never conflated. 402 is commercial and carries no Retry-After; waiting does not help.",
+    "Every response, success or error, carries the request_id in the X-Request-Id header."
+  ],
+  "codes": [
+    {
+      "code": "auth.unauthorized",
+      "status": 401,
+      "concept": "authentication",
+      "retry": false,
+      "meaning": "Every pre-authentication failure, collapsed into one answer: no credential, an unusable session, a cookie that did not travel. Deliberately indistinguishable so an anonymous caller cannot map the auth model. The real reason is logged against request_id."
+    },
+    {
+      "code": "auth.missing_key",
+      "status": 401,
+      "concept": "authentication",
+      "retry": false,
+      "meaning": "No X-API-Key header was sent."
+    },
+    {
+      "code": "auth.invalid_key",
+      "status": 401,
+      "concept": "authentication",
+      "retry": false,
+      "meaning": "The key is malformed, unknown or revoked. Revocation takes effect immediately."
+    },
+    {
+      "code": "auth.expired",
+      "status": 401,
+      "concept": "authentication",
+      "retry": false,
+      "meaning": "The key passed its expiry. Keys last 365 days by default, 730 at most; there is no non-expiring key."
+    },
+    {
+      "code": "auth.insufficient_scope",
+      "status": 403,
+      "concept": "permission_denied",
+      "retry": false,
+      "meaning": "The key is valid but lacks the scope this endpoint requires."
+    },
+    {
+      "code": "auth.browser_origin",
+      "status": 403,
+      "concept": "permission_denied",
+      "retry": false,
+      "meaning": "The request carried both an Origin header and an API key. Keys are server-side only; there is no CORS allowlist. Rejected in middleware before routing."
+    },
+    {
+      "code": "auth.unavailable",
+      "status": 503,
+      "concept": "service_unavailable",
+      "retry": true,
+      "meaning": "The identity service could not be reached. Transient."
+    },
+    {
+      "code": "auth.invalid_credentials",
+      "status": 401,
+      "concept": "authentication",
+      "retry": false,
+      "meaning": "Dashboard sign-in only. One code for both a wrong password and a nonexistent account — separating them is an account-existence oracle."
+    },
+    {
+      "code": "auth.account_exists",
+      "status": 409,
+      "concept": "authentication",
+      "retry": false,
+      "meaning": "Dashboard sign-up only."
+    },
+    {
+      "code": "auth.session_required",
+      "status": 401,
+      "concept": "authentication",
+      "retry": false,
+      "meaning": "A dashboard-session route was called with an API key. Not reachable from an SDK."
+    },
+    {
+      "code": "auth.csrf",
+      "status": 403,
+      "concept": "permission_denied",
+      "retry": false,
+      "meaning": "Dashboard only. Not reachable from an SDK."
+    },
+    {
+      "code": "auth.mfa_required",
+      "status": 401,
+      "concept": "authentication",
+      "retry": false,
+      "meaning": "Dashboard only. Not reachable from an SDK."
+    },
+    {
+      "code": "request.invalid",
+      "status": 422,
+      "concept": "invalid_request",
+      "retry": false,
+      "meaning": "Validation failed. Field-level detail is under extra.errors. Note the server forbids unknown body fields and its message does not name them — the SDK should reject unknown parameters locally first."
+    },
+    {
+      "code": "request.too_large",
+      "status": 413,
+      "concept": "request_too_large",
+      "retry": false,
+      "meaning": "The request body exceeded the size cap."
+    },
+    {
+      "code": "request.unsupported",
+      "status": 415,
+      "concept": "invalid_request",
+      "retry": false,
+      "meaning": "Unsupported content type (415). Also the 422 a relationships question gets when the corpus cannot answer it: `extra.kind` says which refusal (`no_anchor`, `wrong_route`, …) and `extra.try_instead`, when present, suggests a rewording."
+    },
+    {
+      "code": "relationship.anchor_ambiguous",
+      "status": 422,
+      "concept": "invalid_request",
+      "retry": false,
+      "meaning": "A relationship anchor resolved to more than one company or institution. Name it more precisely — a domain or LinkedIn URL rather than a name, or `kind` on an institution."
+    },
+    {
+      "code": "history.not_found",
+      "status": 404,
+      "concept": "not_found",
+      "retry": false,
+      "meaning": "No history entry with that id for this tenant. A 404 rather than a 403 even when the row belongs to someone else: confirming it exists would leak that it does."
+    },
+    {
+      "code": "feedback.subject_not_found",
+      "status": 404,
+      "concept": "not_found",
+      "retry": false,
+      "meaning": "The search or run a report names does not exist, or is not this caller's. One code for both on purpose: distinguishing them would say whether another tenant's search exists."
+    },
+    {
+      "code": "feedback.unavailable",
+      "status": 503,
+      "concept": "service_unavailable",
+      "retry": true,
+      "meaning": "The feedback store is unreachable. Bounded retry is reasonable; the report was not saved."
+    },
+    {
+      "code": "journey.unavailable",
+      "status": 503,
+      "concept": "service_unavailable",
+      "retry": true,
+      "meaning": "The store that records dashboard journey events is unreachable. Dashboard-only: no API-key route returns it."
+    },
+    {
+      "code": "enrichment.unavailable",
+      "status": 503,
+      "concept": "service_unavailable",
+      "retry": true,
+      "meaning": "The internal company-enrichment lookup is not configured or unreachable. Internal-only: no API-key route returns it."
+    },
+    {
+      "code": "lists.not_found",
+      "status": 404,
+      "concept": "not_found",
+      "retry": false,
+      "meaning": "No such saved list in this workspace. Missing, deleted and another workspace's list are deliberately the same answer."
+    },
+    {
+      "code": "lists.item_cap_reached",
+      "status": 409,
+      "concept": "conflict",
+      "retry": false,
+      "meaning": "Adding these items would take a free workspace past its saved-items cap. Nothing was added. `extra` carries `cap`, `saved` and `adding`, so you can tell how many still fit. An entity already saved in another list does not count again."
+    },
+    {
+      "code": "lists.unavailable",
+      "status": 503,
+      "concept": "service_unavailable",
+      "retry": true,
+      "meaning": "The saved-lists store is unreachable. Nothing was changed."
+    },
+    {
+      "code": "export.not_enabled",
+      "status": 404,
+      "concept": "not_found",
+      "retry": false,
+      "meaning": "CSV export is switched off in this deployment. Retrying will not help; the route answers once export is enabled."
+    },
+    {
+      "code": "cohort.not_offered",
+      "status": 409,
+      "concept": "conflict",
+      "retry": false,
+      "meaning": "The sign-up cohort question is not offered right now. Dashboard-only: no API-key route returns it."
+    },
+    {
+      "code": "cohort.impersonation_cannot_answer",
+      "status": 403,
+      "concept": "permission_denied",
+      "retry": false,
+      "meaning": "An admin impersonating a user cannot answer the cohort question for them. Dashboard-only."
+    },
+    {
+      "code": "referral.already_claimed",
+      "status": 409,
+      "concept": "conflict",
+      "retry": false,
+      "meaning": "This account has already used its one referral code. Dashboard-only."
+    },
+    {
+      "code": "referral.impersonation_cannot_claim",
+      "status": 403,
+      "concept": "permission_denied",
+      "retry": false,
+      "meaning": "An admin impersonating a user cannot claim a referral code for them. Dashboard-only."
+    },
+    {
+      "code": "pagination.cursor_invalid",
+      "status": 422,
+      "concept": "cursor_invalid",
+      "retry": false,
+      "meaning": "The cursor is malformed, failed signature verification, or does not match this request. The last case is the common one: a cursor is signed against a fingerprint of the request that produced it, so every field except `limit` must be resent unchanged."
+    },
+    {
+      "code": "pagination.cursor_expired",
+      "status": 422,
+      "concept": "cursor_expired",
+      "retry": false,
+      "meaning": "The cursor is older than 24 hours. Re-run the search; do not retry with the same cursor."
+    },
+    {
+      "code": "pagination.depth_exceeded",
+      "status": 422,
+      "concept": "pagination_depth_exceeded",
+      "retry": false,
+      "meaning": "Paging beyond 10,000 results. Narrow the search instead."
+    },
+    {
+      "code": "idempotency.in_flight",
+      "status": 409,
+      "concept": "idempotency_conflict",
+      "retry": false,
+      "meaning": "A request with this Idempotency-Key is still running."
+    },
+    {
+      "code": "idempotency.fingerprint_mismatch",
+      "status": 422,
+      "concept": "invalid_request",
+      "retry": false,
+      "meaning": "This Idempotency-Key was already used with a different request body."
+    },
+    {
+      "code": "quota.burst_exceeded",
+      "status": 429,
+      "concept": "rate_limit",
+      "retry": true,
+      "meaning": "Too many calls to one operation from this workspace in the current minute. `extra` carries `limit`, `window` and `operation`. Honour Retry-After, which is never more than a minute."
+    },
+    {
+      "code": "quota.daily_exhausted",
+      "status": 429,
+      "concept": "rate_limit",
+      "retry": true,
+      "meaning": "Daily request quota exhausted. Retry-After may be hours away."
+    },
+    {
+      "code": "quota.monthly_exhausted",
+      "status": 429,
+      "concept": "rate_limit",
+      "retry": true,
+      "meaning": "Monthly request quota exhausted."
+    },
+    {
+      "code": "quota.concurrency_exceeded",
+      "status": 429,
+      "concept": "rate_limit",
+      "retry": true,
+      "meaning": "Too many requests in flight for this key."
+    },
+    {
+      "code": "quota.entity_ceiling",
+      "status": 429,
+      "concept": "rate_limit",
+      "retry": true,
+      "meaning": "Too many distinct entities retrieved in a rolling window. An anti-enumeration limit."
+    },
+    {
+      "code": "rate_limits.unavailable",
+      "status": 503,
+      "concept": "service_unavailable",
+      "retry": true,
+      "meaning": "The admin console's rate-limit settings store is unreachable. Internal-only: the limiter itself falls back to its default policy, so no `/v1` route returns it."
+    },
+    {
+      "code": "credits.insufficient",
+      "status": 402,
+      "concept": "insufficient_credits",
+      "retry": false,
+      "extra_fields": [
+        "available",
+        "required",
+        "action_type",
+        "unrestricted_not_usable"
+      ],
+      "meaning": "Not enough credits for this action. Carries no Retry-After, deliberately: waiting does not help, buying does. Never retried, never slept on, never conflated with a 429."
+    },
+    {
+      "code": "credits.unavailable",
+      "status": 503,
+      "concept": "service_unavailable",
+      "retry": true,
+      "meaning": "The credit service could not be reached. Transient; Retry-After: 5."
+    },
+    {
+      "code": "credits.unknown_action",
+      "status": 500,
+      "concept": "internal",
+      "retry": false,
+      "meaning": "No pricing row for this action. A server misconfiguration, not a client error — and never a free pass. It does not self-heal, so it must not be retried."
+    },
+    {
+      "code": "payment.invalid_amount",
+      "status": 422,
+      "concept": "invalid_request",
+      "retry": false,
+      "meaning": "Not a purchasable amount. Raised only by the dashboard's billing routes, which a key cannot reach; mapped by meaning so `.code` still names the cause."
+    },
+    {
+      "code": "payment.forbidden",
+      "status": 403,
+      "concept": "permission_denied",
+      "retry": false,
+      "meaning": "The caller may not buy credits for this tenant. Dashboard billing routes only."
+    },
+    {
+      "code": "payment.unavailable",
+      "status": 503,
+      "concept": "service_unavailable",
+      "retry": true,
+      "meaning": "The payment provider is unreachable. Dashboard billing routes only; bounded retry is reasonable."
+    },
+    {
+      "code": "payment.declined",
+      "status": 402,
+      "concept": "insufficient_credits",
+      "retry": false,
+      "meaning": "The card was refused. Also a 402, but deliberately not `credits.insufficient`: one means the card said no, the other that the balance is empty. Dashboard billing routes only."
+    },
+    {
+      "code": "payment.no_method",
+      "status": 409,
+      "concept": "invalid_request",
+      "retry": false,
+      "meaning": "No card on file — a missing prerequisite rather than a failed purchase. Dashboard billing routes only."
+    },
+    {
+      "code": "payment.topup_not_found",
+      "status": 404,
+      "concept": "not_found",
+      "retry": false,
+      "meaning": "A top-up handle that is unknown, expired, or another workspace's — one answer for all three, so a handle cannot be used to probe other tenants. Raised by the key-authenticated top-up routes, which the SDKs do not wrap; mapped so `.code` still names the cause."
+    },
+    {
+      "code": "upstream.unavailable",
+      "status": 503,
+      "concept": "service_unavailable",
+      "retry": true,
+      "meaning": "Retrieval was unreachable. Nothing was charged: a billed call is charged only once its answer is ready."
+    },
+    {
+      "code": "upstream.timeout",
+      "status": 504,
+      "concept": "upstream_timeout",
+      "retry": true,
+      "meaning": "Retrieval exceeded its budget. The work is abandoned and not billed."
+    },
+    {
+      "code": "not_implemented",
+      "status": 501,
+      "concept": "feature_not_available",
+      "retry": false,
+      "meaning": "The server is the limitation, not the request. Distinct from request.invalid, which means you asked for something invalid. Retrying will not help."
+    },
+    {
+      "code": "internal",
+      "status": 500,
+      "concept": "internal",
+      "retry": true,
+      "meaning": "An unhandled server error. Bounded retry is reasonable."
+    }
+  ],
+  "status_fallbacks": {
+    "$comment": "Used when a response carries a code this SDK version does not know. Never raise on an unknown code.",
+    "400": "invalid_request",
+    "401": "authentication",
+    "402": "insufficient_credits",
+    "403": "permission_denied",
+    "409": "idempotency_conflict",
+    "413": "request_too_large",
+    "415": "invalid_request",
+    "422": "invalid_request",
+    "429": "rate_limit",
+    "500": "internal",
+    "501": "feature_not_available",
+    "503": "service_unavailable",
+    "504": "upstream_timeout",
+    "404": "not_found"
+  }
+}

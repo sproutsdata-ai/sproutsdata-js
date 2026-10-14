@@ -1,0 +1,36 @@
+{
+  "name": "validation_errors_expose_field_detail",
+  "description": "A 422 from the server carries per-field detail under extra.errors; a client that dropped it would leave the caller guessing.",
+  "responses": [
+    {
+      "status": 422,
+      "headers": {
+        "X-Request-Id": "req_422"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/request-invalid",
+        "title": "Validation failed",
+        "status": 422,
+        "code": "request.invalid",
+        "extra": {
+          "errors": [
+            {
+              "loc": [
+                "body",
+                "limit"
+              ],
+              "msg": "Input should be less than or equal to 100"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "error": {
+      "concept": "invalid_request",
+      "field_errors_length": 1
+    }
+  }
+}

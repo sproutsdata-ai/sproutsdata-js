@@ -1,0 +1,182 @@
+{
+  "description": "A company lookup by domain: one hit and one miss, answered in order. The record is projected to the default company fields; integral revenue and funding figures serialise as integers in every language.",
+  "tool": "sprouts_entity_lookup",
+  "options": {},
+  "arguments": {
+    "category": "company",
+    "ids": [
+      "stripe.com",
+      "unknown-example.com"
+    ],
+    "by": "domain"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "X-Request-Id": "req_e4b1f07c22"
+    },
+    "body": {
+      "results": [
+        {
+          "id": "stripe.com",
+          "category": "company",
+          "found": true,
+          "matches": [
+            {
+              "id": "stripe.com",
+              "account_name": "Stripe",
+              "domain": "stripe.com",
+              "linkedin_url": "https://www.linkedin.com/company/stripe",
+              "industry": "Financial Services",
+              "sub_industry": "Payments",
+              "employee_count": 8500,
+              "revenue": 14300000000,
+              "founded_year": 2010,
+              "funding_stage": "Series I",
+              "total_funding": 9400000000,
+              "technology": [
+                "Ruby",
+                "Go",
+                "Java",
+                "Scala",
+                "React",
+                "TypeScript",
+                "Amazon Web Services",
+                "Kubernetes",
+                "Terraform",
+                "PostgreSQL",
+                "MongoDB",
+                "Redis",
+                "Kafka",
+                "Hadoop",
+                "Spark",
+                "Presto",
+                "Airflow",
+                "Datadog",
+                "PagerDuty",
+                "Slack"
+              ],
+              "description": "Stripe is a financial infrastructure platform for businesses.",
+              "location": "South San Francisco, California, United States",
+              "country": "United States",
+              "city": "South San Francisco",
+              "naics": [
+                "522320"
+              ],
+              "global_presence": {
+                "countries": [
+                  "US",
+                  "IE",
+                  "SG"
+                ],
+                "country_count": 3,
+                "hq_country": "US"
+              },
+              "ownership": "Private",
+              "employee_range": {
+                "min": 5001,
+                "max": 10000
+              },
+              "job_openings": 412
+            }
+          ]
+        },
+        {
+          "id": "unknown-example.com",
+          "category": "company",
+          "found": false,
+          "matches": []
+        }
+      ],
+      "total": 2,
+      "total_is_estimate": false,
+      "has_more": false,
+      "next_cursor": null,
+      "resolved_search": null,
+      "suggestion": null,
+      "coverage": null,
+      "attribution": [
+        {
+          "source_corpus": "companies",
+          "domain": null,
+          "as_of": "2026-09-28T00:00:00Z",
+          "url": null,
+          "quote": null
+        }
+      ],
+      "degradation": [],
+      "columns": null,
+      "meta": {
+        "request_id": "req_e4b1f07c22",
+        "environment": "test",
+        "as_of": "2026-10-01T09:12:44Z",
+        "credential": "api_key"
+      }
+    }
+  },
+  "expected_request": {
+    "method": "POST",
+    "path": "/v1/entities/companies",
+    "body": {
+      "ids": [
+        "stripe.com",
+        "unknown-example.com"
+      ],
+      "by": "domain"
+    }
+  },
+  "expected_output": {
+    "caveats": [],
+    "environment": "test",
+    "request_id": "req_e4b1f07c22",
+    "results": [
+      {
+        "ambiguous": false,
+        "found": true,
+        "id": "stripe.com",
+        "matches": [
+          {
+            "account_name": "Stripe",
+            "country": "United States",
+            "description": "Stripe is a financial infrastructure platform for businesses.",
+            "domain": "stripe.com",
+            "employee_count": 8500,
+            "founded_year": 2010,
+            "funding_stage": "Series I",
+            "id": "stripe.com",
+            "industry": "Financial Services",
+            "linkedin_url": "https://www.linkedin.com/company/stripe",
+            "location": "South San Francisco, California, United States",
+            "revenue": 14300000000,
+            "sub_industry": "Payments",
+            "technology": [
+              "Ruby",
+              "Go",
+              "Java",
+              "Scala",
+              "React",
+              "TypeScript",
+              "Amazon Web Services",
+              "Kubernetes",
+              "Terraform",
+              "PostgreSQL",
+              "MongoDB",
+              "Redis",
+              "Kafka",
+              "Hadoop",
+              "Spark",
+              "… +5 more"
+            ],
+            "total_funding": 9400000000
+          }
+        ]
+      },
+      {
+        "ambiguous": false,
+        "found": false,
+        "id": "unknown-example.com",
+        "matches": []
+      }
+    ]
+  }
+}

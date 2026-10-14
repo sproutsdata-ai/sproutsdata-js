@@ -1,0 +1,44 @@
+{
+  "name": "plain_internal_error_is_retried",
+  "description": "A bare 500 gets a bounded retry, unlike credits.unknown_action.",
+  "responses": [
+    {
+      "status": 500,
+      "headers": {},
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/internal",
+        "title": "Internal error",
+        "status": 500,
+        "code": "internal"
+      }
+    },
+    {
+      "status": 200,
+      "headers": {
+        "X-Request-Id": "req_ok3"
+      },
+      "body": {
+        "results": [],
+        "total": 0,
+        "total_is_estimate": false,
+        "has_more": false,
+        "next_cursor": null,
+        "resolved_search": null,
+        "attribution": [],
+        "degradation": [],
+        "meta": {
+          "request_id": "req_ok3",
+          "environment": "test",
+          "as_of": "2026-08-13T00:00:00Z",
+          "credential": "api_key"
+        }
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 2,
+    "success": {
+      "results_length": 0
+    }
+  }
+}

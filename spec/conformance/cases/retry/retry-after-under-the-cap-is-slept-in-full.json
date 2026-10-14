@@ -1,0 +1,49 @@
+{
+  "name": "retry_after_under_the_cap_is_honoured_in_full",
+  "description": "Any Retry-After up to 60 seconds is slept exactly as sent, not shortened, so the retry does not arrive early and fail again.",
+  "responses": [
+    {
+      "status": 429,
+      "headers": {
+        "Retry-After": "45"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/quota-burst-exceeded",
+        "title": "Rate limit exceeded",
+        "status": 429,
+        "code": "quota.burst_exceeded"
+      }
+    },
+    {
+      "status": 200,
+      "headers": {
+        "X-Request-Id": "req_ok"
+      },
+      "body": {
+        "results": [],
+        "total": 0,
+        "total_is_estimate": false,
+        "has_more": false,
+        "next_cursor": null,
+        "resolved_search": null,
+        "attribution": [],
+        "degradation": [],
+        "meta": {
+          "request_id": "req_ok",
+          "environment": "test",
+          "as_of": "2026-08-13T00:00:00Z",
+          "credential": "api_key"
+        }
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 2,
+    "slept": [
+      45
+    ],
+    "success": {
+      "request_id": "req_ok"
+    }
+  }
+}

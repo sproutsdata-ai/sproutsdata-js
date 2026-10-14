@@ -1,0 +1,796 @@
+{
+  "name": "sprouts_search",
+  "description": "THE DEFAULT TOOL. Find companies, people or documents matching a DESCRIPTION of who to find. A natural-language `query` is the primary interface; `filters` is a vetted override, never a place to restate the query. \"Who works at X\" is this tool with `category: \"person\"`.\n\nRead the result before reporting it. `interpreted_as` shows the filters the engine actually applied (`source: \"parser\"` means it inferred them from your words), and `caveats` lists what it could not do. When `total_is_estimate` is true, `total` is a floor: say \"at least N\", never an exact count. `has_more` with a `next_cursor` means more rows exist. An empty result means nothing matched what was applied, not that the entity does not exist: the index does not hold every company or person, and some categories have no index in a given deployment.\n\nFilter values must come from the live vocabulary. Seniority is exactly `C-Suite`, `VP`, `Director / Head`, `Manager`, `IC`, `Entry`, `In Training`. Industries look like `Software & Technology`; departments like `Marketing` or `Engineering / Software`. Founders, owners, partners, investors and advisors are `governance_level`, and consultants and freelancers are `employment_type`, not seniorities. An invented filter name or value fails the whole call: move that constraint into the `query` words instead.\n\nBilled per result: the first 10 results cost 0.5 credits with `mode: \"fast\"` or 0.595 with `auto`, and each extra result 0.08 or 0.085. A later page costs only the results it adds, and a search that finds nothing is free. `environment: \"test\"` in a result means a test key: real records, zero credits.",
+  "description_hints": {
+    "sprouts_entity_lookup": "To get a row's full record, call sprouts_entity_lookup with the row's `lookup` value: a company by its domain with `by: \"domain\"`, a person by their LinkedIn URL with `by: \"li_url\"`. Never pass a row's `id`: search ids cannot be looked up."
+  },
+  "refused_arguments": {
+    "page": "This tool has no `page`. Pass `cursor` from the previous result's `next_cursor` instead.",
+    "offset": "This tool has no `offset`. Pass `cursor` from the previous result's `next_cursor` instead.",
+    "updated_after": "`updated_after` is not implemented and would fail at execution. Remove it."
+  },
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "query": {
+        "type": "string",
+        "maxLength": 2000,
+        "description": "Natural language: the primary interface, and never the wrong choice. Describe the ideal record, not keywords: \"payments companies in Germany with 500-5000 staff\" beats \"fintech DE\". Optional if `filters` is given."
+      },
+      "category": {
+        "type": "string",
+        "enum": [
+          "company",
+          "person",
+          "patent",
+          "news_article",
+          "trend",
+          "market_report",
+          "funding_round",
+          "academic_report",
+          "job_opening",
+          "auto"
+        ],
+        "default": "company",
+        "description": "What to search, and the type of every row returned. Pick the category the ANSWER lives in: \"companies hiring Rust engineers\" is `job_opening`, \"who leads security at Acme\" is `person`. `auto` lets the engine choose; it needs `mode: \"auto\"` and a `query`, and accepts no `filters`, domains or `sort`."
+      },
+      "mode": {
+        "type": "string",
+        "enum": [
+          "fast",
+          "auto"
+        ],
+        "default": "fast",
+        "description": "`fast` (about 1-2 s) matches literally and does NO query parsing: a country, headcount or industry stated only in words is silently not applied. `auto` (about 12 s, more credits) has a model turn your words into filters. Use `fast` when the constraints are in `filters`, `auto` when they live in the sentence."
+      },
+      "filters": {
+        "type": "object",
+        "description": "Structured constraints for `company` and `person` searches. Most calls need only `query`. Anything set here overrides what the parser would infer. Do not copy names out of a result's `interpreted_as`: it echoes the engine's internal names.",
+        "properties": {
+          "industry": {
+            "type": "object",
+            "description": "Industry labels, for example `Software & Technology`.",
+            "properties": {
+              "include": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "exclude": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "b2b_b2c": {
+            "type": "object",
+            "description": "Business model, for example `B2B`.",
+            "properties": {
+              "include": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "exclude": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "technology": {
+            "type": "object",
+            "description": "Technologies a company uses, for example `HubSpot` or `AWS`.",
+            "properties": {
+              "include": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "exclude": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "geo": {
+            "type": "object",
+            "description": "Location, the only geography filter: {\"places\":[{\"value\":\"germany\",\"level\":\"country\"}]}. There is no `country` or `city` filter.",
+            "properties": {
+              "places": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "level": {
+                      "type": "string",
+                      "enum": [
+                        "country",
+                        "state",
+                        "city",
+                        "region"
+                      ]
+                    },
+                    "negate": {
+                      "type": "boolean",
+                      "description": "Exclude this place instead of requiring it."
+                    }
+                  },
+                  "required": [
+                    "value",
+                    "level"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "places"
+            ],
+            "additionalProperties": false
+          },
+          "employee_count": {
+            "type": "object",
+            "description": "Headcount range, both bounds inclusive: {\"gte\":50,\"lte\":500}.",
+            "properties": {
+              "gte": {
+                "type": "integer"
+              },
+              "lte": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false
+          },
+          "last_funding_date": {
+            "type": "object",
+            "description": "When the latest round closed, both bounds inclusive: ISO dates (`2024-01-01`) or date math (`now-90d`).",
+            "properties": {
+              "gte": {
+                "type": "string"
+              },
+              "lte": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "seniority": {
+            "type": "object",
+            "description": "Exactly 7 levels, most senior first: `C-Suite`, `VP`, `Director / Head`, `Manager`, `IC`, `Entry`, `In Training`. `Director` and `Head` are ONE level.",
+            "properties": {
+              "include": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "exclude": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "department": {
+            "type": "object",
+            "description": "Function labels, for example `Marketing`, `Sales`, `Engineering / Software`, `IT & Infrastructure`, `Data, Analytics & AI`.",
+            "properties": {
+              "include": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "exclude": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "governance_level": {
+            "type": "object",
+            "description": "Board and ownership roles, for founder, owner and investor questions: `Founder`, `Co Founder`, `Owner`, `Partner`, `Board Member`, `Investor`, `Advisor`.",
+            "properties": {
+              "include": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "exclude": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "employment_type": {
+            "type": "object",
+            "description": "How someone is engaged: `Full Time`, `Part Time`, `Freelancer`, `Contractor`, `Consultant (External)`.",
+            "properties": {
+              "include": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "exclude": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "sort": {
+        "type": "array",
+        "maxItems": 3,
+        "description": "Order the results, strongest key first. Omit it for the engine's own ordering, which is right for most searches; use it when the user asked for an extreme (\"the largest\", \"most recently funded\"). Sortable fields differ per category and an unknown one fails the call, so do not guess a field name.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string",
+              "minLength": 1
+            },
+            "direction": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc"
+            }
+          },
+          "required": [
+            "field"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "include_domains": {
+        "type": "array",
+        "maxItems": 100,
+        "description": "Restrict to these company domains. `company`, `person` and `job_opening` only.",
+        "items": {
+          "type": "string"
+        }
+      },
+      "exclude_domains": {
+        "type": "array",
+        "maxItems": 100,
+        "description": "Leave out these company domains. `company`, `person` and `job_opening` only.",
+        "items": {
+          "type": "string"
+        }
+      },
+      "limit": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100,
+        "default": 10,
+        "description": "Rows per page. The application may cap it lower; the result says so in `caveats`."
+      },
+      "cursor": {
+        "type": "string",
+        "description": "From a previous result's `next_cursor`. Resend the same request unchanged plus the cursor: it is bound to every other field except `limit`. Cursors expire after 24 hours."
+      },
+      "fields": {
+        "type": "array",
+        "description": "Return only these record fields (plus `id` and `category`). Omit for a compact default set; a field missing from a row may simply not be in that set, so ask for it by name.",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "additionalProperties": false
+  },
+  "strict_input_schema": {
+    "type": "object",
+    "properties": {
+      "query": {
+        "description": "Natural language: the primary interface, and never the wrong choice. Describe the ideal record, not keywords: \"payments companies in Germany with 500-5000 staff\" beats \"fintech DE\". Optional if `filters` is given. At most 2000 characters.",
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "category": {
+        "description": "What to search, and the type of every row returned. Pick the category the ANSWER lives in: \"companies hiring Rust engineers\" is `job_opening`, \"who leads security at Acme\" is `person`. `auto` lets the engine choose; it needs `mode: \"auto\"` and a `query`, and accepts no `filters`, domains or `sort`. Default: `company`.",
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "company",
+          "person",
+          "patent",
+          "news_article",
+          "trend",
+          "market_report",
+          "funding_round",
+          "academic_report",
+          "job_opening",
+          "auto",
+          null
+        ]
+      },
+      "mode": {
+        "description": "`fast` (about 1-2 s) matches literally and does NO query parsing: a country, headcount or industry stated only in words is silently not applied. `auto` (about 12 s, more credits) has a model turn your words into filters. Use `fast` when the constraints are in `filters`, `auto` when they live in the sentence. Default: `fast`.",
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "fast",
+          "auto",
+          null
+        ]
+      },
+      "filters": {
+        "description": "Structured constraints for `company` and `person` searches. Most calls need only `query`. Anything set here overrides what the parser would infer. Do not copy names out of a result's `interpreted_as`: it echoes the engine's internal names.",
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "industry": {
+            "description": "Industry labels, for example `Software & Technology`.",
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "include": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "exclude": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "include",
+              "exclude"
+            ],
+            "additionalProperties": false
+          },
+          "b2b_b2c": {
+            "description": "Business model, for example `B2B`.",
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "include": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "exclude": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "include",
+              "exclude"
+            ],
+            "additionalProperties": false
+          },
+          "technology": {
+            "description": "Technologies a company uses, for example `HubSpot` or `AWS`.",
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "include": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "exclude": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "include",
+              "exclude"
+            ],
+            "additionalProperties": false
+          },
+          "geo": {
+            "description": "Location, the only geography filter: {\"places\":[{\"value\":\"germany\",\"level\":\"country\"}]}. There is no `country` or `city` filter.",
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "places": {
+                "description": "At least one item.",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "description": "Not empty.",
+                      "type": "string"
+                    },
+                    "level": {
+                      "type": "string",
+                      "enum": [
+                        "country",
+                        "state",
+                        "city",
+                        "region"
+                      ]
+                    },
+                    "negate": {
+                      "description": "Exclude this place instead of requiring it.",
+                      "type": [
+                        "boolean",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "value",
+                    "level",
+                    "negate"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "places"
+            ],
+            "additionalProperties": false
+          },
+          "employee_count": {
+            "description": "Headcount range, both bounds inclusive: {\"gte\":50,\"lte\":500}.",
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "gte": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "lte": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "gte",
+              "lte"
+            ],
+            "additionalProperties": false
+          },
+          "last_funding_date": {
+            "description": "When the latest round closed, both bounds inclusive: ISO dates (`2024-01-01`) or date math (`now-90d`).",
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "gte": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "lte": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "gte",
+              "lte"
+            ],
+            "additionalProperties": false
+          },
+          "seniority": {
+            "description": "Exactly 7 levels, most senior first: `C-Suite`, `VP`, `Director / Head`, `Manager`, `IC`, `Entry`, `In Training`. `Director` and `Head` are ONE level.",
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "include": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "exclude": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "include",
+              "exclude"
+            ],
+            "additionalProperties": false
+          },
+          "department": {
+            "description": "Function labels, for example `Marketing`, `Sales`, `Engineering / Software`, `IT & Infrastructure`, `Data, Analytics & AI`.",
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "include": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "exclude": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "include",
+              "exclude"
+            ],
+            "additionalProperties": false
+          },
+          "governance_level": {
+            "description": "Board and ownership roles, for founder, owner and investor questions: `Founder`, `Co Founder`, `Owner`, `Partner`, `Board Member`, `Investor`, `Advisor`.",
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "include": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "exclude": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "include",
+              "exclude"
+            ],
+            "additionalProperties": false
+          },
+          "employment_type": {
+            "description": "How someone is engaged: `Full Time`, `Part Time`, `Freelancer`, `Contractor`, `Consultant (External)`.",
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "include": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "exclude": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "include",
+              "exclude"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "industry",
+          "b2b_b2c",
+          "technology",
+          "geo",
+          "employee_count",
+          "last_funding_date",
+          "seniority",
+          "department",
+          "governance_level",
+          "employment_type"
+        ],
+        "additionalProperties": false
+      },
+      "sort": {
+        "description": "Order the results, strongest key first. Omit it for the engine's own ordering, which is right for most searches; use it when the user asked for an extreme (\"the largest\", \"most recently funded\"). Sortable fields differ per category and an unknown one fails the call, so do not guess a field name. At most 3 items.",
+        "type": [
+          "array",
+          "null"
+        ],
+        "items": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "description": "Not empty.",
+              "type": "string"
+            },
+            "direction": {
+              "description": "Default: `desc`.",
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "asc",
+                "desc",
+                null
+              ]
+            }
+          },
+          "required": [
+            "field",
+            "direction"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "include_domains": {
+        "description": "Restrict to these company domains. `company`, `person` and `job_opening` only. At most 100 items.",
+        "type": [
+          "array",
+          "null"
+        ],
+        "items": {
+          "type": "string"
+        }
+      },
+      "exclude_domains": {
+        "description": "Leave out these company domains. `company`, `person` and `job_opening` only. At most 100 items.",
+        "type": [
+          "array",
+          "null"
+        ],
+        "items": {
+          "type": "string"
+        }
+      },
+      "limit": {
+        "description": "Rows per page. The application may cap it lower; the result says so in `caveats`. Between 1 and 100. Default: 10.",
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "cursor": {
+        "description": "From a previous result's `next_cursor`. Resend the same request unchanged plus the cursor: it is bound to every other field except `limit`. Cursors expire after 24 hours.",
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "fields": {
+        "description": "Return only these record fields (plus `id` and `category`). Omit for a compact default set; a field missing from a row may simply not be in that set, so ask for it by name.",
+        "type": [
+          "array",
+          "null"
+        ],
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "required": [
+      "query",
+      "category",
+      "mode",
+      "filters",
+      "sort",
+      "include_domains",
+      "exclude_domains",
+      "limit",
+      "cursor",
+      "fields"
+    ],
+    "additionalProperties": false
+  }
+}

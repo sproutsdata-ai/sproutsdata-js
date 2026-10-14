@@ -1,0 +1,76 @@
+{
+  "description": "A filter value from the retired vocabulary. The 422 comes back as data with the server's message, the field path in the tool's own terms, and `retryable: false`.",
+  "tool": "sprouts_search",
+  "options": {},
+  "arguments": {
+    "query": "directors",
+    "category": "person",
+    "filters": {
+      "seniority": {
+        "include": [
+          "director"
+        ]
+      }
+    }
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "X-Request-Id": "req_5d1e0a77c2"
+    },
+    "body": {
+      "type": "https://docs.sprouts.ai/errors/request-invalid",
+      "title": "Invalid request",
+      "status": 422,
+      "code": "request.invalid",
+      "detail": "seniority: 'director' — not values this index holds. Valid values include 'C-Suite', 'VP', 'Director / Head', 'Manager', 'IC', 'Entry', 'In Training'.",
+      "instance": "/v1/search",
+      "request_id": "req_5d1e0a77c2",
+      "extra": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "body",
+              "filters",
+              "seniority",
+              "include",
+              0
+            ],
+            "msg": "'director' is not a value this index holds",
+            "input": "director"
+          }
+        ]
+      }
+    }
+  },
+  "expected_request": {
+    "method": "POST",
+    "path": "/v1/search",
+    "body": {
+      "category": "person",
+      "query": "directors",
+      "mode": "fast",
+      "limit": 10,
+      "filters": {
+        "seniority": {
+          "include": [
+            "director"
+          ]
+        }
+      }
+    }
+  },
+  "expected_output": {
+    "error": {
+      "code": "request.invalid",
+      "field_errors": [
+        "filters.seniority.include.0: 'director' is not a value this index holds"
+      ],
+      "message": "seniority: 'director' — not values this index holds. Valid values include 'C-Suite', 'VP', 'Director / Head', 'Manager', 'IC', 'Entry', 'In Training'.",
+      "request_id": "req_5d1e0a77c2",
+      "retry_after": null,
+      "retryable": false
+    }
+  }
+}

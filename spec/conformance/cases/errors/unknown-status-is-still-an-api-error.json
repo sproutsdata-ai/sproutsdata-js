@@ -1,0 +1,20 @@
+{
+  "name": "unrecognised_status_is_still_an_api_error",
+  "description": "An I'm-a-teapot from a proxy must surface as an API error carrying the status, not as a parse failure.",
+  "responses": [
+    {
+      "status": 418,
+      "headers": {},
+      "body": {
+        "nonsense": true
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "error": {
+      "concept": "api_status",
+      "status": 418
+    }
+  }
+}

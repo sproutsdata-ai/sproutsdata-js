@@ -1,0 +1,90 @@
+{
+  "description": "A company lookup without `by`, fed a search-result id and a domain. Both miss, and the caveats say why and how to look them up instead.",
+  "tool": "sprouts_entity_lookup",
+  "options": {},
+  "arguments": {
+    "category": "company",
+    "ids": [
+      "9c41e2a07b3d5f18",
+      "brightloop.io"
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "X-Request-Id": "req_b85f1d2a60"
+    },
+    "body": {
+      "results": [
+        {
+          "id": "9c41e2a07b3d5f18",
+          "category": "company",
+          "found": false,
+          "matches": []
+        },
+        {
+          "id": "brightloop.io",
+          "category": "company",
+          "found": false,
+          "matches": []
+        }
+      ],
+      "total": 2,
+      "total_is_estimate": false,
+      "has_more": false,
+      "next_cursor": null,
+      "resolved_search": null,
+      "suggestion": null,
+      "coverage": null,
+      "attribution": [
+        {
+          "source_corpus": "companies",
+          "domain": null,
+          "as_of": "2026-09-28T00:00:00Z",
+          "url": null,
+          "quote": null
+        }
+      ],
+      "degradation": [],
+      "columns": null,
+      "meta": {
+        "request_id": "req_b85f1d2a60",
+        "environment": "test",
+        "as_of": "2026-10-01T09:12:44Z",
+        "credential": "api_key"
+      }
+    }
+  },
+  "expected_request": {
+    "method": "POST",
+    "path": "/v1/entities/companies",
+    "body": {
+      "ids": [
+        "9c41e2a07b3d5f18",
+        "brightloop.io"
+      ]
+    }
+  },
+  "expected_output": {
+    "caveats": [
+      "search_ids_not_found: 9c41e2a07b3d5f18 — search-result ids are not record ids and are never found here. Look the row up by its `lookup` value (domain or LinkedIn URL); this miss does not mean the record is not held.",
+      "raw_values_without_by: brightloop.io — read as record ids because `by` was not set. Call again with `by: \"domain\"` or `by: \"li_url\"`."
+    ],
+    "environment": "test",
+    "request_id": "req_b85f1d2a60",
+    "results": [
+      {
+        "ambiguous": false,
+        "found": false,
+        "id": "9c41e2a07b3d5f18",
+        "matches": []
+      },
+      {
+        "ambiguous": false,
+        "found": false,
+        "id": "brightloop.io",
+        "matches": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "name": "insufficient_credits_reports_decimal_credits",
+  "description": "Credits are metered to three decimal places, so a 402 can name a fraction of a credit. The client reads `required` and `available` as decimals, raises on the first attempt and does not sleep.",
+  "responses": [
+    {
+      "status": 402,
+      "headers": {
+        "X-Request-Id": "req_402_fraction"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/credits-insufficient",
+        "title": "Insufficient credits",
+        "status": 402,
+        "code": "credits.insufficient",
+        "detail": "This action costs 0.595 credits; 0.25 available.",
+        "extra": {
+          "available": 0.25,
+          "required": 0.595,
+          "action_type": "dsp.search.auto"
+        }
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "no_sleep": true,
+    "error": {
+      "concept": "insufficient_credits",
+      "request_id": "req_402_fraction",
+      "fields": {
+        "available": 0.25,
+        "required": 0.595,
+        "action_type": "dsp.search.auto"
+      }
+    }
+  }
+}

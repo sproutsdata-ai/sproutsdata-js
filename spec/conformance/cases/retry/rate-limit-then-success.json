@@ -1,0 +1,57 @@
+{
+  "name": "rate_limit_is_retried_and_honours_retry_after",
+  "description": "A 429 is raised before the charge, so retrying is free. Retry-After must be respected rather than replaced by backoff.",
+  "responses": [
+    {
+      "status": 429,
+      "headers": {
+        "X-Request-Id": "req_429",
+        "Retry-After": "2"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/quota-burst-exceeded",
+        "title": "Rate limit exceeded",
+        "status": 429,
+        "code": "quota.burst_exceeded"
+      }
+    },
+    {
+      "status": 200,
+      "headers": {
+        "X-Request-Id": "req_ok"
+      },
+      "body": {
+        "results": [
+          {
+            "id": "a.com",
+            "category": "company",
+            "score": 1.0
+          }
+        ],
+        "total": 1,
+        "total_is_estimate": false,
+        "has_more": false,
+        "next_cursor": null,
+        "resolved_search": null,
+        "attribution": [],
+        "degradation": [],
+        "meta": {
+          "request_id": "req_ok",
+          "environment": "test",
+          "as_of": "2026-08-13T00:00:00Z",
+          "credential": "api_key"
+        }
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 2,
+    "slept": [
+      2.0
+    ],
+    "success": {
+      "results_length": 1,
+      "request_id": "req_ok"
+    }
+  }
+}

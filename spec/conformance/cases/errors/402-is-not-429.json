@@ -1,0 +1,31 @@
+{
+  "name": "insufficient_credits_is_not_a_rate_limit",
+  "description": "The server never conflates the two, and neither may a client. A 402 that arrived with a stray Retry-After is still not retryable.",
+  "responses": [
+    {
+      "status": 402,
+      "headers": {
+        "X-Request-Id": "req_x",
+        "Retry-After": "1"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/credits-insufficient",
+        "title": "Insufficient credits",
+        "status": 402,
+        "code": "credits.insufficient",
+        "extra": {
+          "available": 0,
+          "required": 1
+        }
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "no_sleep": true,
+    "error": {
+      "concept": "insufficient_credits",
+      "not_concept": "rate_limit"
+    }
+  }
+}

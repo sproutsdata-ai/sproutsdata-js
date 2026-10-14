@@ -1,0 +1,26 @@
+{
+  "name": "cursor_expired_is_distinct_and_not_retried",
+  "description": "A cursor older than 24 hours will fail identically forever. It must be distinguishable from a malformed one, because the fix differs: re-run the search.",
+  "responses": [
+    {
+      "status": 422,
+      "headers": {
+        "X-Request-Id": "req_exp"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/pagination-cursor-expired",
+        "title": "Cursor expired",
+        "status": 422,
+        "code": "pagination.cursor_expired",
+        "detail": "This cursor is too old to be trusted. Run the search again."
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "no_sleep": true,
+    "error": {
+      "concept": "cursor_expired"
+    }
+  }
+}

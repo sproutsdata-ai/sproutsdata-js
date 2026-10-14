@@ -1,0 +1,37 @@
+{
+  "name": "insufficient_credits_is_never_retried",
+  "description": "A 402 is commercial, not transient. Waiting does not buy credits, so the client must raise on the first attempt and must not sleep.",
+  "responses": [
+    {
+      "status": 402,
+      "headers": {
+        "X-Request-Id": "req_402"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/credits-insufficient",
+        "title": "Insufficient credits",
+        "status": 402,
+        "code": "credits.insufficient",
+        "detail": "This action costs 1 credit; 0 available.",
+        "extra": {
+          "available": 0,
+          "required": 1,
+          "action_type": "dsp.entities"
+        }
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "no_sleep": true,
+    "error": {
+      "concept": "insufficient_credits",
+      "request_id": "req_402",
+      "fields": {
+        "available": 0,
+        "required": 1,
+        "action_type": "dsp.entities"
+      }
+    }
+  }
+}

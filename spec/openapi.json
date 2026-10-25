@@ -328,6 +328,21 @@
             "description": "Credits, to at most three decimals.",
             "title": "Reserved",
             "type": "number"
+          },
+          "sources": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/CreditSourceBalance"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "`remaining` broken down by source, sources with nothing left omitted; the amounts add up to `remaining`. `reserved` is not split by source. Null when the breakdown is not available.",
+            "title": "Sources"
           }
         },
         "required": [
@@ -1948,6 +1963,53 @@
           "total"
         ],
         "title": "CoverageSegmentOut",
+        "type": "object"
+      },
+      "CreditSourceBalance": {
+        "description": "The live allocated credits from one source.",
+        "properties": {
+          "expires_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The soonest expiry among this source's credits; null when none expires.",
+            "title": "Expires At"
+          },
+          "never_expires": {
+            "description": "True when none of this source's credits expire.",
+            "title": "Never Expires",
+            "type": "boolean"
+          },
+          "remaining": {
+            "description": "Unspent and unexpired credits from this source.",
+            "title": "Remaining",
+            "type": "number"
+          },
+          "source": {
+            "description": "Where the credits came from. `purchased` credits (the top-up bonus included) never expire; `signup`, `referral` and `promo` credits expire on their own window after they are granted; `other` covers credits allocated by Sprouts.",
+            "enum": [
+              "purchased",
+              "signup",
+              "referral",
+              "promo",
+              "other"
+            ],
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "remaining",
+          "never_expires"
+        ],
+        "title": "CreditSourceBalance",
         "type": "object"
       },
       "CreditsResponse": {
@@ -17796,7 +17858,7 @@
     },
     "/v1/credits": {
       "get": {
-        "description": "What this tenant can spend on the data platform.\n\nAll three numbers are real now that grants carry a `platform_code`\n(`SDP-15`):\n\n- `allocated` — credits earmarked to dsp specifically.\n- `shared` — the tenant's unrestricted credits. **Reported but not\n  spendable here**: dsp is hard-capped (`SDP-30`), so an exhausted\n  allocation is a 402 rather than a quiet fall-through onto the Account OS\n  balance. It is reported anyway because an empty allocation beside a\n  healthy shared balance must read as \"move some across\", not as an empty\n  account.\n- `spendable` — the headline, and the one that agrees with what a charge\n  will actually allow.\n\n`scope` says which of those two worlds produced the answer, so a caller can\ntell a real per-platform figure from the legacy tenant-wide fallback that\nan un-upgraded mint still returns.",
+        "description": "What this tenant can spend on the data platform.\n\nAll three numbers are real now that grants carry a `platform_code`\n(`SDP-15`):\n\n- `allocated` — credits earmarked to dsp specifically.\n- `shared` — the tenant's unrestricted credits. **Reported but not\n  spendable here**: dsp is hard-capped (`SDP-30`), so an exhausted\n  allocation is a 402 rather than a quiet fall-through onto the Account OS\n  balance. It is reported anyway because an empty allocation beside a\n  healthy shared balance must read as \"move some across\", not as an empty\n  account.\n- `spendable` — the headline, and the one that agrees with what a charge\n  will actually allow.\n\n`allocated.sources` breaks the allocation down by where it came from —\npurchased, signup, referral, promo — because each has its own expiry:\npurchased credits never expire, the free ones do.\n\n`scope` says which of those two worlds produced the answer, so a caller can\ntell a real per-platform figure from the legacy tenant-wide fallback that\nan un-upgraded mint still returns.",
         "operationId": "credits",
         "responses": {
           "200": {

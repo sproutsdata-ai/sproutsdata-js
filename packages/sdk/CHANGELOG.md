@@ -26,7 +26,10 @@ changes; each one will be listed here.
 - **Agent runs**: `client.runs` creates, follows (server-sent events), waits
   for, cancels and lists agent runs, and pages through their results.
 - **Account**: `client.credits` (balance and key usage), `client.history`
-  (past calls, their detail and metrics) and `client.members`.
+  (past calls, their detail and metrics) and `client.members`. The balance's
+  `allocated.sources` breaks the allocated credits down by source —
+  `purchased`, `signup`, `referral`, `promo`, `other` — each with its soonest
+  expiry; purchased credits never expire.
 - **Feedback**: `client.feedback` files reports and help requests, lists them,
   and casts votes on results.
 - **Saved lists**: `client.lists` creates, renames and deletes lists, adds,

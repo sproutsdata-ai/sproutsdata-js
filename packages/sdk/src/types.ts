@@ -611,12 +611,35 @@ export interface UsageResponse {
   meta: ResponseMeta;
 }
 
+/**
+ * Where allocated credits came from. Each source has its own expiry:
+ * `purchased` credits (a top-up's extra credits included) never expire;
+ * `signup`, `referral` and `promo` credits expire after they are granted;
+ * `other` is credits allocated by Sprouts.
+ */
+export type CreditSource = 'purchased' | 'signup' | 'referral' | 'promo' | 'other';
+
+/** The unspent credits from one source. */
+export interface CreditSourceBalance {
+  source: CreditSource;
+  remaining: number;
+  /** The soonest expiry among this source's credits; null when none expires. */
+  expires_at: string | null;
+  never_expires: boolean;
+}
+
 /** Credits allocated to this platform. */
 export interface AllocatedCredits {
   granted: number;
   remaining: number;
   reserved: number;
+  /** The soonest expiry among the allocated credits. */
   expires_at: string | null;
+  /**
+   * `remaining` broken down by source, adding up to it; `reserved` is not split
+   * by source. Absent or null from a backend that does not report it.
+   */
+  sources?: CreditSourceBalance[] | null;
 }
 
 /**

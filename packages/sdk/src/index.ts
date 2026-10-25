@@ -81,6 +81,8 @@ export type {
   UsageBucket,
   UsageResponse,
   AllocatedCredits,
+  CreditSource,
+  CreditSourceBalance,
   SharedCredits,
   CreditsResponse,
   CoverageParams,

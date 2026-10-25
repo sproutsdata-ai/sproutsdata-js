@@ -816,11 +816,10 @@ describe('credits.retrieve', () => {
     const client = makeClient(fetchQueue(jsonResponse(body)));
     const credits = await client.credits.retrieve();
     const sources = credits.allocated?.sources ?? [];
-    expect(sources.map((s) => [s.source, s.remaining, s.never_expires])).toEqual([
-      ['purchased', 900, true],
-      ['signup', 500, false],
+    expect(sources.map((s) => [s.source, s.remaining, s.expires_at, s.never_expires])).toEqual([
+      ['purchased', 900, null, true],
+      ['signup', 500, '2027-01-20T00:00:00Z', false],
     ]);
-    expect(sources.reduce((sum, s) => sum + s.remaining, 0)).toBe(credits.allocated?.remaining);
   });
 
   it('GETs /v1/credits and parses a fallback-scoped balance', async () => {

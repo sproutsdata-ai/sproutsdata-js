@@ -7433,52 +7433,116 @@
         "title": "OfficeLocation",
         "type": "object"
       },
-      "OrgChartCell": {
-        "description": "One department x seniority count. Absent pairs are zero, not listed.",
+      "OrgChartAxisEntry": {
+        "description": "One row (department) or column (seniority) of the grid.",
         "properties": {
+          "code": {
+            "description": "Taxonomy code, e.g. `director_head`, or `unknown`.",
+            "title": "Code",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "total": {
+            "description": "People in this row or column. A department row's total is the sum of its cells; a seniority column's is its people.",
+            "minimum": 0.0,
+            "title": "Total",
+            "type": "integer"
+          },
+          "unknown": {
+            "description": "The explicit Unknown row or column (always last).",
+            "title": "Unknown",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "code",
+          "label",
+          "total",
+          "unknown"
+        ],
+        "title": "OrgChartAxisEntry",
+        "type": "object"
+      },
+      "OrgChartBadges": {
+        "description": "`null` when not asked for or not available (`metrics` says why);\nnever a 0 standing in for \"unknown\".",
+        "properties": {
+          "job_openings": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Openings"
+          },
+          "new_joiners": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "New Joiners"
+          }
+        },
+        "title": "OrgChartBadges",
+        "type": "object"
+      },
+      "OrgChartCell": {
+        "properties": {
+          "badges": {
+            "$ref": "#/components/schemas/OrgChartBadges"
+          },
           "count": {
+            "description": "People; 0 for a cell listed only for its job openings.",
             "minimum": 0.0,
             "title": "Count",
             "type": "integer"
           },
           "department": {
-            "title": "Department",
-            "type": "string"
+            "$ref": "#/components/schemas/OrgChartCode"
           },
           "seniority": {
-            "title": "Seniority",
-            "type": "string"
+            "$ref": "#/components/schemas/OrgChartCode"
           }
         },
         "required": [
           "department",
           "seniority",
-          "count"
+          "count",
+          "badges"
         ],
         "title": "OrgChartCell",
         "type": "object"
       },
-      "OrgChartCity": {
+      "OrgChartCode": {
+        "description": "A taxonomy value: `code` to send back, `label` to show.",
         "properties": {
-          "city": {
-            "title": "City",
+          "code": {
+            "title": "Code",
             "type": "string"
           },
-          "count": {
-            "minimum": 0.0,
-            "title": "Count",
-            "type": "integer"
+          "label": {
+            "title": "Label",
+            "type": "string"
           }
         },
         "required": [
-          "city",
-          "count"
+          "code",
+          "label"
         ],
-        "title": "OrgChartCity",
+        "title": "OrgChartCode",
         "type": "object"
       },
       "OrgChartCompany": {
-        "description": "Which company answered, echoed as the identifier that resolved it.\n\nBoth keys are always present and exactly one is set — whichever the\nrequest carried. The domain is echoed normalized, so a pasted URL comes\nback as the host the counts are actually for, and it is `null` on the\nLinkedIn path because a company reached that way generally has no domain\nat all. The internal id used upstream is deliberately not here.",
+        "description": "Which company answered.\n\n`domain` and `linkedin_url` echo the identifier the request carried (the\ndomain normalized); `linkedin_url` is filled from the index when the\nrequest gave a domain and the company has a page. The internal id used\nupstream is deliberately not here.",
         "properties": {
           "domain": {
             "anyOf": [
@@ -7501,64 +7565,101 @@
               }
             ],
             "title": "Linkedin Url"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
           }
         },
         "title": "OrgChartCompany",
         "type": "object"
       },
-      "OrgChartCountry": {
+      "OrgChartCoverage": {
+        "description": "How well the company's record is covered by people profiles.",
         "properties": {
-          "count": {
-            "minimum": 0.0,
-            "title": "Count",
-            "type": "integer"
-          },
-          "country": {
-            "title": "Country",
-            "type": "string"
-          },
-          "states": {
+          "candidates": {
+            "description": "Other records of the same LinkedIn page, most profiles first (up to 10).",
             "items": {
-              "$ref": "#/components/schemas/OrgChartState"
+              "$ref": "#/components/schemas/OrgChartCoverageCandidate"
             },
-            "title": "States",
+            "title": "Candidates",
             "type": "array"
+          },
+          "employee_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The company record's own employee count.",
+            "title": "Employee Count"
+          },
+          "low": {
+            "description": "Sparse (500+ employees and under 2% profiled), or another record of the same company holds more than twice the profiles. The grid is then `degraded` with reason `low_coverage`.",
+            "title": "Low",
+            "type": "boolean"
+          },
+          "profiles": {
+            "description": "People profiles on this record.",
+            "minimum": 0.0,
+            "title": "Profiles",
+            "type": "integer"
           }
         },
         "required": [
-          "country",
-          "count",
-          "states"
+          "employee_count",
+          "profiles",
+          "low",
+          "candidates"
         ],
-        "title": "OrgChartCountry",
+        "title": "OrgChartCoverage",
         "type": "object"
       },
-      "OrgChartDepartment": {
-        "description": "One department, broken into sub-departments.",
+      "OrgChartCoverageCandidate": {
+        "description": "Another index record of the same company (same LinkedIn page).",
         "properties": {
-          "headcount": {
-            "minimum": 0.0,
-            "title": "Headcount",
-            "type": "integer"
+          "linkedin_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Linkedin Url"
           },
           "name": {
-            "title": "Name",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
           },
-          "sub_departments": {
-            "items": {
-              "$ref": "#/components/schemas/OrgChartSubDepartment"
-            },
-            "title": "Sub Departments",
-            "type": "array"
+          "profiles": {
+            "minimum": 0.0,
+            "title": "Profiles",
+            "type": "integer"
           }
         },
         "required": [
-          "name",
-          "headcount",
-          "sub_departments"
+          "profiles"
         ],
-        "title": "OrgChartDepartment",
+        "title": "OrgChartCoverageCandidate",
         "type": "object"
       },
       "OrgChartDepartmentsRequest": {
@@ -7573,24 +7674,6 @@
           }
         ],
         "properties": {
-          "city": {
-            "description": "As `country`. `__unknown__` matches an absent city.",
-            "items": {
-              "type": "string"
-            },
-            "maxItems": 50,
-            "title": "City",
-            "type": "array"
-          },
-          "country": {
-            "description": "Case-insensitive; OR within the level and AND across levels, so `country=[Netherlands]` with `city=[Amsterdam]` means both. Send `__unknown__` to match people with no country recorded. The values come from `POST /v1/org-chart/locations`.",
-            "items": {
-              "type": "string"
-            },
-            "maxItems": 50,
-            "title": "Country",
-            "type": "array"
-          },
           "domain": {
             "anyOf": [
               {
@@ -7604,49 +7687,14 @@
             "description": "The company's domain. A pasted URL is accepted and reduced to its host, so `https://www.stripe.com/about` and `stripe.com` are the same request. Give this or `linkedin_url`, not both.",
             "title": "Domain"
           },
-          "employment_type": {
-            "description": "How the person is engaged. Orthogonal to seniority.",
-            "items": {
-              "enum": [
-                "Full Time",
-                "Part Time",
-                "Freelancer",
-                "Contractor",
-                "Consultant (External)"
-              ],
-              "type": "string"
-            },
-            "title": "Employment Type",
-            "type": "array"
+          "filters": {
+            "$ref": "#/components/schemas/OrgChartFilters"
           },
-          "governance_level": {
-            "description": "Founders, owners, board members and advisors. Orthogonal to seniority rather than a level of it.",
-            "items": {
-              "enum": [
-                "Founder",
-                "Co Founder",
-                "Owner",
-                "Partner",
-                "Board Member",
-                "Investor",
-                "Advisor"
-              ],
-              "type": "string"
-            },
-            "title": "Governance Level",
-            "type": "array"
-          },
-          "has_direct_access_to_c_suite": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Tri-state. `true` keeps only people the corpus marks as having direct access, `false` only those it marks as not, and omitting it filters on neither — the three answer different questions, because people with no value recorded match neither `true` nor `false`.",
-            "title": "Has Direct Access To C Suite"
+          "include_suspects": {
+            "default": false,
+            "description": "As on `POST /v1/org-chart`.",
+            "title": "Include Suspects",
+            "type": "boolean"
           },
           "linkedin_url": {
             "anyOf": [
@@ -7660,22 +7708,13 @@
             ],
             "description": "The company's LinkedIn page, e.g. `linkedin.com/company/stripe`. Use it when the record carries no domain, which is common. A personal profile or a `/school/` page is refused: neither is a company with an org chart.",
             "title": "Linkedin Url"
-          },
-          "state": {
-            "description": "As `country`. `__unknown__` matches an absent state.",
-            "items": {
-              "type": "string"
-            },
-            "maxItems": 50,
-            "title": "State",
-            "type": "array"
           }
         },
         "title": "OrgChartDepartmentsRequest",
         "type": "object"
       },
       "OrgChartDepartmentsResponse": {
-        "description": "The sub-department breakdown.\n\nNo `total`: the upstream counts departments here and not the company, and\nsumming the departments would invent a headcount that excludes everyone it\ncould not place. `POST /v1/org-chart` is where the total lives.",
+        "description": "The grid's rows, one level finer: each department's sub-departments.",
         "properties": {
           "attribution": {
             "items": {
@@ -7687,6 +7726,17 @@
           "company": {
             "$ref": "#/components/schemas/OrgChartCompany"
           },
+          "data_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Version"
+          },
           "degradation": {
             "items": {
               "$ref": "#/components/schemas/Degradation"
@@ -7695,34 +7745,266 @@
             "type": "array"
           },
           "departments": {
-            "description": "Departments with people, headcount descending. A department whose name is absent from `POST /v1/org-chart`'s `departments` can appear here: that route relabels onto a closed taxonomy and this one reports what is stored.",
+            "description": "As on `POST /v1/org-chart`.",
             "items": {
-              "$ref": "#/components/schemas/OrgChartDepartment"
+              "$ref": "#/components/schemas/OrgChartAxisEntry"
             },
             "title": "Departments",
             "type": "array"
           },
+          "matched": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OrgChartMatched"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "meta": {
             "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "state": {
+            "$ref": "#/components/schemas/OrgChartStatus"
+          },
+          "subdepartments": {
+            "description": "Sub-departments with people, grouped under their department.",
+            "items": {
+              "$ref": "#/components/schemas/OrgChartSubdepartment"
+            },
+            "title": "Subdepartments",
+            "type": "array"
+          },
+          "suspect_count": {
+            "minimum": 0.0,
+            "title": "Suspect Count",
+            "type": "integer"
+          },
+          "taxonomy_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Taxonomy Version"
+          },
+          "total": {
+            "description": "As on `POST /v1/org-chart`.",
+            "minimum": 0.0,
+            "title": "Total",
+            "type": "integer"
           }
         },
         "required": [
           "company",
+          "state",
           "departments",
+          "subdepartments",
+          "total",
+          "suspect_count",
           "meta"
         ],
         "title": "OrgChartDepartmentsResponse",
         "type": "object"
       },
+      "OrgChartFilters": {
+        "additionalProperties": false,
+        "description": "Which of the company's people to count.\n\nEvery filter narrows the population *before* the grouping, so it changes\nthe counts rather than hiding rows: filtering to one country returns that\ncountry's org chart, not the whole company's with some cells blanked.\nFilters combine with AND; the values inside one filter with OR.",
+        "properties": {
+          "c_suite_access": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "`true`: only people with direct access to the C-Suite; `false`: only people without; omitted or `null`: either.",
+            "title": "C Suite Access"
+          },
+          "employment_types": {
+            "items": {
+              "enum": [
+                "full_time",
+                "part_time",
+                "freelancer",
+                "contractor",
+                "consultant"
+              ],
+              "type": "string"
+            },
+            "maxItems": 5,
+            "title": "Employment Types",
+            "type": "array"
+          },
+          "governance_levels": {
+            "items": {
+              "enum": [
+                "founder",
+                "co_founder",
+                "owner",
+                "partner",
+                "board_member",
+                "investor",
+                "advisor"
+              ],
+              "type": "string"
+            },
+            "maxItems": 7,
+            "title": "Governance Levels",
+            "type": "array"
+          },
+          "job_titles": {
+            "items": {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Job Titles",
+            "type": "array"
+          },
+          "locations": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OrgChartLocationFilter"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "search_mode": {
+            "anyOf": [
+              {
+                "enum": [
+                  "auto",
+                  "name",
+                  "linkedin",
+                  "job_title"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What `text` matches. Needs `text`.",
+            "title": "Search Mode"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Free-text search over the company's people. With `search_mode` `auto` (the default) it is matched as a name, title, LinkedIn URL, place, seniority or department, and `matched` says which.",
+            "title": "Text"
+          }
+        },
+        "title": "OrgChartFilters",
+        "type": "object"
+      },
+      "OrgChartLocation": {
+        "description": "One place, with the places under it.",
+        "properties": {
+          "children": {
+            "items": {
+              "$ref": "#/components/schemas/OrgChartLocation"
+            },
+            "title": "Children",
+            "type": "array"
+          },
+          "count": {
+            "minimum": 0.0,
+            "title": "Count",
+            "type": "integer"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "level": {
+            "description": "`country`, `state` or `city`.",
+            "title": "Level",
+            "type": "string"
+          },
+          "unknown": {
+            "description": "People whose place at this level is not known (last).",
+            "title": "Unknown",
+            "type": "boolean"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What to send back as a place's `value`; `null` for Unknown.",
+            "title": "Value"
+          }
+        },
+        "required": [
+          "level",
+          "label",
+          "count",
+          "unknown",
+          "children"
+        ],
+        "title": "OrgChartLocation",
+        "type": "object"
+      },
+      "OrgChartLocationFilter": {
+        "additionalProperties": false,
+        "properties": {
+          "exclude": {
+            "description": "Drop people in any of these places.",
+            "items": {
+              "$ref": "#/components/schemas/OrgChartPlace"
+            },
+            "maxItems": 10,
+            "title": "Exclude",
+            "type": "array"
+          },
+          "include": {
+            "description": "Keep people in any of these places.",
+            "items": {
+              "$ref": "#/components/schemas/OrgChartPlace"
+            },
+            "maxItems": 10,
+            "title": "Include",
+            "type": "array"
+          }
+        },
+        "title": "OrgChartLocationFilter",
+        "type": "object"
+      },
       "OrgChartLocationsRequest": {
         "additionalProperties": false,
-        "description": "`POST /v1/org-chart/locations`.\n\nNo people filters. This route *is* the location vocabulary, so filtering it\nby location would be asking it to describe the answer you already have.",
+        "description": "`POST /v1/org-chart/locations`.",
         "examples": [
           {
-            "domain": "stripe.com",
-            "search": "amst"
+            "domain": "stripe.com"
           },
           {
+            "filters": {
+              "employment_types": [
+                "full_time"
+              ]
+            },
             "linkedin_url": "linkedin.com/company/stripe"
           }
         ],
@@ -7740,6 +8022,9 @@
             "description": "The company's domain. A pasted URL is accepted and reduced to its host, so `https://www.stripe.com/about` and `stripe.com` are the same request. Give this or `linkedin_url`, not both.",
             "title": "Domain"
           },
+          "filters": {
+            "$ref": "#/components/schemas/OrgChartFilters"
+          },
           "linkedin_url": {
             "anyOf": [
               {
@@ -7752,27 +8037,13 @@
             ],
             "description": "The company's LinkedIn page, e.g. `linkedin.com/company/stripe`. Use it when the record carries no domain, which is common. A personal profile or a `/school/` page is refused: neither is a company with an org chart.",
             "title": "Linkedin Url"
-          },
-          "search": {
-            "anyOf": [
-              {
-                "maxLength": 100,
-                "minLength": 1,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Case-insensitive substring over all three levels, for typeahead. It filters *people*, not labels, so a match on a city keeps that city's country and state in the tree with counts reduced to the matching people.",
-            "title": "Search"
           }
         },
         "title": "OrgChartLocationsRequest",
         "type": "object"
       },
       "OrgChartLocationsResponse": {
-        "description": "Where the company's people are.\n\nA count at every level, because a country's count is not the sum of its\nstates: someone with a country and no state is counted at the country and\nin no state below it.",
+        "description": "Where the company's people are, under the filters.",
         "properties": {
           "attribution": {
             "items": {
@@ -7791,24 +8062,173 @@
             "title": "Degradation",
             "type": "array"
           },
-          "locations": {
-            "description": "Countries with people, in the upstream's order. Labels are the corpus's own casing; `__unknown__` names the people with no value at that level, and is accepted back as a filter.",
+          "items": {
+            "description": "Countries, then states, then cities, each by count; Unknown last.",
             "items": {
-              "$ref": "#/components/schemas/OrgChartCountry"
+              "$ref": "#/components/schemas/OrgChartLocation"
             },
-            "title": "Locations",
+            "title": "Items",
             "type": "array"
+          },
+          "matched": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OrgChartMatched"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "meta": {
             "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "state": {
+            "$ref": "#/components/schemas/OrgChartStatus"
+          },
+          "total": {
+            "description": "People counted under the filters.",
+            "minimum": 0.0,
+            "title": "Total",
+            "type": "integer"
           }
         },
         "required": [
           "company",
-          "locations",
+          "state",
+          "items",
+          "total",
           "meta"
         ],
         "title": "OrgChartLocationsResponse",
+        "type": "object"
+      },
+      "OrgChartMatched": {
+        "description": "What `filters.text` was matched as. `null` without a search, or when it\nmatched nothing.",
+        "properties": {
+          "field": {
+            "description": "`name`, `title`, `linkedin`, `location`, `seniority`, …",
+            "title": "Field",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "level": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "For `location`: its level.",
+            "title": "Level"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "field",
+          "label"
+        ],
+        "title": "OrgChartMatched",
+        "type": "object"
+      },
+      "OrgChartMetrics": {
+        "description": "One state per badge; `null` when that badge was not asked for.",
+        "properties": {
+          "job_openings": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OrgChartStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "new_joiners": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OrgChartStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "OrgChartMetrics",
+        "type": "object"
+      },
+      "OrgChartPlace": {
+        "additionalProperties": false,
+        "description": "A place to keep or drop people by.",
+        "properties": {
+          "level": {
+            "description": "`country`, `state`, `city`, or `region` (a group of countries such as `emea`, `dach` or `north america`).",
+            "enum": [
+              "country",
+              "state",
+              "city",
+              "region"
+            ],
+            "title": "Level",
+            "type": "string"
+          },
+          "value": {
+            "description": "A country's name, alias or ISO code; a state or city as `POST /v1/org-chart/locations` lists it (its `value`). An unknown country or region is a 422; an unknown state or city matches nobody.",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "level",
+          "value"
+        ],
+        "title": "OrgChartPlace",
+        "type": "object"
+      },
+      "OrgChartProgress": {
+        "properties": {
+          "done": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Done"
+          },
+          "total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total"
+          }
+        },
+        "title": "OrgChartProgress",
         "type": "object"
       },
       "OrgChartRequest": {
@@ -7822,34 +8242,26 @@
             "linkedin_url": "linkedin.com/company/stripe"
           },
           {
-            "country": [
-              "Netherlands"
-            ],
             "domain": "stripe.com",
-            "employment_type": [
-              "Full Time"
+            "filters": {
+              "employment_types": [
+                "full_time"
+              ],
+              "locations": {
+                "include": [
+                  {
+                    "level": "country",
+                    "value": "Ireland"
+                  }
+                ]
+              }
+            },
+            "metrics": [
+              "new_joiners"
             ]
           }
         ],
         "properties": {
-          "city": {
-            "description": "As `country`. `__unknown__` matches an absent city.",
-            "items": {
-              "type": "string"
-            },
-            "maxItems": 50,
-            "title": "City",
-            "type": "array"
-          },
-          "country": {
-            "description": "Case-insensitive; OR within the level and AND across levels, so `country=[Netherlands]` with `city=[Amsterdam]` means both. Send `__unknown__` to match people with no country recorded. The values come from `POST /v1/org-chart/locations`.",
-            "items": {
-              "type": "string"
-            },
-            "maxItems": 50,
-            "title": "Country",
-            "type": "array"
-          },
           "domain": {
             "anyOf": [
               {
@@ -7863,54 +8275,13 @@
             "description": "The company's domain. A pasted URL is accepted and reduced to its host, so `https://www.stripe.com/about` and `stripe.com` are the same request. Give this or `linkedin_url`, not both.",
             "title": "Domain"
           },
-          "employment_type": {
-            "description": "How the person is engaged. Orthogonal to seniority.",
-            "items": {
-              "enum": [
-                "Full Time",
-                "Part Time",
-                "Freelancer",
-                "Contractor",
-                "Consultant (External)"
-              ],
-              "type": "string"
-            },
-            "title": "Employment Type",
-            "type": "array"
+          "filters": {
+            "$ref": "#/components/schemas/OrgChartFilters"
           },
-          "governance_level": {
-            "description": "Founders, owners, board members and advisors. Orthogonal to seniority rather than a level of it.",
-            "items": {
-              "enum": [
-                "Founder",
-                "Co Founder",
-                "Owner",
-                "Partner",
-                "Board Member",
-                "Investor",
-                "Advisor"
-              ],
-              "type": "string"
-            },
-            "title": "Governance Level",
-            "type": "array"
-          },
-          "has_direct_access_to_c_suite": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Tri-state. `true` keeps only people the corpus marks as having direct access, `false` only those it marks as not, and omitting it filters on neither — the three answer different questions, because people with no value recorded match neither `true` nor `false`.",
-            "title": "Has Direct Access To C Suite"
-          },
-          "include_others": {
+          "include_suspects": {
             "default": false,
-            "description": "Count the people the upstream could not classify onto an axis. Off by default: an `Others` row is usually large, always undrillable, and would otherwise lead the chart.",
-            "title": "Include Others",
+            "description": "Count profiles flagged as suspect (likely fake or invalid) too. Hidden by default; `suspect_count` says how many were left out.",
+            "title": "Include Suspects",
             "type": "boolean"
           },
           "linkedin_url": {
@@ -7926,13 +8297,17 @@
             "description": "The company's LinkedIn page, e.g. `linkedin.com/company/stripe`. Use it when the record carries no domain, which is common. A personal profile or a `/school/` page is refused: neither is a company with an org chart.",
             "title": "Linkedin Url"
           },
-          "state": {
-            "description": "As `country`. `__unknown__` matches an absent state.",
+          "metrics": {
+            "description": "The cell badges to compute: `new_joiners` (joined in the last 180 days) and `job_openings` (open roles). Both by default; `[]` skips them and answers fastest.",
             "items": {
+              "enum": [
+                "new_joiners",
+                "job_openings"
+              ],
               "type": "string"
             },
-            "maxItems": 50,
-            "title": "State",
+            "maxItems": 2,
+            "title": "Metrics",
             "type": "array"
           }
         },
@@ -7950,6 +8325,7 @@
             "type": "array"
           },
           "cells": {
+            "description": "Non-zero cells; a missing pair is 0.",
             "items": {
               "$ref": "#/components/schemas/OrgChartCell"
             },
@@ -7959,6 +8335,27 @@
           "company": {
             "$ref": "#/components/schemas/OrgChartCompany"
           },
+          "coverage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OrgChartCoverage"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "data_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Version"
+          },
           "degradation": {
             "items": {
               "$ref": "#/components/schemas/Degradation"
@@ -7966,43 +8363,119 @@
             "title": "Degradation",
             "type": "array"
           },
-          "department_totals": {
-            "additionalProperties": {
-              "type": "integer"
-            },
-            "description": "Per-row totals. Not the sum of that row's cells: someone with a department and no seniority is counted here and in no cell.",
-            "title": "Department Totals",
-            "type": "object"
-          },
           "departments": {
-            "description": "Row order: headcount descending, with the leftover buckets (`Others`, `General`) last however large they are.",
+            "description": "Rows, in taxonomy order; Unknown last.",
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/OrgChartAxisEntry"
             },
             "title": "Departments",
             "type": "array"
           },
+          "employment_mismatch_count": {
+            "minimum": 0.0,
+            "title": "Employment Mismatch Count",
+            "type": "integer"
+          },
+          "job_openings_total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Open roles; null unless that badge is ready.",
+            "title": "Job Openings Total"
+          },
+          "joiner_basis": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How joiners are dated: `company_stint` or `role_start`.",
+            "title": "Joiner Basis"
+          },
+          "matched": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OrgChartMatched"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "meta": {
             "$ref": "#/components/schemas/ResponseMeta"
           },
+          "metrics": {
+            "$ref": "#/components/schemas/OrgChartMetrics"
+          },
+          "new_joiners_total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "People who joined in 180 days; null unless that badge is ready.",
+            "title": "New Joiners Total"
+          },
+          "residual_duplicates": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Residual Duplicates"
+          },
           "seniorities": {
-            "description": "Column order: C-Suite, VP, Director / Head, Manager, IC, Entry, In Training, then `Others`. A fixed ladder, not a frequency order, so two companies' charts read the same way.",
+            "description": "Columns, C-Suite down to In Training; Unknown last.",
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/OrgChartAxisEntry"
             },
             "title": "Seniorities",
             "type": "array"
           },
-          "seniority_totals": {
-            "additionalProperties": {
-              "type": "integer"
+          "state": {
+            "$ref": "#/components/schemas/OrgChartStatus"
+          },
+          "subdepartments": {
+            "items": {
+              "$ref": "#/components/schemas/OrgChartSubdepartment"
             },
-            "description": "Per-column totals, with the same caveat as `department_totals`.",
-            "title": "Seniority Totals",
-            "type": "object"
+            "title": "Subdepartments",
+            "type": "array"
+          },
+          "suspect_count": {
+            "description": "Suspect profiles left out (0 with `include_suspects`).",
+            "minimum": 0.0,
+            "title": "Suspect Count",
+            "type": "integer"
+          },
+          "taxonomy_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Taxonomy Version"
           },
           "total": {
-            "description": "Everyone at the company under the filters. `sum(cells.count)` is not the headcount and can differ either way: people the corpus could not place on either axis are counted here and appear in no cell, while a person with several departments or seniorities is counted once here and in each of their cells. Read this as the headcount and the cells as the classified breakdown.",
+            "description": "People counted: each person once, at their most senior level, so it equals the sum of the seniority columns. The sum of the cells (and of the department rows) can be higher, because a person who holds several departments is in each of those rows.",
             "minimum": 0.0,
             "title": "Total",
             "type": "integer"
@@ -8010,72 +8483,151 @@
         },
         "required": [
           "company",
-          "total",
+          "state",
           "departments",
           "seniorities",
           "cells",
-          "department_totals",
-          "seniority_totals",
+          "subdepartments",
+          "total",
+          "suspect_count",
+          "employment_mismatch_count",
+          "metrics",
           "meta"
         ],
         "title": "OrgChartResponse",
         "type": "object"
       },
-      "OrgChartState": {
+      "OrgChartStatus": {
+        "description": "How complete one part of the answer is.\n\n`state` is `ready`, `empty` (with `reason`, e.g. `no_profiles`),\n`degraded` (with `reason`, e.g. `low_coverage`), `computing` or `failed`\n(with `code`). Tolerate values not listed here.",
         "properties": {
-          "cities": {
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
+          },
+          "data_as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data As Of"
+          },
+          "data_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Version"
+          },
+          "progress": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OrgChartProgress"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "retryable": {
+            "default": false,
+            "title": "Retryable",
+            "type": "boolean"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "required": [
+          "state"
+        ],
+        "title": "OrgChartStatus",
+        "type": "object"
+      },
+      "OrgChartSubdepartment": {
+        "description": "One department's sub-department, with its own seniority counts.",
+        "properties": {
+          "cells": {
             "items": {
-              "$ref": "#/components/schemas/OrgChartCity"
+              "$ref": "#/components/schemas/OrgChartSubdepartmentCount"
             },
-            "title": "Cities",
+            "title": "Cells",
             "type": "array"
           },
+          "department": {
+            "$ref": "#/components/schemas/OrgChartCode"
+          },
+          "subdepartment": {
+            "$ref": "#/components/schemas/OrgChartCode"
+          },
+          "total": {
+            "minimum": 0.0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "department",
+          "subdepartment",
+          "total",
+          "cells"
+        ],
+        "title": "OrgChartSubdepartment",
+        "type": "object"
+      },
+      "OrgChartSubdepartmentCount": {
+        "properties": {
           "count": {
             "minimum": 0.0,
             "title": "Count",
             "type": "integer"
           },
-          "state": {
-            "title": "State",
-            "type": "string"
+          "seniority": {
+            "$ref": "#/components/schemas/OrgChartCode"
           }
         },
         "required": [
-          "state",
-          "count",
-          "cities"
+          "seniority",
+          "count"
         ],
-        "title": "OrgChartState",
-        "type": "object"
-      },
-      "OrgChartSubDepartment": {
-        "description": "One sub-department, with its own seniority breakdown.",
-        "properties": {
-          "headcount": {
-            "minimum": 0.0,
-            "title": "Headcount",
-            "type": "integer"
-          },
-          "name": {
-            "description": "The sub-function's name, or `Uncategorized` for people in the department with no sub-function recorded.",
-            "title": "Name",
-            "type": "string"
-          },
-          "seniority_counts": {
-            "additionalProperties": {
-              "type": "integer"
-            },
-            "description": "Counts by seniority within this sub-department. Keys are the upstream's raw labels, so `Uncategorized` appears here where the grid says `Others` — the two routes aggregate different fields and their vocabularies are not merged.",
-            "title": "Seniority Counts",
-            "type": "object"
-          }
-        },
-        "required": [
-          "name",
-          "headcount",
-          "seniority_counts"
-        ],
-        "title": "OrgChartSubDepartment",
+        "title": "OrgChartSubdepartmentCount",
         "type": "object"
       },
       "Organisation": {
@@ -24762,7 +25314,7 @@
     },
     "/v1/org-chart": {
       "post": {
-        "description": "How one company's people distribute across departments and seniorities.\n\n**This is a matrix, not a tree.** The corpus holds no reporting lines — no\nperson document carries a manager — so there is no hierarchy here to walk\nand no `direct_reports` coming later. What you get is every person we hold\nfor the company, grouped by two closed vocabularies: the 23-function\ndepartment taxonomy across one axis and the seven-level seniority ladder\nacross the other.\n\nRead `total` as the headcount and `cells` as the classified part of it. The\ntwo do not match, and the gap is not a bug: someone whose title we hold but\nwhose function we could not infer is counted in `total`, in neither axis\ntotal, and in no cell. Send `include_others: true` to see those people as a\nrow and a column of their own rather than only in the difference.\n\nOrder is fixed rather than reported: departments descend by headcount with\nthe leftover buckets last, and seniorities always run C-Suite to In\nTraining. Two companies' charts therefore read the same way, and a column\nthat is missing is a column with nobody in it.\n\nNarrow with any of the filters and the counts change rather than the\ndisplay — `country: [\"Netherlands\"]` returns the Dutch org chart, not the\nglobal one with cells hidden. `POST /v1/org-chart/locations` is where the\nplace names come from.\n\nTo see the people behind a cell, search for them: `POST /v1/search` with\n`category: \"person\"`, `include_domains: [\"<domain>\"]` and `department` /\n`seniority` filters set to that cell's labels. The one exception is a cell\nlabelled `Others`, which is not a value the search filters accept — it\nnames the absence of a value, and there is nothing to filter on.",
+        "description": "How one company's people distribute across departments and seniorities.\n\n**This is a matrix, not a tree.** The corpus holds no reporting lines — no\nperson document carries a manager — so there is no hierarchy here to walk.\nWhat you get is every person we hold for the company, grouped by two closed\nvocabularies: the department taxonomy down the rows and the seniority ladder\nacross the columns. Both carry an explicit **Unknown** entry, always last,\nfor the people we could not place on that axis.\n\nHow people are counted:\n\n* **Each person once, at their most senior level.** `total` is the number of\n  people, and it equals the sum of the seniority columns.\n* **In every department they hold.** A department row's total is the sum of\n  its cells, so the rows (and the cells) can add up to more than `total`.\n* **Suspect profiles are left out** unless `include_suspects` is true;\n  `suspect_count` says how many.\n\nEvery taxonomy value is `{code, label}`: send the `code` back as a filter\nvalue, show the `label`. `subdepartments` breaks each row one level finer,\nwith its own seniority counts. `metrics` asks for the per-cell badges —\n`new_joiners` (joined in the last 180 days) and `job_openings` (open\nroles) — and `metrics` in the response says how each one went.\n\nNarrow with `filters` and the counts change rather than the display: a\ncountry filter returns that country's org chart, not the global one with\ncells hidden. `POST /v1/org-chart/locations` lists the places. `state` is\n`ready`, `empty` (`no_profiles`) or `degraded` (`low_coverage`: the record\nis sparsely profiled, and `coverage` says how and lists the other records\nof the same company).",
         "operationId": "org_chart",
         "parameters": [
           {
@@ -24795,87 +25347,190 @@
                     "value": {
                       "attribution": [
                         {
-                          "as_of": "2026-09-10T11:04:22Z",
+                          "as_of": "2026-10-27T11:04:22Z",
                           "source_corpus": "gtm_index"
                         }
                       ],
                       "cells": [
                         {
-                          "count": 4,
-                          "department": "Engineering / Software",
-                          "seniority": "C-Suite"
-                        },
-                        {
+                          "badges": {
+                            "job_openings": 12,
+                            "new_joiners": 3
+                          },
                           "count": 38,
-                          "department": "Engineering / Software",
-                          "seniority": "VP"
+                          "department": {
+                            "code": "engineering_software",
+                            "label": "Engineering / Software"
+                          },
+                          "seniority": {
+                            "code": "vp",
+                            "label": "VP"
+                          }
                         },
                         {
-                          "count": 121,
-                          "department": "Engineering / Software",
-                          "seniority": "Director / Head"
-                        },
-                        {
+                          "badges": {
+                            "job_openings": 140,
+                            "new_joiners": 211
+                          },
                           "count": 2604,
-                          "department": "Engineering / Software",
-                          "seniority": "IC"
+                          "department": {
+                            "code": "engineering_software",
+                            "label": "Engineering / Software"
+                          },
+                          "seniority": {
+                            "code": "ic",
+                            "label": "IC"
+                          }
                         },
                         {
+                          "badges": {
+                            "job_openings": 4,
+                            "new_joiners": 1
+                          },
                           "count": 26,
-                          "department": "Sales",
-                          "seniority": "VP"
-                        },
-                        {
-                          "count": 94,
-                          "department": "Sales",
-                          "seniority": "Director / Head"
-                        },
-                        {
-                          "count": 1187,
-                          "department": "Sales",
-                          "seniority": "IC"
-                        },
-                        {
-                          "count": 402,
-                          "department": "Others",
-                          "seniority": "Others"
+                          "department": {
+                            "code": "sales",
+                            "label": "Sales"
+                          },
+                          "seniority": {
+                            "code": "vp",
+                            "label": "VP"
+                          }
                         }
                       ],
                       "company": {
-                        "domain": "stripe.com"
+                        "domain": "stripe.com",
+                        "linkedin_url": "linkedin.com/company/stripe",
+                        "name": "Stripe"
                       },
+                      "coverage": {
+                        "candidates": [],
+                        "employee_count": 8000,
+                        "low": false,
+                        "profiles": 4533
+                      },
+                      "data_version": "gtm_v9",
                       "degradation": [],
-                      "department_totals": {
-                        "Engineering / Software": 2801,
-                        "Others": 402,
-                        "Sales": 1329
-                      },
                       "departments": [
-                        "Engineering / Software",
-                        "Sales",
-                        "Others"
+                        {
+                          "code": "sales",
+                          "label": "Sales",
+                          "total": 1329,
+                          "unknown": false
+                        },
+                        {
+                          "code": "engineering_software",
+                          "label": "Engineering / Software",
+                          "total": 2801,
+                          "unknown": false
+                        },
+                        {
+                          "code": "unknown",
+                          "label": "Unknown",
+                          "total": 402,
+                          "unknown": true
+                        }
                       ],
+                      "employment_mismatch_count": 12,
+                      "job_openings_total": 301,
+                      "joiner_basis": "company_stint",
                       "meta": {
-                        "as_of": "2026-09-10T11:04:22Z",
+                        "as_of": "2026-10-27T11:04:22Z",
                         "credential": "api_key",
+                        "credits_charged": 1,
                         "environment": "live",
                         "request_id": "req_01J8Z3"
                       },
-                      "seniorities": [
-                        "C-Suite",
-                        "VP",
-                        "Director / Head",
-                        "IC",
-                        "Others"
-                      ],
-                      "seniority_totals": {
-                        "C-Suite": 4,
-                        "Director / Head": 215,
-                        "IC": 3791,
-                        "Others": 402,
-                        "VP": 64
+                      "metrics": {
+                        "job_openings": {
+                          "data_version": "jobs_v3",
+                          "retryable": false,
+                          "state": "ready"
+                        },
+                        "new_joiners": {
+                          "data_version": "gtm_v9",
+                          "retryable": false,
+                          "state": "ready"
+                        }
                       },
-                      "total": 8214
+                      "new_joiners_total": 388,
+                      "residual_duplicates": 0,
+                      "seniorities": [
+                        {
+                          "code": "c_suite",
+                          "label": "C-Suite",
+                          "total": 4,
+                          "unknown": false
+                        },
+                        {
+                          "code": "vp",
+                          "label": "VP",
+                          "total": 64,
+                          "unknown": false
+                        },
+                        {
+                          "code": "director_head",
+                          "label": "Director / Head",
+                          "total": 215,
+                          "unknown": false
+                        },
+                        {
+                          "code": "ic",
+                          "label": "IC",
+                          "total": 3791,
+                          "unknown": false
+                        },
+                        {
+                          "code": "unknown",
+                          "label": "Unknown",
+                          "total": 402,
+                          "unknown": true
+                        }
+                      ],
+                      "state": {
+                        "data_version": "gtm_v9",
+                        "retryable": false,
+                        "state": "ready"
+                      },
+                      "subdepartments": [
+                        {
+                          "cells": [
+                            {
+                              "count": 17,
+                              "seniority": {
+                                "code": "director_head",
+                                "label": "Director / Head"
+                              }
+                            },
+                            {
+                              "count": 51,
+                              "seniority": {
+                                "code": "manager",
+                                "label": "Manager"
+                              }
+                            },
+                            {
+                              "count": 744,
+                              "seniority": {
+                                "code": "ic",
+                                "label": "IC"
+                              }
+                            }
+                          ],
+                          "department": {
+                            "code": "engineering_software",
+                            "label": "Engineering / Software"
+                          },
+                          "subdepartment": {
+                            "code": "backend_development",
+                            "label": "Backend Development"
+                          },
+                          "total": 812
+                        }
+                      ],
+                      "suspect_count": 57,
+                      "taxonomy_version": "v3",
+                      "total": 4476
                     }
                   }
                 },
@@ -25051,13 +25706,15 @@
               "application/problem+json": {
                 "examples": {
                   "quota.burst_exceeded": {
-                    "summary": "The workspace's per-minute limit for this operation was reached — wait `Retry-After` seconds",
+                    "summary": "The workspace's (or the API key's, or the person's own) per-minute limit for this operation was reached — wait `Retry-After` seconds",
                     "value": {
                       "code": "quota.burst_exceeded",
                       "detail": "This workspace may call POST /v1/search 60 times a minute. Retry after 23 seconds.",
                       "extra": {
                         "limit": 60,
                         "operation": "POST /v1/search",
+                        "retry_after": 23,
+                        "scope": "workspace",
                         "window": "minute"
                       },
                       "request_id": "bd22794d0c5c06f1d3e7045e3c0e32ab",
@@ -25081,19 +25738,19 @@
                 }
               },
               "X-RateLimit-Limit": {
-                "description": "Requests per minute this operation allows the workspace.",
+                "description": "Requests per rolling minute this operation allows the workspace, or the API key when it has a tighter limit of its own.",
                 "schema": {
                   "type": "integer"
                 }
               },
               "X-RateLimit-Remaining": {
-                "description": "What is left of that in the current minute.",
+                "description": "What is left of that right now.",
                 "schema": {
                   "type": "integer"
                 }
               },
               "X-RateLimit-Reset": {
-                "description": "Seconds until the minute ends and the count restarts.",
+                "description": "Seconds until the current minute rolls over; on a 429, the same as Retry-After.",
                 "schema": {
                   "type": "integer"
                 }
@@ -25212,7 +25869,7 @@
     },
     "/v1/org-chart/departments": {
       "post": {
-        "description": "One level below the grid: each department's sub-functions.\n\nThe same population as `POST /v1/org-chart` under the same filters, grouped\none level finer — Engineering into Backend, Frontend, SRE and the rest —\nwith each sub-function's own seniority counts.\n\nTwo things differ from the grid and will look like inconsistencies if you\nexpect otherwise. The labels are the corpus's raw values rather than the\ngrid's relabelled taxonomy, so a department name here can be absent from\nthe grid's `departments`. And people with no sub-function are named\n`Uncategorized` where the grid would say `Others` — two routes aggregating\ntwo fields, whose vocabularies this service does not merge, because\nrenaming an upstream's labels is how two systems start disagreeing about\ncounts.\n\nThere is no company total here: the upstream counts departments and not the\ncompany, and summing them would invent a headcount that silently excludes\neveryone it could not place. `POST /v1/org-chart` is where `total` lives.",
+        "description": "One level below the grid: each department's sub-departments.\n\nThe same people as `POST /v1/org-chart` under the same filters and counting\nrules, grouped one level finer — Engineering into Backend, Frontend, SRE\nand the rest — with each sub-department's own seniority counts. The rows\n(`departments`) and `total` are the grid's; the cells and badges are not\nhere. `POST /v1/org-chart` already carries `subdepartments`, so call this\nonly when the grid itself is not wanted.",
         "operationId": "org_chart_departments",
         "parameters": [
           {
@@ -25241,56 +25898,92 @@
               "application/json": {
                 "examples": {
                   "sub_departments": {
-                    "summary": "Stripe's engineering department, by sub-function",
+                    "summary": "Stripe's engineering department, by sub-department",
                     "value": {
                       "attribution": [
                         {
-                          "as_of": "2026-09-10T11:04:22Z",
+                          "as_of": "2026-10-27T11:04:22Z",
                           "source_corpus": "gtm_index"
                         }
                       ],
                       "company": {
-                        "domain": "stripe.com"
+                        "domain": "stripe.com",
+                        "linkedin_url": "linkedin.com/company/stripe",
+                        "name": "Stripe"
                       },
+                      "data_version": "gtm_v9",
                       "degradation": [],
                       "departments": [
                         {
-                          "headcount": 2801,
-                          "name": "Engineering / Software",
-                          "sub_departments": [
-                            {
-                              "headcount": 812,
-                              "name": "Backend Development",
-                              "seniority_counts": {
-                                "Director / Head": 17,
-                                "IC": 744,
-                                "Manager": 51
-                              }
-                            },
-                            {
-                              "headcount": 194,
-                              "name": "DevOps / Platform / SRE",
-                              "seniority_counts": {
-                                "IC": 171,
-                                "Manager": 23
-                              }
-                            },
-                            {
-                              "headcount": 88,
-                              "name": "Uncategorized",
-                              "seniority_counts": {
-                                "IC": 88
-                              }
-                            }
-                          ]
+                          "code": "sales",
+                          "label": "Sales",
+                          "total": 1329,
+                          "unknown": false
+                        },
+                        {
+                          "code": "engineering_software",
+                          "label": "Engineering / Software",
+                          "total": 2801,
+                          "unknown": false
+                        },
+                        {
+                          "code": "unknown",
+                          "label": "Unknown",
+                          "total": 402,
+                          "unknown": true
                         }
                       ],
                       "meta": {
-                        "as_of": "2026-09-10T11:04:22Z",
+                        "as_of": "2026-10-27T11:04:22Z",
                         "credential": "api_key",
+                        "credits_charged": 1,
                         "environment": "live",
                         "request_id": "req_01J8Z4"
-                      }
+                      },
+                      "state": {
+                        "data_version": "gtm_v9",
+                        "retryable": false,
+                        "state": "ready"
+                      },
+                      "subdepartments": [
+                        {
+                          "cells": [
+                            {
+                              "count": 17,
+                              "seniority": {
+                                "code": "director_head",
+                                "label": "Director / Head"
+                              }
+                            },
+                            {
+                              "count": 51,
+                              "seniority": {
+                                "code": "manager",
+                                "label": "Manager"
+                              }
+                            },
+                            {
+                              "count": 744,
+                              "seniority": {
+                                "code": "ic",
+                                "label": "IC"
+                              }
+                            }
+                          ],
+                          "department": {
+                            "code": "engineering_software",
+                            "label": "Engineering / Software"
+                          },
+                          "subdepartment": {
+                            "code": "backend_development",
+                            "label": "Backend Development"
+                          },
+                          "total": 812
+                        }
+                      ],
+                      "suspect_count": 57,
+                      "taxonomy_version": "v3",
+                      "total": 4476
                     }
                   }
                 },
@@ -25466,13 +26159,15 @@
               "application/problem+json": {
                 "examples": {
                   "quota.burst_exceeded": {
-                    "summary": "The workspace's per-minute limit for this operation was reached — wait `Retry-After` seconds",
+                    "summary": "The workspace's (or the API key's, or the person's own) per-minute limit for this operation was reached — wait `Retry-After` seconds",
                     "value": {
                       "code": "quota.burst_exceeded",
                       "detail": "This workspace may call POST /v1/search 60 times a minute. Retry after 23 seconds.",
                       "extra": {
                         "limit": 60,
                         "operation": "POST /v1/search",
+                        "retry_after": 23,
+                        "scope": "workspace",
                         "window": "minute"
                       },
                       "request_id": "bd22794d0c5c06f1d3e7045e3c0e32ab",
@@ -25496,19 +26191,19 @@
                 }
               },
               "X-RateLimit-Limit": {
-                "description": "Requests per minute this operation allows the workspace.",
+                "description": "Requests per rolling minute this operation allows the workspace, or the API key when it has a tighter limit of its own.",
                 "schema": {
                   "type": "integer"
                 }
               },
               "X-RateLimit-Remaining": {
-                "description": "What is left of that in the current minute.",
+                "description": "What is left of that right now.",
                 "schema": {
                   "type": "integer"
                 }
               },
               "X-RateLimit-Reset": {
-                "description": "Seconds until the minute ends and the count restarts.",
+                "description": "Seconds until the current minute rolls over; on a 429, the same as Retry-After.",
                 "schema": {
                   "type": "integer"
                 }
@@ -25627,7 +26322,7 @@
     },
     "/v1/org-chart/locations": {
       "post": {
-        "description": "Where one company's people are, as a country to city tree with counts.\n\nTwo uses. On its own it is the geographic shape of the company. Beside\n`POST /v1/org-chart` it is that route's vocabulary: these are the exact\nstrings its `country`, `state` and `city` filters accept, which is why\nguessing at place names is unnecessary and unreliable.\n\nA parent's count is not the sum of its children. Someone with a country and\nno city is counted at the country and in no city beneath it, so the levels\neach answer \"how many people do we place at least this precisely\".\n\n`search` is for typeahead: a case-insensitive substring matched across all\nthree levels at once. It filters people rather than labels, so matching a\ncity keeps that city's country and state in the tree with their counts\nreduced to the matching people — the branch stays navigable instead of\nreturning a city with no parent.\n\nUnlike the other two routes this one takes no people filters. It *is* the\nlocation vocabulary, so filtering it by location would be asking it to\ndescribe an answer you already hold.",
+        "description": "Where one company's people are, as a country to city tree with counts.\n\nTwo uses. On its own it is the geographic shape of the company. Beside\n`POST /v1/org-chart` it is that route's place vocabulary: send a node's\n`level` and `value` back as a place in `filters.locations`.\n\nEach level is complete: people whose place at a level is not known are an\nexplicit **Unknown** node (`value: null`, `unknown: true`), last among its\nsiblings, so a parent's count is the sum of its children. Nodes are ordered\nby count. Takes the same `filters` as the grid, so the tree can be narrowed\nthe same way.",
         "operationId": "org_chart_locations",
         "parameters": [
           {
@@ -25660,7 +26355,7 @@
                     "value": {
                       "attribution": [
                         {
-                          "as_of": "2026-09-10T11:04:22Z",
+                          "as_of": "2026-10-27T11:04:22Z",
                           "source_corpus": "gtm_index"
                         }
                       ],
@@ -25668,60 +26363,76 @@
                         "domain": "stripe.com"
                       },
                       "degradation": [],
-                      "locations": [
+                      "items": [
                         {
-                          "count": 4912,
-                          "country": "united states",
-                          "states": [
+                          "children": [
                             {
-                              "cities": [
+                              "children": [
                                 {
-                                  "city": "san francisco",
-                                  "count": 2104
+                                  "children": [],
+                                  "count": 2104,
+                                  "label": "San Francisco",
+                                  "level": "city",
+                                  "unknown": false,
+                                  "value": "san francisco"
                                 },
                                 {
-                                  "city": "south san francisco",
-                                  "count": 311
+                                  "children": [],
+                                  "count": 607,
+                                  "label": "Unknown",
+                                  "level": "city",
+                                  "unknown": true
                                 }
                               ],
                               "count": 2711,
-                              "state": "california"
+                              "label": "California",
+                              "level": "state",
+                              "unknown": false,
+                              "value": "california"
                             },
                             {
-                              "cities": [
-                                {
-                                  "city": "seattle",
-                                  "count": 388
-                                }
-                              ],
-                              "count": 402,
-                              "state": "washington"
+                              "children": [],
+                              "count": 201,
+                              "label": "Unknown",
+                              "level": "state",
+                              "unknown": true
                             }
-                          ]
+                          ],
+                          "count": 2912,
+                          "label": "United States",
+                          "level": "country",
+                          "unknown": false,
+                          "value": "united states"
                         },
                         {
+                          "children": [],
                           "count": 611,
-                          "country": "ireland",
-                          "states": [
-                            {
-                              "cities": [
-                                {
-                                  "city": "dublin",
-                                  "count": 594
-                                }
-                              ],
-                              "count": 598,
-                              "state": "leinster"
-                            }
-                          ]
+                          "label": "Ireland",
+                          "level": "country",
+                          "unknown": false,
+                          "value": "ireland"
+                        },
+                        {
+                          "children": [],
+                          "count": 953,
+                          "label": "Unknown",
+                          "level": "country",
+                          "unknown": true
                         }
                       ],
                       "meta": {
-                        "as_of": "2026-09-10T11:04:22Z",
+                        "as_of": "2026-10-27T11:04:22Z",
                         "credential": "api_key",
+                        "credits_charged": 1,
                         "environment": "live",
                         "request_id": "req_01J8Z5"
-                      }
+                      },
+                      "state": {
+                        "data_version": "gtm_v9",
+                        "retryable": false,
+                        "state": "ready"
+                      },
+                      "total": 4476
                     }
                   }
                 },
@@ -25897,13 +26608,15 @@
               "application/problem+json": {
                 "examples": {
                   "quota.burst_exceeded": {
-                    "summary": "The workspace's per-minute limit for this operation was reached — wait `Retry-After` seconds",
+                    "summary": "The workspace's (or the API key's, or the person's own) per-minute limit for this operation was reached — wait `Retry-After` seconds",
                     "value": {
                       "code": "quota.burst_exceeded",
                       "detail": "This workspace may call POST /v1/search 60 times a minute. Retry after 23 seconds.",
                       "extra": {
                         "limit": 60,
                         "operation": "POST /v1/search",
+                        "retry_after": 23,
+                        "scope": "workspace",
                         "window": "minute"
                       },
                       "request_id": "bd22794d0c5c06f1d3e7045e3c0e32ab",
@@ -25927,19 +26640,19 @@
                 }
               },
               "X-RateLimit-Limit": {
-                "description": "Requests per minute this operation allows the workspace.",
+                "description": "Requests per rolling minute this operation allows the workspace, or the API key when it has a tighter limit of its own.",
                 "schema": {
                   "type": "integer"
                 }
               },
               "X-RateLimit-Remaining": {
-                "description": "What is left of that in the current minute.",
+                "description": "What is left of that right now.",
                 "schema": {
                   "type": "integer"
                 }
               },
               "X-RateLimit-Reset": {
-                "description": "Seconds until the minute ends and the count restarts.",
+                "description": "Seconds until the current minute rolls over; on a 429, the same as Retry-After.",
                 "schema": {
                   "type": "integer"
                 }

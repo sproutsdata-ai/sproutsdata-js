@@ -1,7 +1,7 @@
 {
   "source": "sproutsdata-py/spec",
   "files": {
-    "CHANGELOG.md": "ed50c7e4c1e8c2b8cb2e71708db3ea20c9c9ba614ee4868e504dd1b8a08311e6",
+    "CHANGELOG.md": "8067a67d0d217b5587bddaf622ffd1f9c86b6b2bafbdee34717a55b7be40b63e",
     "conformance/README.md": "6be09f3bea60ea3c12d9caa7c31876b787c3354e56709d6a4129691400bb9902",
     "conformance/cases/envelope/api-key-header.json": "933746094834691b72f00e9f975ad5d62508ba50bafdf2134e441c4352f3a2ee",
     "conformance/cases/envelope/no-origin-header.json": "be4f3fb39d9701df6eb8a587645fce96d871fe88dc2ad3ba93dd1980428b516c",
@@ -54,7 +54,7 @@
     "conformance/cases/retry/upstream-timeout-is-retried.json": "4a3296aedb4006ef79cfd3f5cc38e8fc0db04e06540e534cd9a0c0042f0d804e",
     "defaults.json": "c77aed72301fccd73204ef6499d6b04beb22d829045720cc402f55ea0c01621c",
     "error-codes.json": "f8bd61da8ae7864ef5a2df4c85de5a5050289dcd3eea7034a1d8882b1b8488bf",
-    "openapi.json": "010ac9b700dd4f2c4fecd3f640f25ddede545d160f9c56bbe68d8d65f6aefbdc",
+    "openapi.json": "8fe14512e8fdbd37eca89ea7adcb8c40e7c45d766b3dad56d6f43164a1d93b8d",
     "retry-policy.json": "8b8148cf0254642f4c47533641f4ec0afaf3606f9c8987b328606914f5647787",
     "routes.json": "279a958f5ab715a8ddd234e2faa5a348051b2ad440a2f98f727de3de99ec0b6f",
     "surface-map.json": "9df264d4cde5f11a3ea7f47526681619c389cf89762424109d62a22875bfacd0",

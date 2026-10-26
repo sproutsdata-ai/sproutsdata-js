@@ -272,17 +272,17 @@ A company's people, counted rather than listed:
 
 ```ts
 const grid = await client.orgChart.retrieve({ domain: 'stripe.com' });
-for (const cell of grid.cells) console.log(cell.department, cell.seniority, cell.count);
+for (const cell of grid.cells) console.log(cell.department.label, cell.seniority.label, cell.count);
 
-await client.orgChart.departments({ domain: 'stripe.com' }); // teams, with sub-departments
+await client.orgChart.departments({ domain: 'stripe.com' }); // the rows, with sub-departments
 await client.orgChart.locations({ domain: 'stripe.com' });   // country → state → city
 ```
 
-`grid.total` counts everyone; the cells count only the people the corpus could
-place in both a department and a level, so the cells do not sum to the total.
-Report both. Filters narrow the population *before* counting, so a filtered
-chart is that population's org chart rather than the company's with cells
-blanked. See [Org charts](../../docs/org-chart.md).
+`grid.total` is the people, each counted once at their most senior level; the
+cells can sum above it, because a person who holds several departments is in
+each of those rows. Report `total` as the headcount. Filters narrow the
+population *before* counting, so a filtered chart is that population's org
+chart rather than the company's with cells blanked. See [Org charts](../../docs/org-chart.md).
 
 ## Agent runs
 

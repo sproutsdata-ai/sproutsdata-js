@@ -1,5 +1,39 @@
 # Changelog
 
+## Unreleased
+
+Version to be decided at release; this section breaks the org chart, which on
+0.x means a minor bump.
+
+### Changed (breaking)
+
+- **Org charts follow One Platform's.** `client.orgChart.retrieve`,
+  `.departments` and `.locations` keep their names and take the API's new
+  contract:
+  - Requests carry one `filters` object (`OrgChartFilters`): `locations.include`
+    / `exclude` of `{ level, value }` places (`OrgChartPlace`), and
+    `governance_levels`, `employment_types` (codes such as `co_founder`,
+    `full_time`), `c_suite_access`, `job_titles`, `text`, `search_mode`.
+    `retrieve` adds `metrics` (`new_joiners`, `job_openings`) and
+    `include_suspects`; `departments` adds `include_suspects`. Gone: `country`,
+    `state`, `city`, `governance_level`, `employment_type`,
+    `has_direct_access_to_c_suite`, `include_others` and `locations`' `search`.
+  - Responses carry `{ code, label }` values (`OrgChartCode`): rows and columns
+    are `OrgChartAxisEntry` (`code`, `label`, `total`, `unknown`), cells carry
+    `badges`, the grid carries `subdepartments`, `state`, `coverage` and
+    `matched`; the location tree is `items` of `OrgChartLocation`
+    (`level`, `value`, `label`, `count`, `unknown`, `children`).
+  - Each person is counted once, at their most senior level; each axis ends
+    with an explicit Unknown.
+  - Exports: `UNKNOWN_LOCATION`, `GovernanceLevel`, `EmploymentType`,
+    `OrgChartPeopleFilters`, `OrgChartSubDepartment`, `OrgChartDepartment`,
+    `OrgChartCity`, `OrgChartState` and `OrgChartCountry` are replaced by
+    `UNKNOWN_CODE`, `OrgChartGovernanceLevel`, `OrgChartEmploymentType`,
+    `OrgChartMetric`, `OrgChartPlaceLevel`, `OrgChartPlace`, `OrgChartFilters`,
+    `OrgChartCode`, `OrgChartStatus`, `OrgChartMatched`, `OrgChartAxisEntry`,
+    `OrgChartBadges`, `OrgChartSubdepartment`, `OrgChartCoverage` and
+    `OrgChartLocation`.
+
 ## 0.0.1 (Unreleased)
 
 The first public release of `sproutsdata`, the official JavaScript / TypeScript

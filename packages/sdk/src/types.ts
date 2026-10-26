@@ -624,7 +624,7 @@ export interface CreditSourceBalance {
   source: CreditSource;
   remaining: number;
   /** The soonest expiry among this source's credits; null when none expires. */
-  expires_at: string | null;
+  expires_at?: string | null;
   never_expires: boolean;
 }
 

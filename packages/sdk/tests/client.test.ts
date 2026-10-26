@@ -822,6 +822,23 @@ describe('credits.retrieve', () => {
     ]);
   });
 
+  it('reads a balance whose allocation has no sources', async () => {
+    // What a backend without the source breakdown sends: `sources` is absent.
+    const body = {
+      platform: 'dsp',
+      scope: 'platform',
+      allocated: { granted: 1000, remaining: 993.3, reserved: 0, expires_at: '2026-12-01T00:00:00Z' },
+      shared: { remaining: 0 },
+      spendable: 993.3,
+      as_of: '2026-10-25T00:00:00Z',
+      meta: envelope().meta,
+    };
+    const client = makeClient(fetchQueue(jsonResponse(body)));
+    const credits = await client.credits.retrieve();
+    expect(credits.allocated?.remaining).toBe(993.3);
+    expect(credits.allocated?.sources).toBeUndefined();
+  });
+
   it('GETs /v1/credits and parses a fallback-scoped balance', async () => {
     const body = {
       platform: 'dsp',

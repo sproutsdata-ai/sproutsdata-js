@@ -25,7 +25,8 @@ for (const source of credits.allocated?.sources ?? []) {
 
 `allocated.sources` breaks `allocated.remaining` down by where the credits came
 from. Purchased credits — a top-up's extra credits included — never expire;
-signup, referral and promotional credits expire 90 days after they are granted.
+signup, referral and promotional credits expire after a fixed window, and each
+entry's `expires_at` gives the date.
 The amounts add up to `allocated.remaining`, and `reserved` is not split by
 source. It is absent or `null` when the backend does not report the breakdown.
 

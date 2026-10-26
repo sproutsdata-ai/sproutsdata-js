@@ -325,6 +325,7 @@ question. See [Agent runs](../../docs/runs.md).
 ```ts
 const balance = await client.credits.retrieve(); // free
 console.log(balance.spendable);
+console.log(balance.allocated?.sources); // unspent credits by source, each with its expiry
 
 const usage = await client.credits.usage({ granularity: 'day' }); // this key only, free
 ```

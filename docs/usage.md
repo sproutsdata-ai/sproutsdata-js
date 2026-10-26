@@ -17,7 +17,18 @@ Two resources that are easy to confuse:
 const credits = await client.credits.retrieve();
 console.log(credits.spendable); // spendable on this platform right now
 console.log(credits.allocated?.remaining, credits.allocated?.reserved);
+for (const source of credits.allocated?.sources ?? []) {
+  // purchased | signup | referral | promo | other
+  console.log(source.source, source.remaining, source.never_expires ? 'never' : source.expires_at);
+}
 ```
+
+`allocated.sources` breaks `allocated.remaining` down by where the credits came
+from. Purchased credits — a top-up's extra credits included — never expire;
+signup, referral and promotional credits expire after a fixed window, and each
+entry's `expires_at` gives the date.
+The amounts add up to `allocated.remaining`, and `reserved` is not split by
+source. It is absent or `null` when the backend does not report the breakdown.
 
 **Gate on `spendable`.** Do not add `allocated.remaining` to `shared.remaining`:
 the shared pool is reported for visibility but is not available to this

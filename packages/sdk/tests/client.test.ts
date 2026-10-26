@@ -794,6 +794,51 @@ describe('pagination', () => {
 });
 
 describe('credits.retrieve', () => {
+  it('reads the allocated credits by source', async () => {
+    const body = {
+      platform: 'dsp',
+      scope: 'platform',
+      allocated: {
+        granted: 1500,
+        remaining: 1400,
+        reserved: 0,
+        expires_at: '2027-01-20T00:00:00Z',
+        sources: [
+          { source: 'purchased', remaining: 900, expires_at: null, never_expires: true },
+          { source: 'signup', remaining: 500, expires_at: '2027-01-20T00:00:00Z', never_expires: false },
+        ],
+      },
+      shared: { remaining: 0 },
+      spendable: 1400,
+      as_of: '2026-10-25T00:00:00Z',
+      meta: envelope().meta,
+    };
+    const client = makeClient(fetchQueue(jsonResponse(body)));
+    const credits = await client.credits.retrieve();
+    const sources = credits.allocated?.sources ?? [];
+    expect(sources.map((s) => [s.source, s.remaining, s.expires_at, s.never_expires])).toEqual([
+      ['purchased', 900, null, true],
+      ['signup', 500, '2027-01-20T00:00:00Z', false],
+    ]);
+  });
+
+  it('reads a balance whose allocation has no sources', async () => {
+    // What a backend without the source breakdown sends: `sources` is absent.
+    const body = {
+      platform: 'dsp',
+      scope: 'platform',
+      allocated: { granted: 1000, remaining: 993.3, reserved: 0, expires_at: '2026-12-01T00:00:00Z' },
+      shared: { remaining: 0 },
+      spendable: 993.3,
+      as_of: '2026-10-25T00:00:00Z',
+      meta: envelope().meta,
+    };
+    const client = makeClient(fetchQueue(jsonResponse(body)));
+    const credits = await client.credits.retrieve();
+    expect(credits.allocated?.remaining).toBe(993.3);
+    expect(credits.allocated?.sources).toBeUndefined();
+  });
+
   it('GETs /v1/credits and parses a fallback-scoped balance', async () => {
     const body = {
       platform: 'dsp',

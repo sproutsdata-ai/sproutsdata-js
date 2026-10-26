@@ -16,6 +16,22 @@ or, for an unreleased backend branch, with that branch's
 
 ---
 
+## 2026-10-25 — credit balance by source (pricing rev 11)
+
+Patched by hand from the dsp-backend `feat/dsp-pricing-rev11` export, not a full
+refresh: the QA export also carries routes this snapshot does not wrap yet, and
+only the credit balance changed for this release.
+
+- `AllocatedCredits.sources` (new, optional): the allocated credits by source —
+  `purchased`, `signup`, `referral`, `promo`, `other` — as `CreditSourceBalance`
+  rows with `remaining`, the soonest `expires_at` and `never_expires`. The rows
+  add up to `remaining`; `null` when the billing service cannot report them.
+- `GET /v1/credits` description: says why the breakdown exists (purchased
+  credits never expire; free credits do).
+
+SDK work: `CreditSourceBalance` and `AllocatedCredits.sources` in both SDKs. No
+route changed, so `routes.json` and `surface-map.json` are unchanged.
+
 ## 2026-10-14 — saved lists, export, votes, keyword search and rate limits
 
 Snapshot refreshed from the dsp-backend `QA` export (348f53d), rendered offline

@@ -1,6 +1,16 @@
 # Changelog
 
-## 0.0.1 (Unreleased)
+## Unreleased
+
+### Added
+
+- **Credits**: `credits.retrieve()` reports `allocated.sources`, the allocated
+  credits by source (`purchased`, `signup`, `referral`, `promo`, `other`), each
+  with its `remaining`, soonest `expires_at` and `never_expires`. New types:
+  `CreditSource` and `CreditSourceBalance`. The field is optional: a backend
+  that does not report the breakdown omits it.
+
+## 0.0.1 (2026-10-14)
 
 The first public release of `sproutsdata`, the official JavaScript / TypeScript
 SDK for the Sprouts Data API. Until 1.0, a minor version may include breaking

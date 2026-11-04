@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  AmbiguousCompanyError,
   APIConnectionError,
   APIError,
   APIResponseValidationError,
@@ -203,6 +204,40 @@ describe('error mapping', () => {
     expect([err.available, err.required, err.actionType]).toEqual([0, 1, 'dsp.search.fast']);
     const bare = (await client.search({ query: 'x' }).catch((e: unknown) => e)) as InsufficientCreditsError;
     expect([bare.available, bare.required, bare.actionType]).toEqual([undefined, undefined, undefined]);
+  });
+
+  it('exposes identifier, candidates and candidateCount on AmbiguousCompanyError', async () => {
+    const candidates = [
+      { company_ref: 'd1_msft', name: 'Microsoft', domain: 'microsoft.com' },
+      { name: 'No ref, so it cannot be charted' },
+      'not a candidate',
+      { company_ref: 'd1_parature', name: 'Parature', domain: 'microsoft.com' },
+    ];
+    const client = makeClient(
+      fetchQueue(
+        problemResponse(422, {
+          code: ErrorCode.ORG_CHART_COMPANY_AMBIGUOUS,
+          extra: { identifier: 'microsoft.com', candidate_count: 12, candidates },
+        }),
+        problemResponse(422, {
+          code: ErrorCode.ORG_CHART_COMPANY_AMBIGUOUS,
+          extra: { candidate_count: 1, candidates },
+        }),
+        problemResponse(422, { code: ErrorCode.ORG_CHART_COMPANY_AMBIGUOUS }),
+      ),
+    );
+    const err = await client.orgChart.retrieve({ domain: 'microsoft.com' }).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(AmbiguousCompanyError);
+    expect(err).toBeInstanceOf(InvalidRequestError);
+    const ambiguous = err as AmbiguousCompanyError;
+    expect(ambiguous.identifier).toBe('microsoft.com');
+    expect(ambiguous.candidates.map((c) => c.company_ref)).toEqual(['d1_msft', 'd1_parature']);
+    expect(ambiguous.candidateCount).toBe(12);
+    // A count below what is listed is not believed.
+    const low = (await client.orgChart.retrieve({ domain: 'microsoft.com' }).catch((e: unknown) => e)) as AmbiguousCompanyError;
+    expect([low.identifier, low.candidateCount]).toEqual([undefined, 2]);
+    const bare = (await client.orgChart.retrieve({ domain: 'microsoft.com' }).catch((e: unknown) => e)) as AmbiguousCompanyError;
+    expect([bare.candidates, bare.candidateCount]).toEqual([[], 0]);
   });
 
   it('never throws while mapping a body that is not a problem document', async () => {

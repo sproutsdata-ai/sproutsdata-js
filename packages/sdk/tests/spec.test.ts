@@ -161,7 +161,7 @@ describe('spec/error-codes.json', () => {
 
   it('ErrorCode lists every code, and only those', () => {
     expect(Object.values(ErrorCode).sort()).toEqual(spec.codes.map((c) => c.code).sort());
-    expect(Object.values(ErrorCode)).toHaveLength(53);
+    expect(Object.values(ErrorCode)).toHaveLength(69);
   });
 
   it('every code maps to its concept, and every status fallback is honoured', () => {

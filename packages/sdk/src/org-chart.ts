@@ -128,6 +128,22 @@ export interface OrgChartCompany {
   name: string | null;
 }
 
+/**
+ * One company an ambiguous domain or LinkedIn page may mean, from
+ * {@link AmbiguousCompanyError.candidates}. Everything here is the record's
+ * own, so look-alike companies can be told apart by a person. Send
+ * `company_ref` back, as it came, to chart this one.
+ */
+export interface OrgChartCandidate {
+  company_ref: string;
+  name?: string | null;
+  domain?: string | null;
+  linkedin_url?: string | null;
+  hq_city?: string | null;
+  hq_country?: string | null;
+  employee_count?: number | null;
+}
+
 /** A taxonomy value: `code` to send back, `label` to show. */
 export interface OrgChartCode {
   code: string;

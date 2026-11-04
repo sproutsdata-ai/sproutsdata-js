@@ -1,0 +1,50 @@
+{
+  "name": "an_ambiguous_company_is_its_own_error",
+  "description": "A domain several companies share is refused with 422 org_chart.company_ambiguous and the companies to choose from. It is a question, not a failure: its own error type, still an invalid request, never retried.",
+  "request": {
+    "method": "POST",
+    "path": "/v1/org-chart",
+    "body": {
+      "domain": "microsoft.com"
+    }
+  },
+  "responses": [
+    {
+      "status": 422,
+      "headers": {
+        "X-Request-Id": "req_ambiguous"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/org-chart-company-ambiguous",
+        "title": "Ambiguous company",
+        "status": 422,
+        "code": "org_chart.company_ambiguous",
+        "extra": {
+          "identifier": "microsoft.com",
+          "candidate_count": 2,
+          "candidates": [
+            {
+              "company_ref": "d1_msft",
+              "name": "Microsoft",
+              "domain": "microsoft.com"
+            },
+            {
+              "company_ref": "d1_parature",
+              "name": "Parature",
+              "domain": "microsoft.com"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "error": {
+      "concept": "company_ambiguous",
+      "status": 422,
+      "code": "org_chart.company_ambiguous",
+      "request_id": "req_ambiguous"
+    }
+  }
+}

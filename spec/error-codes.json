@@ -125,6 +125,13 @@
       "meaning": "A relationship anchor resolved to more than one company or institution. Name it more precisely — a domain or LinkedIn URL rather than a name, or `kind` on an institution."
     },
     {
+      "code": "org_chart.company_ambiguous",
+      "status": 422,
+      "concept": "company_ambiguous",
+      "retry": false,
+      "meaning": "The domain (or LinkedIn page) sent to an org-chart route names more than one company that has people. Nothing was charged. `extra.candidates` lists them, at most 10, each with its `company_ref`; send the chosen one's `company_ref` instead of the domain."
+    },
+    {
       "code": "history.not_found",
       "status": 404,
       "concept": "not_found",
@@ -174,6 +181,20 @@
       "meaning": "Adding these items would take a free workspace past its saved-items cap. Nothing was added. `extra` carries `cap`, `saved` and `adding`, so you can tell how many still fit. An entity already saved in another list does not count again."
     },
     {
+      "code": "lists.name_taken",
+      "status": 409,
+      "concept": "conflict",
+      "retry": false,
+      "meaning": "Another live list in this workspace already has that name, compared without case. Nothing was changed; pick another name."
+    },
+    {
+      "code": "lists.category_mismatch",
+      "status": 422,
+      "concept": "invalid_request",
+      "retry": false,
+      "meaning": "The records are not the kind this list holds, or one batch mixes kinds. `extra` carries the list's category and the categories offered. Nothing was added."
+    },
+    {
       "code": "lists.unavailable",
       "status": 503,
       "concept": "service_unavailable",
@@ -186,6 +207,41 @@
       "concept": "not_found",
       "retry": false,
       "meaning": "CSV export is switched off in this deployment. Retrying will not help; the route answers once export is enabled."
+    },
+    {
+      "code": "export.too_large",
+      "status": 422,
+      "concept": "invalid_request",
+      "retry": false,
+      "meaning": "More rows than one export may hold. `extra` carries `max_rows` and the `requested` count; export a range that fits with `offset` and `limit`."
+    },
+    {
+      "code": "privacy.request_not_found",
+      "status": 404,
+      "concept": "not_found",
+      "retry": false,
+      "meaning": "No privacy request has that id. Internal-only: raised by the console's privacy request log, which an API key cannot reach."
+    },
+    {
+      "code": "privacy.step_not_allowed",
+      "status": 409,
+      "concept": "conflict",
+      "retry": false,
+      "meaning": "The step is not possible in the request's current state: it is closed, or suppression was asked for before the identity check passed. Internal-only."
+    },
+    {
+      "code": "privacy.record_incomplete",
+      "status": 422,
+      "concept": "invalid_request",
+      "retry": false,
+      "meaning": "A close was asked for while fields are unrecorded; `extra.missing` names them. Internal-only."
+    },
+    {
+      "code": "privacy.unavailable",
+      "status": 503,
+      "concept": "service_unavailable",
+      "retry": true,
+      "meaning": "The privacy request log, or online intake, is unavailable. Nothing was changed. Internal-only."
     },
     {
       "code": "cohort.not_offered",
@@ -293,6 +349,13 @@
       "meaning": "The admin console's rate-limit settings store is unreachable. Internal-only: the limiter itself falls back to its default policy, so no `/v1` route returns it."
     },
     {
+      "code": "rate_limits.key_not_found",
+      "status": 404,
+      "concept": "not_found",
+      "retry": false,
+      "meaning": "No active API key has that id, so no limit can be set on it. Nothing was changed. Internal-only: raised by the admin console's rate-limit settings."
+    },
+    {
       "code": "credits.insufficient",
       "status": 402,
       "concept": "insufficient_credits",
@@ -362,6 +425,55 @@
       "meaning": "A top-up handle that is unknown, expired, or another workspace's — one answer for all three, so a handle cannot be used to probe other tenants. Raised by the key-authenticated top-up routes, which the SDKs do not wrap; mapped so `.code` still names the cause."
     },
     {
+      "code": "enrichment.invalid_item",
+      "status": 422,
+      "concept": "invalid_request",
+      "retry": false,
+      "meaning": "One or more items have no usable identifier: a `linkedin_url` that is not a profile URL, a malformed `es_id`, or neither or both sent. `extra.errors[]` names each by index. Raised by contact enrichment, which this library does not wrap."
+    },
+    {
+      "code": "enrichment.too_many_items",
+      "status": 422,
+      "concept": "invalid_request",
+      "retry": false,
+      "meaning": "More unique profiles than one enrichment job takes. The cap is `extra.max_items`."
+    },
+    {
+      "code": "enrichment.job_not_found",
+      "status": 404,
+      "concept": "not_found",
+      "retry": false,
+      "meaning": "No such enrichment job for this workspace. Unknown and another workspace's job are deliberately the same answer."
+    },
+    {
+      "code": "enrichment.upstream_unavailable",
+      "status": 503,
+      "concept": "service_unavailable",
+      "retry": true,
+      "meaning": "The enrichment service refused, failed or could not be reached, so the job did not start or its state could not be read. Nothing was charged. Also sent as 502 when the service refused the request."
+    },
+    {
+      "code": "enrichment.not_configured",
+      "status": 501,
+      "concept": "feature_not_available",
+      "retry": false,
+      "meaning": "This deployment has no enrichment service. Retrying will not help."
+    },
+    {
+      "code": "enrichment.job_not_cancellable",
+      "status": 409,
+      "concept": "conflict",
+      "retry": false,
+      "meaning": "The job already reached a final state, so there is nothing left to cancel."
+    },
+    {
+      "code": "enrichment.results_unavailable",
+      "status": 410,
+      "concept": "not_found",
+      "retry": false,
+      "meaning": "The enrichment service no longer holds this job's request, so its rows cannot be read back and the job is recorded as failed. Retrying will never help; start a new job."
+    },
+    {
       "code": "upstream.unavailable",
       "status": 503,
       "concept": "service_unavailable",
@@ -397,6 +509,7 @@
     "402": "insufficient_credits",
     "403": "permission_denied",
     "409": "idempotency_conflict",
+    "410": "not_found",
     "413": "request_too_large",
     "415": "invalid_request",
     "422": "invalid_request",

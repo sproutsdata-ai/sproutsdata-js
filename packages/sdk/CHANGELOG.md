@@ -33,6 +33,16 @@ Version to be decided at release; this section breaks the org chart, which on
     `OrgChartCode`, `OrgChartStatus`, `OrgChartMatched`, `OrgChartAxisEntry`,
     `OrgChartBadges`, `OrgChartSubdepartment`, `OrgChartCoverage` and
     `OrgChartLocation`.
+- **A domain several companies share is never guessed.** When the domain sent
+  to `retrieve`, `departments` or `locations` names more than one company that
+  has people (or several records hold the LinkedIn page), the call throws
+  `AmbiguousCompanyError`, a free `422 org_chart.company_ambiguous` and an
+  `InvalidRequestError`. Its `candidates` (`OrgChartCandidate`) list the
+  companies, at most 10, each with `company_ref`, `name`, `domain`,
+  `linkedin_url`, headquarters and `employee_count`; `candidateCount` says how
+  many there are in all. Send the chosen one's `company_ref` instead of the
+  domain to chart it: it is the third identifier, beside `domain` and
+  `linkedin_url` (exactly one), and `OrgChartCompany.company_ref` echoes it.
 
 ## 0.0.1 (Unreleased)
 

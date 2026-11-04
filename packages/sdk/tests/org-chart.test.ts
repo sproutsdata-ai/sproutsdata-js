@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { SproutsData, ErrorCode, FeatureNotAvailableError, UNKNOWN_CODE } from '../src/index';
+import { AmbiguousCompanyError, SproutsData, ErrorCode, FeatureNotAvailableError, UNKNOWN_CODE } from '../src/index';
 import type { OrgChartResponse } from '../src/index';
 import { TEST_KEY, envelope, fetchQueue, jsonResponse, problemResponse } from './helpers';
 
@@ -101,11 +101,15 @@ describe('orgChart.retrieve', () => {
   it('refuses a missing, doubled or empty identifier and blank place values', async () => {
     const fetchMock = fetchQueue();
     const client = makeClient(fetchMock);
-    await expect(client.orgChart.retrieve({})).rejects.toThrow(/`domain` or `linkedin_url`/);
+    await expect(client.orgChart.retrieve({})).rejects.toThrow(/`domain`, `linkedin_url` or `company_ref`/);
     await expect(
       client.orgChart.retrieve({ domain: 'stripe.com', linkedin_url: 'linkedin.com/company/stripe' }),
-    ).rejects.toThrow(/not both/);
+    ).rejects.toThrow(/not `domain` and `linkedin_url`/);
+    await expect(
+      client.orgChart.locations({ domain: 'stripe.com', company_ref: 'd1_stripe' }),
+    ).rejects.toThrow(/not `domain` and `company_ref`/);
     await expect(client.orgChart.retrieve({ linkedin_url: '' })).rejects.toThrow(/non-empty/);
+    await expect(client.orgChart.departments({ company_ref: '' })).rejects.toThrow(/`company_ref` must be/);
     await expect(
       client.orgChart.retrieve({
         domain: 'stripe.com',
@@ -124,6 +128,31 @@ describe('orgChart.retrieve', () => {
       filters: { locations: { include } },
     });
     expect(JSON.parse(fetchMock.mock.calls[0]![1]!.body as string).filters.locations.include).toHaveLength(11);
+  });
+
+  it('refuses an ambiguous domain with its candidates, and charts the one picked by company_ref', async () => {
+    const candidates = [
+      { company_ref: 'd1_msft', name: 'Microsoft', domain: 'microsoft.com', hq_country: 'United States' },
+      { company_ref: 'd1_parature', name: 'Parature', domain: 'microsoft.com', hq_country: null },
+    ];
+    const fetchMock = fetchQueue(
+      problemResponse(422, {
+        code: ErrorCode.ORG_CHART_COMPANY_AMBIGUOUS,
+        extra: { identifier: 'microsoft.com', candidate_count: 2, candidates },
+      }),
+      jsonResponse({ ...grid, company: { domain: null, linkedin_url: null, company_ref: 'd1_parature', name: 'Parature' } }),
+    );
+    const client = makeClient(fetchMock);
+    const err = await client.orgChart.retrieve({ domain: 'microsoft.com' }).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(AmbiguousCompanyError);
+    const picked = (err as AmbiguousCompanyError).candidates[1]!;
+    const chart = await client.orgChart.retrieve({ company_ref: picked.company_ref, metrics: [] });
+    expect(chart.company.company_ref).toBe('d1_parature');
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(JSON.parse(fetchMock.mock.calls[1]![1]!.body as string)).toEqual({
+      company_ref: 'd1_parature',
+      metrics: [],
+    });
   });
 
   it('maps a 501 to FeatureNotAvailableError with code not_implemented', async () => {

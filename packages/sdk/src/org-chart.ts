@@ -57,19 +57,27 @@ export interface OrgChartPlace {
 }
 
 /**
- * Which company — by `domain` or `linkedin_url`, exactly one. Most companies
- * in the index carry no domain, which is what the LinkedIn form is for. A
- * pasted URL is reduced to its host server-side; a personal profile or a
- * `/school/` page is refused.
+ * Which company — by `domain`, `linkedin_url` or `company_ref`, exactly one.
+ * Most companies in the index carry no domain, which is what the LinkedIn form
+ * is for. A pasted URL is reduced to its host server-side; a personal profile
+ * or a `/school/` page is refused.
  */
 export interface OrgChartIdentifier {
-  /** The company's domain, e.g. `stripe.com`. */
+  /**
+   * The company's domain, e.g. `stripe.com`. A domain several companies share
+   * is refused with `AmbiguousCompanyError`, which lists them.
+   */
   domain?: string;
   /**
    * The company's LinkedIn page, e.g. `linkedin.com/company/stripe` — a
    * company page, not a person's profile or a school's.
    */
   linkedin_url?: string;
+  /**
+   * One company from an `AmbiguousCompanyError`'s `candidates`: send its
+   * `company_ref`, exactly as it came, to chart that company.
+   */
+  company_ref?: string;
 }
 
 /**
@@ -125,12 +133,14 @@ export interface OrgChartLocationsParams extends OrgChartIdentifier {
 export interface OrgChartCompany {
   domain: string | null;
   linkedin_url: string | null;
+  /** Set when the company was named by a `company_ref`. */
+  company_ref?: string | null;
   name: string | null;
 }
 
 /**
  * One company an ambiguous domain or LinkedIn page may mean, from
- * {@link AmbiguousCompanyError.candidates}. Everything here is the record's
+ * `AmbiguousCompanyError.candidates`. Everything here is the record's
  * own, so look-alike companies can be told apart by a person. Send
  * `company_ref` back, as it came, to chart this one.
  */
@@ -292,24 +302,24 @@ export interface OrgChartLocationsResponse {
   meta: ResponseMeta;
 }
 
+const IDENTIFIERS = ['domain', 'linkedin_url', 'company_ref'] as const;
+
 /**
- * Exactly one of `domain` / `linkedin_url`: the two could name different
- * companies. Which values name a company with an org chart is the server's
- * to say.
+ * Exactly one of `domain`, `linkedin_url` and `company_ref`: they could name
+ * different companies. Which values name a company with an org chart is the
+ * server's to say.
  */
 function validateIdentifier(params: OrgChartIdentifier): void {
-  const hasDomain = params.domain !== undefined;
-  const hasLi = params.linkedin_url !== undefined;
-  ensure(hasDomain || hasLi, 'Provide `domain` or `linkedin_url`');
+  const given = IDENTIFIERS.filter((name) => params[name] !== undefined);
+  ensure(given.length > 0, 'Provide one of `domain`, `linkedin_url` or `company_ref`');
   ensure(
-    !(hasDomain && hasLi),
-    'Provide `domain` or `linkedin_url`, not both: the two can name different companies',
+    given.length === 1,
+    `Provide one of \`domain\`, \`linkedin_url\` or \`company_ref\`, not ${given.map((n) => `\`${n}\``).join(' and ')}: they can name different companies`,
   );
-  const value = hasDomain ? params.domain : params.linkedin_url;
-  ensure(
-    typeof value === 'string' && value.length > 0,
-    `\`${hasDomain ? 'domain' : 'linkedin_url'}\` must be a non-empty string`,
-  );
+  for (const name of given) {
+    const value = params[name];
+    ensure(typeof value === 'string' && value.length > 0, `\`${name}\` must be a non-empty string`);
+  }
 }
 
 function validateFilters(filters: OrgChartFilters | undefined): void {

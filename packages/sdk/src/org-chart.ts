@@ -104,8 +104,43 @@ export interface OrgChartFilters {
   search_mode?: 'auto' | 'name' | 'linkedin' | 'job_title';
 }
 
+/**
+ * What the org chart took before it followed One Platform's (27 October 2026).
+ * Typed `never` so passing one is a compile error, and refused at run time,
+ * naming its replacement, for callers the compiler does not see.
+ */
+export interface RetiredOrgChartParams {
+  /** Retired: `filters.locations.include` of `{ level: 'country', value }`. */
+  country?: never;
+  /** Retired: `filters.locations.include` of `{ level: 'state', value }`. */
+  state?: never;
+  /** Retired: `filters.locations.include` of `{ level: 'city', value }`. */
+  city?: never;
+  /** Retired: `filters.governance_levels`, in codes such as `co_founder`. */
+  governance_level?: never;
+  /** Retired: `filters.employment_types`, in codes such as `full_time`. */
+  employment_type?: never;
+  /** Retired: `filters.c_suite_access`. */
+  has_direct_access_to_c_suite?: never;
+  /** Retired: the explicit Unknown row and column are always there. */
+  include_others?: never;
+  /** Retired: `filters.text`. */
+  search?: never;
+}
+
+const RETIRED: Record<keyof RetiredOrgChartParams, string> = {
+  country: "send places as `filters.locations.include` of { level: 'country', value }",
+  state: "send places as `filters.locations.include` of { level: 'state', value }",
+  city: "send places as `filters.locations.include` of { level: 'city', value }",
+  governance_level: 'use `filters.governance_levels`, in codes such as `co_founder`',
+  employment_type: 'use `filters.employment_types`, in codes such as `full_time`',
+  has_direct_access_to_c_suite: 'use `filters.c_suite_access`',
+  include_others: 'drop it: the explicit Unknown row and column are always there',
+  search: 'use `filters.text`',
+};
+
 /** Body for `POST /v1/org-chart`. */
-export interface OrgChartParams extends OrgChartIdentifier {
+export interface OrgChartParams extends OrgChartIdentifier, RetiredOrgChartParams {
   filters?: OrgChartFilters;
   /** The cell badges to compute. Both by default; `[]` answers fastest. */
   metrics?: OrgChartMetric[];
@@ -114,13 +149,13 @@ export interface OrgChartParams extends OrgChartIdentifier {
 }
 
 /** Body for `POST /v1/org-chart/departments`. */
-export interface OrgChartDepartmentsParams extends OrgChartIdentifier {
+export interface OrgChartDepartmentsParams extends OrgChartIdentifier, RetiredOrgChartParams {
   filters?: OrgChartFilters;
   include_suspects?: boolean;
 }
 
 /** Body for `POST /v1/org-chart/locations`. */
-export interface OrgChartLocationsParams extends OrgChartIdentifier {
+export interface OrgChartLocationsParams extends OrgChartIdentifier, RetiredOrgChartParams {
   filters?: OrgChartFilters;
 }
 
@@ -322,6 +357,19 @@ function validateIdentifier(params: OrgChartIdentifier): void {
   }
 }
 
+/**
+ * A retired parameter would reach the server as an unknown field and come back
+ * as a bare 422; refusing it here says what replaced it.
+ */
+function refuseRetired(params: object): void {
+  for (const [name, replacement] of Object.entries(RETIRED)) {
+    ensure(
+      (params as Record<string, unknown>)[name] === undefined,
+      `\`${name}\` was retired when the org chart moved to One Platform's on 27 October 2026; ${replacement}`,
+    );
+  }
+}
+
 function validateFilters(filters: OrgChartFilters | undefined): void {
   if (filters === undefined) return;
   ensure(filters !== null && typeof filters === 'object', '`filters` must be an object');
@@ -356,6 +404,7 @@ export class OrgChart extends APIResource {
       params !== null && typeof params === 'object',
       'retrieve(params) requires a params object',
     );
+    refuseRetired(params);
     validateIdentifier(params);
     validateFilters(params.filters);
     return this.transport.request('POST', '/v1/org-chart', {
@@ -378,6 +427,7 @@ export class OrgChart extends APIResource {
       params !== null && typeof params === 'object',
       'departments(params) requires a params object',
     );
+    refuseRetired(params);
     validateIdentifier(params);
     validateFilters(params.filters);
     return this.transport.request('POST', '/v1/org-chart/departments', {
@@ -399,6 +449,7 @@ export class OrgChart extends APIResource {
       params !== null && typeof params === 'object',
       'locations(params) requires a params object',
     );
+    refuseRetired(params);
     validateIdentifier(params);
     validateFilters(params.filters);
     return this.transport.request('POST', '/v1/org-chart/locations', {

@@ -17,7 +17,10 @@ Version to be decided at release; this section breaks the org chart, which on
     `retrieve` adds `metrics` (`new_joiners`, `job_openings`) and
     `include_suspects`; `departments` adds `include_suspects`. Gone: `country`,
     `state`, `city`, `governance_level`, `employment_type`,
-    `has_direct_access_to_c_suite`, `include_others` and `locations`' `search`.
+    `has_direct_access_to_c_suite`, `include_others` and `locations`' `search`:
+    each is typed `never` (`RetiredOrgChartParams`), so passing one is a compile
+    error, and is refused before sending with a `ClientValidationError` that
+    names its replacement, rather than reaching the server as an unknown field.
   - Responses carry `{ code, label }` values (`OrgChartCode`): rows and columns
     are `OrgChartAxisEntry` (`code`, `label`, `total`, `unknown`), cells carry
     `badges`, the grid carries `subdepartments`, `state`, `coverage` and

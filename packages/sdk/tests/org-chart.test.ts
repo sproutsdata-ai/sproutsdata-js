@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { AmbiguousCompanyError, SproutsData, ErrorCode, FeatureNotAvailableError, UNKNOWN_CODE } from '../src/index';
+import {
+  AmbiguousCompanyError,
+  ClientValidationError,
+  SproutsData,
+  ErrorCode,
+  FeatureNotAvailableError,
+  UNKNOWN_CODE,
+} from '../src/index';
 import type { OrgChartResponse } from '../src/index';
 import { TEST_KEY, envelope, fetchQueue, jsonResponse, problemResponse } from './helpers';
 
@@ -117,6 +124,31 @@ describe('orgChart.retrieve', () => {
       }),
     ).rejects.toThrow(/non-blank/);
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('refuses each retired parameter by name, saying what replaced it', async () => {
+    const fetchMock = fetchQueue();
+    const client = makeClient(fetchMock);
+    // A caller the compiler does not see: plain JavaScript, or a cast.
+    const old = (extra: Record<string, unknown>) => ({ domain: 'stripe.com', ...extra }) as never;
+    await expect(client.orgChart.retrieve(old({ country: ['Germany'] }))).rejects.toThrow(
+      /`country` was retired .*filters\.locations\.include/,
+    );
+    await expect(client.orgChart.retrieve(old({ include_others: true }))).rejects.toThrow(
+      /`include_others` was retired .*Unknown row and column are always there/,
+    );
+    await expect(client.orgChart.departments(old({ governance_level: ['Founder'] }))).rejects.toThrow(
+      /`governance_level` was retired .*filters\.governance_levels/,
+    );
+    await expect(client.orgChart.locations(old({ search: 'berlin' }))).rejects.toThrow(
+      /`search` was retired .*filters\.text/,
+    );
+    await expect(client.orgChart.retrieve(old({ has_direct_access_to_c_suite: true }))).rejects.toBeInstanceOf(
+      ClientValidationError,
+    );
+    expect(fetchMock).not.toHaveBeenCalled();
+    // @ts-expect-error -- retired parameters are typed `never`.
+    void (() => client.orgChart.retrieve({ domain: 'stripe.com', city: ['Berlin'] }));
   });
 
   it('leaves the kind of LinkedIn page, vocabularies and list lengths to the server', async () => {

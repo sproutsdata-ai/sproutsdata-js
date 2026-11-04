@@ -150,6 +150,7 @@ export type {
   OrgChartParams,
   OrgChartDepartmentsParams,
   OrgChartLocationsParams,
+  RetiredOrgChartParams,
   OrgChartCompany,
   OrgChartCandidate,
   OrgChartCode,

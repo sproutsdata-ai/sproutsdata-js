@@ -38,8 +38,13 @@ export type FieldTier = 'free' | 'unlocked' | (string & {});
 export interface SavedList {
   /** Opaque (a UUID). What every other `lists` call takes. */
   id: string;
-  /** 1–120 characters. Names need not be unique. */
+  /** 1–120 characters, unique among the workspace's lists, ignoring case. */
   name: string;
+  /**
+   * The kind of record the list holds. `null` until its first records are
+   * added, or for a list saved before lists were typed that mixes kinds.
+   */
+  entity_category: EntityCategory | null;
   /** The dashboard user who made it; null when an API key did. */
   created_by: number | null;
   created_at: string;
@@ -111,9 +116,31 @@ export interface RemoveItemsResponse {
   removed: number;
 }
 
+/** Options for `lists.create`. */
+export interface ListCreateParams {
+  /**
+   * The one kind of record the list holds; records of another kind are
+   * refused with an {@link InvalidRequestError} (`lists.category_mismatch`).
+   * Omitted, the list takes the kind of the first records added to it.
+   */
+  entity_category?: EntityCategory;
+}
+
+/**
+ * Which rows of a list `lists.export` returns, in the list's order (newest
+ * first). Omitted, the whole list. One export holds at most 10,000 rows; a
+ * longer list is exported in ranges.
+ */
+export interface ListExportParams {
+  /** Rows to skip. 0, the default, is the first row. */
+  offset?: number;
+  /** Rows to export from `offset`, at most 10,000. Omitted, the rest of the list. */
+  limit?: number;
+}
+
 /** Body for `POST /v1/search/export`. */
 export interface SearchExportParams {
-  /** The records, at most 1,000. */
+  /** The records, at most 10,000. */
   items: ItemRef[];
   /** The `meta.request_id` of the search they came from, for attribution. Optional. */
   request_id?: string;
@@ -196,6 +223,51 @@ function checkName(name: unknown): string {
   return name;
 }
 
+/**
+ * A params object holding only `allowed` keys. `create` and `export` took the
+ * request options second before they took params, so an options object there
+ * is named rather than sent as a body the API would refuse.
+ */
+function checkParams(method: string, params: unknown, allowed: readonly string[]): Record<string, unknown> {
+  ensure(params !== null && typeof params === 'object', `${method}: params must be an object`);
+  for (const key of Object.keys(params)) {
+    ensure(
+      allowed.includes(key),
+      `${method}: unknown parameter \`${key}\`; request options such as \`requestId\` go in the third argument`,
+    );
+  }
+  return params as Record<string, unknown>;
+}
+
+function listCreateBody(name: unknown, params: ListCreateParams): Record<string, unknown> {
+  const { entity_category } = checkParams('lists.create', params, ['entity_category']);
+  const body: Record<string, unknown> = { name: checkName(name) };
+  if (entity_category !== undefined) {
+    ensure(
+      typeof entity_category === 'string' && entity_category.length > 0,
+      '`entity_category` must be a category, such as `company` or `person`',
+    );
+    body.entity_category = entity_category;
+  }
+  return body;
+}
+
+function listExportBody(params: ListExportParams): Record<string, unknown> | undefined {
+  const { offset, limit } = checkParams('lists.export', params, ['offset', 'limit']);
+  const body: Record<string, unknown> = {};
+  if (offset !== undefined) {
+    ensure(Number.isSafeInteger(offset) && (offset as number) >= 0, '`offset` must be a non-negative integer');
+    body.offset = offset;
+  }
+  if (limit !== undefined) {
+    ensure(Number.isSafeInteger(limit) && (limit as number) >= 1, '`limit` must be a positive integer');
+    body.limit = limit;
+  }
+  // Whether a range is over the export cap is the server's to say
+  // (`export.too_large` carries `max_rows` and `requested`).
+  return Object.keys(body).length > 0 ? body : undefined;
+}
+
 export class Lists extends APIResource {
   /** Every saved list in the workspace, newest first, with the saved-items count and cap. Not paginated. */
   async list(options?: RequestOptions): Promise<ListsResponse> {
@@ -203,12 +275,15 @@ export class Lists extends APIResource {
   }
 
   /**
-   * Make a list. Not repeated after a failure that may have reached the
-   * server — a repeat would make a second list — so check `list()` first.
+   * Make a list. Its name is unique in the workspace, ignoring case: a name
+   * in use is a {@link ConflictError} (`lists.name_taken`). Pass
+   * `entity_category` to fix the kind of record it holds. Not repeated after
+   * a failure that may have reached the server — a repeat would make a second
+   * list — so check `list()` first.
    */
-  async create(name: string, options?: RequestOptions): Promise<SavedList> {
+  async create(name: string, params: ListCreateParams = {}, options?: RequestOptions): Promise<SavedList> {
     return this.transport.request('POST', '/v1/lists', {
-      body: { name: checkName(name) },
+      body: listCreateBody(name, params),
       routeClass: 'once',
       options,
     });
@@ -304,14 +379,18 @@ export class Lists extends APIResource {
   }
 
   /**
-   * The whole list as a CSV file, at most 1,000 rows. A
-   * {@link NotFoundError} with code `export.not_enabled` while export is
-   * switched off. Free today, but retried like a billed call — it carries an
-   * `Idempotency-Key` and a lost answer is not repeated — because the server
-   * prices exports through the same meter once export pricing ships.
+   * A list as a CSV file: all of it, or the rows `offset` and `limit` name.
+   * One export holds at most 10,000 rows; more is an
+   * {@link InvalidRequestError} (`export.too_large`), so export a longer list
+   * in ranges. A {@link NotFoundError} with code `export.not_enabled` while
+   * export is switched off. Free today, but retried like a billed call — it
+   * carries an `Idempotency-Key` and a lost answer is not repeated — because
+   * the server prices exports through the same meter once export pricing
+   * ships.
    */
-  async export(listId: string, options?: RequestOptions): Promise<CsvExport> {
+  async export(listId: string, params: ListExportParams = {}, options?: RequestOptions): Promise<CsvExport> {
     const raw = await this.transport.requestBytes('POST', `/v1/lists/${pathSegment(listId)}/export`, {
+      body: listExportBody(params),
       routeClass: 'billed',
       options,
     });

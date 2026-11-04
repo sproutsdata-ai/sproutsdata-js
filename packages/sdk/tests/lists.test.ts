@@ -6,6 +6,7 @@ import {
   ConflictError,
   IdempotencyConflictError,
   InternalServerError,
+  InvalidRequestError,
   NotFoundError,
   SproutsData,
 } from '../src/index';
@@ -23,6 +24,7 @@ function savedList(overrides: Partial<SavedList> = {}): SavedList {
   return {
     id: LIST_ID,
     name: 'Fintech targets',
+    entity_category: 'company',
     created_by: null,
     created_at: '2026-10-14T00:00:00Z',
     updated_at: '2026-10-14T00:00:00Z',
@@ -87,6 +89,46 @@ describe('lists — read and manage', () => {
     expect(init!.method).toBe('POST');
     expect(JSON.parse(init!.body as string)).toEqual({ name: 'Fintech targets' });
     expect(created.id).toBe(LIST_ID);
+  });
+
+  it('creates a typed list, and reads its kind back', async () => {
+    const fetchMock = fetchQueue(jsonResponse(savedList({ entity_category: 'person', item_count: 0 }), 201));
+    const created = await makeClient(fetchMock).lists.create('Champions', { entity_category: 'person' });
+    expect(JSON.parse(fetchMock.mock.calls[0]![1]!.body as string)).toEqual({
+      name: 'Champions',
+      entity_category: 'person',
+    });
+    expect(created.entity_category).toBe('person');
+  });
+
+  it('names the new refusals by class: a name in use, and records of the wrong kind', async () => {
+    const fetchMock = fetchQueue(
+      problemResponse(409, { code: 'lists.name_taken' }),
+      problemResponse(422, { code: 'lists.category_mismatch', extra: { list_category: 'company' } }),
+    );
+    const client = makeClient(fetchMock, 2);
+    const taken = await client.lists.create('fintech TARGETS').catch((e: unknown) => e);
+    expect(taken).toBeInstanceOf(ConflictError);
+    expect(taken).not.toBeInstanceOf(IdempotencyConflictError);
+    const mismatch = await client.lists
+      .addItems(LIST_ID, [{ entity_category: 'person', entity_id: 'linkedin.com/in/ada' }])
+      .catch((e: unknown) => e);
+    expect(mismatch).toBeInstanceOf(InvalidRequestError);
+    expect((mismatch as InvalidRequestError).code).toBe('lists.category_mismatch');
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('refuses request options passed where the params go, and a bad category', async () => {
+    const fetchMock = fetchQueue();
+    const client = makeClient(fetchMock);
+    // The shape create() and export() took before they took params.
+    const options = { requestId: 'req_mine' } as never;
+    await expect(client.lists.create('Fintech', options)).rejects.toThrow(/unknown parameter `requestId`.*third argument/);
+    await expect(client.lists.export(LIST_ID, options)).rejects.toThrow(/unknown parameter `requestId`/);
+    await expect(client.lists.create('Fintech', { entity_category: '' as never })).rejects.toThrow(
+      /`entity_category` must be a category/,
+    );
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('refuses a blank name before sending', async () => {
@@ -277,6 +319,29 @@ describe('CSV export', () => {
     expect(exported.field_tier).toBe('free');
     expect([exported.row_count, exported.skipped, exported.credits_charged]).toEqual([1, 0, 0]);
     expect(exported.request_id).toBe('req_export');
+  });
+
+  it('exports a range of a list, and refuses a malformed one before sending', async () => {
+    const fetchMock = fetchQueue(csvResponse(), csvResponse());
+    const client = makeClient(fetchMock);
+    await client.lists.export(LIST_ID, { offset: 10_000, limit: 10_000 });
+    expect(JSON.parse(fetchMock.mock.calls[0]![1]!.body as string)).toEqual({ offset: 10_000, limit: 10_000 });
+    await client.lists.export(LIST_ID, { offset: 0 });
+    expect(JSON.parse(fetchMock.mock.calls[1]![1]!.body as string)).toEqual({ offset: 0 });
+    for (const bad of [{ offset: -1 }, { offset: 1.5 }, { limit: 0 }, { limit: '10' as never }]) {
+      await expect(client.lists.export(LIST_ID, bad)).rejects.toBeInstanceOf(ClientValidationError);
+    }
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('maps export.too_large to InvalidRequestError and does not retry it', async () => {
+    const fetchMock = fetchQueue(
+      problemResponse(422, { code: 'export.too_large', extra: { max_rows: 10_000, requested: 12_000 } }),
+    );
+    const err = await makeClient(fetchMock, 2).lists.export(LIST_ID).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(InvalidRequestError);
+    expect((err as InvalidRequestError).problem?.extra).toEqual({ max_rows: 10_000, requested: 12_000 });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it('is billed: it carries a key and a lost answer is not repeated', async () => {

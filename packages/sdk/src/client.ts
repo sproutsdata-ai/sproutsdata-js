@@ -669,7 +669,7 @@ export class SproutsData {
 
   /**
    * Chosen records as a CSV file — the export behind a results table. At
-   * most 1,000 items, named by their natural id as for `lists.addItems`.
+   * most 10,000 items, named by their natural id as for `lists.addItems`.
    * Do-Not-Contact records are left out. Free; requires `dsp.search.read` or
    * `dsp.entities.read`. A {@link NotFoundError} with code
    * `export.not_enabled` while export is switched off.

@@ -47,6 +47,25 @@ Version to be decided at release; this section breaks the org chart, which on
   domain to chart it: it is the third identifier, beside `domain` and
   `linkedin_url` (exactly one), and `OrgChartCompany.company_ref` echoes it.
 
+### Changed
+
+- **Lists are typed, and exports come in ranges.** `lists.create(name,
+  { entity_category })` makes a list of one kind of record, and
+  `SavedList.entity_category` says which (a list created without it takes the
+  kind of the first records added). Records of another kind throw
+  `InvalidRequestError` (`lists.category_mismatch`); a name already in use,
+  ignoring case, throws `ConflictError` (`lists.name_taken`).
+  `lists.export(listId, { offset, limit })` exports one range of a list: one
+  export holds at most 10,000 rows (was 1,000), and more throws
+  `InvalidRequestError` (`export.too_large`). `searchExport` takes up to
+  10,000 items. **Breaking:** both methods now take params second and request
+  options third (`ListCreateParams`, `ListExportParams`); request options
+  passed second are refused with a `ClientValidationError` that says so.
+- New error codes in `ErrorCode`: `lists.name_taken`,
+  `lists.category_mismatch`, `export.too_large`, `org_chart.company_ambiguous`,
+  and the `enrichment.*`, `privacy.*` and `rate_limits.key_not_found` codes of
+  routes this SDK does not wrap, each mapped to its class.
+
 ## 0.0.1 (Unreleased)
 
 The first public release of `sproutsdata`, the official JavaScript / TypeScript

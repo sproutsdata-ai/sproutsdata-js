@@ -228,6 +228,8 @@ export type {
   ItemRef,
   FieldTier,
   SavedList,
+  ListCreateParams,
+  ListExportParams,
   ListsResponse,
   SavedItem,
   ListItemsResponse,

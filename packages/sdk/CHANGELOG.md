@@ -1,9 +1,12 @@
 # Changelog
 
-## Unreleased
+## 0.1.0 (Unreleased)
 
-Version to be decided at release; this section breaks the org chart, which on
-0.x means a minor bump.
+Breaks the org chart and two lists methods, which on 0.x is a minor version.
+The org chart broke on the server first: it moved to One Platform's contract on
+27 October 2026 without notice and refuses requests in the old shape, so
+0.0.1's org-chart calls fail against it and none of the old surface could be
+kept working. Lists gained types and ranged exports at the same time.
 
 ### Changed (breaking)
 

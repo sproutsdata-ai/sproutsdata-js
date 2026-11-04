@@ -1,6 +1,6 @@
 {
   "name": "sproutsdata",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Official JavaScript/TypeScript SDK for the Sprouts Data API: search, look-alike, entity lookups, relationships, org charts, agent runs, credits, usage history, feedback, and members.",
   "license": "MIT",
   "repository": {

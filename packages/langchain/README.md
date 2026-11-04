@@ -177,7 +177,7 @@ Generated from `package.json`; `tests/readme.test.ts` fails when they differ.
 | --- | --- |
 | Node.js | >=20.0.0 |
 | `@langchain/core` | ^1.0.0 |
-| `sproutsdata` | >=0.0.1 <0.1.0 |
+| `sproutsdata` | >=0.0.1 <0.2.0 |
 <!-- compat:end -->
 
 ## Cost

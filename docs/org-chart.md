@@ -13,11 +13,12 @@ the three responses is paginated: a grid is one aggregation.
 
 ## Naming the company
 
-Every call takes `domain` or `linkedin_url` — exactly one:
+Every call takes `domain`, `linkedin_url` or `company_ref` — exactly one:
 
 ```ts
 await client.orgChart.retrieve({ domain: 'stripe.com' });
 await client.orgChart.retrieve({ linkedin_url: 'linkedin.com/company/stripe' });
+await client.orgChart.retrieve({ company_ref: candidate.company_ref }); // see below
 ```
 
 Most companies in the index carry **no domain**, which is what the LinkedIn form
@@ -28,6 +29,43 @@ is refused by the server with a 422 — neither has an org chart. The response's
 `company` echoes the identifier you sent; on `retrieve` and `departments` it is
 completed with the company's `name` and LinkedIn page where the index has them
 (the location tree names no company).
+
+### When a domain names several companies
+
+A parent and its subsidiaries, or two records of one business, can share a
+domain. When the domain you send names more than one company that has people,
+or several records hold the LinkedIn page, the call throws
+`AmbiguousCompanyError` instead of charting whichever came first:
+
+```ts
+import { AmbiguousCompanyError } from 'sproutsdata';
+
+try {
+  await client.orgChart.retrieve({ domain: 'acme.com' });
+} catch (err) {
+  if (!(err instanceof AmbiguousCompanyError)) throw err;
+  for (const c of err.candidates) console.log(c.name, c.hq_country, c.employee_count);
+  const chosen = err.candidates[0]!; // in practice, ask whoever is asking
+  await client.orgChart.retrieve({ company_ref: chosen.company_ref });
+}
+```
+
+The refusal is free: a `422 org_chart.company_ambiguous`, and an
+`InvalidRequestError`, so code that already handles bad input keeps working.
+`candidates` holds at most 10 companies, each with `company_ref`, `name`,
+`domain`, `linkedin_url`, headquarters and `employee_count`, and
+`candidateCount` says how many there are in all. Send the chosen one's
+`company_ref` to `departments` and `locations` too, so all three views count
+the same company. A `company_ref` is opaque: send it back exactly as it came.
+
+### Parameters from before 27 October 2026
+
+The org chart moved to One Platform's contract on 27 October 2026, and its old
+flat filters are retired: `country`, `state`, `city`, `governance_level`,
+`employment_type`, `has_direct_access_to_c_suite`, `include_others` and the
+locations `search`. Each is typed `never`, so passing one is a compile error,
+and each is refused before sending with a `ClientValidationError` that names
+its replacement under `filters`.
 
 ## `retrieve` — the grid
 

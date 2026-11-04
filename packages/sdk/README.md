@@ -282,7 +282,10 @@ await client.orgChart.locations({ domain: 'stripe.com' });   // country → stat
 cells can sum above it, because a person who holds several departments is in
 each of those rows. Report `total` as the headcount. Filters narrow the
 population *before* counting, so a filtered chart is that population's org
-chart rather than the company's with cells blanked. See [Org charts](../../docs/org-chart.md).
+chart rather than the company's with cells blanked. A domain several companies
+share is refused with a free `AmbiguousCompanyError` whose `candidates` each
+carry a `company_ref`; send the chosen one's instead of the domain. See
+[Org charts](../../docs/org-chart.md).
 
 ## Agent runs
 
@@ -408,7 +411,10 @@ Lists belong to the workspace. Name a record by its natural id — a domain, a
 LinkedIn URL, a patent number, a DOI — never by a search hit's `id`. Adding is
 idempotent, Do-Not-Contact records are refused (`suppressed`), and a free
 workspace over its saved-items cap gets a `ConflictError`
-(`lists.item_cap_reached`). CSV export answers `NotFoundError`
+(`lists.item_cap_reached`). A list holds one kind of record
+(`lists.create(name, { entity_category })`) and its name is unique, ignoring
+case. One export holds at most 10,000 rows; export a longer list in ranges
+with `lists.export(id, { offset, limit })`. CSV export answers `NotFoundError`
 (`export.not_enabled`) until it is switched on. All free. See
 [Saved lists](../../docs/lists.md).
 

@@ -20,6 +20,11 @@
  * - `POST /v1/search/export`         — {@link SproutsData.searchExport} (scope `dsp.search.read` or `dsp.entities.read`)
  * - `POST /v1/members/resolve`       — {@link SproutsData.members} (scope `dsp.search.read` or `dsp.agents.write`)
  *
+ * Not wrapped: contact enrichment (`/v1/enrichment/*`), planned for a later
+ * minor version, and credit top-ups, which open a page a person pays on.
+ * `spec/routes.json` lists both under `not_wrapped`; their error codes are
+ * still mapped to classes.
+ *
  * Validation here is deliberately structural only (the cheap mistakes that
  * should fail before a network round trip). Semantic rules — which categories
  * accept domain filters, which categories `similar` supports — stay on the

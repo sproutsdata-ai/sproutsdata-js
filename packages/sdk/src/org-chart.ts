@@ -1,6 +1,11 @@
 /**
  * The `/v1/org-chart*` surface: one company's people, counted by department
- * and seniority, then by sub-department, then by location.
+ * and seniority, with each department's sub-departments, and by location.
+ *
+ * **One Platform's org chart, mirrored.** Taxonomy values come back as
+ * `{ code, label }` — send the `code` back, show the `label` — and each axis
+ * ends with an explicit Unknown (`code: 'unknown'`). Each person is counted
+ * once, at their most senior level, and in every department they hold.
  *
  * **A matrix, not a tree.** The corpus carries no reporting lines, so what
  * these routes count is people grouped by closed vocabularies — there is no
@@ -14,215 +19,372 @@ import { APIResource } from './resource';
 import type { Attribution, Degradation, ResponseMeta } from './types';
 import { compact, ensure } from './validate';
 
-/** The label the server uses for people with no value at a location level. Accepted back as a filter. */
-export const UNKNOWN_LOCATION = '__unknown__';
+/** The code of the explicit Unknown row, column and place. Not a filter value. */
+export const UNKNOWN_CODE = 'unknown';
 
-/** Founders, owners, board members and advisors — orthogonal to seniority. */
-export type GovernanceLevel =
-  | 'Founder'
-  | 'Co Founder'
-  | 'Owner'
-  | 'Partner'
-  | 'Board Member'
-  | 'Investor'
-  | 'Advisor';
+/** Founders, owners, board members and advisors — orthogonal to seniority. Codes on the wire. */
+export type OrgChartGovernanceLevel =
+  | 'founder'
+  | 'co_founder'
+  | 'owner'
+  | 'partner'
+  | 'board_member'
+  | 'investor'
+  | 'advisor';
 
-/** How someone is engaged, not how senior they are. */
-export type EmploymentType =
-  | 'Full Time'
-  | 'Part Time'
-  | 'Freelancer'
-  | 'Contractor'
-  | 'Consultant (External)';
+/** How someone is engaged, not how senior they are. Codes on the wire. */
+export type OrgChartEmploymentType =
+  | 'full_time'
+  | 'part_time'
+  | 'freelancer'
+  | 'contractor'
+  | 'consultant';
+
+/** The per-cell badges `retrieve()` can compute. */
+export type OrgChartMetric = 'new_joiners' | 'job_openings';
+
+/** A place's level. `region` is a group of countries, e.g. `emea`, `dach`, `north america`. */
+export type OrgChartPlaceLevel = 'country' | 'state' | 'city' | 'region';
 
 /**
- * Which company — by `domain` or `linkedin_url`, exactly one. Most companies
- * in the index carry no domain, which is what the LinkedIn form is for. A
- * pasted URL is reduced to its host server-side; a personal profile or a
- * `/school/` page is refused.
+ * A place to keep or drop people by. A country is a name, alias or ISO code
+ * (an unknown one is a 422); send a state or city as `locations()` lists it —
+ * a node's `level` and `value` go straight back as a place.
+ */
+export interface OrgChartPlace {
+  level: OrgChartPlaceLevel;
+  value: string;
+}
+
+/**
+ * Which company — by `domain`, `linkedin_url` or `company_ref`, exactly one.
+ * Most companies in the index carry no domain, which is what the LinkedIn form
+ * is for. A pasted URL is reduced to its host server-side; a personal profile
+ * or a `/school/` page is refused.
  */
 export interface OrgChartIdentifier {
-  /** The company's domain, e.g. `stripe.com`. */
+  /**
+   * The company's domain, e.g. `stripe.com`. A domain several companies share
+   * is refused with `AmbiguousCompanyError`, which lists them.
+   */
   domain?: string;
   /**
    * The company's LinkedIn page, e.g. `linkedin.com/company/stripe` — a
    * company page, not a person's profile or a school's.
    */
   linkedin_url?: string;
+  /**
+   * One company from an `AmbiguousCompanyError`'s `candidates`: send its
+   * `company_ref`, exactly as it came, to chart that company.
+   */
+  company_ref?: string;
 }
 
 /**
  * Which of the company's people to count. Every filter narrows the population
- * before grouping, so it changes the counts rather than hiding rows.
+ * before counting, so it changes the counts rather than hiding rows. Filters
+ * combine with AND; values inside one with OR. Vocabularies and limits are
+ * the server's, whose 422 names the field.
  */
-export interface OrgChartPeopleFilters {
+export interface OrgChartFilters {
+  /** Places to keep (`include`) or drop (`exclude`), up to 10 each. */
+  locations?: { include?: OrgChartPlace[]; exclude?: OrgChartPlace[] };
+  governance_levels?: OrgChartGovernanceLevel[];
+  employment_types?: OrgChartEmploymentType[];
   /**
-   * Case-insensitive; OR within a level, AND across levels. At most 50.
-   * Send {@link UNKNOWN_LOCATION} to match people with no country recorded.
+   * `true` keeps only people with direct access to the C-Suite, `false` only
+   * those without, and omitting it filters on neither.
    */
-  country?: string[];
-  /** As `country`. At most 50. */
-  state?: string[];
-  /** As `country`. At most 50. */
-  city?: string[];
-  governance_level?: GovernanceLevel[];
-  employment_type?: EmploymentType[];
-  /**
-   * Tri-state: `true` keeps only people marked as having direct access,
-   * `false` only those marked as not, and omitting it filters on neither —
-   * people with no value recorded match neither.
-   */
-  has_direct_access_to_c_suite?: boolean;
+  c_suite_access?: boolean;
+  /** Up to 20 titles. */
+  job_titles?: string[];
+  /** A search inside the company's people; the response's `matched` says what it matched. */
+  text?: string;
+  /** What `text` matches — `auto` by default. Needs `text`. */
+  search_mode?: 'auto' | 'name' | 'linkedin' | 'job_title';
 }
 
+/**
+ * What the org chart took before it followed One Platform's (27 October 2026).
+ * Typed `never` so passing one is a compile error, and refused at run time,
+ * naming its replacement, for callers the compiler does not see.
+ */
+export interface RetiredOrgChartParams {
+  /** Retired: `filters.locations.include` of `{ level: 'country', value }`. */
+  country?: never;
+  /** Retired: `filters.locations.include` of `{ level: 'state', value }`. */
+  state?: never;
+  /** Retired: `filters.locations.include` of `{ level: 'city', value }`. */
+  city?: never;
+  /** Retired: `filters.governance_levels`, in codes such as `co_founder`. */
+  governance_level?: never;
+  /** Retired: `filters.employment_types`, in codes such as `full_time`. */
+  employment_type?: never;
+  /** Retired: `filters.c_suite_access`. */
+  has_direct_access_to_c_suite?: never;
+  /** Retired: the explicit Unknown row and column are always there. */
+  include_others?: never;
+  /** Retired: `filters.text`. */
+  search?: never;
+}
+
+const RETIRED: Record<keyof RetiredOrgChartParams, string> = {
+  country: "send places as `filters.locations.include` of { level: 'country', value }",
+  state: "send places as `filters.locations.include` of { level: 'state', value }",
+  city: "send places as `filters.locations.include` of { level: 'city', value }",
+  governance_level: 'use `filters.governance_levels`, in codes such as `co_founder`',
+  employment_type: 'use `filters.employment_types`, in codes such as `full_time`',
+  has_direct_access_to_c_suite: 'use `filters.c_suite_access`',
+  include_others: 'drop it: the explicit Unknown row and column are always there',
+  search: 'use `filters.text`',
+};
+
 /** Body for `POST /v1/org-chart`. */
-export interface OrgChartParams extends OrgChartIdentifier, OrgChartPeopleFilters {
-  /**
-   * Count the people the upstream could not classify onto an axis. Off by
-   * default: an `Others` row is usually large and never drillable.
-   */
-  include_others?: boolean;
+export interface OrgChartParams extends OrgChartIdentifier, RetiredOrgChartParams {
+  filters?: OrgChartFilters;
+  /** The cell badges to compute. Both by default; `[]` answers fastest. */
+  metrics?: OrgChartMetric[];
+  /** Also count profiles flagged as suspect. Off by default; `suspect_count` says how many were left out. */
+  include_suspects?: boolean;
 }
 
 /** Body for `POST /v1/org-chart/departments`. */
-export interface OrgChartDepartmentsParams extends OrgChartIdentifier, OrgChartPeopleFilters {}
-
-/** Body for `POST /v1/org-chart/locations`. No people filters — this route *is* the location vocabulary. */
-export interface OrgChartLocationsParams extends OrgChartIdentifier {
-  /**
-   * Case-insensitive substring over all three levels, for typeahead. It
-   * filters people, not labels: a city match keeps that city's country and
-   * state in the tree with counts reduced to the matching people.
-   */
-  search?: string;
+export interface OrgChartDepartmentsParams extends OrgChartIdentifier, RetiredOrgChartParams {
+  filters?: OrgChartFilters;
+  include_suspects?: boolean;
 }
 
-/** Which company answered — exactly one key set, whichever the request carried. */
+/** Body for `POST /v1/org-chart/locations`. */
+export interface OrgChartLocationsParams extends OrgChartIdentifier, RetiredOrgChartParams {
+  filters?: OrgChartFilters;
+}
+
+/**
+ * Which company answered: the identifier the request carried (`domain`
+ * normalised). On `retrieve` and `departments` it is completed from the index
+ * where it can be — `linkedin_url` for a company asked about by domain, and
+ * `name`; `locations` names no company, so only what was sent is set.
+ */
 export interface OrgChartCompany {
-  /** Echoed normalised; null on the LinkedIn path. */
   domain: string | null;
   linkedin_url: string | null;
+  /** Set when the company was named by a `company_ref`. */
+  company_ref?: string | null;
+  name: string | null;
+}
+
+/**
+ * One company an ambiguous domain or LinkedIn page may mean, from
+ * `AmbiguousCompanyError.candidates`. Everything here is the record's
+ * own, so look-alike companies can be told apart by a person. Send
+ * `company_ref` back, as it came, to chart this one.
+ */
+export interface OrgChartCandidate {
+  company_ref: string;
+  name?: string | null;
+  domain?: string | null;
+  linkedin_url?: string | null;
+  hq_city?: string | null;
+  hq_country?: string | null;
+  employee_count?: number | null;
+}
+
+/** A taxonomy value: `code` to send back, `label` to show. */
+export interface OrgChartCode {
+  code: string;
+  label: string;
+}
+
+/**
+ * How complete one part of the answer is: `ready`, `empty` (with `reason`,
+ * e.g. `no_profiles`), `degraded` (e.g. `low_coverage`), `computing` or
+ * `failed` (with `code`). Values not listed here may appear.
+ */
+export interface OrgChartStatus {
+  state: string;
+  reason: string | null;
+  code: string | null;
+  retryable: boolean;
+  progress: { done: number | null; total: number | null } | null;
+  updated_at: string | null;
+  data_as_of: string | null;
+  data_version: string | null;
+}
+
+/** What `filters.text` was matched as. */
+export interface OrgChartMatched {
+  field: string;
+  value: string | null;
+  label: string;
+  level: string | null;
+}
+
+/** One row (department) or column (seniority). */
+export interface OrgChartAxisEntry extends OrgChartCode {
+  /** A row's total is the sum of its cells; a column's is its people. */
+  total: number;
+  /** The explicit Unknown row or column, always last. */
+  unknown: boolean;
+}
+
+/** `null` when not asked for or not available — never a 0 for "unknown". */
+export interface OrgChartBadges {
+  new_joiners: number | null;
+  job_openings: number | null;
 }
 
 /** One department × seniority count. Absent pairs are zero, not listed. */
 export interface OrgChartCell {
-  department: string;
-  seniority: string;
+  department: OrgChartCode;
+  seniority: OrgChartCode;
   count: number;
+  badges: OrgChartBadges;
+}
+
+/** One department's sub-department, with its own seniority counts. */
+export interface OrgChartSubdepartment {
+  department: OrgChartCode;
+  subdepartment: OrgChartCode;
+  total: number;
+  cells: { seniority: OrgChartCode; count: number }[];
+}
+
+/** How well the company's record is covered by people profiles. */
+export interface OrgChartCoverage {
+  employee_count: number | null;
+  profiles: number;
+  /** Sparse, or another record of the same company holds far more profiles: the grid is `degraded`. */
+  low: boolean;
+  /** Other records of the same LinkedIn page, most profiles first. */
+  candidates: { name: string | null; profiles: number; linkedin_url: string | null }[];
 }
 
 /** The grid. */
 export interface OrgChartResponse {
   company: OrgChartCompany;
+  state: OrgChartStatus;
+  /** Rows, in taxonomy order, Unknown last. */
+  departments: OrgChartAxisEntry[];
+  /** Columns, C-Suite down to In Training, Unknown last. */
+  seniorities: OrgChartAxisEntry[];
+  cells: OrgChartCell[];
+  subdepartments: OrgChartSubdepartment[];
   /**
-   * Everyone at the company under the filters. `sum(cells.count)` is usually
-   * lower: people the corpus could not place on either axis are counted here
-   * and appear in no cell.
+   * People counted: each person once, at their most senior level — the sum of
+   * the columns. A person who holds several departments is in each of those
+   * rows, so the cells can add up to more.
    */
   total: number;
-  /** Row order: headcount descending, with `Others` / `General` last. */
-  departments: string[];
-  /** Column order: C-Suite, VP, Director / Head, Manager, IC, Entry, In Training, then `Others`. */
-  seniorities: string[];
-  cells: OrgChartCell[];
-  /** Per-row totals — not the sum of that row's cells (someone with a department and no seniority counts here only). */
-  department_totals: Record<string, number>;
-  /** Per-column totals, with the same caveat. */
-  seniority_totals: Record<string, number>;
+  /** Suspect profiles left out (0 with `include_suspects`). */
+  suspect_count: number;
+  employment_mismatch_count: number;
+  /** One state per badge; `null` when that badge was not asked for. */
+  metrics: { new_joiners: OrgChartStatus | null; job_openings: OrgChartStatus | null };
+  new_joiners_total: number | null;
+  job_openings_total: number | null;
+  /** How joiners are dated: `company_stint` or `role_start`. */
+  joiner_basis: string | null;
+  residual_duplicates: number | null;
+  coverage: OrgChartCoverage | null;
+  matched: OrgChartMatched | null;
+  data_version: string | null;
+  taxonomy_version: string | null;
   attribution: Attribution[];
   degradation: Degradation[];
   meta: ResponseMeta;
 }
 
-/** One sub-department, with its own seniority breakdown. */
-export interface OrgChartSubDepartment {
-  /** The sub-function's name, or `Uncategorized` for people with none recorded. */
-  name: string;
-  headcount: number;
-  /** Keys are the upstream's raw labels — `Uncategorized` here where the grid says `Others`. */
-  seniority_counts: Record<string, number>;
-}
-
-export interface OrgChartDepartment {
-  name: string;
-  headcount: number;
-  sub_departments: OrgChartSubDepartment[];
-}
-
-/** The sub-department breakdown. No `total` — that lives on `POST /v1/org-chart`. */
+/** The grid's rows and sub-department rows, without the cells and badges. `total` is the grid's. */
 export interface OrgChartDepartmentsResponse {
   company: OrgChartCompany;
-  /**
-   * Departments with people, headcount descending. A name absent from the
-   * grid's `departments` can appear here: the grid relabels onto a closed
-   * taxonomy and this route reports what is stored.
-   */
-  departments: OrgChartDepartment[];
+  state: OrgChartStatus;
+  departments: OrgChartAxisEntry[];
+  subdepartments: OrgChartSubdepartment[];
+  total: number;
+  suspect_count: number;
+  matched: OrgChartMatched | null;
+  data_version: string | null;
+  taxonomy_version: string | null;
   attribution: Attribution[];
   degradation: Degradation[];
   meta: ResponseMeta;
 }
 
-export interface OrgChartCity {
-  city: string;
+/** One place, with the places under it. Unknown is `value: null`, last among its siblings. */
+export interface OrgChartLocation {
+  level: string;
+  value: string | null;
+  label: string;
   count: number;
-}
-
-export interface OrgChartState {
-  state: string;
-  count: number;
-  cities: OrgChartCity[];
-}
-
-export interface OrgChartCountry {
-  country: string;
-  count: number;
-  states: OrgChartState[];
+  unknown: boolean;
+  children: OrgChartLocation[];
 }
 
 /**
- * Where the company's people are. A count at every level, because a country's
- * count is not the sum of its states: someone with a country and no state is
- * counted at the country and in no state below it.
+ * Where the company's people are, country → state → city, each by count. Each
+ * level is complete — people with no known place at a level are an Unknown
+ * node — so a parent's count is the sum of its children.
  */
 export interface OrgChartLocationsResponse {
   company: OrgChartCompany;
-  /** Countries with people. {@link UNKNOWN_LOCATION} names the people with no value at a level. */
-  locations: OrgChartCountry[];
+  state: OrgChartStatus;
+  items: OrgChartLocation[];
+  /** People counted under the filters. */
+  total: number;
+  matched: OrgChartMatched | null;
   attribution: Attribution[];
   degradation: Degradation[];
   meta: ResponseMeta;
 }
 
+const IDENTIFIERS = ['domain', 'linkedin_url', 'company_ref'] as const;
+
 /**
- * Exactly one of `domain` / `linkedin_url`: the two could name different
- * companies. Which values name a company with an org chart is the server's
- * to say.
+ * Exactly one of `domain`, `linkedin_url` and `company_ref`: they could name
+ * different companies. Which values name a company with an org chart is the
+ * server's to say.
  */
 function validateIdentifier(params: OrgChartIdentifier): void {
-  const hasDomain = params.domain !== undefined;
-  const hasLi = params.linkedin_url !== undefined;
-  ensure(hasDomain || hasLi, 'Provide `domain` or `linkedin_url`');
+  const given = IDENTIFIERS.filter((name) => params[name] !== undefined);
+  ensure(given.length > 0, 'Provide one of `domain`, `linkedin_url` or `company_ref`');
   ensure(
-    !(hasDomain && hasLi),
-    'Provide `domain` or `linkedin_url`, not both: the two can name different companies',
+    given.length === 1,
+    `Provide one of \`domain\`, \`linkedin_url\` or \`company_ref\`, not ${given.map((n) => `\`${n}\``).join(' and ')}: they can name different companies`,
   );
-  const value = hasDomain ? params.domain : params.linkedin_url;
-  ensure(
-    typeof value === 'string' && value.length > 0,
-    `\`${hasDomain ? 'domain' : 'linkedin_url'}\` must be a non-empty string`,
-  );
+  for (const name of given) {
+    const value = params[name];
+    ensure(typeof value === 'string' && value.length > 0, `\`${name}\` must be a non-empty string`);
+  }
 }
 
-function validatePeople(params: OrgChartPeopleFilters): void {
-  for (const axis of ['country', 'state', 'city'] as const) {
-    const values = params[axis];
-    if (values === undefined) continue;
-    ensure(Array.isArray(values), `\`${axis}\` must be an array of strings`);
-    values.forEach((value: unknown, i) => {
+/**
+ * A retired parameter would reach the server as an unknown field and come back
+ * as a bare 422; refusing it here says what replaced it.
+ */
+function refuseRetired(params: object): void {
+  for (const [name, replacement] of Object.entries(RETIRED)) {
+    ensure(
+      (params as Record<string, unknown>)[name] === undefined,
+      `\`${name}\` was retired when the org chart moved to One Platform's on 27 October 2026; ${replacement}`,
+    );
+  }
+}
+
+function validateFilters(filters: OrgChartFilters | undefined): void {
+  if (filters === undefined) return;
+  ensure(filters !== null && typeof filters === 'object', '`filters` must be an object');
+  const locations = filters.locations;
+  if (locations === undefined) return;
+  ensure(locations !== null && typeof locations === 'object', '`filters.locations` must be an object');
+  for (const side of ['include', 'exclude'] as const) {
+    const places = locations[side];
+    if (places === undefined) continue;
+    ensure(Array.isArray(places), `\`filters.locations.${side}\` must be an array of places`);
+    places.forEach((place: unknown, i) => {
+      const value = (place as Partial<OrgChartPlace> | null)?.value;
       ensure(
         typeof value === 'string' && value.trim().length > 0,
-        `\`${axis}[${i}]\` must be a non-blank string`,
+        `\`filters.locations.${side}[${i}]\` must be { level, value } with a non-blank value`,
       );
     });
   }
@@ -232,18 +394,19 @@ function validatePeople(params: OrgChartPeopleFilters): void {
 
 export class OrgChart extends APIResource {
   /**
-   * The grid: department × seniority counts plus both axes' totals. 1 credit
-   * flat; requires `dsp.search.read`. A deployment without the org
-   * chart upstream answers 501 `not_implemented`
-   * (`FeatureNotAvailableError`).
+   * The grid: department × seniority counts, both axes' totals and each
+   * department's sub-departments. 1 credit flat, free when it counts nobody;
+   * requires `dsp.search.read`. A deployment without the org chart upstream
+   * answers 501 `not_implemented` (`FeatureNotAvailableError`).
    */
   async retrieve(params: OrgChartParams, options?: RequestOptions): Promise<OrgChartResponse> {
     ensure(
       params !== null && typeof params === 'object',
       'retrieve(params) requires a params object',
     );
+    refuseRetired(params);
     validateIdentifier(params);
-    validatePeople(params);
+    validateFilters(params.filters);
     return this.transport.request('POST', '/v1/org-chart', {
       body: compact({ ...params }),
       routeClass: 'billed',
@@ -252,8 +415,9 @@ export class OrgChart extends APIResource {
   }
 
   /**
-   * One level down: each department's sub-departments with their own
-   * seniority counts. 1 credit flat; requires `dsp.search.read`.
+   * The grid's rows and sub-department rows, without the cells and badges.
+   * 1 credit flat; requires `dsp.search.read`. `retrieve()` already carries
+   * `subdepartments`.
    */
   async departments(
     params: OrgChartDepartmentsParams,
@@ -263,8 +427,9 @@ export class OrgChart extends APIResource {
       params !== null && typeof params === 'object',
       'departments(params) requires a params object',
     );
+    refuseRetired(params);
     validateIdentifier(params);
-    validatePeople(params);
+    validateFilters(params.filters);
     return this.transport.request('POST', '/v1/org-chart/departments', {
       body: compact({ ...params }),
       routeClass: 'billed',
@@ -273,9 +438,8 @@ export class OrgChart extends APIResource {
   }
 
   /**
-   * Where the people sit, country → state → city — and the vocabulary the
-   * other two routes' location filters accept. 1 credit flat; requires
-   * `dsp.search.read`.
+   * Where the people are, country → state → city — and the place vocabulary
+   * the filters accept. 1 credit flat; requires `dsp.search.read`.
    */
   async locations(
     params: OrgChartLocationsParams,
@@ -285,7 +449,9 @@ export class OrgChart extends APIResource {
       params !== null && typeof params === 'object',
       'locations(params) requires a params object',
     );
+    refuseRetired(params);
     validateIdentifier(params);
+    validateFilters(params.filters);
     return this.transport.request('POST', '/v1/org-chart/locations', {
       body: compact({ ...params }),
       routeClass: 'billed',

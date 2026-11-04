@@ -118,12 +118,16 @@ Where the field path appears depends on the rule:
 | `CursorInvalidError` / `CursorExpiredError` | 422 `pagination.cursor_invalid` / `pagination.cursor_expired` | The request changed between pages, or the cursor is too old | Restart from page one |
 | `PaginationDepthExceededError` | 422 `pagination.depth_exceeded` | Paged past 10,000 rows | Narrow the search |
 | `InvalidRequestError` | 422 `relationship.anchor_ambiguous` | A relationship anchor names something the corpus holds more than one of | Pick one of the options in `err.problem` and send it with an explicit `kind` / `by` |
+| `AmbiguousCompanyError` (an `InvalidRequestError`) | 422 `org_chart.company_ambiguous` | The org chart's domain or LinkedIn page names several companies; free. Has `identifier`, `candidates` (each with a `company_ref`) and `candidateCount` | Send the chosen candidate's `company_ref` instead of the domain |
+| `InvalidRequestError` | 422 `lists.category_mismatch` | The records are not the kind the list holds, or one call mixes kinds | Use a list of that kind |
+| `InvalidRequestError` | 422 `export.too_large` | More than 10,000 rows in one export; `err.problem.extra` has `max_rows`, `requested` | Export in ranges with `offset` and `limit` |
 | `InvalidRequestError` | 404 `request.invalid` | An unknown agent run id (this route has no dedicated not-found code) | Branch on `err.status === 404` |
 | `NotFoundError` | 404 `history.not_found` | Unknown or foreign history id | The id is wrong, or belongs to another credential |
 | `NotFoundError` | 404 `feedback.subject_not_found` | A feedback report's subject is not one of this caller's requests or runs | Use the `meta.request_id` (or `run_id`) of a call this key made |
 | `NotFoundError` | 404 `lists.not_found` | The list does not exist, was deleted, or belongs to another workspace | Check `client.lists.list()` |
 | `NotFoundError` | 404 `export.not_enabled` | CSV export is switched off on this deployment | Not transient — do not retry |
 | `ConflictError` | 409 `lists.item_cap_reached` | A free workspace's saved-items cap would be exceeded; nothing was added. `err.problem.extra` has `cap`, `saved`, `adding` | Save fewer records, or remove some first |
+| `ConflictError` | 409 `lists.name_taken` | Another list in the workspace has that name, ignoring case | Pick another name |
 | `IdempotencyConflictError` (a `ConflictError`) | 409 `idempotency.in_flight`, or a 409 with no code | A request with the same `Idempotency-Key` is still being processed | Wait for the original |
 | `RequestTooLargeError` | 413 `request.too_large` | The body is over the server's size limit | Send fewer ids or a smaller list |
 | `RateLimitError` | 429 `quota.burst_exceeded` | Too many calls to one operation from this workspace this minute; `err.problem.extra` has `limit`, `window`, `operation` | Back off `retryAfter` seconds (the SDK already did, up to `maxRetries`, for waits of 60 s or less) |

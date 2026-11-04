@@ -25,7 +25,9 @@ for (const hit of page.results) {
 }
 if (items.length === 0) throw new Error('the search found no company with a domain to save');
 
-const saved = await client.lists.create(`From: ${query}`.slice(0, 120));
+// A list holds one kind of record. Names are unique in the workspace, ignoring
+// case; the list is deleted at the end, so the same query can run again.
+const saved = await client.lists.create(`From: ${query}`.slice(0, 120), { entity_category: 'company' });
 try {
   const added = await client.lists.addItems(saved.id, items);
   console.log(

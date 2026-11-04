@@ -22,6 +22,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Transport, type RouteClass } from '../src/http';
 import {
+  AmbiguousCompanyError,
   APIConnectionError,
   APIError,
   APITimeoutError,
@@ -67,6 +68,7 @@ const CONCEPTS: Record<string, abstract new (...args: never[]) => Error> = {
   permission_denied: PermissionDeniedError,
   insufficient_credits: InsufficientCreditsError,
   invalid_request: InvalidRequestError,
+  company_ambiguous: AmbiguousCompanyError,
   cursor_invalid: CursorInvalidError,
   cursor_expired: CursorExpiredError,
   pagination_depth_exceeded: PaginationDepthExceededError,

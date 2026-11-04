@@ -20,6 +20,7 @@ export {
   RunWaitTimeoutError,
   APIError,
   InvalidRequestError,
+  AmbiguousCompanyError,
   CursorInvalidError,
   CursorExpiredError,
   PaginationDepthExceededError,
@@ -135,27 +136,34 @@ export type {
   FanOutEnvelope,
   AskEnvelope,
 } from './relationships';
-// The `/v1/org-chart*` shapes. UNKNOWN_LOCATION is a value export: it is the
-// label the server uses for a missing location level and accepts back as a
-// filter value.
-export { UNKNOWN_LOCATION } from './org-chart';
+// The `/v1/org-chart*` shapes. UNKNOWN_CODE is a value export: it is the code
+// of the explicit Unknown row, column and place.
+export { UNKNOWN_CODE } from './org-chart';
 export type {
-  GovernanceLevel,
-  EmploymentType,
+  OrgChartGovernanceLevel,
+  OrgChartEmploymentType,
+  OrgChartMetric,
+  OrgChartPlaceLevel,
+  OrgChartPlace,
   OrgChartIdentifier,
-  OrgChartPeopleFilters,
+  OrgChartFilters,
   OrgChartParams,
   OrgChartDepartmentsParams,
   OrgChartLocationsParams,
+  RetiredOrgChartParams,
   OrgChartCompany,
+  OrgChartCandidate,
+  OrgChartCode,
+  OrgChartStatus,
+  OrgChartMatched,
+  OrgChartAxisEntry,
+  OrgChartBadges,
   OrgChartCell,
+  OrgChartSubdepartment,
+  OrgChartCoverage,
   OrgChartResponse,
-  OrgChartSubDepartment,
-  OrgChartDepartment,
   OrgChartDepartmentsResponse,
-  OrgChartCity,
-  OrgChartState,
-  OrgChartCountry,
+  OrgChartLocation,
   OrgChartLocationsResponse,
 } from './org-chart';
 // The `/v1/usage/history*` shapes. failureRate is a value export: the
@@ -220,6 +228,8 @@ export type {
   ItemRef,
   FieldTier,
   SavedList,
+  ListCreateParams,
+  ListExportParams,
   ListsResponse,
   SavedItem,
   ListItemsResponse,

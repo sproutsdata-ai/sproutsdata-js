@@ -21,6 +21,7 @@
  */
 
 import { CODE_CONCEPTS, STATUS_CONCEPTS, type ErrorConcept } from './error-codes.gen';
+import type { OrgChartCandidate } from './org-chart';
 import type { AgentRunResult } from './runs';
 import type { Problem } from './types';
 
@@ -243,6 +244,39 @@ export class APIError extends SproutsDataError {
 /** 400/415/422 — the request shape or values were refused. `fieldErrors` says where. */
 export class InvalidRequestError extends APIError {}
 
+/**
+ * 422 `org_chart.company_ambiguous` — the domain names several companies, or
+ * several records hold the LinkedIn page. The org chart does not pick one: a
+ * parent and its subsidiaries, or two records of one business, can share a
+ * domain. Nothing was charged. Show `candidates` to whoever asked, and chart
+ * the chosen one by sending its `company_ref` instead of the domain. Still an
+ * `InvalidRequestError`, so code that handles bad input keeps working.
+ */
+export class AmbiguousCompanyError extends InvalidRequestError {
+  /** The domain or LinkedIn page that was sent, from `extra.identifier`. */
+  get identifier(): string | undefined {
+    const value = this.problem?.extra?.identifier;
+    return typeof value === 'string' ? value : undefined;
+  }
+
+  /** The companies it may mean, at most 10, each with the `company_ref` that charts it. */
+  get candidates(): OrgChartCandidate[] {
+    const raw = this.problem?.extra?.candidates;
+    if (!Array.isArray(raw)) return [];
+    return raw.filter(
+      (c): c is OrgChartCandidate =>
+        c !== null && typeof c === 'object' && typeof (c as { company_ref?: unknown }).company_ref === 'string',
+    );
+  }
+
+  /** How many there are in all; `candidates` holds at most 10 of them. */
+  get candidateCount(): number {
+    const listed = this.candidates.length;
+    const value = this.problem?.extra?.candidate_count;
+    return typeof value === 'number' && Number.isInteger(value) ? Math.max(value, listed) : listed;
+  }
+}
+
 /** `pagination.cursor_invalid` — the request changed between pages, or the cursor is malformed. */
 export class CursorInvalidError extends InvalidRequestError {}
 
@@ -327,6 +361,7 @@ export class UpstreamTimeoutError extends APIError {}
 /** Each spec concept's class. Exhaustive, so a new concept in the spec fails the build. */
 const CONCEPT_CLASSES: Record<ErrorConcept, typeof APIError> = {
   authentication: AuthenticationError,
+  company_ambiguous: AmbiguousCompanyError,
   conflict: ConflictError,
   cursor_expired: CursorExpiredError,
   cursor_invalid: CursorInvalidError,

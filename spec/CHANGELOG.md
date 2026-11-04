@@ -16,6 +16,88 @@ or, for an unreleased backend branch, with that branch's
 
 ---
 
+## 2026-11-05 — the org chart asks which company you mean
+
+The org-chart paths and `OrgChart*` schemas held back from the refresh below,
+taken with the SDK change that uses them.
+
+Needs SDK work (done in both SDKs):
+
+- `POST /v1/org-chart`, `/departments` and `/locations` take a third
+  identifier, `company_ref`, beside `domain` and `linkedin_url` (exactly one),
+  and echo it in `OrgChartCompany.company_ref`.
+- A domain several companies share is refused with `422
+  org_chart.company_ambiguous`, free, whose `extra.candidates` lists them, at
+  most 10, each with its `company_ref`; `extra.candidate_count` says how many.
+  `error-codes.json` maps it to its own concept, `company_ambiguous`, an
+  invalid request; a conformance case pins it.
+
+---
+
+## 2026-11-05 — enrichment, typed lists, larger exports and new error codes
+
+Snapshot refreshed from the dsp-backend `feat/dsp-op-parity` export (DSP's move
+to One Platform), rendered offline with that branch's
+`scripts/export_openapi.py`. **The org-chart paths and `OrgChart*` schemas were
+held back** and are taken with the SDK change that uses them (the next entry).
+
+Needs SDK work:
+
+- `SavedListView.entity_category` is a new required field: a list is typed by
+  the kind of record it holds. `ListCreate` takes an optional
+  `entity_category`, and records of another kind are refused with
+  `422 lists.category_mismatch`. A list's name must be unique, ignoring case
+  (`409 lists.name_taken`).
+- `POST /v1/lists/{list_id}/export` takes an optional body,
+  `{offset, limit}`; an export holds at most 10,000 rows (`422
+  export.too_large` above that).
+
+Absorbed by the SDKs, recorded:
+
+- Eight contact-enrichment routes under `/v1/enrichment/` (jobs, their results
+  and cancellation, a saved list's estimate and jobs, resuming a batch). Not
+  wrapped yet, by decision (A7): listed under `not_wrapped` in `routes.json`.
+- New error codes: the `enrichment.*` family, `export.too_large`,
+  `lists.category_mismatch`, `lists.name_taken`, the `privacy.*` family,
+  `rate_limits.key_not_found` and `org_chart.company_ambiguous`.
+- New optional fields: `AllocatedCredits.sources`, and
+  `CompanyKeywordsFilter.keyword_tree` and `.mode`.
+
+---
+
+## 2026-10-27 — the org chart follows One Platform's
+
+Snapshot updated from the dsp-backend `feat/dsp-org-chart-on-op` export, rendered
+offline with that branch's `scripts/export_openapi.py`. **Only the three org-chart
+paths and the `OrgChart*` schemas were taken**; the rest of the snapshot is
+unchanged, so unrelated drift on that branch (enrichment, lists and the rest) is
+left for its own refresh.
+
+Breaking, needing SDK work (done in both SDKs):
+
+- `POST /v1/org-chart`, `/departments` and `/locations` mirror One Platform's org
+  chart. Requests carry one `filters` object (`locations.include` / `exclude` of
+  `{level, value}` places, `governance_levels`, `employment_types`,
+  `c_suite_access`, `job_titles`, `text`, `search_mode`); the grid adds `metrics`
+  and `include_suspects`, the departments view `include_suspects`. Gone:
+  `country`, `state`, `city`, `governance_level`, `employment_type`,
+  `has_direct_access_to_c_suite`, `include_others` and the locations `search`.
+- Responses carry `{code, label}` values, axis entries with `total` and
+  `unknown`, cells with `badges`, `subdepartments`, a section `state`,
+  `coverage` and `matched`; the location tree is `items` of
+  `{level, value, label, count, unknown, children}`. Schemas: the eight kept names
+  changed (`OrgChartRequest`, `OrgChartResponse`, `OrgChartDepartmentsRequest`,
+  `OrgChartDepartmentsResponse`, `OrgChartLocationsRequest`,
+  `OrgChartLocationsResponse`, `OrgChartCell`, `OrgChartCompany`);
+  `OrgChartCity`, `OrgChartCountry`, `OrgChartDepartment`, `OrgChartState` and
+  `OrgChartSubDepartment` removed; fifteen `OrgChart*` schemas added.
+- Counting changed with it: each person once, at their most senior level, and in
+  every department they hold.
+
+`routes.json` and `surface-map.json` are unchanged: same routes, same methods.
+
+---
+
 ## 2026-10-14 — saved lists, export, votes, keyword search and rate limits
 
 Snapshot refreshed from the dsp-backend `QA` export (348f53d), rendered offline

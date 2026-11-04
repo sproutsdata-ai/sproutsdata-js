@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.2 (Unreleased)
+
+- Accepts `sproutsdata` 0.1 as well as 0.0.1: the peer range is now
+  `>=0.0.1 <0.2.0`. The tools use search, look-alikes and entity lookups,
+  which 0.1.0 does not change, so nothing else changes here.
+
 ## 0.0.1 (Unreleased)
 
 The first public release of `@sproutsdata.ai/ai-sdk`: the Sprouts tools for the

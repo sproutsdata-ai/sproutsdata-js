@@ -310,6 +310,54 @@
       "path": "/v1/billing/top-up/intents/{topup_id}",
       "operation_id": "topup_intent_status",
       "note": "Not wrapped by the SDKs: a top-up opens a page a person signs in to and pays on, which belongs to the MCP server and the dashboard. Its error code is still mapped."
+    },
+    {
+      "method": "POST",
+      "path": "/v1/enrichment/batches/{batch_id}/resume",
+      "operation_id": "enrichment_batch_resume",
+      "note": "Not wrapped by the SDKs yet: contact enrichment (submit a job, follow it, read its results, estimate and enrich a saved list) is a later minor version, by decision (A7). Its error codes are still mapped, so a caller who hand-rolls these gets typed errors."
+    },
+    {
+      "method": "GET",
+      "path": "/v1/enrichment/jobs",
+      "operation_id": "enrichment_jobs_list",
+      "note": "Not wrapped by the SDKs yet: contact enrichment (submit a job, follow it, read its results, estimate and enrich a saved list) is a later minor version, by decision (A7). Its error codes are still mapped, so a caller who hand-rolls these gets typed errors."
+    },
+    {
+      "method": "POST",
+      "path": "/v1/enrichment/jobs",
+      "operation_id": "enrichment_job_create",
+      "note": "Not wrapped by the SDKs yet: contact enrichment (submit a job, follow it, read its results, estimate and enrich a saved list) is a later minor version, by decision (A7). Its error codes are still mapped, so a caller who hand-rolls these gets typed errors."
+    },
+    {
+      "method": "GET",
+      "path": "/v1/enrichment/jobs/{job_id}",
+      "operation_id": "enrichment_job_get",
+      "note": "Not wrapped by the SDKs yet: contact enrichment (submit a job, follow it, read its results, estimate and enrich a saved list) is a later minor version, by decision (A7). Its error codes are still mapped, so a caller who hand-rolls these gets typed errors."
+    },
+    {
+      "method": "POST",
+      "path": "/v1/enrichment/jobs/{job_id}/cancel",
+      "operation_id": "enrichment_job_cancel",
+      "note": "Not wrapped by the SDKs yet: contact enrichment (submit a job, follow it, read its results, estimate and enrich a saved list) is a later minor version, by decision (A7). Its error codes are still mapped, so a caller who hand-rolls these gets typed errors."
+    },
+    {
+      "method": "GET",
+      "path": "/v1/enrichment/jobs/{job_id}/results",
+      "operation_id": "enrichment_job_results",
+      "note": "Not wrapped by the SDKs yet: contact enrichment (submit a job, follow it, read its results, estimate and enrich a saved list) is a later minor version, by decision (A7). Its error codes are still mapped, so a caller who hand-rolls these gets typed errors."
+    },
+    {
+      "method": "GET",
+      "path": "/v1/enrichment/lists/{list_id}/estimate",
+      "operation_id": "enrichment_list_estimate",
+      "note": "Not wrapped by the SDKs yet: contact enrichment (submit a job, follow it, read its results, estimate and enrich a saved list) is a later minor version, by decision (A7). Its error codes are still mapped, so a caller who hand-rolls these gets typed errors."
+    },
+    {
+      "method": "POST",
+      "path": "/v1/enrichment/lists/{list_id}/jobs",
+      "operation_id": "enrichment_list_enrich",
+      "note": "Not wrapped by the SDKs yet: contact enrichment (submit a job, follow it, read its results, estimate and enrich a saved list) is a later minor version, by decision (A7). Its error codes are still mapped, so a caller who hand-rolls these gets typed errors."
     }
   ]
 }

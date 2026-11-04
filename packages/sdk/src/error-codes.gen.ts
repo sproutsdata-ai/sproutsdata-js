@@ -2,7 +2,7 @@
 // change the spec in sproutsdata-py, re-sync it, and regenerate.
 
 /**
- * The closed set of machine-readable error codes the API returns (53 codes).
+ * The closed set of machine-readable error codes the API returns (69 codes).
  * Compare against `error.code`. A code this release does not list is still
  * mapped: by its HTTP status, then to `APIError`.
  */
@@ -88,6 +88,13 @@ export const ErrorCode = {
    */
   RELATIONSHIP_ANCHOR_AMBIGUOUS: 'relationship.anchor_ambiguous',
   /**
+   * 422 — The domain (or LinkedIn page) sent to an org-chart route names more
+   * than one company that has people. Nothing was charged. `extra.candidates`
+   * lists them, at most 10, each with its `company_ref`; send the chosen one's
+   * `company_ref` instead of the domain.
+   */
+  ORG_CHART_COMPANY_AMBIGUOUS: 'org_chart.company_ambiguous',
+  /**
    * 404 — No history entry with that id for this tenant. A 404 rather than a
    * 403 even when the row belongs to someone else: confirming it exists would
    * leak that it does.
@@ -127,6 +134,17 @@ export const ErrorCode = {
    */
   LISTS_ITEM_CAP_REACHED: 'lists.item_cap_reached',
   /**
+   * 409 — Another live list in this workspace already has that name, compared
+   * without case. Nothing was changed; pick another name.
+   */
+  LISTS_NAME_TAKEN: 'lists.name_taken',
+  /**
+   * 422 — The records are not the kind this list holds, or one batch mixes
+   * kinds. `extra` carries the list's category and the categories offered.
+   * Nothing was added.
+   */
+  LISTS_CATEGORY_MISMATCH: 'lists.category_mismatch',
+  /**
    * 503 — The saved-lists store is unreachable. Nothing was changed.
    */
   LISTS_UNAVAILABLE: 'lists.unavailable',
@@ -135,6 +153,32 @@ export const ErrorCode = {
    * help; the route answers once export is enabled.
    */
   EXPORT_NOT_ENABLED: 'export.not_enabled',
+  /**
+   * 422 — More rows than one export may hold. `extra` carries `max_rows` and
+   * the `requested` count; export a range that fits with `offset` and `limit`.
+   */
+  EXPORT_TOO_LARGE: 'export.too_large',
+  /**
+   * 404 — No privacy request has that id. Internal-only: raised by the
+   * console's privacy request log, which an API key cannot reach.
+   */
+  PRIVACY_REQUEST_NOT_FOUND: 'privacy.request_not_found',
+  /**
+   * 409 — The step is not possible in the request's current state: it is
+   * closed, or suppression was asked for before the identity check passed.
+   * Internal-only.
+   */
+  PRIVACY_STEP_NOT_ALLOWED: 'privacy.step_not_allowed',
+  /**
+   * 422 — A close was asked for while fields are unrecorded; `extra.missing`
+   * names them. Internal-only.
+   */
+  PRIVACY_RECORD_INCOMPLETE: 'privacy.record_incomplete',
+  /**
+   * 503 — The privacy request log, or online intake, is unavailable. Nothing
+   * was changed. Internal-only.
+   */
+  PRIVACY_UNAVAILABLE: 'privacy.unavailable',
   /**
    * 409 — The sign-up cohort question is not offered right now. Dashboard-only:
    * no API-key route returns it.
@@ -208,6 +252,12 @@ export const ErrorCode = {
    */
   RATE_LIMITS_UNAVAILABLE: 'rate_limits.unavailable',
   /**
+   * 404 — No active API key has that id, so no limit can be set on it. Nothing
+   * was changed. Internal-only: raised by the admin console's rate-limit
+   * settings.
+   */
+  RATE_LIMITS_KEY_NOT_FOUND: 'rate_limits.key_not_found',
+  /**
    * 402 — Not enough credits for this action. Carries no Retry-After,
    * deliberately: waiting does not help, buying does. Never retried, never
    * slept on, never conflated with a 429.
@@ -258,6 +308,44 @@ export const ErrorCode = {
    */
   PAYMENT_TOPUP_NOT_FOUND: 'payment.topup_not_found',
   /**
+   * 422 — One or more items have no usable identifier: a `linkedin_url` that is
+   * not a profile URL, a malformed `es_id`, or neither or both sent.
+   * `extra.errors[]` names each by index. Raised by contact enrichment, which
+   * this library does not wrap.
+   */
+  ENRICHMENT_INVALID_ITEM: 'enrichment.invalid_item',
+  /**
+   * 422 — More unique profiles than one enrichment job takes. The cap is
+   * `extra.max_items`.
+   */
+  ENRICHMENT_TOO_MANY_ITEMS: 'enrichment.too_many_items',
+  /**
+   * 404 — No such enrichment job for this workspace. Unknown and another
+   * workspace's job are deliberately the same answer.
+   */
+  ENRICHMENT_JOB_NOT_FOUND: 'enrichment.job_not_found',
+  /**
+   * 503 — The enrichment service refused, failed or could not be reached, so
+   * the job did not start or its state could not be read. Nothing was charged.
+   * Also sent as 502 when the service refused the request.
+   */
+  ENRICHMENT_UPSTREAM_UNAVAILABLE: 'enrichment.upstream_unavailable',
+  /**
+   * 501 — This deployment has no enrichment service. Retrying will not help.
+   */
+  ENRICHMENT_NOT_CONFIGURED: 'enrichment.not_configured',
+  /**
+   * 409 — The job already reached a final state, so there is nothing left to
+   * cancel.
+   */
+  ENRICHMENT_JOB_NOT_CANCELLABLE: 'enrichment.job_not_cancellable',
+  /**
+   * 410 — The enrichment service no longer holds this job's request, so its
+   * rows cannot be read back and the job is recorded as failed. Retrying will
+   * never help; start a new job.
+   */
+  ENRICHMENT_RESULTS_UNAVAILABLE: 'enrichment.results_unavailable',
+  /**
    * 503 — Retrieval was unreachable. Nothing was charged: a billed call is
    * charged only once its answer is ready.
    */
@@ -283,6 +371,7 @@ export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];
 /** The language-neutral error concepts of the spec; `errors.ts` maps each to a class. */
 export type ErrorConcept =
   | 'authentication'
+  | 'company_ambiguous'
   | 'conflict'
   | 'cursor_expired'
   | 'cursor_invalid'
@@ -317,6 +406,7 @@ export const CODE_CONCEPTS: ReadonlyMap<string, ErrorConcept> = new Map([
   ['request.too_large', 'request_too_large'],
   ['request.unsupported', 'invalid_request'],
   ['relationship.anchor_ambiguous', 'invalid_request'],
+  ['org_chart.company_ambiguous', 'company_ambiguous'],
   ['history.not_found', 'not_found'],
   ['feedback.subject_not_found', 'not_found'],
   ['feedback.unavailable', 'service_unavailable'],
@@ -324,8 +414,15 @@ export const CODE_CONCEPTS: ReadonlyMap<string, ErrorConcept> = new Map([
   ['enrichment.unavailable', 'service_unavailable'],
   ['lists.not_found', 'not_found'],
   ['lists.item_cap_reached', 'conflict'],
+  ['lists.name_taken', 'conflict'],
+  ['lists.category_mismatch', 'invalid_request'],
   ['lists.unavailable', 'service_unavailable'],
   ['export.not_enabled', 'not_found'],
+  ['export.too_large', 'invalid_request'],
+  ['privacy.request_not_found', 'not_found'],
+  ['privacy.step_not_allowed', 'conflict'],
+  ['privacy.record_incomplete', 'invalid_request'],
+  ['privacy.unavailable', 'service_unavailable'],
   ['cohort.not_offered', 'conflict'],
   ['cohort.impersonation_cannot_answer', 'permission_denied'],
   ['referral.already_claimed', 'conflict'],
@@ -341,6 +438,7 @@ export const CODE_CONCEPTS: ReadonlyMap<string, ErrorConcept> = new Map([
   ['quota.concurrency_exceeded', 'rate_limit'],
   ['quota.entity_ceiling', 'rate_limit'],
   ['rate_limits.unavailable', 'service_unavailable'],
+  ['rate_limits.key_not_found', 'not_found'],
   ['credits.insufficient', 'insufficient_credits'],
   ['credits.unavailable', 'service_unavailable'],
   ['credits.unknown_action', 'internal'],
@@ -350,6 +448,13 @@ export const CODE_CONCEPTS: ReadonlyMap<string, ErrorConcept> = new Map([
   ['payment.declined', 'insufficient_credits'],
   ['payment.no_method', 'invalid_request'],
   ['payment.topup_not_found', 'not_found'],
+  ['enrichment.invalid_item', 'invalid_request'],
+  ['enrichment.too_many_items', 'invalid_request'],
+  ['enrichment.job_not_found', 'not_found'],
+  ['enrichment.upstream_unavailable', 'service_unavailable'],
+  ['enrichment.not_configured', 'feature_not_available'],
+  ['enrichment.job_not_cancellable', 'conflict'],
+  ['enrichment.results_unavailable', 'not_found'],
   ['upstream.unavailable', 'service_unavailable'],
   ['upstream.timeout', 'upstream_timeout'],
   ['not_implemented', 'feature_not_available'],
@@ -364,6 +469,7 @@ export const STATUS_CONCEPTS: ReadonlyMap<number, ErrorConcept> = new Map([
   [403, 'permission_denied'],
   [404, 'not_found'],
   [409, 'idempotency_conflict'],
+  [410, 'not_found'],
   [413, 'request_too_large'],
   [415, 'invalid_request'],
   [422, 'invalid_request'],

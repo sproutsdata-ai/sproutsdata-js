@@ -101,9 +101,17 @@ record cannot be read right now is still returned, with `available: false` and
 
 ```ts
 await client.lists.list();                         // every list, newest first, with the cap
+await client.lists.create('Champions', { entity_category: 'person' }); // people only
 await client.lists.rename(saved.id, 'Fintech, EU');
 await client.lists.delete(saved.id);               // the list and its items
 ```
+
+A list holds one kind of record. Name it with `entity_category` when you create
+the list, or the list takes the kind of the first records added to it;
+`SavedList.entity_category` says which. Records of another kind throw
+`InvalidRequestError` (`lists.category_mismatch`). A list's name is unique in the
+workspace, ignoring case: a name in use throws `ConflictError`
+(`lists.name_taken`).
 
 A list that does not exist, was deleted, or belongs to another workspace throws
 `NotFoundError` (`lists.not_found`) — one answer for all three, on purpose.
@@ -115,9 +123,10 @@ the first call deleted. Check `client.lists.list()` before trying again.
 ## CSV export
 
 ```ts
-const fromList = await client.lists.export(saved.id); // at most 1,000 rows
+const fromList = await client.lists.export(saved.id); // at most 10,000 rows
+const nextRange = await client.lists.export(saved.id, { offset: 10_000, limit: 10_000 });
 const fromSearch = await client.searchExport({
-  items: [{ entity_category: 'company', entity_id: 'stripe.com' }], // at most 1,000
+  items: [{ entity_category: 'company', entity_id: 'stripe.com' }], // at most 10,000
   request_id: page.meta.request_id, // optional: the search they came from
 });
 
@@ -129,6 +138,11 @@ suggested `filename`, the `field_tier` of its rows, `row_count`, `skipped`
 (records that could not be read) and `credits_charged` (exports are free). The
 columns are `entity_category`, `entity_id`, then each record field as a dotted
 path.
+
+One export holds at most 10,000 rows, in the list's order (newest first). Export
+a longer list in ranges with `offset` and `limit`; asking for more throws
+`InvalidRequestError` (`export.too_large`), whose `problem.extra` carries
+`max_rows` and `requested`.
 
 **Export is switched off until export pricing ships.** Until then both calls
 throw `NotFoundError` with code `export.not_enabled`, which is never retried.

@@ -11,7 +11,7 @@ describe('answers', () => {
   });
 
   it('read an export as a file or a job', () => {
-    expect(readAnswer('x', 'csv_or_job', 200, { 'content-type': 'text/csv; charset=utf-8' }, '﻿a,b\n')).toMatchObject({ kind: 'csv', text: 'a,b\n' });
+    expect(readAnswer('x', 'csv_or_job', 200, { 'content-type': 'text/csv; charset=utf-8' }, '\uFEFFa,b\n')).toMatchObject({ kind: 'csv', text: 'a,b\n' });
     expect(readAnswer('x', 'csv_or_job', 202, { 'content-type': 'application/json' }, '{"job_id":"j"}')).toMatchObject({ kind: 'json', json: { job_id: 'j' } });
     expect(readAnswer('x', 'csv', 200, {}, '{"a":1}').kind).toBe('json');
   });

@@ -1,0 +1,86 @@
+{
+  "name": "a_reach_cursor_keeps_its_page_size",
+  "description": "The reach cursor is bound to `limit` as well as the rest of the request (routes.json binds_limit), so a later page is sent with the first page's limit even when the caller asks for a different one; trimming to fewer rows happens client-side.",
+  "request": {
+    "method": "POST",
+    "path": "/v1/relationships/reach",
+    "body": {
+      "person": {
+        "li_url": "https://www.linkedin.com/in/someone"
+      },
+      "target_company": {
+        "value": "stripe.com",
+        "by": "domain"
+      },
+      "limit": 5
+    }
+  },
+  "responses": [
+    {
+      "status": 200,
+      "headers": {},
+      "body": {
+        "results": [
+          {
+            "id": "9f2c1a7b3d4e5f60",
+            "full_name": "A Person",
+            "title": "Engineer",
+            "company_name": "Stripe",
+            "how": []
+          }
+        ],
+        "total": 7,
+        "total_is_estimate": false,
+        "has_more": true,
+        "next_cursor": "CURSOR_R",
+        "meta": {
+          "request_id": "req_ok",
+          "environment": "test",
+          "as_of": "2026-11-11T00:00:00Z",
+          "credential": "api_key"
+        }
+      }
+    },
+    {
+      "status": 200,
+      "headers": {},
+      "body": {
+        "results": [
+          {
+            "id": "9f2c1a7b3d4e5f60",
+            "full_name": "A Person",
+            "title": "Engineer",
+            "company_name": "Stripe",
+            "how": []
+          }
+        ],
+        "total": 7,
+        "total_is_estimate": false,
+        "has_more": false,
+        "next_cursor": null,
+        "meta": {
+          "request_id": "req_ok",
+          "environment": "test",
+          "as_of": "2026-11-11T00:00:00Z",
+          "credential": "api_key"
+        }
+      }
+    }
+  ],
+  "paginate": "next_page",
+  "next_page_limit": 2,
+  "expect": {
+    "attempts": 2,
+    "sent": [
+      {},
+      {
+        "cursor": "CURSOR_R",
+        "limit": 5,
+        "body_equals_index": 0,
+        "except_keys": [
+          "cursor"
+        ]
+      }
+    ]
+  }
+}

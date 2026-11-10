@@ -1,0 +1,67 @@
+{
+  "name": "feedback_is_retried_with_the_same_idempotency_key",
+  "description": "Feedback reads Idempotency-Key: a repeat with the same key returns the first report instead of filing a second. So a feedback create that may have reached the server is retried, carrying the key of its first attempt.",
+  "request": {
+    "method": "POST",
+    "path": "/v1/feedback",
+    "body": {
+      "subject_ref": {
+        "kind": "request",
+        "id": "req_abc"
+      },
+      "target": {
+        "kind": "result_set"
+      },
+      "sentiment": "bad",
+      "comment": "wrong rows"
+    }
+  },
+  "responses": [
+    {
+      "network": "read_timeout"
+    },
+    {
+      "status": 201,
+      "headers": {
+        "X-Request-Id": "req_fb"
+      },
+      "body": {
+        "feedback_id": "fb_1",
+        "created_at": "2026-11-11T00:00:00Z",
+        "subject_ref": {
+          "kind": "request",
+          "id": "req_abc"
+        },
+        "target": {
+          "kind": "result_set",
+          "entity_id": null,
+          "entity_type": null
+        },
+        "sentiment": "bad",
+        "tags": [],
+        "comment": "wrong rows",
+        "expected": null,
+        "target_verified": true,
+        "status": "open",
+        "tag_vocab_version": 1
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 2,
+    "sent": [
+      {
+        "headers_present": [
+          "Idempotency-Key"
+        ]
+      },
+      {
+        "body_equals_index": 0,
+        "same_header_as_index": {
+          "header": "Idempotency-Key",
+          "index": 0
+        }
+      }
+    ]
+  }
+}

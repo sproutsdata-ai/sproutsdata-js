@@ -1,0 +1,71 @@
+{
+  "name": "an_ambiguous_org_chart_company_carries_its_candidates",
+  "description": "A domain that names several companies with people answers 422 org_chart.company_ambiguous with the candidates, each with a company_ref to ask again with. The candidates must survive onto the error, and it is never retried.",
+  "request": {
+    "method": "POST",
+    "path": "/v1/org-chart",
+    "body": {
+      "domain": "acme.com"
+    }
+  },
+  "responses": [
+    {
+      "status": 422,
+      "headers": {
+        "X-Request-Id": "req_amb"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/org-chart-company-ambiguous",
+        "title": "Company ambiguous",
+        "status": 422,
+        "code": "org_chart.company_ambiguous",
+        "detail": "acme.com names 2 companies; ask again with one company_ref.",
+        "extra": {
+          "identifier": "acme.com",
+          "candidate_count": 2,
+          "candidates": [
+            {
+              "company_ref": "cr_one",
+              "name": "Acme Inc",
+              "domain": "acme.com",
+              "linkedin_url": "https://www.linkedin.com/company/acme"
+            },
+            {
+              "company_ref": "cr_two",
+              "name": "Acme Labs",
+              "domain": "acme.com",
+              "linkedin_url": "https://www.linkedin.com/company/acme-labs"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "error": {
+      "concept": "org_chart_company_ambiguous",
+      "status": 422,
+      "code": "org_chart.company_ambiguous",
+      "request_id": "req_amb",
+      "extra": {
+        "identifier": "acme.com",
+        "candidate_count": 2,
+        "candidates": [
+          {
+            "company_ref": "cr_one",
+            "name": "Acme Inc",
+            "domain": "acme.com",
+            "linkedin_url": "https://www.linkedin.com/company/acme"
+          },
+          {
+            "company_ref": "cr_two",
+            "name": "Acme Labs",
+            "domain": "acme.com",
+            "linkedin_url": "https://www.linkedin.com/company/acme-labs"
+          }
+        ]
+      }
+    }
+  }
+}

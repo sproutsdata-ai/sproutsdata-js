@@ -1,0 +1,34 @@
+{
+  "name": "an_unknown_409_is_a_plain_conflict",
+  "description": "A 409 whose code this SDK version does not know falls back to the conflict concept. No route the new API serves answers an idempotency conflict, so the fallback must not claim one.",
+  "request": {
+    "method": "POST",
+    "path": "/v1/lists",
+    "body": {
+      "name": "Prospects"
+    }
+  },
+  "responses": [
+    {
+      "status": 409,
+      "headers": {
+        "X-Request-Id": "req_409"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/lists-something-invented-later",
+        "title": "Conflict",
+        "status": 409,
+        "code": "lists.something_invented_later"
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "error": {
+      "concept": "conflict",
+      "status": 409,
+      "code": "lists.something_invented_later",
+      "request_id": "req_409"
+    }
+  }
+}

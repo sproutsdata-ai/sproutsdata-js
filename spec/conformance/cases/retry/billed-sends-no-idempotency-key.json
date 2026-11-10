@@ -1,6 +1,6 @@
 {
-  "name": "billed_call_reuses_one_idempotency_key_across_retries",
-  "description": "A billed call sends an Idempotency-Key generated once per logical call, so its retry carries the same key: harmless today, and what lets the server recognise the repeat once it honours the key on billed routes.",
+  "name": "a_billed_call_sends_no_idempotency_key",
+  "description": "Billed routes do not read Idempotency-Key (a repeated first page is a new paid session either way), so the SDK does not send one, on the first attempt or on a retry.",
   "responses": [
     {
       "status": 503,
@@ -9,7 +9,7 @@
       },
       "body": {
         "type": "https://dashboard.sproutsdata.ai/errors/upstream-unavailable",
-        "title": "Service unavailable",
+        "title": "Upstream unavailable",
         "status": 503,
         "code": "upstream.unavailable"
       }
@@ -37,7 +37,7 @@
         "meta": {
           "request_id": "req_ok",
           "environment": "test",
-          "as_of": "2026-08-13T00:00:00Z",
+          "as_of": "2026-11-11T00:00:00Z",
           "credential": "api_key"
         }
       }
@@ -47,16 +47,15 @@
     "attempts": 2,
     "sent": [
       {
-        "headers_present": [
+        "headers_absent": [
           "Idempotency-Key"
         ]
       },
       {
         "body_equals_index": 0,
-        "same_header_as_index": {
-          "header": "Idempotency-Key",
-          "index": 0
-        }
+        "headers_absent": [
+          "Idempotency-Key"
+        ]
       }
     ],
     "success": {

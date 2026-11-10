@@ -1,0 +1,30 @@
+{
+  "name": "a_list_delete_is_not_repeated_after_a_server_error",
+  "description": "A 500 on a list delete may come after the list was deleted; repeating it would answer 404 and hide that the first call worked. So it is raised rather than repeated.",
+  "request": {
+    "method": "DELETE",
+    "path": "/v1/lists/5f0c9a52-1d1e-4f61-9a43-1b3c8a1d7e10"
+  },
+  "responses": [
+    {
+      "status": 500,
+      "headers": {},
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/internal",
+        "title": "Internal error",
+        "status": 500,
+        "code": "internal"
+      }
+    },
+    {
+      "status": 204,
+      "headers": {}
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "error": {
+      "concept": "internal"
+    }
+  }
+}

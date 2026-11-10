@@ -1,6 +1,6 @@
 {
-  "$comment": "The retry table of contract 02 §4.1, as data. Each outcome row gives, per route class (routes.json), `retry` or `raise`. A retry is bounded by max_retries and waits per defaults.json `backoff`, unless a Retry-After of at most `retry_after_cap_seconds` is present, which wins. Rows are checked in order and the first match decides. Normative: an SDK whose decision differs from this table has a bug.",
-  "version": 1,
+  "$comment": "The retry decision both SDKs make, as data. Each outcome row gives, per route class (routes.json), `retry` or `raise`. A retry is bounded by defaults.json `max_retries` and waits per its `backoff`, unless a Retry-After of at most `retry_after_cap_seconds` is present, which wins. Rows are checked in order and the first match decides. Normative: an SDK whose decision differs from this table has a bug. The billing facts it rests on (dsp-backend src/dsp/features/billing/meter.py): a billed call is charged after its work succeeds, as the last step that can fail, so any error answer means nothing was charged; but a first page of search or similar opens a new paid session, so a billed request that may have reached the server without an answer is never repeated.",
+  "version": 2,
   "classes": [
     "safe",
     "billed",
@@ -38,7 +38,7 @@
       "keyed": "retry",
       "once": "raise",
       "notes": [
-        "billed: the error carries reached_server=True (Python) / reachedServer: true (JS), and its message says a charge may have happened.",
+        "billed: the error carries reached_server=True (Python) / reachedServer: true (JS), and its message says the call may have been charged.",
         "keyed: the retry resends the same Idempotency-Key, so the server recognises the repeat."
       ]
     },
@@ -66,21 +66,19 @@
     },
     {
       "outcome": "never_retried",
-      "description": "Deterministic answers: repeating the request cannot change them. credits.unknown_action is a 500, but the server has no price for the action, which will not fix itself.",
+      "description": "Deterministic answers: repeating the request cannot change them.",
       "status": [
         400,
         401,
         402,
         403,
         404,
+        405,
         409,
         413,
         415,
         422,
         501
-      ],
-      "codes": [
-        "credits.unknown_action"
       ],
       "safe": "raise",
       "billed": "raise",
@@ -89,7 +87,7 @@
     },
     {
       "outcome": "internal_error",
-      "description": "500 with any code except credits.unknown_action. A billed route charges as its last step, so its error is all but always uncharged, and the retry resends the same Idempotency-Key.",
+      "description": "500. A billed call is charged only as its last step, so its error answer was not charged and a retry cannot pay twice; a `once` call may have taken effect, so it is raised.",
       "status": [
         500
       ],
@@ -100,7 +98,7 @@
     },
     {
       "outcome": "unavailable",
-      "description": "503 and 504. Answered before any charge, so a retry cannot pay twice.",
+      "description": "503 and 504: the work was refused or abandoned before any charge, so a retry cannot pay twice. A 503 carries Retry-After (1 s, or 30 s for credits.unavailable), which is honoured.",
       "status": [
         503,
         504

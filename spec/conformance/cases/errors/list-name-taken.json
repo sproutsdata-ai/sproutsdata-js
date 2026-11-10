@@ -1,0 +1,36 @@
+{
+  "name": "a_taken_list_name_is_its_own_conflict",
+  "description": "List names are unique per workspace. A create with a taken name answers 409 lists.name_taken, raised at once as its own concept so a caller can choose another name.",
+  "request": {
+    "method": "POST",
+    "path": "/v1/lists",
+    "body": {
+      "name": "Prospects"
+    }
+  },
+  "responses": [
+    {
+      "status": 409,
+      "headers": {
+        "X-Request-Id": "req_taken"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/lists-name-taken",
+        "title": "List name taken",
+        "status": 409,
+        "code": "lists.name_taken",
+        "detail": "A list named 'Prospects' already exists."
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "no_sleep": true,
+    "error": {
+      "concept": "list_name_taken",
+      "status": 409,
+      "code": "lists.name_taken",
+      "request_id": "req_taken"
+    }
+  }
+}

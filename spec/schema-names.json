@@ -1,7 +1,14 @@
 {
-  "$comment": "SDK names for the openapi.json schemas whose names collide. FastAPI qualifies a schema name with its module path when two models share it (dsp__features__...); those names are not fit for public types, so each SDK's generator renames them as below and refuses to generate if any other qualified name appears. Each new name says which feature the schema belongs to.",
+  "$comment": "SDK names for the openapi.json schemas whose generated names are not fit for public types: FastAPI qualifies a name with its module path when two models share it (dsp__features__...), and pydantic names a generic model's instantiation after its parameters (DocumentSort_PatentSortField_). Each SDK's generator uses the names below (through spec/models.json) and refuses to generate if any other name holds an underscore. Each new name says which feature the schema belongs to.",
   "version": 1,
   "renames": {
+    "DocumentSort_AcademicReportSortField_": "AcademicReportSort",
+    "DocumentSort_FundingSortField_": "FundingSort",
+    "DocumentSort_JobOpeningSortField_": "JobOpeningSort",
+    "DocumentSort_MarketReportSortField_": "MarketReportSort",
+    "DocumentSort_NewsSortField_": "NewsSort",
+    "DocumentSort_PatentSortField_": "PatentSort",
+    "DocumentSort_TrendSortField_": "TrendSort",
     "dsp__features__org_chart__responses__Coverage": "OrgChartCoverage",
     "dsp__features__relationships__requests__Relation": "RelationshipRelation",
     "dsp__features__search__schemas__document_values__Relation": "DocumentRelation",

@@ -1,5 +1,5 @@
 {
-  "$comment": "The retry decision both SDKs make, as data. Each outcome row gives, per route class (routes.json), `retry` or `raise`. A retry is bounded by defaults.json `max_retries` and waits per its `backoff`, unless a Retry-After of at most `retry_after_cap_seconds` is present, which wins. Rows are checked in order and the first match decides. Normative: an SDK whose decision differs from this table has a bug. The billing facts it rests on (dsp-backend src/dsp/features/billing/meter.py): a billed call is charged after its work succeeds, as the last step that can fail, so any error answer means nothing was charged; but a first page of search or similar opens a new paid session, so a billed request that may have reached the server without an answer is never repeated.",
+  "$comment": "The retry decision both SDKs make, as data. Each outcome row gives, per route class (routes.json), `retry` or `raise`. A retry is bounded by defaults.json `max_retries` and waits per its `backoff`, unless a Retry-After of at most `retry_after_cap_seconds` is present, which wins. Rows are checked in order and the first match decides; a row matches on its `network` outcomes or its `status` codes, and, where it says so, on whether the answer's Retry-After is `within_cap` or `beyond_cap` (none counts as within). Normative: an SDK whose decision differs from this table has a bug. The billing facts it rests on (dsp-backend src/dsp/features/billing/meter.py): a billed call is charged after its work succeeds, as the last step that can fail, so any error answer means nothing was charged; but a first page of search or similar opens a new paid session, so a billed request that may have reached the server without an answer is never repeated.",
   "version": 2,
   "classes": [
     "safe",
@@ -51,7 +51,8 @@
       "safe": "retry",
       "billed": "retry",
       "keyed": "retry",
-      "once": "retry"
+      "once": "retry",
+      "retry_after": "within_cap"
     },
     {
       "outcome": "rate_limited_long",
@@ -62,7 +63,8 @@
       "safe": "raise",
       "billed": "raise",
       "keyed": "raise",
-      "once": "raise"
+      "once": "raise",
+      "retry_after": "beyond_cap"
     },
     {
       "outcome": "never_retried",

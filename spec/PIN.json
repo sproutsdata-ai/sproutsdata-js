@@ -1,6 +1,6 @@
 {
   "source": "sproutsdata-py/spec",
-  "source_commit": "57d0acfe826803a2771c6bf95075c09088ca2289",
+  "source_commit": "f0b1e3f00b4a36ca129fc7f5c56068e310f56f7c",
   "files": {
     "CHANGELOG.md": "55d08f2ab22f0cdff6780e0ad4621a0fd9b13254a0927538c51dc99bf37962d5",
     "conformance/README.md": "e43818782b0d2ae80fc27806a04c3518f981cfd2d4ef87638935b0815abe7c50",
@@ -60,11 +60,12 @@
     "conformance/cases/retry/upstream-timeout-is-retried.json": "4a3296aedb4006ef79cfd3f5cc38e8fc0db04e06540e534cd9a0c0042f0d804e",
     "defaults.json": "a9a4c95ff4e33a4dc2632abfd981d19cb906a3bcbf6820c1f8b4774007b8d8dc",
     "error-codes.json": "b59618b5a601ed645620d7724f4f032be236e991c8fee0fa4a5ace44d786980f",
+    "models.json": "26824ff5d18e86f0dca592191fee306da1538c80e66cd11efad4ccef6b6ad584",
     "openapi.json": "6d0d8cbf8ae7c0ab40da3de107fe95517eeebf9b8f0949e9369dc90cb2cad3c0",
     "records.schema.json": "b5591377fd13f0381d0fda2fa6f309eeb1d108e9327a4d6e9ffca1ba3ccbec58",
-    "retry-policy.json": "c10a5fc911d4ed5f651a64b052bdaf501ebcd64cf0178924c0753ac244101280",
+    "retry-policy.json": "2a83ccb0753f41f9b36a3d68fdf72868ba1b6c6aaecbb8f4ab12793fc6fc3648",
     "routes.json": "774bc96b1ff33e71c407fc06b91535c08dd4f35717502b1a51da3e68ab948ae0",
-    "schema-names.json": "2c65bbf21ac0c80c9036bb6b87060bb779e194291d00e0a4059d079caa2d7b7f",
+    "schema-names.json": "193ff447ed2bb9d52c0a79923058c104823bb32e5fa00bac224607f531d60772",
     "surface-map.json": "7947af24ea4f1ada833284bc28c243d91584131e06bb68e43dc008a0117f63d7",
     "tools/README.md": "4891d329e1930aa862589667523d0e22d3f658f0576ffb0edacdda8f38c0949f",
     "tools/fixtures/error_invalid_vocabulary.json": "8fde534944ecb16f179ae2ccaf1691cef534faeab7d79a015855f718b83a132f",

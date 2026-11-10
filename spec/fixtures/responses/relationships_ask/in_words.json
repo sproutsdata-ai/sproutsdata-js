@@ -1,0 +1,602 @@
+{
+  "body": {
+    "compare": null,
+    "credits_charged": null,
+    "fan_out": null,
+    "institutions": null,
+    "meta": {
+      "as_of": "2026-11-10T22:30:06.542183Z",
+      "credential": "api_key",
+      "credits_charged": 2.0,
+      "environment": "live",
+      "request_id": "e38e96e0602447ecbdad05403baab512"
+    },
+    "reach": null,
+    "reading": {
+      "searches": 1,
+      "span": "who at Stripe used to work at Adyen",
+      "warnings": []
+    },
+    "relationships": {
+      "attribution": [
+        {
+          "as_of": "2026-11-10T22:30:06.542183Z",
+          "domain": null,
+          "quote": null,
+          "source_corpus": "affiliations",
+          "url": null
+        }
+      ],
+      "breakdown": null,
+      "columns": null,
+      "connection_basis": "overlapping",
+      "coverage": null,
+      "degradation": [],
+      "has_more": true,
+      "institutions": [
+        {
+          "id": "edu:school-0",
+          "kind": "school",
+          "match_confidence": null,
+          "name": "School 0",
+          "people_first": 12,
+          "people_second": 9
+        },
+        {
+          "id": "edu:school-1",
+          "kind": "school",
+          "match_confidence": null,
+          "name": "School 1",
+          "people_first": 11,
+          "people_second": 8
+        },
+        {
+          "id": "edu:school-2",
+          "kind": "school",
+          "match_confidence": null,
+          "name": "School 2",
+          "people_first": 10,
+          "people_second": 7
+        },
+        {
+          "id": "edu:school-3",
+          "kind": "school",
+          "match_confidence": null,
+          "name": "School 3",
+          "people_first": 9,
+          "people_second": 6
+        },
+        {
+          "id": "edu:school-4",
+          "kind": "school",
+          "match_confidence": null,
+          "name": "School 4",
+          "people_first": 8,
+          "people_second": 5
+        },
+        {
+          "id": "edu:school-5",
+          "kind": "school",
+          "match_confidence": null,
+          "name": "School 5",
+          "people_first": 7,
+          "people_second": 4
+        },
+        {
+          "id": "edu:school-6",
+          "kind": "school",
+          "match_confidence": null,
+          "name": "School 6",
+          "people_first": 6,
+          "people_second": 3
+        },
+        {
+          "id": "edu:school-7",
+          "kind": "school",
+          "match_confidence": null,
+          "name": "School 7",
+          "people_first": 5,
+          "people_second": 2
+        },
+        {
+          "id": "edu:school-8",
+          "kind": "school",
+          "match_confidence": null,
+          "name": "School 8",
+          "people_first": 4,
+          "people_second": 1
+        },
+        {
+          "id": "edu:school-9",
+          "kind": "school",
+          "match_confidence": null,
+          "name": "School 9",
+          "people_first": 3,
+          "people_second": 9
+        }
+      ],
+      "meta": {
+        "as_of": "2026-11-10T22:30:06.542183Z",
+        "credential": "api_key",
+        "credits_charged": 2.0,
+        "environment": "live",
+        "request_id": "e38e96e0602447ecbdad05403baab512"
+      },
+      "next_cursor": "eyJmIjoiMTZlNzlkNmQzMWQ4Y2FlYWMzOThmYjA2Y2UyYzBiNzUiLCJvIjoxMCwicyI6ImNkNDZhZmE0NDE2ODQ0YzdhZjFiNDExOTBhODZhM2Q4IiwidCI6MTc5NDM0OTgwNiwidSI6IntcInJvdXRlXCI6XCJyZWxhdGlvbnNoaXBzXCIsXCJwbGFuXCI6e1wiY29tcGFuaWVzXCI6W3tcInZhbHVlXCI6XCJzdHJpcGUuY29tXCIsXCJieVwiOlwiZG9tYWluXCJ9LHtcInZhbHVlXCI6XCJhZHllbi5jb21cIixcImJ5XCI6XCJkb21haW5cIn1dLFwicGFnZVwiOjIsXCJwYWdlX3NpemVcIjoxMCxcIm91dHB1dFwiOntcInRvcF9pbnN0aXR1dGlvbnNcIjoxMDAwfX0sXCJwYWdlXCI6MixcInBhZ2Vfc2l6ZVwiOjEwfSJ9.09f4dd94bf1cff4e6e4e1e9e76dc8143",
+      "resolved_search": {
+        "category": "person",
+        "conflicts": [],
+        "filters": {
+          "companies": [
+            "stripe.com",
+            "adyen.com"
+          ],
+          "query": "who at Stripe used to work at Adyen"
+        },
+        "filters_source": "parser",
+        "keyword_query": null,
+        "mode": "fast",
+        "overrides": [],
+        "parser_version": "prism-graph-v1",
+        "query": "who at Stripe used to work at Adyen",
+        "semantic_query": null,
+        "semantic_scope": null,
+        "sort": []
+      },
+      "results": [
+        {
+          "avatar": null,
+          "category": "person",
+          "company_domain": null,
+          "company_name": null,
+          "country": "Germany",
+          "currently_at_target": false,
+          "department": "Engineering",
+          "full_name": "Person 0",
+          "id": "71bdc7984b710814",
+          "is_alum": true,
+          "linkedin_url": "https://linkedin.com/in/person-0",
+          "match_reason_count": 2,
+          "match_type": [
+            "overlapping"
+          ],
+          "number_of_contacts_overlapping_tenure_with": 3,
+          "profile_complete": true,
+          "seniority": "VP",
+          "title": "VP Engineering",
+          "via": [
+            {
+              "ended": "2019-06",
+              "id": "linkedin.com/company/google",
+              "kind": "company",
+              "match_confidence": null,
+              "match_type": "work",
+              "name": "Google",
+              "role": "Engineer",
+              "started": "2015-01"
+            },
+            {
+              "ended": null,
+              "id": "edu:tum",
+              "kind": "school",
+              "match_confidence": null,
+              "match_type": "school",
+              "name": "TU Munich",
+              "role": null,
+              "started": null
+            }
+          ]
+        },
+        {
+          "avatar": null,
+          "category": "person",
+          "company_domain": null,
+          "company_name": null,
+          "country": "Germany",
+          "currently_at_target": false,
+          "department": "Engineering",
+          "full_name": "Person 1",
+          "id": "c96d71a4e21fc545",
+          "is_alum": true,
+          "linkedin_url": "https://linkedin.com/in/person-1",
+          "match_reason_count": 2,
+          "match_type": [
+            "overlapping"
+          ],
+          "number_of_contacts_overlapping_tenure_with": 3,
+          "profile_complete": true,
+          "seniority": "VP",
+          "title": "VP Engineering",
+          "via": [
+            {
+              "ended": "2019-06",
+              "id": "linkedin.com/company/google",
+              "kind": "company",
+              "match_confidence": null,
+              "match_type": "work",
+              "name": "Google",
+              "role": "Engineer",
+              "started": "2015-01"
+            },
+            {
+              "ended": null,
+              "id": "edu:tum",
+              "kind": "school",
+              "match_confidence": null,
+              "match_type": "school",
+              "name": "TU Munich",
+              "role": null,
+              "started": null
+            }
+          ]
+        },
+        {
+          "avatar": null,
+          "category": "person",
+          "company_domain": null,
+          "company_name": null,
+          "country": "Germany",
+          "currently_at_target": false,
+          "department": "Engineering",
+          "full_name": "Person 2",
+          "id": "6657fabd17b52b1a",
+          "is_alum": true,
+          "linkedin_url": "https://linkedin.com/in/person-2",
+          "match_reason_count": 2,
+          "match_type": [
+            "overlapping"
+          ],
+          "number_of_contacts_overlapping_tenure_with": 3,
+          "profile_complete": true,
+          "seniority": "VP",
+          "title": "VP Engineering",
+          "via": [
+            {
+              "ended": "2019-06",
+              "id": "linkedin.com/company/google",
+              "kind": "company",
+              "match_confidence": null,
+              "match_type": "work",
+              "name": "Google",
+              "role": "Engineer",
+              "started": "2015-01"
+            },
+            {
+              "ended": null,
+              "id": "edu:tum",
+              "kind": "school",
+              "match_confidence": null,
+              "match_type": "school",
+              "name": "TU Munich",
+              "role": null,
+              "started": null
+            }
+          ]
+        },
+        {
+          "avatar": null,
+          "category": "person",
+          "company_domain": null,
+          "company_name": null,
+          "country": "Germany",
+          "currently_at_target": false,
+          "department": "Engineering",
+          "full_name": "Person 3",
+          "id": "d1b0a6a40ff9051a",
+          "is_alum": true,
+          "linkedin_url": "https://linkedin.com/in/person-3",
+          "match_reason_count": 2,
+          "match_type": [
+            "overlapping"
+          ],
+          "number_of_contacts_overlapping_tenure_with": 3,
+          "profile_complete": true,
+          "seniority": "VP",
+          "title": "VP Engineering",
+          "via": [
+            {
+              "ended": "2019-06",
+              "id": "linkedin.com/company/google",
+              "kind": "company",
+              "match_confidence": null,
+              "match_type": "work",
+              "name": "Google",
+              "role": "Engineer",
+              "started": "2015-01"
+            },
+            {
+              "ended": null,
+              "id": "edu:tum",
+              "kind": "school",
+              "match_confidence": null,
+              "match_type": "school",
+              "name": "TU Munich",
+              "role": null,
+              "started": null
+            }
+          ]
+        },
+        {
+          "avatar": null,
+          "category": "person",
+          "company_domain": null,
+          "company_name": null,
+          "country": "Germany",
+          "currently_at_target": false,
+          "department": "Engineering",
+          "full_name": "Person 4",
+          "id": "c414b06f966c6149",
+          "is_alum": true,
+          "linkedin_url": "https://linkedin.com/in/person-4",
+          "match_reason_count": 2,
+          "match_type": [
+            "overlapping"
+          ],
+          "number_of_contacts_overlapping_tenure_with": 3,
+          "profile_complete": true,
+          "seniority": "VP",
+          "title": "VP Engineering",
+          "via": [
+            {
+              "ended": "2019-06",
+              "id": "linkedin.com/company/google",
+              "kind": "company",
+              "match_confidence": null,
+              "match_type": "work",
+              "name": "Google",
+              "role": "Engineer",
+              "started": "2015-01"
+            },
+            {
+              "ended": null,
+              "id": "edu:tum",
+              "kind": "school",
+              "match_confidence": null,
+              "match_type": "school",
+              "name": "TU Munich",
+              "role": null,
+              "started": null
+            }
+          ]
+        },
+        {
+          "avatar": null,
+          "category": "person",
+          "company_domain": null,
+          "company_name": null,
+          "country": "Germany",
+          "currently_at_target": false,
+          "department": "Engineering",
+          "full_name": "Person 5",
+          "id": "3632d5770ab5ce73",
+          "is_alum": true,
+          "linkedin_url": "https://linkedin.com/in/person-5",
+          "match_reason_count": 2,
+          "match_type": [
+            "overlapping"
+          ],
+          "number_of_contacts_overlapping_tenure_with": 3,
+          "profile_complete": true,
+          "seniority": "VP",
+          "title": "VP Engineering",
+          "via": [
+            {
+              "ended": "2019-06",
+              "id": "linkedin.com/company/google",
+              "kind": "company",
+              "match_confidence": null,
+              "match_type": "work",
+              "name": "Google",
+              "role": "Engineer",
+              "started": "2015-01"
+            },
+            {
+              "ended": null,
+              "id": "edu:tum",
+              "kind": "school",
+              "match_confidence": null,
+              "match_type": "school",
+              "name": "TU Munich",
+              "role": null,
+              "started": null
+            }
+          ]
+        },
+        {
+          "avatar": null,
+          "category": "person",
+          "company_domain": null,
+          "company_name": null,
+          "country": "Germany",
+          "currently_at_target": false,
+          "department": "Engineering",
+          "full_name": "Person 6",
+          "id": "3fef524c5e58918f",
+          "is_alum": true,
+          "linkedin_url": "https://linkedin.com/in/person-6",
+          "match_reason_count": 2,
+          "match_type": [
+            "overlapping"
+          ],
+          "number_of_contacts_overlapping_tenure_with": 3,
+          "profile_complete": true,
+          "seniority": "VP",
+          "title": "VP Engineering",
+          "via": [
+            {
+              "ended": "2019-06",
+              "id": "linkedin.com/company/google",
+              "kind": "company",
+              "match_confidence": null,
+              "match_type": "work",
+              "name": "Google",
+              "role": "Engineer",
+              "started": "2015-01"
+            },
+            {
+              "ended": null,
+              "id": "edu:tum",
+              "kind": "school",
+              "match_confidence": null,
+              "match_type": "school",
+              "name": "TU Munich",
+              "role": null,
+              "started": null
+            }
+          ]
+        },
+        {
+          "avatar": null,
+          "category": "person",
+          "company_domain": null,
+          "company_name": null,
+          "country": "Germany",
+          "currently_at_target": false,
+          "department": "Engineering",
+          "full_name": "Person 7",
+          "id": "66be2a016ebfd351",
+          "is_alum": true,
+          "linkedin_url": "https://linkedin.com/in/person-7",
+          "match_reason_count": 2,
+          "match_type": [
+            "overlapping"
+          ],
+          "number_of_contacts_overlapping_tenure_with": 3,
+          "profile_complete": true,
+          "seniority": "VP",
+          "title": "VP Engineering",
+          "via": [
+            {
+              "ended": "2019-06",
+              "id": "linkedin.com/company/google",
+              "kind": "company",
+              "match_confidence": null,
+              "match_type": "work",
+              "name": "Google",
+              "role": "Engineer",
+              "started": "2015-01"
+            },
+            {
+              "ended": null,
+              "id": "edu:tum",
+              "kind": "school",
+              "match_confidence": null,
+              "match_type": "school",
+              "name": "TU Munich",
+              "role": null,
+              "started": null
+            }
+          ]
+        },
+        {
+          "avatar": null,
+          "category": "person",
+          "company_domain": null,
+          "company_name": null,
+          "country": "Germany",
+          "currently_at_target": false,
+          "department": "Engineering",
+          "full_name": "Person 8",
+          "id": "80f55e13d64c6496",
+          "is_alum": true,
+          "linkedin_url": "https://linkedin.com/in/person-8",
+          "match_reason_count": 2,
+          "match_type": [
+            "overlapping"
+          ],
+          "number_of_contacts_overlapping_tenure_with": 3,
+          "profile_complete": true,
+          "seniority": "VP",
+          "title": "VP Engineering",
+          "via": [
+            {
+              "ended": "2019-06",
+              "id": "linkedin.com/company/google",
+              "kind": "company",
+              "match_confidence": null,
+              "match_type": "work",
+              "name": "Google",
+              "role": "Engineer",
+              "started": "2015-01"
+            },
+            {
+              "ended": null,
+              "id": "edu:tum",
+              "kind": "school",
+              "match_confidence": null,
+              "match_type": "school",
+              "name": "TU Munich",
+              "role": null,
+              "started": null
+            }
+          ]
+        },
+        {
+          "avatar": null,
+          "category": "person",
+          "company_domain": null,
+          "company_name": null,
+          "country": "Germany",
+          "currently_at_target": false,
+          "department": "Engineering",
+          "full_name": "Person 9",
+          "id": "b475a026e9975697",
+          "is_alum": true,
+          "linkedin_url": "https://linkedin.com/in/person-9",
+          "match_reason_count": 2,
+          "match_type": [
+            "overlapping"
+          ],
+          "number_of_contacts_overlapping_tenure_with": 3,
+          "profile_complete": true,
+          "seniority": "VP",
+          "title": "VP Engineering",
+          "via": [
+            {
+              "ended": "2019-06",
+              "id": "linkedin.com/company/google",
+              "kind": "company",
+              "match_confidence": null,
+              "match_type": "work",
+              "name": "Google",
+              "role": "Engineer",
+              "started": "2015-01"
+            },
+            {
+              "ended": null,
+              "id": "edu:tum",
+              "kind": "school",
+              "match_confidence": null,
+              "match_type": "school",
+              "name": "TU Munich",
+              "role": null,
+              "started": null
+            }
+          ]
+        }
+      ],
+      "share": null,
+      "suggestion": null,
+      "total": 214,
+      "total_is_estimate": false
+    },
+    "route": "relationships"
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "60",
+    "ratelimit-remaining": "57",
+    "ratelimit-reset": "54",
+    "x-request-id": "e38e96e0602447ecbdad05403baab512"
+  },
+  "operation": "relationships_ask",
+  "request": {
+    "body": {
+      "query": "who at Stripe used to work at Adyen"
+    },
+    "method": "POST",
+    "path": "/v1/relationships/ask",
+    "query": {}
+  },
+  "status": 200
+}

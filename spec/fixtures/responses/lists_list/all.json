@@ -1,0 +1,51 @@
+{
+  "body": {
+    "field_tier": "free",
+    "lists": [
+      {
+        "created_at": "2026-11-10T22:30:06.574118Z",
+        "created_by": "user:1",
+        "entity_category": "company",
+        "id": "caf54ee0-237b-43cc-a506-68fed3d17517",
+        "item_count": 0,
+        "name": "E2E prospects 62ba8da2",
+        "updated_at": "2026-11-10T22:30:06.574118Z"
+      },
+      {
+        "created_at": "2026-11-10T22:29:48.865973Z",
+        "created_by": "user:1",
+        "entity_category": "company",
+        "id": "13f7fad6-d069-4f21-8bfb-1d4e43bbedbf",
+        "item_count": 49,
+        "name": "E2E prospects ec424f8a (renamed)",
+        "updated_at": "2026-11-10T22:29:49.507290Z"
+      },
+      {
+        "created_at": "2026-11-10T22:29:41.408766Z",
+        "created_by": "user:1",
+        "entity_category": "company",
+        "id": "65fad7fc-32b7-4494-aad9-884707b02bdf",
+        "item_count": 49,
+        "name": "E2E prospects 489ce0d6 (renamed)",
+        "updated_at": "2026-11-10T22:29:42.095232Z"
+      }
+    ],
+    "saved_items": 49,
+    "saved_items_cap": null
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "60",
+    "ratelimit-remaining": "57",
+    "ratelimit-reset": "54",
+    "x-request-id": "f83d5bc6b8634c72abcfbdb1a7d31ae1"
+  },
+  "operation": "lists_list",
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/v1/lists",
+    "query": {}
+  },
+  "status": 200
+}

@@ -1,0 +1,156 @@
+{
+  "body": {
+    "attribution": [
+      {
+        "as_of": "2026-11-10T22:30:06.521603Z",
+        "domain": null,
+        "quote": null,
+        "source_corpus": "affiliations",
+        "url": null
+      }
+    ],
+    "columns": null,
+    "coverage": null,
+    "degradation": [],
+    "has_more": false,
+    "meta": {
+      "as_of": "2026-11-10T22:30:06.521603Z",
+      "credential": "api_key",
+      "credits_charged": 2.0,
+      "environment": "live",
+      "request_id": "5884d2528abc4f268d5b2a2c07eb59c4"
+    },
+    "next_cursor": null,
+    "resolved_search": {
+      "category": "person",
+      "conflicts": [],
+      "filters": {
+        "companies": [
+          "stripe.com",
+          "adyen.com"
+        ]
+      },
+      "filters_source": "caller",
+      "keyword_query": null,
+      "mode": "fast",
+      "overrides": [],
+      "parser_version": "none",
+      "query": null,
+      "semantic_query": null,
+      "semantic_scope": null,
+      "sort": []
+    },
+    "results": [
+      {
+        "id": "edu:school-0",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 0",
+        "people_first": 12,
+        "people_second": 9
+      },
+      {
+        "id": "edu:school-1",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 1",
+        "people_first": 11,
+        "people_second": 8
+      },
+      {
+        "id": "edu:school-2",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 2",
+        "people_first": 10,
+        "people_second": 7
+      },
+      {
+        "id": "edu:school-3",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 3",
+        "people_first": 9,
+        "people_second": 6
+      },
+      {
+        "id": "edu:school-4",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 4",
+        "people_first": 8,
+        "people_second": 5
+      },
+      {
+        "id": "edu:school-5",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 5",
+        "people_first": 7,
+        "people_second": 4
+      },
+      {
+        "id": "edu:school-6",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 6",
+        "people_first": 6,
+        "people_second": 3
+      },
+      {
+        "id": "edu:school-7",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 7",
+        "people_first": 5,
+        "people_second": 2
+      },
+      {
+        "id": "edu:school-8",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 8",
+        "people_first": 4,
+        "people_second": 1
+      },
+      {
+        "id": "edu:school-9",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 9",
+        "people_first": 3,
+        "people_second": 9
+      }
+    ],
+    "suggestion": null,
+    "total": 48,
+    "total_is_estimate": false,
+    "truncated": false
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "60",
+    "ratelimit-remaining": "57",
+    "ratelimit-reset": "54",
+    "x-request-id": "5884d2528abc4f268d5b2a2c07eb59c4"
+  },
+  "operation": "relationships_institutions",
+  "request": {
+    "body": {
+      "companies": [
+        {
+          "by": "domain",
+          "value": "stripe.com"
+        },
+        {
+          "by": "domain",
+          "value": "adyen.com"
+        }
+      ]
+    },
+    "method": "POST",
+    "path": "/v1/relationships/institutions",
+    "query": {}
+  },
+  "status": 200
+}

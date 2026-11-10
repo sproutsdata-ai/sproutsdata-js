@@ -1,0 +1,88 @@
+{
+  "body": {
+    "attribution": [
+      {
+        "as_of": "2026-11-10T22:30:06.333183Z",
+        "domain": null,
+        "quote": null,
+        "source_corpus": "academic_reports",
+        "url": null
+      }
+    ],
+    "columns": null,
+    "coverage": null,
+    "degradation": [],
+    "has_more": false,
+    "meta": {
+      "as_of": "2026-11-10T22:30:06.333183Z",
+      "credential": "api_key",
+      "credits_charged": 1.0,
+      "environment": "live",
+      "request_id": "de20f51d68db43548f52978090dfbda7"
+    },
+    "next_cursor": null,
+    "resolved_search": null,
+    "results": [
+      {
+        "category": "academic_report",
+        "found": true,
+        "id": "paper-1",
+        "matches": [
+          {
+            "authors": [
+              "A. Example",
+              "B. Sample",
+              "C. Placeholder"
+            ],
+            "companies": [
+              {
+                "domain": "example-0.de",
+                "name": "Example Industrial GmbH"
+              }
+            ],
+            "countries": [
+              "germany",
+              "japan",
+              "united states"
+            ],
+            "id": "d1_Kg3SQ-PCVnW-NxA4DHTAEFZ7LmDHrrmb6zERy9kK_XJMyyB7_y1JKOwLxq7EiojvjRgKCVHNbinPKTRfmQ",
+            "keywords": [
+              "battery",
+              "electrolyte",
+              "anode",
+              "fast charging",
+              "solid state"
+            ],
+            "published_date": "2025-06-14",
+            "publisher": "Example Publishing Group",
+            "summary": "Describes a sulfide electrolyte with a protective interlayer that keeps the lithium anode stable over a thousand cycles at high current density. Describes a sulfide electrolyte with a protective interlayer that keeps the lithium anode stable over a thousand cycles at high current density. Describes a sulfide electrolyte with a protective interlayer that keeps the lithium anode stable over a thousand cycles at high current density. Describes a sulfide electrolyte with a protective interlayer that keeps the lithium anode stable over a thousand cycles at high current density. ",
+            "title": "Solid-state electrolyte interfaces for fast-charging cells, part 0",
+            "url": "https://example.org/academic_report/0"
+          }
+        ]
+      }
+    ],
+    "suggestion": null,
+    "total": 1,
+    "total_is_estimate": false
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "60",
+    "ratelimit-remaining": "57",
+    "ratelimit-reset": "54",
+    "x-request-id": "de20f51d68db43548f52978090dfbda7"
+  },
+  "operation": "entities_academic_reports",
+  "request": {
+    "body": {
+      "ids": [
+        "paper-1"
+      ]
+    },
+    "method": "POST",
+    "path": "/v1/entities/academic-reports",
+    "query": {}
+  },
+  "status": 200
+}

@@ -1,0 +1,31 @@
+{
+  "body": {
+    "meta": {
+      "as_of": "2026-11-10T22:30:06.419036Z",
+      "credential": "api_key",
+      "credits_charged": null,
+      "environment": "live",
+      "request_id": "f7ad3aa8167b4043a23fbbdbc94b4a22"
+    },
+    "run_id": "run-perf",
+    "status": "running"
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "60",
+    "ratelimit-remaining": "57",
+    "ratelimit-reset": "54",
+    "x-request-id": "f7ad3aa8167b4043a23fbbdbc94b4a22"
+  },
+  "operation": "runs_create",
+  "request": {
+    "body": {
+      "category": "company",
+      "query": "fintech companies hiring engineers"
+    },
+    "method": "POST",
+    "path": "/v1/agents/runs",
+    "query": {}
+  },
+  "status": 202
+}

@@ -1,0 +1,18 @@
+{
+  "body": "id: 1\nevent: run.progress\ndata: {\"seq\":1,\"stage\":\"enumerate\",\"count\":100,\"record_type\":\"company\"}\n\nid: 2\nevent: run.progress\ndata: {\"seq\":2,\"stage\":\"enumerate\",\"count\":200,\"record_type\":\"company\"}\n\nid: 3\nevent: run.progress\ndata: {\"seq\":3,\"stage\":\"enumerate\",\"count\":300,\"record_type\":\"company\"}\n\nid: 4\nevent: run.progress\ndata: {\"seq\":4,\"stage\":\"enumerate\",\"count\":400,\"record_type\":\"company\"}\n\nid: 5\nevent: run.progress\ndata: {\"seq\":5,\"stage\":\"enumerate\",\"count\":500,\"record_type\":\"company\"}\n\nid: 6\nevent: run.progress\ndata: {\"seq\":6,\"stage\":\"enumerate\",\"count\":600,\"record_type\":\"company\"}\n\n",
+  "headers": {
+    "content-type": "text/event-stream; charset=utf-8",
+    "ratelimit-limit": "600",
+    "ratelimit-remaining": "597",
+    "ratelimit-reset": "54",
+    "x-request-id": "de963c1636374b6e8fd5b932261848a1"
+  },
+  "operation": "runs_events",
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/v1/agents/runs/run-perf/events",
+    "query": {}
+  },
+  "status": 200
+}

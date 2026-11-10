@@ -1,0 +1,10 @@
+{
+  "//": "Tests and build configuration run on Node, so they get its types; declarations are not checked here.",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "isolatedDeclarations": false,
+    "declaration": false
+  },
+  "include": ["src", "tests", "tsup.config.ts", "vitest.config.ts"]
+}

@@ -59,6 +59,9 @@ export default tseslint.config(
       '@typescript-eslint/consistent-type-imports': 'error',
       '@typescript-eslint/consistent-type-exports': 'error',
       '@typescript-eslint/no-import-type-side-effects': 'error',
+      // isolatedDeclarations makes the compiler the judge of which annotations an export
+      // needs (a RegExp constant does); this rule would forbid exactly those.
+      '@typescript-eslint/no-inferrable-types': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrors: 'none' },

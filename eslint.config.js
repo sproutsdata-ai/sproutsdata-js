@@ -2,14 +2,16 @@
 //
 // packages/sdk is linted with type information (`strictTypeChecked` and
 // `stylisticTypeChecked`) plus the rules below that keep it small, layered and
-// runtime-neutral. Everything else (the repo's scripts, and the LEGACY packages
-// waiting for their phase of the rewrite) gets the recommended rules.
+// runtime-neutral. The adapters (packages/langchain, packages/ai-sdk) get the same
+// type-checked rule sets. Everything else (the repo's scripts, and the LEGACY
+// examples waiting for their phase of the rewrite) gets the recommended rules.
 
 import js from '@eslint/js';
 import comments from '@eslint-community/eslint-plugin-eslint-comments/configs';
 import tseslint from 'typescript-eslint';
 
 const SDK = 'packages/sdk';
+const ADAPTERS = ['langchain', 'ai-sdk'];
 
 // Globals that exist only on Node (or only in browsers): the SDK runs on both, and on
 // edge runtimes, so it reaches the runtime only through src/core/runtime.ts.
@@ -96,6 +98,33 @@ export default tseslint.config(
   {
     files: [`${SDK}/src/resources/**/*.ts`],
     rules: { 'max-lines': ['error', { max: 250 }] },
+  },
+  // ---------------------------------------------------------------- the adapters
+  ...ADAPTERS.map((name) => ({
+    files: [`packages/${name}/**/*.ts`],
+    extends: [...tseslint.configs.strictTypeChecked, ...tseslint.configs.stylisticTypeChecked, comments.recommended],
+    languageOptions: {
+      parserOptions: { project: [`packages/${name}/tsconfig.test.json`], tsconfigRootDir: import.meta.dirname },
+    },
+    rules: {
+      '@typescript-eslint/consistent-type-imports': 'error',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrors: 'none' }],
+      '@eslint-community/eslint-comments/require-description': ['error', { ignore: [] }],
+      'max-lines': ['error', { max: 400 }],
+      eqeqeq: ['error', 'always'],
+    },
+  })),
+  {
+    // Adapter tests read fixtures and mocks whose shape they set themselves, and fake LangChain
+    // and AI SDK models whose methods must be async and may be empty.
+    files: ADAPTERS.map((name) => `packages/${name}/tests/**/*.ts`),
+    rules: {
+      'max-lines': ['error', { max: 600 }],
+      '@typescript-eslint/no-non-null-assertion': 'off',
+      '@typescript-eslint/no-base-to-string': 'off',
+      '@typescript-eslint/no-empty-function': 'off',
+      '@typescript-eslint/require-await': 'off',
+    },
   },
   {
     // Tests: a describe block is long by nature, and tables of cases read better whole.

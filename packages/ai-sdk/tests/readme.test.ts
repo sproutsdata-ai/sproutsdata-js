@@ -15,9 +15,9 @@ function read(name: string): string {
 
 it('the README compatibility table matches package.json', () => {
   const manifest = JSON.parse(read('package.json')) as Manifest;
-  const rows = [
+  const rows: [string, string][] = [
     ['Node.js', manifest.engines.node],
-    ...Object.entries(manifest.peerDependencies).map(([name, range]) => [`\`${name}\``, range]),
+    ...Object.entries(manifest.peerDependencies).map(([name, range]): [string, string] => [`\`${name}\``, range]),
   ];
   const table = ['| Requirement | Versions |', '| --- | --- |', ...rows.map(([name, range]) => `| ${name} | ${range} |`)];
   const readme = read('README.md');

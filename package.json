@@ -10,7 +10,7 @@
   "workspaces": [
     "packages/*"
   ],
-  "//": "LEGACY until their phase of the rewrite (zarkdown IMPLEMENTATION_PLAN.md): the two adapters (Phase 8) and the examples (Phase 9) are left out of typecheck and test, and the old tool-spec generator (scripts/gen-tool-specs.mjs, Phase 8) out of check:generated. `npm run check` is the whole gate CI runs.",
+  "//": "LEGACY until their phase of the rewrite (zarkdown IMPLEMENTATION_PLAN.md): the two adapters (Phase 8) and the examples (Phase 9) are left out of typecheck and test. `npm run check` is the whole gate CI runs.",
   "scripts": {
     "check": "npm run lint && npm run lint:layers && npm run check:generated && npm run typecheck && npm run test && npm run build && npm run check:package && npm run check:size && npm run smoke:dist && npm run smoke:edge && npm run check:links && npm run audit",
     "lint": "eslint .",

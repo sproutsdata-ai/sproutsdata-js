@@ -64,6 +64,9 @@ export class SproutsData {
    */
   constructor(options: ClientOptions = {}) {
     this.#transport = new Transport(resolveOptions(options));
+    // `sproutsdata/tools` recognises a client by this brand as well as by `instanceof`, so a
+    // client from a second copy of the package (an adapter's own dependency) is one too.
+    Object.defineProperty(this, Symbol.for('sproutsdata.client'), { value: true });
     const search = new Search(this.#transport);
     const vocabulary = new Vocabulary(this.#transport);
     const coverage = new Coverage(this.#transport);

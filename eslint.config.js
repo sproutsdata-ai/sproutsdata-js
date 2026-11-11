@@ -103,8 +103,8 @@ export default tseslint.config(
     rules: { 'max-lines-per-function': 'off', 'max-lines': ['error', { max: 600 }] },
   },
   {
-    // Generated from spec/ by scripts/gen-*.mjs; `check:generated` keeps them right.
-    files: [`${SDK}/src/generated/**/*.ts`],
+    // Generated from spec/ by scripts/generate.mjs; `check:generated` keeps them right.
+    files: [`${SDK}/src/generated/**/*.ts`, `${SDK}/src/tools/specs.gen.ts`],
     rules: { 'max-lines': 'off', 'max-lines-per-function': 'off' },
   },
 );

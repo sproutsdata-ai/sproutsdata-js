@@ -13,6 +13,7 @@
 // | error-codes.ts | spec/error-codes.json |
 // | defaults.ts | spec/defaults.json |
 // | retry-policy.ts | spec/retry-policy.json |
+// | ../tools/specs.gen.ts | spec/tools/: the tool specs, shaping, messages and argument types |
 //
 // spec/models.json is the model IR sproutsdata-py builds (scripts/gen_ir.py), so both
 // SDKs name and shape every type the same way. Nothing here reads JSON at run time.
@@ -23,6 +24,7 @@ import { fileURLToPath } from 'node:url';
 
 import { renderOperations } from './lib/emit-operations.mjs';
 import { renderDefaults, renderErrorCodes, renderRetryPolicy } from './lib/emit-tables.mjs';
+import { renderToolSpecs } from './lib/emit-tools.mjs';
 import { renderRecordShapes, renderRequestShapes, renderWire } from './lib/emit-wire.mjs';
 import { writeOrCheck } from './lib/generated.mjs';
 
@@ -44,10 +46,13 @@ function main(argv) {
     'retry-policy.ts': renderRetryPolicy(spec('retry-policy.json')),
   };
   mkdirSync(TARGET, { recursive: true });
+  const options = { root: ROOT, regenerate: 'node scripts/generate.mjs' };
   let status = 0;
   for (const [name, content] of Object.entries(files)) {
-    status |= writeOrCheck(join(TARGET, name), content, argv, { root: ROOT, regenerate: 'node scripts/generate.mjs' });
+    status |= writeOrCheck(join(TARGET, name), content, argv, options);
   }
+  const tools = join(ROOT, 'packages', 'sdk', 'src', 'tools', 'specs.gen.ts');
+  status |= writeOrCheck(tools, renderToolSpecs(join(SPEC, 'tools')), argv, options);
   return status;
 }
 

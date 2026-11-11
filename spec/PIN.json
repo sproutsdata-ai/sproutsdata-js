@@ -1,6 +1,6 @@
 {
   "source": "sproutsdata-py/spec",
-  "source_commit": "8572d516922a9b9ad6f3e5815fa01dd2d4f57ada",
+  "source_commit": "8b7d90f5657c190f0e4a74e9869e64d4c7ec28c1",
   "files": {
     "CHANGELOG.md": "55d08f2ab22f0cdff6780e0ad4621a0fd9b13254a0927538c51dc99bf37962d5",
     "conformance/README.md": "e43818782b0d2ae80fc27806a04c3518f981cfd2d4ef87638935b0815abe7c50",
@@ -124,6 +124,7 @@
     "retry-policy.json": "2a83ccb0753f41f9b36a3d68fdf72868ba1b6c6aaecbb8f4ab12793fc6fc3648",
     "routes.json": "774bc96b1ff33e71c407fc06b91535c08dd4f35717502b1a51da3e68ab948ae0",
     "schema-names.json": "193ff447ed2bb9d52c0a79923058c104823bb32e5fa00bac224607f531d60772",
+    "smoke/checks.json": "858711383c77f15419ea364ed58a54a773fff9f8a15b7651f6979873d15a5581",
     "surface-map.json": "7947af24ea4f1ada833284bc28c243d91584131e06bb68e43dc008a0117f63d7",
     "tools/README.md": "420d37bc9534f14ccfa1aac704ca4719aff843b252ff43bd2d2107aefc1291df",
     "tools/fixtures/error_invalid_vocabulary.json": "cd7ec40e9ff4d53635dc2baf21cd387497f21ac49b42b518a25e909a8a6f00ef",

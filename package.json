@@ -10,12 +10,12 @@
   "workspaces": [
     "packages/*"
   ],
-  "//": "LEGACY until their phase of the rewrite (zarkdown IMPLEMENTATION_PLAN.md): the examples (Phase 9) are left out of typecheck and test. `npm run check` is the whole gate CI runs.",
+  "//": "`npm run check` is the whole gate CI runs. The live suites (`e2e`, `e2e:examples`) and `smoke:live` need the local stack or a deployment, so they are not part of it.",
   "scripts": {
-    "check": "npm run lint && npm run lint:layers && npm run check:generated && npm run typecheck && npm run test && npm run build && npm run check:package && npm run check:size && npm run smoke:dist && npm run smoke:edge && npm run check:links && npm run audit",
+    "check": "npm run lint && npm run lint:layers && npm run check:generated && npm run build && npm run typecheck && npm run test && npm run check:package && npm run check:size && npm run smoke:dist && npm run smoke:edge && npm run check:links && npm run audit",
     "lint": "eslint .",
     "lint:layers": "depcruise packages --config .dependency-cruiser.cjs",
-    "typecheck": "npm run typecheck -w packages/sdk -w packages/langchain -w packages/ai-sdk",
+    "typecheck": "npm run typecheck -w packages/sdk -w packages/langchain -w packages/ai-sdk && tsc -p examples/tsconfig.json",
     "test": "npm run test -w packages/sdk -w packages/langchain -w packages/ai-sdk",
     "build": "npm run build -w packages/sdk -w packages/langchain -w packages/ai-sdk",
     "check:generated": "node scripts/sync-spec.mjs --check && node scripts/generate.mjs --check",
@@ -27,7 +27,9 @@
     "audit": "npm audit --omit=dev",
     "spec:sync": "node scripts/sync-spec.mjs",
     "generate": "node scripts/generate.mjs",
-    "e2e": "npm run e2e -w packages/sdk -w packages/langchain -w packages/ai-sdk"
+    "e2e": "npm run e2e -w packages/sdk -w packages/langchain -w packages/ai-sdk",
+    "e2e:examples": "node scripts/e2e-examples.mjs",
+    "smoke:live": "node scripts/smoke-live.mjs"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",

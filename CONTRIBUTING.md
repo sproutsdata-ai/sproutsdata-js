@@ -55,6 +55,7 @@ npm run check
 | `typecheck` | `tsc` per package (sources and tests), and over `examples/` |
 | `test` | Each package's vitest suite (the SDK with coverage) |
 | `check:package` | `publint` and `attw` on each package |
+| `check:consumer` | A consumer of `sproutsdata` and `sproutsdata/tools` compiled against the built declarations, `skipLibCheck` off, strict and lenient |
 | `check:size` | `size-limit` on the built SDK (`.size-limit.json`) |
 | `smoke:dist` | The built SDK loads through its ESM and CommonJS entry points |
 | `smoke:edge` | The built SDK runs in workerd (Miniflare), with no Node globals |

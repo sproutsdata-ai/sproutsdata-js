@@ -1,6 +1,6 @@
 {
   "source": "sproutsdata-py/spec",
-  "source_commit": "34d73d3ceb85922fe73c9d5390ae655780103e53",
+  "source_commit": "0d0284863774931e2835b9af41f20d59f8e2bd7d",
   "files": {
     "CHANGELOG.md": "55d08f2ab22f0cdff6780e0ad4621a0fd9b13254a0927538c51dc99bf37962d5",
     "conformance/README.md": "e43818782b0d2ae80fc27806a04c3518f981cfd2d4ef87638935b0815abe7c50",
@@ -118,7 +118,7 @@
     "fixtures/responses/search_export/file.json": "028c71438df3f1063245384dfbe867a734a46738e71d46649165f74f2aa5b5ad",
     "fixtures/responses/similar/company.json": "803af1ddf02da48d9f3d9ace4f7ed25bcc63f7d21ee6ac836054c4e8a0475b8d",
     "fixtures/responses/sorts/company.json": "36aadf63e8832c1c9a6454d26cb52c47b6883e540be094d6a7d198d052a1b7ac",
-    "models.json": "26824ff5d18e86f0dca592191fee306da1538c80e66cd11efad4ccef6b6ad584",
+    "models.json": "dca3c08c94e23b24af585a8b05059ddee96c7f5b101c33a7ed0d9d501e184157",
     "openapi.json": "6d0d8cbf8ae7c0ab40da3de107fe95517eeebf9b8f0949e9369dc90cb2cad3c0",
     "records.schema.json": "b5591377fd13f0381d0fda2fa6f309eeb1d108e9327a4d6e9ffca1ba3ccbec58",
     "retry-policy.json": "2a83ccb0753f41f9b36a3d68fdf72868ba1b6c6aaecbb8f4ab12793fc6fc3648",

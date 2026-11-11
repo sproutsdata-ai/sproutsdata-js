@@ -1586,6 +1586,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 8192
+          },
           "description": "`next_cursor` from the previous page. Send the same body with it.",
           "name": "cursor",
           "required": false,
@@ -1635,6 +1638,10 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 2000,
+            "minLength": 1
+          },
           "name": "query",
           "required": false,
           "type": {
@@ -1649,6 +1656,10 @@
           }
         },
         {
+          "constraints": {
+            "maxItems": 3,
+            "minItems": 1
+          },
           "name": "sort",
           "required": false,
           "type": {
@@ -1973,6 +1984,9 @@
       "direction": "input",
       "fields": [
         {
+          "constraints": {
+            "maxLength": 16384
+          },
           "description": "`next_cursor` from the previous page. Send the same body with it.",
           "name": "cursor",
           "required": false,
@@ -2105,6 +2119,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 8192
+          },
           "description": "`next_cursor` from the previous page. Send the same body with it.",
           "name": "cursor",
           "required": false,
@@ -4186,6 +4203,9 @@
           }
         },
         {
+          "constraints": {
+            "minimum": 0.0
+          },
           "description": "Records carrying a web domain; `null` where it does not apply.",
           "name": "with_domain",
           "required": false,
@@ -4201,6 +4221,9 @@
           }
         },
         {
+          "constraints": {
+            "minimum": 0.0
+          },
           "description": "Records a semantic query can reach. `null` where no vector retrieval runs against this corpus, which is not the same as zero.",
           "name": "with_embeddings",
           "required": false,
@@ -4580,6 +4603,9 @@
           }
         },
         {
+          "constraints": {
+            "minimum": 0.0
+          },
           "name": "max",
           "required": false,
           "type": {
@@ -4594,6 +4620,9 @@
           }
         },
         {
+          "constraints": {
+            "minimum": 0.0
+          },
           "name": "min",
           "required": false,
           "type": {
@@ -4640,6 +4669,9 @@
       "direction": "input",
       "fields": [
         {
+          "constraints": {
+            "maxLength": 255
+          },
           "description": "A `company_ref` from an `org_chart.company_ambiguous` answer.",
           "name": "company_ref",
           "required": false,
@@ -4655,6 +4687,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 300
+          },
           "name": "domain",
           "required": false,
           "type": {
@@ -4684,6 +4719,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 300
+          },
           "name": "linkedin_url",
           "required": false,
           "type": {
@@ -5653,6 +5691,10 @@
       "direction": "input",
       "fields": [
         {
+          "constraints": {
+            "maxItems": 200,
+            "minItems": 1
+          },
           "description": "Only these fields of each record; omit for the default projection. `*` adds bulk fields (a report's body, a trend's roster), which can be very large.",
           "name": "fields",
           "required": false,
@@ -6484,6 +6526,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 8192
+          },
           "description": "`next_cursor` from the previous page. Send the same body with it.",
           "name": "cursor",
           "required": false,
@@ -6579,6 +6624,10 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 2000,
+            "minLength": 1
+          },
           "name": "query",
           "required": false,
           "type": {
@@ -6593,6 +6642,10 @@
           }
         },
         {
+          "constraints": {
+            "maxItems": 3,
+            "minItems": 1
+          },
           "description": "How to order the results, strongest key first. Omit for the engine's order.",
           "name": "sort",
           "required": false,
@@ -6619,6 +6672,9 @@
       "direction": "input",
       "fields": [
         {
+          "constraints": {
+            "maxLength": 5000
+          },
           "name": "note",
           "required": false,
           "type": {
@@ -8007,6 +8063,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 8192
+          },
           "description": "`next_cursor` from the previous page. Send the same body with it.",
           "name": "cursor",
           "required": false,
@@ -8056,6 +8115,10 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 2000,
+            "minLength": 1
+          },
           "name": "query",
           "required": false,
           "type": {
@@ -8070,6 +8133,10 @@
           }
         },
         {
+          "constraints": {
+            "maxItems": 3,
+            "minItems": 1
+          },
           "name": "sort",
           "required": false,
           "type": {
@@ -8290,6 +8357,9 @@
           }
         },
         {
+          "constraints": {
+            "minimum": 0.0
+          },
           "description": "Per-country headcount floor.",
           "name": "gte",
           "required": false,
@@ -8305,6 +8375,9 @@
           }
         },
         {
+          "constraints": {
+            "minimum": 0.0
+          },
           "name": "lte",
           "required": false,
           "type": {
@@ -8328,6 +8401,9 @@
           }
         },
         {
+          "constraints": {
+            "minimum": 1.0
+          },
           "name": "min_countries",
           "required": false,
           "type": {
@@ -8438,6 +8514,10 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 200,
+            "minLength": 1
+          },
           "name": "name_starts_with",
           "required": false,
           "type": {
@@ -9043,6 +9123,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 8192
+          },
           "description": "`next_cursor` from the previous page. Send the same body with it.",
           "name": "cursor",
           "required": false,
@@ -9118,6 +9201,10 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 2000,
+            "minLength": 1
+          },
           "name": "query",
           "required": false,
           "type": {
@@ -9132,6 +9219,10 @@
           }
         },
         {
+          "constraints": {
+            "maxItems": 3,
+            "minItems": 1
+          },
           "name": "sort",
           "required": false,
           "type": {
@@ -9341,6 +9432,9 @@
       "direction": "input",
       "fields": [
         {
+          "constraints": {
+            "maxItems": 1000
+          },
           "name": "keywords",
           "required": false,
           "type": {
@@ -9357,6 +9451,9 @@
           }
         },
         {
+          "constraints": {
+            "maxItems": 1000
+          },
           "name": "qualifiers",
           "required": false,
           "type": {
@@ -9418,6 +9515,9 @@
       "direction": "input",
       "fields": [
         {
+          "constraints": {
+            "minimum": 1.0
+          },
           "name": "limit",
           "required": false,
           "type": {
@@ -9604,6 +9704,9 @@
       "direction": "input",
       "fields": [
         {
+          "constraints": {
+            "maxLength": 255
+          },
           "description": "A `company_ref` from an `org_chart.company_ambiguous` answer.",
           "name": "company_ref",
           "required": false,
@@ -9619,6 +9722,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 300
+          },
           "name": "domain",
           "required": false,
           "type": {
@@ -9648,6 +9754,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 300
+          },
           "name": "linkedin_url",
           "required": false,
           "type": {
@@ -9989,6 +10098,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 8192
+          },
           "description": "`next_cursor` from the previous page. Send the same body with it.",
           "name": "cursor",
           "required": false,
@@ -10038,6 +10150,10 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 2000,
+            "minLength": 1
+          },
           "name": "query",
           "required": false,
           "type": {
@@ -10052,6 +10168,10 @@
           }
         },
         {
+          "constraints": {
+            "maxItems": 3,
+            "minItems": 1
+          },
           "name": "sort",
           "required": false,
           "type": {
@@ -10300,6 +10420,10 @@
           }
         },
         {
+          "constraints": {
+            "maxItems": 200,
+            "minItems": 1
+          },
           "description": "Only these fields of each record; omit for the default projection. `*` adds bulk fields (a report's body, a trend's roster), which can be very large.",
           "name": "fields",
           "required": false,
@@ -10382,6 +10506,9 @@
           }
         },
         {
+          "constraints": {
+            "maxItems": 1000
+          },
           "name": "keywords",
           "required": false,
           "type": {
@@ -10398,6 +10525,9 @@
           }
         },
         {
+          "constraints": {
+            "maxItems": 1000
+          },
           "name": "qualifiers",
           "required": false,
           "type": {
@@ -11071,6 +11201,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 8192
+          },
           "description": "`next_cursor` from the previous page. Send the same body with it.",
           "name": "cursor",
           "required": false,
@@ -11120,6 +11253,10 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 2000,
+            "minLength": 1
+          },
           "name": "query",
           "required": false,
           "type": {
@@ -11134,6 +11271,10 @@
           }
         },
         {
+          "constraints": {
+            "maxItems": 3,
+            "minItems": 1
+          },
           "name": "sort",
           "required": false,
           "type": {
@@ -11487,6 +11628,9 @@
       "direction": "input",
       "fields": [
         {
+          "constraints": {
+            "maxLength": 255
+          },
           "description": "A `company_ref` from an `org_chart.company_ambiguous` answer.",
           "name": "company_ref",
           "required": false,
@@ -11502,6 +11646,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 300
+          },
           "name": "domain",
           "required": false,
           "type": {
@@ -11531,6 +11678,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 300
+          },
           "name": "linkedin_url",
           "required": false,
           "type": {
@@ -12632,6 +12782,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 8192
+          },
           "description": "`next_cursor` from the previous page. Send the same body with it.",
           "name": "cursor",
           "required": false,
@@ -12681,6 +12834,10 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 2000,
+            "minLength": 1
+          },
           "name": "query",
           "required": false,
           "type": {
@@ -12695,6 +12852,10 @@
           }
         },
         {
+          "constraints": {
+            "maxItems": 3,
+            "minItems": 1
+          },
           "name": "sort",
           "required": false,
           "type": {
@@ -14491,6 +14652,9 @@
           }
         },
         {
+          "constraints": {
+            "minimum": 0.0
+          },
           "name": "target_index",
           "required": false,
           "type": {
@@ -14603,6 +14767,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 16384
+          },
           "description": "`next_cursor` from the previous page. Send the same body with it.",
           "name": "cursor",
           "required": false,
@@ -15314,6 +15481,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 16384
+          },
           "description": "`next_cursor` from the previous page. Send the same body with it.",
           "name": "cursor",
           "required": false,
@@ -15401,6 +15571,10 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 2000,
+            "minLength": 1
+          },
           "name": "query",
           "required": false,
           "type": {
@@ -15455,6 +15629,9 @@
       "direction": "input",
       "fields": [
         {
+          "constraints": {
+            "maxLength": 5000
+          },
           "name": "comment",
           "required": false,
           "type": {
@@ -17118,6 +17295,10 @@
           }
         },
         {
+          "constraints": {
+            "maximum": 1.0,
+            "minimum": 0.0
+          },
           "description": "`enumerated / universe`; null when the universe is not exact.",
           "name": "enumeration_recall",
           "required": false,
@@ -17386,6 +17567,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 128
+          },
           "name": "request_id",
           "required": false,
           "type": {
@@ -17555,6 +17739,10 @@
           }
         },
         {
+          "constraints": {
+            "maximum": 1.0,
+            "minimum": 0.0
+          },
           "name": "share",
           "required": false,
           "type": {
@@ -17809,6 +17997,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 8192
+          },
           "description": "`next_cursor` from the previous page. Send the same body with it.",
           "name": "cursor",
           "required": false,
@@ -18288,6 +18479,9 @@
       "direction": "output",
       "fields": [
         {
+          "constraints": {
+            "maxLength": 255
+          },
           "name": "entity_id",
           "required": false,
           "type": {
@@ -18302,6 +18496,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 32
+          },
           "name": "entity_type",
           "required": false,
           "type": {
@@ -18339,6 +18536,9 @@
       "direction": "input",
       "fields": [
         {
+          "constraints": {
+            "maxLength": 255
+          },
           "name": "entity_id",
           "required": false,
           "type": {
@@ -18353,6 +18553,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 32
+          },
           "name": "entity_type",
           "required": false,
           "type": {
@@ -18483,6 +18686,9 @@
           }
         },
         {
+          "constraints": {
+            "maxItems": 1000
+          },
           "description": "The `include` values, one list per thing named: any value in a list satisfies it, and `match_all` requires every LIST rather than every value. `technology` resolves a product onto every name the index stores it under and reports them this way, so a resolved filter sent back keeps \"both X and Y\". `include` stays the source of truth: a value removed from it leaves its group.",
           "name": "include_groups",
           "required": false,
@@ -19051,6 +19257,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 8192
+          },
           "description": "`next_cursor` from the previous page. Send the same body with it.",
           "name": "cursor",
           "required": false,
@@ -19100,6 +19309,10 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 2000,
+            "minLength": 1
+          },
           "name": "query",
           "required": false,
           "type": {
@@ -19114,6 +19327,10 @@
           }
         },
         {
+          "constraints": {
+            "maxItems": 3,
+            "minItems": 1
+          },
           "name": "sort",
           "required": false,
           "type": {
@@ -19539,6 +19756,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 255
+          },
           "name": "entity_id",
           "required": false,
           "type": {
@@ -19567,6 +19787,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 32
+          },
           "name": "reason_code",
           "required": false,
           "type": {
@@ -19592,6 +19815,9 @@
           }
         },
         {
+          "constraints": {
+            "maxLength": 1000
+          },
           "name": "text",
           "required": false,
           "type": {

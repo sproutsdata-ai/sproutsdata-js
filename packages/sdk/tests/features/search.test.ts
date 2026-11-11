@@ -110,6 +110,8 @@ describe('search', () => {
     expect(lookupRef(patent)).toEqual({ category: 'patent', by: undefined, value: patent.id });
     expect(lookupRef({ id: 'd1_abc', category: 'news_article', score: null })).toEqual({ category: 'news_article', by: 'id', value: 'd1_abc' });
     expect(lookupRef({ id: 'c456', category: 'person', score: null })).toBeUndefined();
+    expect(lookupRef({ id: '0f7a39dd2e81c6b4', category: 'company', score: null, linkedin_url: 'https://www.linkedin.com/company/x' })).toEqual({ category: 'company', by: 'li_url', value: 'https://www.linkedin.com/company/x' });
+    expect(lookupRef({ id: '0f7a39dd2e81c6b4', category: 'company', score: null })).toBeUndefined();
     expect(lookupRef({ id: '0123456789abcdef', category: 'trend', score: null })).toBeUndefined();
   });
 });

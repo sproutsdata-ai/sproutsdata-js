@@ -23,13 +23,14 @@ const DOCUMENT_BY: Readonly<Record<string, LookupRef['by']>> = {
 
 /**
  * How to look a search row up in `client.entities`, or `undefined` when it cannot be. A
- * company by its domain (its `id`), a person by their LinkedIn URL, and a document by its
- * `d1_...` id. A person without a LinkedIn URL has nothing the lookup takes: their `id` is a
- * hash of the record, which no route resolves.
+ * company by its domain (also its `id`), else its LinkedIn page; a person by their LinkedIn URL;
+ * a document by its `d1_...` id. A row with none of these has nothing a lookup takes: its `id`
+ * is then a hash of the record, which no route resolves.
  */
 export function lookupRef(hit: W.SearchHit): LookupRef | undefined {
-  if (hit.category === 'company') return { category: hit.category, by: 'domain', value: hit.id };
-  if (hit.category === 'person') {
+  const domain = hit['domain'];
+  if (hit.category === 'company' && typeof domain === 'string' && domain !== '') return { category: hit.category, by: 'domain', value: domain };
+  if (hit.category === 'company' || hit.category === 'person') {
     const url = hit['linkedin_url'];
     return typeof url === 'string' && url !== '' ? { category: hit.category, by: 'li_url', value: url } : undefined;
   }

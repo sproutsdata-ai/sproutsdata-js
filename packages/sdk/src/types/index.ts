@@ -115,5 +115,23 @@ export type OrgChartParams = W.OrgChartRequest;
 /** What `searchExport` takes: the rows, and the request id of the search they came from. */
 export type SearchExportParams = W.SearchExportRequest;
 
+/** A time window: each bound a `Date` or an ISO 8601 string. */
+export interface TimeWindow {
+  readonly from?: Date | string;
+  readonly to?: Date | string;
+}
+
+/** A page of the usage history. */
+export interface HistoryParams extends PageParams, TimeWindow {
+  /** One action only (`dsp.search.fast`, ...): the server keeps the last of several. */
+  readonly action_type?: string;
+}
+
+/** What `feedback.create` takes: the body of `POST /v1/feedback`. */
+export type ReportParams = W.ReportRequest;
+
+/** What `feedback.votes.cast` takes: the body of `PUT /v1/feedback/votes`. */
+export type VoteParams = W.VoteRequest;
+
 /** `Omit` over each member of a union. */
 export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;

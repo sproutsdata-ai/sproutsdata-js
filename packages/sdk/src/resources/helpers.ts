@@ -64,3 +64,8 @@ export function recordsOf(hit: W.EntityHit): AnyRecord[];
 export function recordsOf(hit: W.EntityHit): AnyRecord[] {
   return asRecords(hit.category, hit.matches);
 }
+
+/** Whether `credits` can be spent now: compared with `available` (the balance, less what is reserved and any debt). */
+export function canAfford(balance: W.CreditsOut, credits: number): boolean {
+  return balance.available >= credits;
+}

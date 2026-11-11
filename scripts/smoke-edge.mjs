@@ -16,29 +16,47 @@ import { Miniflare } from 'miniflare';
 const bundle = (file) => readFileSync(new URL(`../packages/sdk/dist/${file}`, import.meta.url), 'utf8');
 const manifest = JSON.parse(readFileSync(new URL('../packages/sdk/package.json', import.meta.url), 'utf8'));
 
-// The worker imports the ESM build exactly as a bundler would hand it over, makes a client
-// and calls it through a stubbed fetch: building a request, checking it, sending it and
-// reading the answer all run inside the isolate.
+// The worker imports the ESM build exactly as a bundler would hand it over, makes a client and
+// calls one operation of every resource family through a stubbed fetch: building each request,
+// checking it, sending it and reading its answer (JSON, CSV) all run inside the isolate.
 const worker = `
 import { SproutsData, VERSION } from './sdk/index.js';
 import * as tools from './sdk/tools.js';
-const answer = { as_of: '2026-11-11T00:00:00Z', meta: { request_id: 'edge' }, segments: [{ category: 'company', name: 'companies', total: 3 }] };
+const segments = [{ category: 'company', name: 'companies', total: 3 }];
 export default {
   async fetch() {
     const seen = [];
     const fetch = async (url, init) => {
-      seen.push({ url: String(url), key: new Headers(init.headers).get('x-api-key') });
-      return Response.json(answer, { headers: { 'x-request-id': 'edge' } });
+      const path = new URL(String(url)).pathname;
+      seen.push(path);
+      if (path.endsWith('/export')) return new Response('entity_category,entity_id\\r\\n', { headers: { 'content-type': 'text/csv' } });
+      return Response.json({ meta: { request_id: 'edge' }, results: [], segments, values: [], lists: [], tags: [] });
     };
     const client = new SproutsData({ apiKey: 'sk_dsp_test_' + 'edge-smoke', baseUrl: 'https://api.test.invalid', fetch });
-    const coverage = await client.coverage({ category: 'company' });
+    const families = {
+      search: () => client.search({ query: 'x' }),
+      vocabulary: () => client.filterValues('industry'),
+      coverage: () => client.coverage({ category: 'company' }),
+      entities: () => client.entities.companies({ ids: ['stripe.com'] }),
+      runs: () => client.runs.retrieve('run-1'),
+      relationships: () => client.relationships.ask({ query: 'who at Stripe knows Adyen' }),
+      orgChart: () => client.orgChart.taxonomy(),
+      lists: () => client.lists.list(),
+      exportFile: () => client.lists.export('l1'),
+      exports: () => client.exports.retrieve('j1'),
+      history: () => client.history.list(),
+      feedback: () => client.feedback.tags(),
+      credits: () => client.credits.retrieve(),
+    };
+    const answered = {};
+    for (const [family, call] of Object.entries(families)) answered[family] = typeof (await call());
     let refused = '';
     try {
       await client.search({ category: 'patent', mode: 'deep', query: 'x' });
     } catch (err) {
       refused = err.name;
     }
-    return Response.json({ version: VERSION, tools: typeof tools, total: coverage.segments[0].total, seen, refused });
+    return Response.json({ version: VERSION, tools: typeof tools, answered, calls: seen.length, refused });
   },
 };`;
 
@@ -59,11 +77,11 @@ const mf = new Miniflare({
 try {
   const response = await mf.dispatchFetch('http://localhost/');
   const body = await response.json();
-  const called = body.seen.length === 1 && body.seen[0].url === 'https://api.test.invalid/v1/coverage?category=company' && body.seen[0].key !== null;
-  if (body.version !== manifest.version || body.total !== 3 || !called || body.refused !== 'ClientValidationError') {
+  const families = Object.keys(body.answered);
+  if (body.version !== manifest.version || body.calls !== families.length || body.refused !== 'ClientValidationError' || families.length !== 13) {
     throw new Error(`unexpected answer ${JSON.stringify(body)}`);
   }
-  console.log(`ok   sproutsdata ${body.version} runs in workerd: a call answered, a refusal refused`);
+  console.log(`ok   sproutsdata ${body.version} runs in workerd: ${String(families.length)} resource families answered, a refusal refused`);
 } catch (err) {
   console.error(`FAIL workerd: ${err instanceof Error ? err.message : String(err)}`);
   process.exitCode = 1;

@@ -83,7 +83,7 @@ export class Transport {
       if (options.signal?.aborted === true) throw new APIUserAbortError();
       try {
         const answer = await this.#attempt(operation, url, headers, body, options);
-        options.onResponse?.(answer.meta);
+        this.#report(answer, options);
         return answer;
       } catch (err) {
         if (!retryable(err, attempt, maxRetries, operation)) throw withConsequence(err, operation);
@@ -91,6 +91,12 @@ export class Transport {
         await this.#clock.sleep(wait, options.signal);
       }
     }
+  }
+
+  /** Tell the client's hook, then the call's, about a successful answer. */
+  #report(answer: Answer, options: RequestOptions): void {
+    this.#options.onResponse?.(answer.meta);
+    options.onResponse?.(answer.meta);
   }
 
   #prepare(operation: Operation, input: CallInput, options: RequestOptions): { url: URL; headers: Record<string, string>; body: string | undefined } {

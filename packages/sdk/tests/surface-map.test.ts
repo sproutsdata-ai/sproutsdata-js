@@ -1,7 +1,4 @@
-/**
- * Every JS name `spec/surface-map.json` gives a built group resolves on the client. `BUILT`
- * lists the groups built so far; from Phase 7 the whole map is checked, both ways.
- */
+/** The public surface, both ways: every JS name in `spec/surface-map.json` resolves on the client, and every `absent` one does not. */
 
 import { readFileSync } from 'node:fs';
 
@@ -15,39 +12,34 @@ interface Group {
   readonly js: readonly string[];
 }
 
-const SURFACE = JSON.parse(readFileSync(new URL('../../../spec/surface-map.json', import.meta.url), 'utf8')) as { readonly groups: readonly Group[] };
-const BUILT = new Set([
-  'search',
-  'similar',
-  'filter_values',
-  'document_filter_values',
-  'sorts',
-  'coverage',
-  'entities',
-  'runs',
-  'relationships',
-  'relationships_reach',
-  'relationships_institutions',
-  'relationships_ask',
-  'org_chart',
-  'lists',
-  'exports',
-  'search_export',
-]);
-const NAMES = SURFACE.groups.filter((g) => BUILT.has(g.group)).flatMap((g) => g.js);
+const SURFACE = JSON.parse(readFileSync(new URL('../../../spec/surface-map.json', import.meta.url), 'utf8')) as {
+  readonly groups: readonly Group[];
+  readonly absent: { readonly js: readonly string[] };
+};
+const NAMES = SURFACE.groups.flatMap((g) => g.js);
 
 function resolve(target: unknown, path: string): unknown {
-  return path.split('.').reduce<unknown>((at, part) => (at as Record<string, unknown>)[part], target);
+  return path.split('.').reduce<unknown>((at, part) => (at === undefined || at === null ? undefined : (at as Record<string, unknown>)[part]), target);
 }
 
 describe('the surface map', () => {
   const client = new SproutsData({ apiKey: TEST_KEY, baseUrl: BASE_URL });
 
-  it.each(NAMES)('%s is on the client', (path) => {
+  it.each(NAMES)('Z4: %s is on the client', (path) => {
     expect(typeof resolve(client, path)).toBe('function');
   });
 
-  it('names every built group', () => {
-    expect([...BUILT].every((name) => SURFACE.groups.some((g) => g.group === name))).toBe(true);
+  it.each(SURFACE.absent.js)('Z1: %s is absent', (path) => {
+    expect(resolve(client, path)).toBeUndefined();
+  });
+
+  it('Z4: every public method of every resource is in the map', () => {
+    const mapped = new Set(NAMES);
+    const names = (target: object): string[] => Object.getOwnPropertyNames(Object.getPrototypeOf(target)).filter((n) => n !== 'constructor' && !n.startsWith('iter'));
+    for (const resource of ['entities', 'runs', 'relationships', 'orgChart', 'lists', 'exports', 'history', 'feedback', 'credits']) {
+      const target = resolve(client, resource) as object;
+      for (const method of names(target)) expect(mapped.has(`${resource}.${method}`) || resource === 'feedback').toBe(true);
+    }
+    for (const method of names((resolve(client, 'feedback.votes') as object))) expect(mapped.has(`feedback.votes.${method}`)).toBe(true);
   });
 });

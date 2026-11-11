@@ -7,8 +7,11 @@
 import { resolveOptions, type ClientOptions } from './core/options.js';
 import { Transport } from './core/transport.js';
 import { Coverage } from './resources/coverage.js';
+import { Credits } from './resources/credits.js';
 import { Entities } from './resources/entities.js';
 import { Exports, SearchExport } from './resources/exports.js';
+import { Feedback } from './resources/feedback.js';
+import { History } from './resources/history.js';
 import { Lists } from './resources/lists.js';
 import { OrgChart } from './resources/org-chart.js';
 import { Relationships } from './resources/relationships.js';
@@ -47,6 +50,9 @@ export class SproutsData {
   #orgChart: OrgChart | undefined;
   #lists: Lists | undefined;
   #exports: Exports | undefined;
+  #history: History | undefined;
+  #feedback: Feedback | undefined;
+  #credits: Credits | undefined;
 
   /**
    * Make a client. Nothing is sent until the first call. `apiKey` defaults to
@@ -103,6 +109,21 @@ export class SproutsData {
   /** Export jobs and their files. */
   get exports(): Exports {
     return (this.#exports ??= new Exports(this.#transport));
+  }
+
+  /** What the workspace asked, and what it cost. */
+  get history(): History {
+    return (this.#history ??= new History(this.#transport));
+  }
+
+  /** Reports and votes on answers. */
+  get feedback(): Feedback {
+    return (this.#feedback ??= new Feedback(this.#transport));
+  }
+
+  /** The workspace's balance and ledger. */
+  get credits(): Credits {
+    return (this.#credits ??= new Credits(this.#transport));
   }
 
   /** What `JSON.stringify` shows: the configuration, with the key redacted. */

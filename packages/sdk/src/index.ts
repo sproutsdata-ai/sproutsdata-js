@@ -48,6 +48,6 @@ export type { AnyRecord, RecordTypes } from './core/records.js';
 export type { ServerSentEvent } from './core/sse.js';
 export type { RequestOptions } from './core/transport.js';
 export type { AnswerMeta } from './core/answer.js';
-export { entityHit, lookupRef, missingValues, recordsOf, totalFor } from './resources/helpers.js';
+export { canAfford, entityHit, lookupRef, missingValues, recordsOf, totalFor } from './resources/helpers.js';
 export type * from './types/index.js';
 export { VERSION } from './version.js';

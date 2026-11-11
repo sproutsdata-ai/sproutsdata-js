@@ -7,6 +7,7 @@
  * only fail later, is refused here.
  */
 
+import type { AnswerMeta } from './answer.js';
 import { DEFAULTS } from '../generated/defaults.js';
 import { FORBIDDEN_HEADERS, OWNED_HEADERS } from './constants.js';
 import { ClientValidationError } from './errors.js';
@@ -26,6 +27,8 @@ export interface ClientOptions {
   readonly defaultHeaders?: Readonly<Record<string, string>>;
   /** A `fetch` to send requests with (a proxy agent, a test double). */
   readonly fetch?: typeof globalThis.fetch;
+  /** Called with the status, request id, headers and rate limit of every successful answer. */
+  readonly onResponse?: (meta: AnswerMeta) => void;
 }
 
 /** The resolved configuration. */
@@ -36,6 +39,7 @@ export interface ResolvedOptions {
   readonly maxRetries: number;
   readonly defaultHeaders: Readonly<Record<string, string>>;
   readonly fetch: typeof globalThis.fetch;
+  readonly onResponse?: ((meta: AnswerMeta) => void) | undefined;
 }
 
 /** Resolve and check every setting. */
@@ -55,6 +59,7 @@ export function resolveOptions(options: ClientOptions = {}): ResolvedOptions {
     maxRetries: checkRetries(options.maxRetries ?? DEFAULTS.maxRetries),
     defaultHeaders: checkHeaders(options.defaultHeaders ?? {}),
     fetch: options.fetch ?? globalThis.fetch.bind(globalThis),
+    onResponse: options.onResponse,
   };
 }
 

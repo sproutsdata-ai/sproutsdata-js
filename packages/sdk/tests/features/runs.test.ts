@@ -90,6 +90,22 @@ describe('runs', () => {
     expect(Math.max(...clock.sleeps)).toBe(15_000);
   });
 
+  it('U4: wait keeps the spec rhythm by default (spec/defaults.json runWait)', async () => {
+    const slow = rig([respond('runs_retrieve', 200, state('running'))]);
+    let now = 0;
+    slow.clock.now = () => now;
+    slow.clock.sleep = (ms) => {
+      slow.clock.sleeps.push(ms);
+      now += ms;
+      return Promise.resolve();
+    };
+    await expect(new Runs(slow.transport).wait('run-perf')).rejects.toBeInstanceOf(WaitTimeoutError);
+    expect(slow.clock.sleeps.slice(0, 5)).toEqual([3000, 4500, 6750, 10_125, 15_000]);
+    expect(Math.max(...slow.clock.sleeps)).toBe(15_000);
+    expect(now).toBeGreaterThan(885_000);
+    expect(now).toBeLessThanOrEqual(900_000);
+  });
+
   it('U5: events resume with Last-Event-ID and end when the stream closes', async () => {
     const r = rig([recorded('runs_events', 'stream')]);
     const events = await collect(new Runs(r.transport).events('run-perf', { lastEventId: '0' }));

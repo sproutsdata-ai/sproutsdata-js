@@ -3,13 +3,13 @@
 import type { ServerSentEvent } from '../core/sse.js';
 import type { RequestOptions } from '../core/transport.js';
 import { waitFor } from '../core/wait.js';
+import { DEFAULTS } from '../generated/defaults.js';
 import type * as W from '../generated/wire.js';
 import { pageQuery, runBody, SETTLED } from '../requests/runs.js';
 import type { PageOptions, PageParams, RunCreateParams, WaitOptions } from '../types/index.js';
 import { Resource } from './resource.js';
 
-const DEFAULT_POLL_MS = 3_000;
-const DEFAULT_MAX_WAIT_MS = 900_000;
+const PACE = DEFAULTS.runWait;
 
 /** Start a run, follow it, read its answer. */
 export class Runs extends Resource {
@@ -63,8 +63,10 @@ export class Runs extends Resource {
       read: () => this.retrieve(runId, options),
       settled: (run) => SETTLED.has(run.status),
       stillGoing: (run, seconds) => `Run ${runId} was still ${run.status} after ${String(seconds)}s. It goes on server-side: call runs.retrieve or runs.wait again.`,
-      pollIntervalMs: wait.pollIntervalMs ?? DEFAULT_POLL_MS,
-      maxWaitMs: wait.maxWaitMs === undefined ? DEFAULT_MAX_WAIT_MS : wait.maxWaitMs,
+      pollIntervalMs: wait.pollIntervalMs ?? PACE.pollInitialMs,
+      maxWaitMs: wait.maxWaitMs === undefined ? PACE.deadlineMs : wait.maxWaitMs,
+      pollMultiplier: PACE.pollMultiplier,
+      pollMaxMs: PACE.pollMaxMs,
       signal: options?.signal,
     });
   }

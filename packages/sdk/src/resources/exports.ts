@@ -3,13 +3,13 @@
 import { ExportFailedError } from '../core/errors.js';
 import type { RequestOptions } from '../core/transport.js';
 import { waitFor } from '../core/wait.js';
+import { DEFAULTS } from '../generated/defaults.js';
 import type * as W from '../generated/wire.js';
 import { searchExportBody } from '../requests/lists.js';
 import type { ExportResult, SearchExportParams, WaitOptions } from '../types/index.js';
 import { Resource } from './resource.js';
 
-const DEFAULT_POLL_MS = 1_000;
-const DEFAULT_MAX_WAIT_MS = 600_000;
+const PACE = DEFAULTS.exportWait;
 
 /** Export jobs: how one stands, waiting for it, and its file. */
 export class Exports extends Resource {
@@ -41,8 +41,10 @@ export class Exports extends Resource {
         return job.status === 'done';
       },
       stillGoing: (job, seconds) => `Export ${jobId} was still ${job.status} after ${String(seconds)}s. It goes on server-side: call exports.wait again.`,
-      pollIntervalMs: wait.pollIntervalMs ?? DEFAULT_POLL_MS,
-      maxWaitMs: wait.maxWaitMs === undefined ? DEFAULT_MAX_WAIT_MS : wait.maxWaitMs,
+      pollIntervalMs: wait.pollIntervalMs ?? PACE.pollInitialMs,
+      maxWaitMs: wait.maxWaitMs === undefined ? PACE.deadlineMs : wait.maxWaitMs,
+      pollMultiplier: PACE.pollMultiplier,
+      pollMaxMs: PACE.pollMaxMs,
       signal: options?.signal,
     });
   }

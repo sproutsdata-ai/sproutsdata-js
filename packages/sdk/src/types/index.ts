@@ -95,7 +95,10 @@ export interface PageParams {
 
 /** How a `wait` polls, and gives up. */
 export interface WaitOptions {
-  /** Milliseconds before the second poll; each later wait is half again longer, to 15 s. */
+  /**
+   * Milliseconds before the second poll (runs 3,000, exports 2,000); each later wait is half
+   * again longer, to 15 s for runs and 10 s for exports.
+   */
   readonly pollIntervalMs?: number;
   /** Give up after this long (default 900,000 ms); `null` waits for as long as it takes. */
   readonly maxWaitMs?: number | null;

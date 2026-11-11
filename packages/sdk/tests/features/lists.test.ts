@@ -129,6 +129,22 @@ describe('exports', () => {
     expect(text).toBe('entity_category,entity_id\r\ncompany,example-1.de\r\n');
   });
 
+  it('X4: wait keeps the spec rhythm by default (spec/defaults.json exportWait)', async () => {
+    const slow = rig([respond('exports_retrieve', 200, job('running'))]);
+    let now = 0;
+    slow.clock.now = () => now;
+    slow.clock.sleep = (ms) => {
+      slow.clock.sleeps.push(ms);
+      now += ms;
+      return Promise.resolve();
+    };
+    await expect(new Exports(slow.transport).wait('j1')).rejects.toBeInstanceOf(WaitTimeoutError);
+    expect(slow.clock.sleeps.slice(0, 5)).toEqual([2000, 3000, 4500, 6750, 10_000]);
+    expect(Math.max(...slow.clock.sleeps)).toBe(10_000);
+    expect(now).toBeGreaterThan(890_000);
+    expect(now).toBeLessThanOrEqual(900_000);
+  });
+
   it('X4: a failed job throws with its error, and a slow one times out', async () => {
     const failed = rig([respond('exports_retrieve', 200, job('failed', { error: 'the list was deleted' }))]);
     const error = await new Exports(failed.transport).wait('j1').catch((err: unknown) => err);

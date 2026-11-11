@@ -1,12 +1,12 @@
 /**
  * Waiting for work that runs server-side (a research run, an export job): poll until it
- * settles, waiting half again longer between polls, to at most 15 s, and give up in time.
+ * settles, waiting longer between polls up to a cap, and give up in time. The multiplier, the
+ * cap and the defaults are the route's entry in `spec/defaults.json` (`runWait`, `exportWait`),
+ * as the Python SDK paces the same waits.
  */
 
 import type { Clock } from './clock.js';
 import { WaitTimeoutError } from './errors.js';
-
-const MAX_POLL_MS = 15_000;
 
 /** One wait: how to read the work, when it has settled, and how long to keep at it. */
 export interface Polling<T> {
@@ -17,6 +17,10 @@ export interface Polling<T> {
   readonly pollIntervalMs: number;
   /** `null` waits for as long as it takes. */
   readonly maxWaitMs: number | null;
+  /** Each wait after the first is this many times the last one... */
+  readonly pollMultiplier: number;
+  /** ...up to this many milliseconds. */
+  readonly pollMaxMs: number;
   readonly signal?: AbortSignal | undefined;
 }
 
@@ -32,6 +36,6 @@ export async function waitFor<T>(clock: Clock, polling: Polling<T>): Promise<T> 
       throw new WaitTimeoutError(polling.stillGoing(state, Math.round(waited / 1000)), state);
     }
     await clock.sleep(delay, polling.signal);
-    delay = Math.min(delay * 1.5, Math.max(MAX_POLL_MS, delay));
+    delay = Math.min(delay * polling.pollMultiplier, Math.max(polling.pollMaxMs, delay));
   }
 }

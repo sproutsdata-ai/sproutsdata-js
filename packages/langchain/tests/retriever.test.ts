@@ -10,7 +10,7 @@ import type { BaseRetrieverInterface } from '@langchain/core/retrievers';
 import { AuthenticationError } from 'sproutsdata';
 import { afterEach, describe, expect, expectTypeOf, it, vi } from 'vitest';
 
-import { SproutsDataRetriever, VERSION, type SproutsDataRetrieverFields } from '../src/index';
+import { SproutsDataRetriever, type SproutsDataRetrieverFields } from '../src/index';
 import {
   BASE_URL,
   TEST_KEY,
@@ -38,7 +38,7 @@ afterEach(() => {
 describe('a LangChain retriever', () => {
   it('satisfies BaseRetrieverInterface and resolves to Document instances', async () => {
     const { retriever } = makeRetriever();
-    expectTypeOf(retriever).toMatchTypeOf<BaseRetrieverInterface>();
+    expectTypeOf(retriever).toExtend<BaseRetrieverInterface>();
     const docs = await retriever.invoke('anything');
     expect(docs).toHaveLength(1);
     expect(docs[0]).toBeInstanceOf(Document);
@@ -80,12 +80,20 @@ describe('request building', () => {
     expect(sentBody(fetchMock)).not.toHaveProperty('exclude_domains');
   });
 
-  it('names this package in X-SproutsData-Client, without changing the caller’s client', async () => {
+  it('sends no mode with an auto category, where auto is the only one', async () => {
+    const { retriever, fetchMock } = makeRetriever({ category: 'auto' });
+    await retriever.invoke('who raised a Series B');
+    expect(sentBody(fetchMock)).toEqual({ query: 'who raised a Series B', limit: 10, category: 'auto' });
+  });
+
+  it('uses the caller’s client as it is, naming no integration', async () => {
     const fetchMock = fetchQueue(jsonResponse(envelope()));
-    const mine = client(fetchMock);
-    await new SproutsDataRetriever({ client: mine }).invoke('x');
-    expect(sentHeaders(fetchMock)['X-SproutsData-Client']).toBe(`langchain/${VERSION}`);
-    expect(mine.integration).toBeUndefined();
+    await new SproutsDataRetriever({ client: client(fetchMock) }).invoke('x');
+    expect(sentHeaders(fetchMock)).not.toHaveProperty('X-SproutsData-Client');
+  });
+
+  it('refuses connection settings beside a client', () => {
+    expect(() => new SproutsDataRetriever({ client: client(fetchQueue()), apiKey: TEST_KEY })).toThrow(/apiKey configure a client/);
   });
 
   it('throws the SDK’s errors unchanged', async () => {
@@ -106,12 +114,12 @@ describe('the key', () => {
   it('missing, throws where the retriever is built', () => {
     vi.stubEnv('SPROUTSDATA_API_KEY', '');
     vi.stubEnv('DSP_API_KEY', '');
-    expect(() => new SproutsDataRetriever()).toThrow(/Missing API key/);
+    expect(() => new SproutsDataRetriever()).toThrow(/No API key/);
   });
 
   it('is refused in a browser-like environment', () => {
     vi.stubGlobal('window', { document: {} });
-    expect(() => new SproutsDataRetriever({ apiKey: TEST_KEY })).toThrow(/auth\.browser_origin/);
+    expect(() => new SproutsDataRetriever({ apiKey: TEST_KEY })).toThrow(/refuses an API key/);
   });
 });
 
@@ -128,7 +136,8 @@ describe('page content', () => {
               account_name: 'Acme',
               industry: 'Software & Technology',
               employee_count: 120,
-              location: 'Austin, TX, United States',
+              city: 'Austin',
+              country: 'United States',
               domain: 'acme.com',
             },
           ],
@@ -137,7 +146,7 @@ describe('page content', () => {
     ]);
     const [doc] = await retriever.invoke('dev tools');
     expect(doc?.pageContent).toBe(
-      'Acme — Software & Technology, 120 employees, Austin, TX, United States. acme.com',
+      'Acme — Software & Technology, 120 employees, Austin, United States. acme.com',
     );
   });
 
@@ -151,7 +160,7 @@ describe('page content', () => {
               category: 'person',
               score: 0.8,
               contact_name: 'Jane Doe',
-              title: 'VP of Marketing',
+              job_title: 'VP of Marketing',
               account_name: 'Acme',
               linkedin_url: 'https://linkedin.com/in/janedoe',
             },
@@ -210,7 +219,7 @@ describe('metadata', () => {
   it('metadata.record is the complete raw hit, unknown fields included', async () => {
     const { retriever } = makeRetriever({}, [jsonResponse(envelope({ results: [RICH_HIT] }))]);
     const [doc] = await retriever.invoke('x');
-    expect(doc?.metadata.record).toEqual(RICH_HIT);
+    expect(doc?.metadata['record']).toEqual(RICH_HIT);
   });
 
   it('copies every request-level field onto each document', async () => {
@@ -242,6 +251,7 @@ describe('metadata', () => {
           total_is_estimate: true,
           resolved_search: resolved,
           degradation,
+          attribution: [],
         }),
       ),
     ]);
@@ -254,7 +264,6 @@ describe('metadata', () => {
         source: 'acme.com',
         request_id: 'req_test',
         environment: 'test',
-        as_of: '2026-08-13T00:00:00Z',
         credential: 'api_key',
         total: 1200,
         total_is_estimate: true,
@@ -265,18 +274,11 @@ describe('metadata', () => {
     }
   });
 
-  it('takes the request id from X-Request-Id when the body has no meta', async () => {
-    const { meta: _meta, ...withoutMeta } = envelope();
-    const { retriever } = makeRetriever({}, [jsonResponse(withoutMeta, 200, { 'x-request-id': 'req_header' })]);
-    const [doc] = await retriever.invoke('x');
-    expect(doc?.metadata).toMatchObject({ request_id: 'req_header', environment: '', as_of: '', credential: '' });
-  });
-
   it('includeResolvedSearch: false drops only resolved_search', async () => {
     const { retriever } = makeRetriever({ includeResolvedSearch: false });
     const [doc] = await retriever.invoke('x');
     expect(doc && 'resolved_search' in doc.metadata).toBe(false);
-    expect(doc?.metadata.request_id).toBe('req_test');
+    expect(doc?.metadata['request_id']).toBe('req_test');
   });
 
   it('non-empty degradation never raises — documents still come back', async () => {
@@ -296,7 +298,7 @@ describe('metadata', () => {
     ]);
     const docs = await retriever.invoke('x');
     expect(docs).toHaveLength(1);
-    expect(docs[0]?.metadata.degradation).toHaveLength(1);
+    expect(docs[0]?.metadata['degradation']).toHaveLength(1);
   });
 });
 

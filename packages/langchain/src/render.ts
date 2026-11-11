@@ -1,124 +1,73 @@
 /**
- * Raw record → `page_content`: a short, LLM-legible line, not a JSON dump.
+ * Raw record → `pageContent`: a short, LLM-legible line, not a JSON dump.
  *
- * The rendering is lossy by design — a 31-field company row does not belong
- * in a prose field — and that is acceptable only because `metadata.record`
- * always carries the complete row. `contentFields` lets an integration pick
- * its own fields without writing the RunnableLambda every chain would
- * otherwise repeat.
+ * Lossy by design (a 31-field company row does not belong in a prose field), which is acceptable
+ * only because `metadata.record` always carries the complete row. `contentFields` lets an
+ * integration pick its own fields without the RunnableLambda every chain would otherwise repeat.
  */
 
-/** Loosely-typed record access: search hits are open-ended by contract. */
-type RawRecord = Record<string, unknown>;
+type RawRecord = Readonly<Record<string, unknown>>;
 
 function text(value: unknown): string | undefined {
   if (typeof value === 'string' && value.length > 0) return value;
-  if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+  if (typeof value === 'number') return String(value);
   return undefined;
 }
 
 function fieldValue(value: unknown): string | undefined {
-  if (Array.isArray(value)) {
-    const entries = value.map(text).filter((v): v is string => v !== undefined);
-    return entries.length > 0 ? entries.join(', ') : undefined;
-  }
-  return text(value);
+  if (!Array.isArray(value)) return text(value);
+  const entries = value.map(text).filter((entry) => entry !== undefined);
+  return entries.length > 0 ? entries.join(', ') : undefined;
 }
 
-function firstPresent(record: RawRecord, keys: string[]): string | undefined {
-  for (const key of keys) {
-    const value = text(record[key]);
-    if (value !== undefined) return value;
-  }
-  return undefined;
+function firstPresent(record: RawRecord, keys: readonly string[]): string | undefined {
+  return keys.map((key) => text(record[key])).find((value) => value !== undefined);
 }
 
-/** `{headline}\n{body}`, skipping whichever half is missing. */
-function headlineBody(headline: string | undefined, body: string | undefined): string {
-  return [headline, body].filter((part): part is string => part !== undefined).join('\n');
+/** The parts that are present, joined. */
+function joined(parts: readonly (string | undefined)[], separator: string): string {
+  return parts.filter((part) => part !== undefined && part !== '').join(separator);
+}
+
+function sentence(head: string, pointer: string | undefined): string {
+  return joined([head === '' ? undefined : `${head}.`, pointer], ' ');
 }
 
 function renderCompany(record: RawRecord): string {
-  const name = text(record.account_name);
-  const industry = text(record.industry);
-  const employees = text(record.employee_count);
-  const location = text(record.location);
-  const domain = text(record.domain);
-
-  const detail = [
-    industry,
-    employees !== undefined ? `${employees} employees` : undefined,
-    location,
-  ]
-    .filter((part): part is string => part !== undefined)
-    .join(', ');
-
-  const head = [name, detail.length > 0 ? detail : undefined]
-    .filter((part): part is string => part !== undefined)
-    .join(' — ');
-  return [head.length > 0 ? `${head}.` : undefined, domain]
-    .filter((part): part is string => part !== undefined)
-    .join(' ');
+  const employees = text(record['employee_count']);
+  const location = joined([text(record['city']), text(record['country'])], ', ');
+  const detail = joined([text(record['industry']), employees === undefined ? undefined : `${employees} employees`, location], ', ');
+  return sentence(joined([text(record['account_name']), detail], ' — '), text(record['domain']));
 }
 
 function renderPerson(record: RawRecord): string {
-  const name = text(record.contact_name);
-  const title = text(record.title);
-  const company = text(record.account_name);
-  const linkedin = text(record.linkedin_url);
-
-  const role = [title, company !== undefined ? `at ${company}` : undefined]
-    .filter((part): part is string => part !== undefined)
-    .join(' ');
-  const head = [name, role.length > 0 ? role : undefined]
-    .filter((part): part is string => part !== undefined)
-    .join(' — ');
-  return [head.length > 0 ? `${head}.` : undefined, linkedin]
-    .filter((part): part is string => part !== undefined)
-    .join(' ');
+  const company = text(record['account_name']);
+  const role = joined([text(record['job_title']), company === undefined ? undefined : `at ${company}`], ' ');
+  return sentence(joined([text(record['contact_name']), role], ' — '), text(record['linkedin_url']));
 }
 
-export function renderPageContent(record: RawRecord, contentFields?: string[]): string {
-  if (contentFields !== undefined && contentFields.length > 0) {
-    const lines = contentFields
-      .map((field) => {
-        const value = fieldValue(record[field]);
-        return value !== undefined ? `${field}: ${value}` : undefined;
-      })
-      .filter((line): line is string => line !== undefined);
-    if (lines.length > 0) return lines.join('\n');
-  } else {
-    switch (record.category) {
-      case 'company': {
-        const rendered = renderCompany(record);
-        if (rendered.length > 0) return rendered;
-        break;
-      }
-      case 'person': {
-        const rendered = renderPerson(record);
-        if (rendered.length > 0) return rendered;
-        break;
-      }
-      case 'news_article': {
-        const rendered = headlineBody(text(record.title), text(record.snippet));
-        if (rendered.length > 0) return rendered;
-        break;
-      }
-      case 'patent': {
-        const rendered = headlineBody(text(record.title), text(record.abstract));
-        if (rendered.length > 0) return rendered;
-        break;
-      }
-      default: {
-        const rendered = headlineBody(
-          firstPresent(record, ['title', 'name', 'account_name', 'contact_name']),
-          firstPresent(record, ['snippet', 'description', 'abstract', 'summary']),
-        );
-        if (rendered.length > 0) return rendered;
-      }
-    }
+function renderDefault(record: RawRecord): string {
+  switch (record['category']) {
+    case 'company':
+      return renderCompany(record);
+    case 'person':
+      return renderPerson(record);
+    default:
+      // Every document category has a `title` and a `summary`.
+      return joined([firstPresent(record, ['title', 'name', 'account_name', 'contact_name']), firstPresent(record, ['summary', 'description'])], '\n');
   }
-  // Never an empty page_content: an empty document reads as a bug five
-  // frames into someone's chain, while raw JSON is at least inspectable.
-  return JSON.stringify(record);
+}
+
+/** The document text for one row: its `contentFields` as lines, else a per-category line, never empty. */
+export function renderPageContent(record: RawRecord, contentFields?: readonly string[]): string {
+  const rendered =
+    contentFields !== undefined && contentFields.length > 0
+      ? joined(contentFields.map((field) => {
+          const value = fieldValue(record[field]);
+          return value === undefined ? undefined : `${field}: ${value}`;
+        }), '\n')
+      : renderDefault(record);
+  // Never an empty pageContent: an empty document reads as a bug five frames into someone's
+  // chain, while raw JSON is at least inspectable.
+  return rendered === '' ? JSON.stringify(record) : rendered;
 }

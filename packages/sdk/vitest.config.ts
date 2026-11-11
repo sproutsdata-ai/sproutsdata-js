@@ -1,8 +1,10 @@
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
     include: ['tests/**/*.test.ts'],
+    // The live suite (`npm run e2e`) calls the local stack; `vitest.e2e.config.ts` runs it.
+    exclude: [...configDefaults.exclude, 'tests/e2e/**'],
     // Type-level tests (`*.test-d.ts`) assert what the public types accept and refuse.
     typecheck: { enabled: true, include: ['tests/**/*.test-d.ts'], tsconfig: './tsconfig.test.json' },
     coverage: {

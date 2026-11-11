@@ -14,7 +14,7 @@ import { expect } from 'vitest';
 import { OPERATIONS, type OperationName } from '../../src/generated/operations.js';
 import type { Answer } from '../../src/core/answer.js';
 import { APIConnectionError, APIError, APITimeoutError, SproutsDataError } from '../../src/core/errors.js';
-import { degraded, Pager, truncated, type PageInput } from '../../src/core/pagination.js';
+import { degraded, Pager, truncated, type SentPage } from '../../src/core/pagination.js';
 import { CONCEPT_CLASSES } from '../../src/core/problem.js';
 import { Transport, type Operation } from '../../src/core/transport.js';
 import { FakeClock, options, recordingFetch, type Scripted, type Sent } from '../support/fakes.js';
@@ -96,7 +96,7 @@ export function operationFor(test: Case): Operation {
   return { ...OPERATIONS[name], path, name };
 }
 
-function firstInput(test: Case, op: Operation): PageInput {
+function firstInput(test: Case, op: Operation): SentPage {
   if (op.method === 'GET') return { query: { ...(test.request?.body ?? {}) } };
   if (test.request?.body !== undefined) return { body: test.request.body };
   return { body: op.name === 'search' ? { query: 'fintech' } : undefined };
@@ -122,7 +122,7 @@ export async function run(test: Case): Promise<Run> {
   return result;
 }
 
-function nextInput(test: Case, sent: PageInput, pager: Pager | undefined, first: Answer): PageInput | undefined {
+function nextInput(test: Case, sent: SentPage, pager: Pager | undefined, first: Answer): SentPage | undefined {
   if (test.paginate !== 'next_page') return undefined;
   expect(pager, `${test.file}: pages an operation that does not page`).toBeDefined();
   if (test.mutate_request_after_first_page !== undefined && sent.body !== undefined) {

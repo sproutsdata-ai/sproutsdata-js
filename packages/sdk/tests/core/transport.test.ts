@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { OPERATIONS } from '../../src/generated/operations.js';
-import { callAnswer, callJson, callStream, operation } from '../../src/core/call.js';
+import { callAnswer, callJson, callPages, callStream, operation } from '../../src/core/call.js';
 import { sleep, SYSTEM_CLOCK } from '../../src/core/clock.js';
 import {
   APIConnectionError,
@@ -108,6 +108,19 @@ describe('the typed call', () => {
     const s = new Transport(options({ fetch: streaming('data: {"n":2}\n\n') }), new FakeClock());
     const first = await callStream(s, 'runsEvents', { path: { run_id: 'r1' } }).next();
     expect(first.value).toMatchObject({ data: { n: 2 } });
+  });
+
+  it('walks the pages of a paged operation, with the request id on the first only', async () => {
+    const { transport: t, sent } = transport([
+      { status: 200, body: { results: [1], next_cursor: 'c1' } },
+      { status: 200, body: { results: [2], next_cursor: null } },
+    ]);
+    const pages = [];
+    for await (const page of callPages(t, 'creditsTransactions', { query: { limit: 1 } }, { requestId: 'mine' })) pages.push(page.body);
+    expect(pages).toHaveLength(2);
+    expect(sent.map((s) => s.headers.get('x-request-id'))).toEqual(['mine', null]);
+    expect(t.clock).toBeDefined();
+    await expect(callPages(t, 'coverage', {}).next()).rejects.toThrow('coverage does not page');
   });
 
   it('refuses an answer that is not the JSON object the operation answers with', async () => {

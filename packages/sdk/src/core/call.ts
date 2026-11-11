@@ -7,9 +7,10 @@
  * is given its type, after checking it is the JSON object the operation answers with.
  */
 
-import { OPERATIONS, type OperationMap, type OperationName } from '../generated/operations.js';
+import { OPERATIONS, type OperationMap, type OperationName, type OperationSpec } from '../generated/operations.js';
 import type { Answer, AnswerMeta } from './answer.js';
 import { APIResponseValidationError, isRecord } from './errors.js';
+import { follow, start, type PageInput } from './pagination.js';
 import type { ServerSentEvent } from './sse.js';
 import type { Operation, RequestOptions, Transport } from './transport.js';
 
@@ -76,4 +77,38 @@ export function callStream<K extends OperationName>(
   options?: RequestOptions,
 ): AsyncGenerator<ServerSentEvent, void, undefined> {
   return transport.stream(operation(name), input, options);
+}
+
+/**
+ * Every page of a paged operation, from `first`, each as it arrives. Each page resends the
+ * first page's request with the next cursor (or page number), as the server requires. A
+ * caller's request id goes on the first page only: each page is its own request.
+ */
+export async function* callPages<K extends OperationName>(
+  transport: Transport,
+  name: K,
+  first: PageInput & { readonly path?: OperationMap[K]['path'] },
+  options: RequestOptions = {},
+  maxResults?: number,
+): AsyncGenerator<Typed<K>, void, undefined> {
+  const spec: OperationSpec = OPERATIONS[name];
+  const paging = spec.paging;
+  if (paging === undefined) throw new TypeError(`${name} does not page`);
+  let pager = start(paging, first, maxResults);
+  let call = options;
+  for (;;) {
+    const { body, query } = pager.sent;
+    const page = await callJson(transport, name, { path: first.path, body, query } as Input<K>, call);
+    yield page;
+    const next = follow(pager, page.body, maxResults);
+    if (next === undefined) return;
+    pager = next;
+    call = laterPage(options);
+  }
+}
+
+/** A later page's options: the caller's, but its own request id. */
+function laterPage(options: RequestOptions): RequestOptions {
+  const { requestId: _first, ...rest } = options;
+  return rest;
 }

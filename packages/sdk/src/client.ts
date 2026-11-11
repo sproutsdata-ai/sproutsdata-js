@@ -1,0 +1,80 @@
+/**
+ * `SproutsData`: options, the transport and the resources, wired together. The searches and
+ * catalogues are methods of the client itself (`client.search(...)`); every other feature is a
+ * resource (`client.runs.create(...)`), built on first use. No request logic lives here.
+ */
+
+import { resolveOptions, type ClientOptions } from './core/options.js';
+import { Transport } from './core/transport.js';
+import { Coverage } from './resources/coverage.js';
+import { Entities } from './resources/entities.js';
+import { Runs } from './resources/runs.js';
+import { Search } from './resources/search.js';
+import { Vocabulary } from './resources/vocabulary.js';
+
+export class SproutsData {
+  /** Search the index: one page. See {@link Search.search}. */
+  readonly search: Search['search'];
+  /** Every result of a search, page after page. See {@link Search.iterSearch}. */
+  readonly iterSearch: Search['iterSearch'];
+  /** Companies like the ones named: one page. See {@link Search.similar}. */
+  readonly similar: Search['similar'];
+  /** Every look-alike, page after page. See {@link Search.iterSimilar}. */
+  readonly iterSimilar: Search['iterSimilar'];
+  /** One page of what a filter accepts. See {@link Vocabulary.filterValues}. */
+  readonly filterValues: Vocabulary['filterValues'];
+  /** Every value a filter accepts. See {@link Vocabulary.iterFilterValues}. */
+  readonly iterFilterValues: Vocabulary['iterFilterValues'];
+  /** One page of what a document filter accepts. See {@link Vocabulary.documentFilterValues}. */
+  readonly documentFilterValues: Vocabulary['documentFilterValues'];
+  /** Every value a document filter accepts. See {@link Vocabulary.iterDocumentFilterValues}. */
+  readonly iterDocumentFilterValues: Vocabulary['iterDocumentFilterValues'];
+  /** The fields a category's search sorts on. See {@link Vocabulary.sorts}. */
+  readonly sorts: Vocabulary['sorts'];
+  /** How many records the index holds. See {@link Coverage.coverage}. */
+  readonly coverage: Coverage['coverage'];
+
+  readonly #transport: Transport;
+  #entities: Entities | undefined;
+  #runs: Runs | undefined;
+
+  /**
+   * Make a client. Nothing is sent until the first call. `apiKey` defaults to
+   * `SPROUTSDATA_API_KEY` and `baseUrl` to `SPROUTSDATA_BASE_URL`, else
+   * `https://api.sproutsdata.ai`. A key is a server-side secret: the client refuses to run in a
+   * browser, and the server refuses a key that comes with an `Origin`.
+   *
+   * @throws {ClientValidationError} A setting is missing or invalid.
+   */
+  constructor(options: ClientOptions = {}) {
+    this.#transport = new Transport(resolveOptions(options));
+    const search = new Search(this.#transport);
+    const vocabulary = new Vocabulary(this.#transport);
+    const coverage = new Coverage(this.#transport);
+    this.search = (params, call) => search.search(params, call);
+    this.iterSearch = (params, call) => search.iterSearch(params, call);
+    this.similar = (params, call) => search.similar(params, call);
+    this.iterSimilar = (params, call) => search.iterSimilar(params, call);
+    this.filterValues = (name, params, call) => vocabulary.filterValues(name, params, call);
+    this.iterFilterValues = (name, params, call) => vocabulary.iterFilterValues(name, params, call);
+    this.documentFilterValues = (category, name, params, call) => vocabulary.documentFilterValues(category, name, params, call);
+    this.iterDocumentFilterValues = (category, name, params, call) => vocabulary.iterDocumentFilterValues(category, name, params, call);
+    this.sorts = (category, call) => vocabulary.sorts(category, call);
+    this.coverage = (params, call) => coverage.coverage(params, call);
+  }
+
+  /** Records by identifier: companies, people and each document kind. */
+  get entities(): Entities {
+    return (this.#entities ??= new Entities(this.#transport));
+  }
+
+  /** Research runs. */
+  get runs(): Runs {
+    return (this.#runs ??= new Runs(this.#transport));
+  }
+
+  /** What `JSON.stringify` shows: the configuration, with the key redacted. */
+  toJSON(): Record<string, unknown> {
+    return this.#transport.toJSON();
+  }
+}

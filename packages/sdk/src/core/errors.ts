@@ -21,8 +21,18 @@ export class SproutsDataError extends Error {
 /** Refused before sending: the request is one the server would refuse. Nothing was sent. */
 export class ClientValidationError extends SproutsDataError {}
 
-/** A `wait` gave up before the work settled. The work goes on server-side. */
-export class WaitTimeoutError extends SproutsDataError {}
+/**
+ * A `wait` gave up before the work settled. The work goes on server-side: `last` is the last
+ * state seen (a run's `RunResult`, an export's `ExportJobView`), to report how far it got.
+ */
+export class WaitTimeoutError extends SproutsDataError {
+  readonly last: unknown;
+
+  constructor(message: string, last?: unknown) {
+    super(message);
+    this.last = last;
+  }
+}
 
 /** No answer arrived. */
 export class APIConnectionError extends SproutsDataError {

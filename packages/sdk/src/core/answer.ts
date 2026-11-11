@@ -1,15 +1,10 @@
 /** Reading a success: by its operation's response kind, with its request id and rate limit. */
 
 import type { ResponseKind } from '../generated/operations.js';
+import type { RateLimitInfo } from '../types/rate-limit.js';
 import { APIResponseValidationError } from './errors.js';
 
-/** The rate limit the server counted a call against, when it said. */
-export interface RateLimitInfo {
-  readonly limit: number | undefined;
-  readonly remaining: number | undefined;
-  /** Seconds until the window resets. */
-  readonly resetSeconds: number | undefined;
-}
+export type { RateLimitInfo } from '../types/rate-limit.js';
 
 /** A decoded success: `kind` says which body is set. */
 export type Answer =

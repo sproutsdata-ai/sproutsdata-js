@@ -62,6 +62,11 @@ export class Transport {
     this.#clock = clock;
   }
 
+  /** The clock this transport waits on: a `wait` polls on it too. */
+  get clock(): Clock {
+    return this.#clock;
+  }
+
   /** What `JSON.stringify` shows: the configuration, with the key redacted. */
   toJSON(): Record<string, unknown> {
     return { baseUrl: this.#options.baseUrl, apiKey: redactKey(this.#apiKey), timeoutMs: this.#options.timeoutMs, maxRetries: this.#options.maxRetries };

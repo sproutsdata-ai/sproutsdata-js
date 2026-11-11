@@ -8,6 +8,7 @@
 // |---|---|
 // | wire.ts | spec/models.json: every request and response type |
 // | record-shapes.ts | spec/models.json: how to normalise a raw record |
+// | request-shapes.ts | spec/models.json: every request type's fields, limits and closed values |
 // | operations.ts | spec/routes.json + spec/models.json: every operation, as data and types |
 // | error-codes.ts | spec/error-codes.json |
 // | defaults.ts | spec/defaults.json |
@@ -22,7 +23,7 @@ import { fileURLToPath } from 'node:url';
 
 import { renderOperations } from './lib/emit-operations.mjs';
 import { renderDefaults, renderErrorCodes, renderRetryPolicy } from './lib/emit-tables.mjs';
-import { renderRecordShapes, renderWire } from './lib/emit-wire.mjs';
+import { renderRecordShapes, renderRequestShapes, renderWire } from './lib/emit-wire.mjs';
 import { writeOrCheck } from './lib/generated.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -36,6 +37,7 @@ function main(argv) {
   const files = {
     'wire.ts': renderWire(ir),
     'record-shapes.ts': renderRecordShapes(ir),
+    'request-shapes.ts': renderRequestShapes(ir),
     'operations.ts': renderOperations(spec('routes.json'), ir),
     'error-codes.ts': renderErrorCodes(spec('error-codes.json')),
     'defaults.ts': renderDefaults(spec('defaults.json')),

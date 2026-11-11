@@ -11,4 +11,42 @@
  * @packageDocumentation
  */
 
+export { SproutsData } from './client.js';
+export {
+  APIConnectionError,
+  APIError,
+  APIResponseValidationError,
+  APITimeoutError,
+  APIUserAbortError,
+  AuthenticationError,
+  ClientValidationError,
+  ConflictError,
+  CursorExpiredError,
+  CursorInvalidError,
+  FeatureNotAvailableError,
+  InsufficientCreditsError,
+  InternalServerError,
+  InvalidRequestError,
+  ListNameTakenError,
+  NotFoundError,
+  OrgChartCompanyAmbiguousError,
+  PaginationDepthExceededError,
+  PermissionDeniedError,
+  RateLimitError,
+  RedirectRefusedError,
+  ServiceUnavailableError,
+  SproutsDataError,
+  UpstreamTimeoutError,
+  WaitTimeoutError,
+  WalletFrozenError,
+  WorkspaceRequiredError,
+} from './core/errors.js';
+export type { CompanyCandidate, FieldError } from './core/errors.js';
+export type { ClientOptions } from './core/options.js';
+export type { AnyRecord, RecordTypes } from './core/records.js';
+export type { ServerSentEvent } from './core/sse.js';
+export type { RequestOptions } from './core/transport.js';
+export type { AnswerMeta } from './core/answer.js';
+export { entityHit, lookupRef, missingValues, recordsOf, totalFor } from './resources/helpers.js';
+export type * from './types/index.js';
 export { VERSION } from './version.js';

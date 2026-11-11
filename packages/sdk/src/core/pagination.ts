@@ -13,8 +13,21 @@ import { isRecord, PaginationDepthExceededError } from './errors.js';
 
 /** The parts of a request a page is fetched with. */
 export interface PageInput {
+  readonly body?: object | undefined;
+  readonly query?: object | undefined;
+}
+
+/** The request a page was fetched with, as sent. */
+export interface SentPage {
   readonly body?: Readonly<Record<string, unknown>> | undefined;
   readonly query?: Readonly<Record<string, unknown>> | undefined;
+}
+
+/** A page's request part, copied: the caller's object is theirs to change. */
+function frozen(part: object | undefined): Readonly<Record<string, unknown>> | undefined {
+  if (part === undefined) return undefined;
+  const copy: Record<string, unknown> = { ...part };
+  return structuredClone(copy);
 }
 
 /** One page's frozen request, and the rules for the page after it. */
@@ -28,12 +41,12 @@ export class Pager {
   constructor(paging: Paging, sent: PageInput, offset = 0) {
     this.paging = paging;
     this.offset = offset;
-    this.#body = sent.body === undefined ? undefined : structuredClone(sent.body);
-    this.#query = sent.query === undefined ? undefined : structuredClone(sent.query);
+    this.#body = frozen(sent.body);
+    this.#query = frozen(sent.query);
   }
 
   /** A copy of the request this page was fetched with (changing it changes nothing). */
-  get sent(): PageInput {
+  get sent(): SentPage {
     return { body: this.#body === undefined ? undefined : structuredClone(this.#body), query: this.#query === undefined ? undefined : structuredClone(this.#query) };
   }
 
@@ -52,7 +65,7 @@ export class Pager {
    * The request for the page after this one. `limit` changes the page size where the
    * cursor allows it; where it binds the size (`bindsLimit`), the first page's is kept.
    */
-  nextInput(cursor: string, rows: number, limit?: number): PageInput {
+  nextInput(cursor: string, rows: number, limit?: number): SentPage {
     if (this.atDepthCap(rows)) {
       throw new PaginationDepthExceededError({
         status: 422,
@@ -71,14 +84,49 @@ export class Pager {
   }
 
   /** The request for page `page + 1` of a page-numbered operation. */
-  nextPageNumber(page: number): PageInput {
+  nextPageNumber(page: number): SentPage {
     return this.#with({ page: page + 1 }, 'query');
   }
 
-  #with(changes: Readonly<Record<string, unknown>>, into: 'body' | 'query'): PageInput {
+  #with(changes: Readonly<Record<string, unknown>>, into: 'body' | 'query'): SentPage {
     const { body, query } = this.sent;
     return into === 'query' ? { body, query: { ...query, ...changes } } : { body: { ...body, ...changes }, query };
   }
+}
+
+/**
+ * The first page of a walk that wants at most `maxResults` rows. A cursor walk asks page 1
+ * for no more rows than are wanted; a page-numbered walk has a fixed page size.
+ */
+export function start(paging: Paging, sent: PageInput, maxResults: number | undefined): Pager {
+  if (paging.style === 'page_number' || maxResults === undefined) return new Pager(paging, sent);
+  const inBody = paging.cursorIn !== 'query';
+  const into = frozen(inBody ? sent.body : sent.query);
+  const limit = firstLimit(typeof into?.['limit'] === 'number' ? into['limit'] : undefined, maxResults);
+  if (limit === undefined) return new Pager(paging, sent);
+  const changed = { ...into, limit };
+  return new Pager(paging, inBody ? { body: changed, query: sent.query } : { body: sent.body, query: changed });
+}
+
+/**
+ * The page after `page` (fetched with `pager`), or `undefined` when the walk is over. A
+ * cursor walk goes on while the answer holds a `next_cursor`, whatever the page's size (a
+ * short page is normal: Do-Not-Contact rules remove rows after the page is cut); a
+ * page-numbered walk goes on while `has_more` says so.
+ */
+export function follow(pager: Pager, page: unknown, maxResults: number | undefined): Pager | undefined {
+  if (!isRecord(page)) return undefined;
+  const items = page[pager.paging.items];
+  const rows = Array.isArray(items) ? items.length : 0;
+  const seen = pager.offset + rows;
+  if (maxResults !== undefined && seen >= maxResults) return undefined;
+  if (pager.paging.style === 'page_number') {
+    const number = page['page'];
+    return page['has_more'] === true && typeof number === 'number' ? new Pager(pager.paging, pager.nextPageNumber(number), seen) : undefined;
+  }
+  const cursor = page['next_cursor'];
+  if (typeof cursor !== 'string' || cursor === '') return undefined;
+  return new Pager(pager.paging, pager.nextInput(cursor, rows, nextLimit(pager.pageSize, seen, maxResults)), seen);
 }
 
 /** The `limit` for the next page: no more rows than are still wanted (`undefined`: keep the size). */

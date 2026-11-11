@@ -87,7 +87,7 @@
       },
       "attribution": [
         {
-          "source_corpus": "companies",
+          "source_corpus": "gtm_index",
           "domain": null,
           "as_of": "2026-09-28T00:00:00Z",
           "url": null,
@@ -97,10 +97,11 @@
       "degradation": [],
       "columns": null,
       "meta": {
-        "request_id": "req_5d81c0ae42",
-        "environment": "test",
         "as_of": "2026-10-01T10:02:17Z",
-        "credential": "api_key"
+        "credential": "api_key",
+        "credits_charged": null,
+        "environment": "test",
+        "request_id": "req_5d81c0ae42"
       }
     }
   },

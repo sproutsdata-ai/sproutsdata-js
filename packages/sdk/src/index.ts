@@ -23,6 +23,7 @@ export {
   ConflictError,
   CursorExpiredError,
   CursorInvalidError,
+  ExportFailedError,
   FeatureNotAvailableError,
   InsufficientCreditsError,
   InternalServerError,

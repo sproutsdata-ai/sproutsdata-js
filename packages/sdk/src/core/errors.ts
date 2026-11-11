@@ -34,6 +34,16 @@ export class WaitTimeoutError extends SproutsDataError {
   }
 }
 
+/** An export job ended `failed`. `job` is its last state; `job.error` says why. */
+export class ExportFailedError extends SproutsDataError {
+  readonly job: unknown;
+
+  constructor(message: string, job?: unknown) {
+    super(message);
+    this.job = job;
+  }
+}
+
 /** No answer arrived. */
 export class APIConnectionError extends SproutsDataError {
   /**

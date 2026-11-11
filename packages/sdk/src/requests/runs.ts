@@ -11,8 +11,6 @@ export const MAX_PAGE_SIZE = 100;
 /** The states a run does not leave. */
 export const SETTLED: ReadonlySet<string> = new Set(['completed', 'failed', 'cancelled']);
 
-const MAX_POLL_MS = 15_000;
-
 /** The body of a new run, checked locally. */
 export function runBody(params: W.RunRequest): W.RunRequest {
   checkShape('runs.create', params, 'RunRequest');
@@ -23,9 +21,4 @@ export function runBody(params: W.RunRequest): W.RunRequest {
 export function pageQuery(what: string, params: PageParams): PageParams {
   checkLimit(what, 'limit', params.limit, MAX_PAGE_SIZE);
   return params;
-}
-
-/** The wait before the next poll: half again longer each time, to at most 15 s. */
-export function nextPoll(delayMs: number): number {
-  return Math.min(delayMs * 1.5, Math.max(MAX_POLL_MS, delayMs));
 }

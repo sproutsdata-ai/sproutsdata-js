@@ -8,6 +8,8 @@
  */
 
 import { OPERATIONS, type OperationMap, type OperationName, type OperationSpec } from '../generated/operations.js';
+import type { ExportJobView } from '../generated/wire.js';
+import type { ExportResult } from '../types/index.js';
 import type { Answer, AnswerMeta } from './answer.js';
 import { APIResponseValidationError, isRecord } from './errors.js';
 import { follow, start, type PageInput } from './pagination.js';
@@ -111,4 +113,19 @@ export async function* callPages<K extends OperationName>(
 function laterPage(options: RequestOptions): RequestOptions {
   const { requestId: _first, ...rest } = options;
   return rest;
+}
+
+/** Call an export: the CSV when the server answers with it (200), else the job it started (202). */
+export async function callExport<K extends OperationName>(transport: Transport, name: K, input: Input<K>, options?: RequestOptions): Promise<ExportResult> {
+  const answer = await transport.send(operation(name), input, options);
+  if (answer.kind === 'csv') return { kind: 'file', csv: answer.text };
+  if (answer.kind === 'json' && isRecord(answer.json)) return { kind: 'job', job: answer.json as unknown as ExportJobView };
+  throw new APIResponseValidationError(`${name} answered with neither a CSV file nor an export job.`, { status: answer.meta.status, requestId: answer.meta.requestId });
+}
+
+/** Call an operation that answers with a CSV file, and get its text. */
+export async function callCsv<K extends OperationName>(transport: Transport, name: K, input: Input<K>, options?: RequestOptions): Promise<string> {
+  const answer = await transport.send(operation(name), input, options);
+  if (answer.kind !== 'csv') throw new APIResponseValidationError(`${name} answered without a CSV file.`, { status: answer.meta.status, requestId: answer.meta.requestId });
+  return answer.text;
 }

@@ -9,6 +9,9 @@ import type * as W from '../generated/wire.js';
 export type * from '../generated/wire.js';
 export type { RateLimitInfo } from './rate-limit.js';
 
+/** An export's answer: the CSV at once (200), or a job to wait for (202). */
+export type ExportResult = { readonly kind: 'file'; readonly csv: string } | { readonly kind: 'job'; readonly job: W.ExportJobView };
+
 /** A company or person search. `category` defaults to `company`. */
 export type EntitySearchParams = Omit<W.EntitySearchRequest, 'category'> & { readonly category?: 'company' | 'person' };
 
@@ -105,6 +108,12 @@ export interface LookupRef {
   readonly by: 'domain' | 'li_url' | 'id' | undefined;
   readonly value: string;
 }
+
+/** A company named for the org chart, and how its people are counted. */
+export type OrgChartParams = W.OrgChartRequest;
+
+/** What `searchExport` takes: the rows, and the request id of the search they came from. */
+export type SearchExportParams = W.SearchExportRequest;
 
 /** `Omit` over each member of a union. */
 export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;

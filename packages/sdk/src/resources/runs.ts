@@ -1,10 +1,10 @@
 /** Research runs: a question worked through for minutes, with cited criteria. */
 
-import { WaitTimeoutError } from '../core/errors.js';
 import type { ServerSentEvent } from '../core/sse.js';
 import type { RequestOptions } from '../core/transport.js';
+import { waitFor } from '../core/wait.js';
 import type * as W from '../generated/wire.js';
-import { nextPoll, pageQuery, runBody, SETTLED } from '../requests/runs.js';
+import { pageQuery, runBody, SETTLED } from '../requests/runs.js';
 import type { PageOptions, PageParams, RunCreateParams, WaitOptions } from '../types/index.js';
 import { Resource } from './resource.js';
 
@@ -59,19 +59,14 @@ export class Runs extends Resource {
    *   `error.last` is the last `RunResult` seen.
    */
   async wait(runId: string, wait: WaitOptions = {}, options?: RequestOptions): Promise<W.RunResult> {
-    const started = this.clock.now();
-    const maxWaitMs = wait.maxWaitMs === undefined ? DEFAULT_MAX_WAIT_MS : wait.maxWaitMs;
-    let delay = wait.pollIntervalMs ?? DEFAULT_POLL_MS;
-    for (;;) {
-      const run = await this.retrieve(runId, options);
-      if (SETTLED.has(run.status)) return run;
-      const waited = this.clock.now() - started;
-      if (maxWaitMs !== null && waited + delay > maxWaitMs) {
-        throw new WaitTimeoutError(`Run ${runId} was still ${run.status} after ${String(Math.round(waited / 1000))}s. It goes on server-side: call runs.retrieve or runs.wait again.`, run);
-      }
-      await this.clock.sleep(delay, options?.signal);
-      delay = nextPoll(delay);
-    }
+    return waitFor(this.clock, {
+      read: () => this.retrieve(runId, options),
+      settled: (run) => SETTLED.has(run.status),
+      stillGoing: (run, seconds) => `Run ${runId} was still ${run.status} after ${String(seconds)}s. It goes on server-side: call runs.retrieve or runs.wait again.`,
+      pollIntervalMs: wait.pollIntervalMs ?? DEFAULT_POLL_MS,
+      maxWaitMs: wait.maxWaitMs === undefined ? DEFAULT_MAX_WAIT_MS : wait.maxWaitMs,
+      signal: options?.signal,
+    });
   }
 
   /**

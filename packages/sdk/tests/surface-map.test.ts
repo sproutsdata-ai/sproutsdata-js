@@ -16,7 +16,24 @@ interface Group {
 }
 
 const SURFACE = JSON.parse(readFileSync(new URL('../../../spec/surface-map.json', import.meta.url), 'utf8')) as { readonly groups: readonly Group[] };
-const BUILT = new Set(['search', 'similar', 'filter_values', 'document_filter_values', 'sorts', 'coverage', 'entities', 'runs']);
+const BUILT = new Set([
+  'search',
+  'similar',
+  'filter_values',
+  'document_filter_values',
+  'sorts',
+  'coverage',
+  'entities',
+  'runs',
+  'relationships',
+  'relationships_reach',
+  'relationships_institutions',
+  'relationships_ask',
+  'org_chart',
+  'lists',
+  'exports',
+  'search_export',
+]);
 const NAMES = SURFACE.groups.filter((g) => BUILT.has(g.group)).flatMap((g) => g.js);
 
 function resolve(target: unknown, path: string): unknown {

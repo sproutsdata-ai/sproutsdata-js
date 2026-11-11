@@ -84,6 +84,7 @@ export function recordedBody<T = Record<string, unknown>>(name: string, which: s
 /** The answer the real backend gave for `name` (`spec/fixtures/responses/`). */
 export function recorded(name: string, which: string): Scripted {
   const fixture = read(`${FIXTURES}${name}/${which}.json`) as Fixture;
+  if (fixture.status === 204) return { status: 204, headers: fixture.headers };
   if (typeof fixture.body === 'string') {
     const { 'content-type': contentType, ...headers } = fixture.headers;
     return { status: fixture.status, headers, raw_body: fixture.body, content_type: contentType ?? 'text/plain' };

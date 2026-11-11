@@ -8,6 +8,10 @@ import { resolveOptions, type ClientOptions } from './core/options.js';
 import { Transport } from './core/transport.js';
 import { Coverage } from './resources/coverage.js';
 import { Entities } from './resources/entities.js';
+import { Exports, SearchExport } from './resources/exports.js';
+import { Lists } from './resources/lists.js';
+import { OrgChart } from './resources/org-chart.js';
+import { Relationships } from './resources/relationships.js';
 import { Runs } from './resources/runs.js';
 import { Search } from './resources/search.js';
 import { Vocabulary } from './resources/vocabulary.js';
@@ -33,10 +37,16 @@ export class SproutsData {
   readonly sorts: Vocabulary['sorts'];
   /** How many records the index holds. See {@link Coverage.coverage}. */
   readonly coverage: Coverage['coverage'];
+  /** Export search rows as CSV, at once or as a job. See {@link SearchExport.searchExport}. */
+  readonly searchExport: SearchExport['searchExport'];
 
   readonly #transport: Transport;
   #entities: Entities | undefined;
   #runs: Runs | undefined;
+  #relationships: Relationships | undefined;
+  #orgChart: OrgChart | undefined;
+  #lists: Lists | undefined;
+  #exports: Exports | undefined;
 
   /**
    * Make a client. Nothing is sent until the first call. `apiKey` defaults to
@@ -51,6 +61,7 @@ export class SproutsData {
     const search = new Search(this.#transport);
     const vocabulary = new Vocabulary(this.#transport);
     const coverage = new Coverage(this.#transport);
+    const searchExport = new SearchExport(this.#transport);
     this.search = (params, call) => search.search(params, call);
     this.iterSearch = (params, call) => search.iterSearch(params, call);
     this.similar = (params, call) => search.similar(params, call);
@@ -61,6 +72,7 @@ export class SproutsData {
     this.iterDocumentFilterValues = (category, name, params, call) => vocabulary.iterDocumentFilterValues(category, name, params, call);
     this.sorts = (category, call) => vocabulary.sorts(category, call);
     this.coverage = (params, call) => coverage.coverage(params, call);
+    this.searchExport = (params, call) => searchExport.searchExport(params, call);
   }
 
   /** Records by identifier: companies, people and each document kind. */
@@ -71,6 +83,26 @@ export class SproutsData {
   /** Research runs. */
   get runs(): Runs {
     return (this.#runs ??= new Runs(this.#transport));
+  }
+
+  /** People connected across companies and institutions. */
+  get relationships(): Relationships {
+    return (this.#relationships ??= new Relationships(this.#transport));
+  }
+
+  /** A company's people, counted by department, seniority and place. */
+  get orgChart(): OrgChart {
+    return (this.#orgChart ??= new OrgChart(this.#transport));
+  }
+
+  /** Saved lists of records. */
+  get lists(): Lists {
+    return (this.#lists ??= new Lists(this.#transport));
+  }
+
+  /** Export jobs and their files. */
+  get exports(): Exports {
+    return (this.#exports ??= new Exports(this.#transport));
   }
 
   /** What `JSON.stringify` shows: the configuration, with the key redacted. */

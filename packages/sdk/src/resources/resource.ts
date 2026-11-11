@@ -4,13 +4,14 @@
  * the HTTP, the retries and the paging rules are the core's.
  */
 
-import { callJson, callPages, callStream, type Input, type JsonBody } from '../core/call.js';
+import { callAnswer, callCsv, callExport, callJson, callPages, callStream, type Input, type JsonBody } from '../core/call.js';
 import type { Clock } from '../core/clock.js';
 import type { PageInput } from '../core/pagination.js';
 import type { ServerSentEvent } from '../core/sse.js';
 import type { RequestOptions, Transport } from '../core/transport.js';
 import type { OperationMap, OperationName } from '../generated/operations.js';
 import { checkMaxResults } from '../requests/build.js';
+import type { ExportResult } from '../types/index.js';
 
 export class Resource {
   readonly #transport: Transport;
@@ -43,6 +44,21 @@ export class Resource {
   ): AsyncGenerator<Row, void, undefined> {
     checkMaxResults(name, maxResults);
     return walk(callPages(this.#transport, name, first, options, maxResults), rowsOf, maxResults);
+  }
+
+  /** Call an export: the file at once, or the job it started. */
+  protected fileOrJob<K extends OperationName>(name: K, input: Input<K>, options?: RequestOptions): Promise<ExportResult> {
+    return callExport(this.#transport, name, input, options);
+  }
+
+  /** Call an operation that answers with a CSV file. */
+  protected csv<K extends OperationName>(name: K, input: Input<K>, options?: RequestOptions): Promise<string> {
+    return callCsv(this.#transport, name, input, options);
+  }
+
+  /** Call an operation that answers with no body. */
+  protected async empty<K extends OperationName>(name: K, input: Input<K>, options?: RequestOptions): Promise<void> {
+    await callAnswer(this.#transport, name, input, options);
   }
 
   /** Follow an operation's server-sent event stream. */

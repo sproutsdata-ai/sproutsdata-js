@@ -34,6 +34,11 @@ describe('tool definitions', () => {
     }
   });
 
+  it.each(TOOL_NAMES)('%s: the strict schema derived at run time is the spec file\'s', (name) => {
+    const tool = openai([name]).at(0);
+    expect(tool !== undefined && 'function' in tool ? tool.function.parameters : undefined).toEqual(spec(name).strict_input_schema);
+  });
+
   it('are the spec files, with every hint when all three are offered', () => {
     for (const definition of definitions()) {
       const file = spec(definition.name);

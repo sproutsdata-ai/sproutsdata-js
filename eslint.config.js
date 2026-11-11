@@ -2,9 +2,9 @@
 //
 // packages/sdk is linted with type information (`strictTypeChecked` and
 // `stylisticTypeChecked`) plus the rules below that keep it small, layered and
-// runtime-neutral. The adapters (packages/langchain, packages/ai-sdk) get the same
-// type-checked rule sets. Everything else (the repo's scripts, and the LEGACY
-// examples waiting for their phase of the rewrite) gets the recommended rules.
+// runtime-neutral. The adapters (packages/langchain, packages/ai-sdk) and the
+// examples get the same type-checked rule sets. The repo's own scripts get the
+// recommended rules.
 
 import js from '@eslint/js';
 import comments from '@eslint-community/eslint-plugin-eslint-comments/configs';
@@ -114,6 +114,15 @@ export default tseslint.config(
       eqeqeq: ['error', 'always'],
     },
   })),
+  {
+    // The examples: programs a reader runs on Node, against the built packages.
+    files: ['examples/**/*.ts'],
+    extends: [...tseslint.configs.strictTypeChecked, ...tseslint.configs.stylisticTypeChecked],
+    languageOptions: {
+      parserOptions: { project: ['examples/tsconfig.json'], tsconfigRootDir: import.meta.dirname },
+    },
+    rules: { '@typescript-eslint/consistent-type-imports': 'error', eqeqeq: ['error', 'always'] },
+  },
   {
     // Adapter tests read fixtures and mocks whose shape they set themselves, and fake LangChain
     // and AI SDK models whose methods must be async and may be empty.

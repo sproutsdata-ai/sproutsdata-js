@@ -1,121 +1,135 @@
-# Agent runs
+# Research runs
 
-Research rather than retrieval: an asynchronous, multi-step job that finds
-candidates and verifies them against criteria you state in words, fills the
-enrichment columns you name, streams progress, and measures its own coverage.
-Runs take minutes, not milliseconds, and are the only asynchronous surface in
-the API — so the flow is start → watch → read.
+Research rather than retrieval: a question worked through for minutes, which
+finds candidates, checks them against criteria you state in words, fills the
+enrichment columns you name, and reports its own coverage. The flow is start,
+follow, read.
+
+A run needs a key with the `dsp.agents.*` scopes: `dsp.agents.write` to start
+and cancel one, `dsp.agents.read` (or write) to read and follow it. A key made
+with the default scopes has neither; create one with them.
 
 ## Start
 
-Needs `dsp.agents.write`.
-
 ```ts
-const { run_id } = await client.runs.create(
+const handle = await client.runs.create(
   {
     query: 'series B fintechs in DACH with an in-house ML team',
-    category: 'company',                    // or 'person'
-    effort: 'high',                         // minimal 1.02 | low 2.125 | medium 8.5 | high 42.5 | xhigh 85 | auto (holds 85)
-    criteria: ['has an in-house ML team'],  // prose — the engine decides what it can prove
-    enrichments: ['ml_team_evidence'],      // columns to fill
-    exclusion: ['<record-id-you-already-hold>'],
+    category: 'company', // or 'person'
+    effort: 'high', // 'minimal', 'low', 'medium', 'high', 'xhigh' or 'auto'
+    criteria: ['has an in-house ML team'], // up to 10, in words
+    enrichments: ['ml_team_evidence'], // up to 20 columns to fill
+    exclusion: ['<record-id-you-already-hold>'], // up to 1,000
   },
-  { idempotencyKey: 'dach-ml-fintechs-2026-10-01' }, // optional
+  { idempotencyKey: 'dach-ml-fintechs-2026-11-01' }, // optional
 );
+console.log(handle.run_id, handle.status);
 ```
 
-**Credits are held, then settled.** The hold is placed before the engine is
-called, so an unaffordable run does not start. Cancelling releases the hold —
-you are charged nothing for work you stopped — but a run that had already
-finished stays finished and is charged.
+`create` answers at once with the run's id; the work goes on server-side. The
+run is billed when it settles (`credits_charged` on the result). A run
+cancelled before it finishes is not billed.
 
-**Every create carries an `Idempotency-Key`**, which the server requires on this
-route and nowhere else. Starting a run holds credits and takes minutes, so a
-repeat must be recognisable: the server returns the original run for a key it
-has seen instead of starting (and holding credits for) a second one. Without
-`idempotencyKey` the SDK generates `sdk-<32 hex>` for the call and resends it on
-each of its own retries — which is what makes retrying a timed-out create safe.
-Pass your own when a retry may come from somewhere else (another process, a job
-re-queued after a crash).
+**Every create carries an `Idempotency-Key`.** The server requires one on this
+route. The SDK sends the `idempotencyKey` you pass (1 to 255 characters), or
+generates one, and resends it on its own retries, which is what makes retrying
+a timed-out create safe. Pass your own key when a retry may come from somewhere
+else, such as another process or a job queued again after a crash. Use a new
+key for a new question.
 
-The server replays the first run for a key it has already seen and **ignores
-the new body**. A key therefore names one question: reuse it to retry, and use a
-new one to ask something different.
+A key without the scopes throws `PermissionDeniedError`.
 
-## Watch — the event stream
+## Follow it as it happens
 
 ```ts
-for await (const event of client.runs.events(run_id)) {
-  console.log(event.seq, event.type, event.data);
-  // run.started, plan, step.started, tool.called, grounded, coverage,
-  // rows.preliminary, budget, answer, … then run.done or error.
+const handle = await client.runs.create({ query: 'European neobanks with a banking licence' });
+
+let lastEventId: string | undefined;
+for await (const event of client.runs.events(handle.run_id)) {
+  console.log(event.event, event.data);
+  lastEventId = event.id ?? lastEventId;
 }
+
+const run = await client.runs.retrieve(handle.run_id);
+console.log(run.status, lastEventId);
 ```
 
-The generator ends when the server closes the stream, after a terminal
-`run.done` or `error` (the exported `TERMINAL_RUN_EVENTS` set names them).
-Heartbeats are absorbed; your `AbortSignal` (in the options argument) is the way
-to leave early. Event payloads are server-owned (`data` is a plain object; `raw`
-keeps the original line), and unknown event types still arrive — the vocabulary
-can grow without an SDK release.
+`events` yields the run's server-sent events as they happen, each with its
+`id`, its `event` name, its `data` as JSON and the `raw` text. The generator
+ends when the run's stream closes. The stream carries no closing frame, so read
+the outcome with `retrieve` (or `wait`) afterwards. Pass an `AbortSignal` in
+the options to stop early.
 
-There is **no mid-stream auto-reconnect**, because a silent reconnect replays
-events you have already handled. A stream silent for 60 seconds raises
-`APITimeoutError` carrying `lastEventId`; a dropped one raises
-`APIConnectionError`. Either way, resume from the last `seq` you saw and the
-server replays only what followed:
+A stream that breaks throws `APIConnectionError`, and one silent for 60 seconds
+throws `APITimeoutError`; both carry `lastEventId`. Pass it back to resume
+after the last event read:
 
 ```ts
-client.runs.events(run_id, { lastEventId: String(lastSeq) });
+import { APIConnectionError } from 'sproutsdata';
+
+async function follow(runId: string, lastEventId?: string): Promise<void> {
+  try {
+    for await (const event of client.runs.events(runId, lastEventId === undefined ? {} : { lastEventId })) {
+      console.log(event.event);
+    }
+  } catch (err) {
+    if (err instanceof APIConnectionError && err.lastEventId !== undefined) return follow(runId, err.lastEventId);
+    throw err;
+  }
+}
+
+await follow('<run-id>');
 ```
+
+A person run's `rows.preliminary` events carry no preview.
 
 ## Read the outcome
 
 ```ts
-const run = await client.runs.wait(run_id); // completed, failed, cancelled or expired
-console.log(run.status, run.stop_reason, run.credits_charged);
+const run = await client.runs.wait('<run-id>', { pollIntervalMs: 3_000, maxWaitMs: 900_000 });
+console.log(run.status, run.stop_reason, run.credits_charged, run.effort_ran);
 console.log(run.summary, run.coverage?.universe_exhausted, run.insights);
 ```
 
-**Events are for progress; reading the run is for outcomes.** Reading a finished
-run (`runs.retrieve` — `runs.wait` is a poll loop over it) is what settles the
-credit hold, so `credits_charged` is real there; it stays `null` (never `0`)
-until then. Streaming alone never settles a run.
+`retrieve` reads a run as it stands: `status` (`pending`, `running`,
+`completed`, `failed` or `cancelled`), `summary`, `effort_ran` (the effort it
+ran at; for `auto`, the one chosen), `coverage` and the cost. It is free.
 
-`runs.wait` polls from 3 s, growing 1.5× per poll up to 15 s (`pollIntervalMs`
-sets the first interval), and returns any terminal run — `failed` and `expired`
-included: a terminal run is an answer, not an error. It gives up after 15
-minutes (`timeoutMs` changes the deadline) by throwing `RunWaitTimeoutError`,
-whose `run` is the last polled state; the run itself carries on server-side and
-is not cancelled. `signal` stops the wait at once.
+`wait` polls `retrieve` until the run settles (`completed`, `failed` or
+`cancelled`) and returns it. A failed or cancelled run is returned, not thrown.
+Polling starts at `pollIntervalMs` (default 3 seconds) and waits half again
+longer each time, to at most 15 seconds. After `maxWaitMs` (default 15 minutes;
+`null` waits for as long as it takes) it throws `WaitTimeoutError`, whose `last`
+is the last state seen; the run goes on server-side. Your `signal` stops the
+wait at once.
 
-Check coverage before trusting a count: "we found 40 accounts" and "there are 40
-accounts" are different claims, and `run.coverage` says which one this is (see
-[the coverage block](quickstart.md#the-coverage-block)).
+Read `coverage` before trusting a count: "we found 40 accounts" and "there are
+40 accounts" are different claims. See
+[the coverage block](quickstart.md#the-coverage-block).
 
 ## The rows
 
-The rows are free to read and cursor-paginated:
+A settled run's rows are free to read, with its `columns` filled in on each:
 
 ```ts
-for await (const page of client.runs.resultsPages(run_id, { limit: 100 })) {
-  process(page.results); // each row: { id, …the run's own columns }
+const page = await client.runs.results('<run-id>', { limit: 100 });
+console.log(page.columns, page.total, page.next_cursor);
+
+for await (const row of client.runs.iterResults('<run-id>', { maxResults: 500 })) {
+  console.log(row);
 }
 ```
 
-Insights (`run.insights`, with `run.insight_sources`) come from corpora with no
-company linkage, so they are never one of the rows; keep them in their own
-block.
+`insights` (with `insight_sources`) on the run are not rows; keep them in their
+own block.
 
 ## Listing and cancelling
 
-`client.runs.list({ limit })` lists the tenant's runs, newest first, with no
-cursor. `client.runs.cancel(run_id)` is idempotent, needs a key with
-`dsp.agents.write`, and releases the credit hold rather than settling it. A
-finished run whose hold had already lapsed before anyone read it reports
-`credits_charged: 0` — it was not charged. `effort_ran` says which tier a run
-actually ran at (for `auto`, the one it chose).
+`runs.list` is one page of the workspace's runs, newest first, and
+`runs.iterList` walks them all. Both are free. A server that cannot list runs
+yet throws `FeatureNotAvailableError` (501).
 
-An unknown run id is a 404 carrying `code: 'request.invalid'` rather than a
-dedicated not-found code. Errors are classed by code first, so it arrives as an
-`InvalidRequestError` with `status: 404` — branch on `err.status === 404`.
+`runs.cancel(runId)` stops a run. A run that had already finished stays
+finished, and charged.
+
+An unknown run id throws `NotFoundError` (`agents.run_not_found`).

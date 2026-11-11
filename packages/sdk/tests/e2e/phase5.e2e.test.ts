@@ -11,14 +11,21 @@ import type { SearchParams } from '../../src/types/index.js';
 import { collect } from '../support/rig.js';
 import { arm, client, raw, setting, STACK } from './stack.js';
 
-interface Charge {
+interface Transaction {
+  readonly id: string;
   readonly kind: string;
   readonly credits: number;
 }
 
-async function charges(): Promise<Charge[]> {
-  const answer = (await (await raw('GET', '/v1/credits/transactions?limit=100')).json()) as { results: Charge[] };
-  return answer.results.filter((row) => row.kind === 'charge');
+async function ledger(): Promise<Transaction[]> {
+  return ((await (await raw('GET', '/v1/credits/transactions?limit=100')).json()) as { results: Transaction[] }).results;
+}
+
+/** The charges written after the transaction `newest` (the ledger lists newest first). */
+async function chargesSince(newest: string | undefined): Promise<Transaction[]> {
+  const rows = await ledger();
+  const end = rows.findIndex((row) => row.id === newest);
+  return rows.slice(0, end === -1 ? rows.length : end).filter((row) => row.kind === 'charge');
 }
 
 describe.skipIf(STACK === undefined)('phase 5, live', () => {
@@ -26,13 +33,12 @@ describe.skipIf(STACK === undefined)('phase 5, live', () => {
     const sdk = client();
     const query = category === 'auto' ? 'robotics companies in Germany' : 'robotics';
     const params = { category, query, limit: 2 } as SearchParams;
-    const before = (await charges()).length;
+    const newest = (await ledger())[0]?.id;
     const first = await sdk.search(params);
     const second = await sdk.search({ ...params, cursor: first.next_cursor ?? '' });
     const again = await sdk.search(params);
     const rows = await collect(sdk.iterSearch({ category, query, limit: 2, maxResults: 4 }));
-    const after = await charges();
-    const spent = -after.slice(0, after.length - before).reduce((sum, row) => sum + row.credits, 0);
+    const spent = -(await chargesSince(newest)).reduce((sum, row) => sum + row.credits, 0);
     const costs = [first, second, again].map((page) => page.meta.credits_charged ?? 0);
     expect(rows).toHaveLength(4);
     expect(first.meta.credits_charged).toBeGreaterThan(0);

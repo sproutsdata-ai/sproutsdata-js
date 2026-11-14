@@ -308,7 +308,7 @@ export class SproutsData {
   readonly history: History;
 
   /**
-   * `/v1/agents/runs*` — asynchronous agentic runs: `create` (idempotent —
+   * `/v1/agents/runs*` — Agents, as asynchronous agent runs: `create` (idempotent —
    * the SDK generates the key when you pass none; `dsp.agents.write`), `retrieve` / `wait` / `list` / `cancel` /
    * `results` / `events` (SSE) under `dsp.agents.read` or `.write`.
    */

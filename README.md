@@ -60,7 +60,7 @@ of each:
 | `entities.*` | Typed full records, one method per category; misses are returned, never dropped |
 | `relationships.*` | Warm paths into an account — who is connected, and **why**. [Relationships](docs/relationships.md) |
 | `orgChart.*` | A company's people counted by department, seniority and place. [Org charts](docs/org-chart.md) |
-| `runs.*` | Asynchronous research: candidates verified against criteria you state in words. [Agent runs](docs/runs.md) |
+| `runs.*` | Agents: asynchronous agent runs, candidates verified against criteria you state in words. [Agent runs](docs/runs.md) |
 | `credits.*` | The balance and this key's spend, free |
 | `history.*` | What this key has done — per call, with the request body, free. [Usage](docs/usage.md) |
 | `feedback.*` | Report a wrong answer or a product problem, and like, dislike or flag an answer. [Feedback](docs/feedback.md) |

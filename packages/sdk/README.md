@@ -286,9 +286,9 @@ blanked. See [Org charts](../../docs/org-chart.md).
 
 ## Agent runs
 
-Research rather than retrieval: candidates verified against criteria you state
-in words. Minutes, not milliseconds, and the only asynchronous surface in the
-API.
+Agents do research rather than retrieval: an agent run verifies candidates
+against criteria you state in words. Minutes, not milliseconds, and the only
+asynchronous surface in the API.
 
 ```ts
 const handle = await client.runs.create({

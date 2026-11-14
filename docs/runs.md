@@ -1,10 +1,10 @@
 # Agent runs
 
-Research rather than retrieval: an asynchronous, multi-step job that finds
-candidates and verifies them against criteria you state in words, fills the
-enrichment columns you name, streams progress, and measures its own coverage.
-Runs take minutes, not milliseconds, and are the only asynchronous surface in
-the API — so the flow is start → watch → read.
+Agents do research rather than retrieval. An agent run is an asynchronous,
+multi-step job that finds candidates and verifies them against criteria you
+state in words, fills the enrichment columns you name, streams progress, and
+measures its own coverage. Runs take minutes, not milliseconds, and are the
+only asynchronous surface in the API — so the flow is start → watch → read.
 
 ## Start
 

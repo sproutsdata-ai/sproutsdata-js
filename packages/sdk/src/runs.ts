@@ -1,5 +1,5 @@
 /**
- * The `/v1/agents/runs` surface (`client.runs`): asynchronous agentic search
+ * The `/v1/agents/runs` surface (`client.runs`): Agents, as asynchronous agent
  * runs.
  *
  * Starting a run reserves credits and settles on completion (cost is null

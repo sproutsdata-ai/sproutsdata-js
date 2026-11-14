@@ -20,7 +20,7 @@ npm install sproutsdata
 | [Sorting](sorting.md) | Ordering by a field instead of relevance, and the live sort catalogue |
 | [Relationships](relationships.md) | Who knows whom: `find`, `reach`, `institutions`, `ask` |
 | [Org charts](org-chart.md) | A company's people counted by department, seniority and place |
-| [Agent runs](runs.md) | Asynchronous research: start, watch, read |
+| [Agent runs](runs.md) | Agents: start a run, watch it, read it |
 | [Saved lists and export](lists.md) | The workspace's saved lists, and CSV export of lists and search results |
 | [Feedback](feedback.md) | Reporting a wrong answer or a product problem, and voting on an answer |
 | [Credits, usage history and members](usage.md) | Balance, per-key spend, call history and replay, member lookup |

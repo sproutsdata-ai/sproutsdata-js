@@ -1,6 +1,8 @@
 node_modules/
 dist/
-coverage/
+# Coverage reports; spec/fixtures/responses/coverage/ is a recorded answer and is tracked.
+/coverage/
+packages/*/coverage/
 *.log
 .DS_Store
 *.tsbuildinfo

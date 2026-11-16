@@ -1,0 +1,235 @@
+{
+  "body": {
+    "added": 50,
+    "already_present": 0,
+    "not_found": 0,
+    "saved_list": {
+      "created_at": "2026-11-10T22:30:06.574118Z",
+      "created_by": "user:1",
+      "entity_category": "company",
+      "id": "caf54ee0-237b-43cc-a506-68fed3d17517",
+      "item_count": 50,
+      "name": "E2E prospects 62ba8da2 (renamed)",
+      "updated_at": "2026-11-10T22:30:06.691506Z"
+    },
+    "suppressed": 0
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "60",
+    "ratelimit-remaining": "55",
+    "ratelimit-reset": "54",
+    "x-request-id": "a120a184dd004119924f20ed42ad13fb"
+  },
+  "operation": "lists_add_items",
+  "request": {
+    "body": {
+      "items": [
+        {
+          "entity_category": "company",
+          "entity_id": "example-0.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-1.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-2.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-3.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-4.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-5.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-6.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-7.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-8.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-9.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-10.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-11.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-12.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-13.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-14.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-15.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-16.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-17.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-18.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-19.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-20.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-21.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-22.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-23.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-24.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-25.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-26.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-27.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-28.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-29.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-30.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-31.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-32.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-33.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-34.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-35.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-36.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-37.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-38.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-39.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-40.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-41.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-42.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-43.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-44.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-45.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-46.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-47.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-48.de"
+        },
+        {
+          "entity_category": "company",
+          "entity_id": "example-49.de"
+        }
+      ]
+    },
+    "method": "POST",
+    "path": "/v1/lists/caf54ee0-237b-43cc-a506-68fed3d17517/items",
+    "query": {}
+  },
+  "status": 200
+}

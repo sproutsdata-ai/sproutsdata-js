@@ -1,6 +1,6 @@
 {
   "$comment": "Every sentence the tools modules write to a model themselves — validation refusals, rule refusals, caveats, and the errors that have no problem document to quote. Shared so that the same failure reads the same in every language (fixtures/ compares results byte for byte). `{name}` is a placeholder, substituted verbatim; no other braces carry meaning. README.md documents when each one is used.",
-  "version": 1,
+  "version": 2,
   "validation": {
     "summary": "Invalid arguments: fix the listed fields and call again.",
     "not_json": "Arguments are not valid JSON. Send a JSON object.",
@@ -27,7 +27,8 @@
     "sort_duplicate_field": "`sort` names `{field}` twice. Two directions for one field is a contradiction.",
     "by_not_accepted": "`{category}` accepts no `by`: its ids already are record ids.",
     "by_not_valid": "`by: \"{by}\"` is not valid for `{category}`. Allowed: {allowed}.",
-    "person_has_no_domain": "`by: \"domain\"` is not valid for `person`: a person has no domain. Use `li_url` or `name`."
+    "person_has_no_domain": "`by: \"domain\"` is not valid for `person`: a person has no domain. Use `li_url` or `name`.",
+    "documents_take_no_filters": "`filters` are company and person filters; a `{category}` search takes `query` only here. Put the constraint in the words, or search `company` or `person`."
   },
   "caveats": {
     "degradation": "{reason}: {detail} (impact: {impact})",
@@ -41,8 +42,7 @@
     "anchors_by_name": "anchors_by_name: {names} — resolved by name with no disambiguation, so a same-named company may have been used. Prefer a domain.",
     "anchors_zero_weight": "anchors_zero_weight: {names} — weight 0, so no influence on the result.",
     "anchors_removed": "anchors_removed: {ids} — returned as a look-alike of itself and removed.",
-    "search_ids_not_found": "search_ids_not_found: {ids} — search-result ids are not record ids and are never found here. Look the row up by its `lookup` value (domain or LinkedIn URL); this miss does not mean the record is not held.",
-    "raw_values_without_by": "raw_values_without_by: {ids} — read as record ids because `by` was not set. Call again with `by: \"domain\"` or `by: \"li_url\"`.",
+    "search_ids_not_found": "search_ids_not_found: {ids} — these look like the hash a search gives a person row, which no lookup resolves. Look the row up by its `lookup` value (its LinkedIn URL); this miss does not mean the record is not held.",
     "record_unavailable": "record_unavailable: {ids} — resolved, but no record came back. This is not a miss."
   },
   "errors": {

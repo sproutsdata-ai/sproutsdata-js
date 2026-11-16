@@ -16,8 +16,8 @@ server's, so one name means one contract on every surface.
 Edit a tool file or a shared file, then regenerate:
 
 ```bash
-python scripts/gen_tool_schemas.py           # strict schemas + src/sproutsdata/tools/_specs.py
-python scripts/gen_tool_schemas.py --check    # CI: fails while either is stale
+python -m scripts.gen_tool_schemas           # strict schemas + src/sproutsdata/tools/specs/
+python -m scripts.gen_tool_schemas --check    # CI: fails while either is stale
 ```
 
 ## Tool files
@@ -76,22 +76,25 @@ python scripts/gen_tool_schemas.py --check    # CI: fails while either is stale
    `filters` that is `{}` once nulls are removed and a `query` that is empty or
    only whitespace both count as absent; `category: "auto"` needs a `query`,
    `mode: "auto"`, and no filters, domains or sort, and cannot run under
-   baseline filters; domain lists need a domain category; a sort field may
-   appear once; a lookup `by` must be one the category accepts
-   (`shaping.json` → `lookup_by`).
+   baseline filters; domain lists need a domain category; a document category
+   takes no `filters` (they are company and person filters:
+   `documents_take_no_filters`); a sort field may appear once; a lookup `by`
+   must be one the category accepts (`shaping.json` → `lookup_by`).
 5. **Baseline filters** merge into the model's per sub-key: a filter the model
    did not set is added whole; one it did set keeps its own keys, and takes the
    application's value for every key the application sets. Each key whose value
    changed adds an `application_filter` caveat. Not applied to `category: "auto"`.
 6. **Row cap** — `limit` above the toolset's `max_results` (1–25, default 25) is
    lowered to it, with a `limit_capped` caveat when the model asked explicitly.
-7. **The request.** Search sends `mode`, `category` (omitted for `auto`, which is
-   how the API is asked to classify), `limit` and whatever else was given;
-   `fields` is never sent, because `/v1/search` and `/v1/similar` refuse it.
-   Look-alike sends each anchor with its `by` and `weight`. Lookup sends `ids`,
-   `fields` when given, and `by` when given or when the category has a default
-   (`id` for the four named document categories, whose server default would read
-   a record id as a name).
+7. **The request.** Search sends `mode`, `category` (`auto` included), `limit`
+   and whatever else was given; `fields` is never sent, because `/v1/search` and
+   `/v1/similar` refuse it. Look-alike sends each anchor with its `by` and
+   `weight`, and no `category` (companies are the only one). Lookup sends `ids`,
+   and `by` when given or when the category has a default (`auto` for company and
+   person, `id` for the four named document categories, whose server default
+   would read a record id as a name). `fields` is sent for document categories
+   and applied to the records returned for company and person, whose lookups
+   take none.
 
 ## Result shape
 
@@ -121,13 +124,18 @@ Search and look-alike:
   stable partition. "Asked for" is every literal in the effective filters and in
   `resolved_search.filters` under the same field name: a string, a list of
   strings, or an object's `include` list.
-- **`lookup`** is added to a company or person row when the lookup tool is in
-  the toolset: `{"by": "domain", "value": domain}` for a company with a domain,
-  otherwise `{"by": "li_url", "value": linkedin_url}` when there is one. A row
-  without either gets none, and a `rows_without_lookup` caveat counts them.
+- **`lookup`** is added to a row when the lookup tool is in the toolset:
+  `{"by": "domain", "value": domain}` for a company with a domain, otherwise
+  `{"by": "li_url", "value": linkedin_url}` for a company or person with one, and
+  for a document row with a sealed `d1_...` id, `{"by": "id", "value": id}`
+  (`{"value": id}` for patents, trends and academic reports, whose lookups take
+  no `by`). A company or person row without either gets none, and a
+  `rows_without_lookup` caveat counts them.
 - **`interpreted_as`** is `resolved_search` as `{filters, source, conflicts}`
-  (`source` is `filters_source`), and `{"filters": {}, "source": "none",
-  "conflicts": []}` when the response had none. It is never dropped.
+  (`source` is `filters_source`; a look-alike's `anchors` and `combine`, listed
+  in `shaping.json` → `resolved_filters_skipped`, are left out of `filters`),
+  and `{"filters": {}, "source": "none", "conflicts": []}` when the response had
+  none. It is never dropped.
 - **`caveats`**, in order: each degradation as `"<reason>: <detail> (impact:
   <impact>)"`; `coverage_truncated` and `constraint_unmet` from `coverage`;
   `parser_not_run` when the call sent a `query` and `resolved_search` has
@@ -153,13 +161,12 @@ Lookup:
 }
 ```
 
-Every id is answered, in order. `matches` holds at most `matches_max` records,
+Every id is answered, found ones first. `matches` holds at most `matches_max` records,
 shaped like rows, plus a `more_marker` when there were more; `ambiguous` is true
 when more than one record matched. `found: true` with an empty `matches` is a
 record that resolved but did not come back (`record_unavailable`), never a miss.
-For a company or person lookup without `by`, misses that match
-`search_id_pattern` add `search_ids_not_found`, and misses containing `.` or `/`
-add `raw_values_without_by`.
+For a company or person lookup without `by` (so `auto`), misses that match
+`search_id_pattern` (a person row's hash id) add `search_ids_not_found`.
 
 ## Errors
 
@@ -172,17 +179,16 @@ All six keys, always. Returned, never raised: invalid arguments
 `message`, a rule refusal as the `message`), an unknown tool (`unknown_tool`),
 and every API failure except the three below — `code` is the problem
 document's, or `http.<status>` without one; `message` its `detail`, else its
-`title`, else `HTTP <status>`; `field_errors` its `extra.errors` as `path: msg`
+`title`, else `HTTP <status>`; `field_errors` its `errors` as `path: msg`
 with a leading `body` or `query` segment dropped (`msg` defaults to `invalid`);
-`retry_after` in seconds. `retryable` is true for 429, 500 (except
-`credits.unknown_action`), 503 and 504. A 502 or 408 is `gateway_no_answer`, and
+`retry_after` in seconds. `retryable` is true for 429, 500, 503 and 504. A 502 or 408 is `gateway_no_answer`, and
 a timeout (`timeout`) or dropped connection (`connection_error`) after the
 request was sent is not retryable either: all three tools are charged once the
 server has done the work, so a repeat may be a second charge. A request that never left is
 retryable. An unreadable success is `response_invalid`.
 
-Raised to the application: 401, 403 and 402, and the configuration errors a
-client raises before any call. A model can fix none of them.
+Raised to the application: 401, 403 and 402 (a frozen wallet included), and the
+configuration errors a client raises before any call. A model can fix none of them.
 
 ## Canonical JSON
 

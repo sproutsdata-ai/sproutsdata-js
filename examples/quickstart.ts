@@ -1,56 +1,42 @@
 /**
- * Search, then fetch the full record behind the first result. The smallest
- * useful program.
+ * Search, then fetch the full record behind the first result: the smallest useful program.
  *
  *   export SPROUTSDATA_API_KEY=sk_dsp_test_<your-key>
- *   npx tsx examples/quickstart.ts
+ *   node examples/quickstart.ts
  */
 
-import { InsufficientCreditsError, SproutsData, lookupRef } from 'sproutsdata';
+import { entityHit, InsufficientCreditsError, lookupRef, recordsOf, SproutsData } from 'sproutsdata';
 
 const client = new SproutsData(); // reads SPROUTSDATA_API_KEY
 
 try {
-  const page = await client.search({
-    query: 'fintech companies in Germany',
-    mode: 'auto',
-    category: 'company',
-    limit: 10,
-  });
+  const page = await client.search({ query: 'fintech companies in Germany', limit: 10 });
 
-  // `total` may be a floor. Rendering it as exact is the mistake this flag
-  // exists to prevent.
-  console.log(`${page.total_is_estimate ? 'at least ' : ''}${page.total} matches\n`);
+  // `total` may be a floor rather than a count: say "at least" when it is.
+  const estimate = page.total_is_estimate ? 'at least ' : '';
+  console.log(`${estimate}${String(page.total)} matches; this page cost ${String(page.meta.credits_charged)}\n`);
 
   for (const hit of page.results) {
-    // Only id, category and score are guaranteed. A company names itself in
-    // `account_name`; everything else is read by key.
-    const name = String(hit['account_name'] ?? '(unnamed)');
-    console.log(`  ${name.slice(0, 40).padEnd(42)} ${String(hit['domain'] ?? '').padEnd(30)} ${hit.score}`);
+    // `id`, `category` and `score` are fields; everything else the record holds is read by key.
+    const name = typeof hit['account_name'] === 'string' ? hit['account_name'] : '(unnamed)';
+    console.log(`  ${name.slice(0, 40).padEnd(42)} ${String(hit.score)}`);
   }
 
-  // An empty list means the server checked and found nothing wrong. It never
-  // means "unknown", so it is worth surfacing when it is not empty.
-  for (const issue of page.degradation) {
-    console.log(`\n! ${issue.reason}: ${issue.detail} (affects ${issue.impact})`);
-  }
+  // An empty list means nothing reduced the answer; anything here changes its meaning.
+  for (const issue of page.degradation) console.log(`\n! ${issue.reason}: ${issue.detail} (affects ${issue.impact})`);
 
-  // A search id is not a lookup key: look the row up by what it carries.
-  const first = page.results[0];
-  const ref = first === undefined ? null : lookupRef(first);
-  if (ref === null) {
-    console.log('\nno result carries a domain or LinkedIn URL to look it up by');
+  // Look a row up by what it carries (its domain, else its LinkedIn page), never by `id`.
+  const ref = page.results[0] === undefined ? undefined : lookupRef(page.results[0]);
+  if (ref === undefined) {
+    console.log('\nthe first row carries nothing a lookup can take');
   } else {
-    const lookup = await client.entities.companies({ ids: [ref.value], by: ref.by });
-    for (const hit of lookup.results) {
-      const company = hit.matches[0];
-      if (company === undefined) console.log(`\nnot found: ${hit.id}`);
-      else console.log(`\n${company.account_name}: ${company.employee_count} people, ${company.industry}`);
-    }
+    // `by: 'auto'` (the default) reads a domain or a LinkedIn URL from the value itself.
+    const found = await client.entities.companies({ ids: [ref.value] });
+    const entry = entityHit(found, ref.value);
+    for (const record of entry === undefined ? [] : recordsOf(entry)) console.log(`\n${JSON.stringify(record).slice(0, 200)}`);
   }
-
   console.log(`\nrequest_id=${page.meta.request_id}`);
-} catch (err) {
-  if (!(err instanceof InsufficientCreditsError)) throw err;
-  console.log(`need ${err.required}, have ${err.available} — top up and retry`);
+} catch (error) {
+  if (!(error instanceof InsufficientCreditsError)) throw error;
+  console.log(`need ${String(error.requiredCredits)} credits, ${String(error.availableCredits)} available`);
 }

@@ -5,15 +5,14 @@
  * Each class is framework glue and nothing else. The name, the description
  * and the JSON Schema come from a `Toolset`'s `definitions()`, so a LangChain
  * agent sees exactly the contract the Sprouts MCP server and every other
- * surface use (contract 02 §12). A call goes to `Toolset.run`, and the model
+ * surface use. A call goes to `Toolset.run`, and the model
  * gets the toolset's canonical JSON back.
  *
- * Invalid input — an unknown argument, a wrong type, a broken tool rule —
- * comes back to the model as an `{"error": {...}}` result it can correct,
- * never as an exception that ends the run. API failures the model can act
- * on (404, 409, 422, 429, 5xx, timeouts) come back the same way. What only
- * the application can fix — a rejected key (401), a missing scope (403), no
- * credits (402) — is thrown.
+ * Invalid input (an unknown argument, a wrong type, a broken tool rule) comes
+ * back to the model as an `{"error": {...}}` result it can correct, never as
+ * an exception that ends the run. API failures the model can act on (404,
+ * 409, 422, 429, 5xx, timeouts) come back the same way. What only the
+ * application can fix (a rejected key, a missing scope, no credits) is thrown.
  */
 
 import { ToolMessage } from '@langchain/core/messages';
@@ -68,7 +67,7 @@ export abstract class SproutsDataTool extends StructuredTool<JSONSchema, Args, A
     }
     this.name = definition.name;
     this.description = definition.description;
-    this.schema = definition.input_schema as JSONSchema;
+    this.schema = definition.input_schema;
     this.#toolset = toolset;
   }
 
@@ -78,8 +77,8 @@ export abstract class SproutsDataTool extends StructuredTool<JSONSchema, Args, A
 
   /**
    * LangChain checks a JSON-schema tool's input against `schema` itself, and
-   * throws `ToolInputParsingException` on a mismatch — which would end the
-   * agent run, with less to go on than the toolset gives. So a refused input
+   * throws `ToolInputParsingException` on a mismatch, which would end the
+   * agent run with less to go on than the toolset gives. So a refused input
    * goes to the toolset as it is: it answers with every problem named, or
    * coerces a representation (`"25"` for 25) as the MCP server does and runs
    * the call. LangChain has not started the run's callbacks at that point,
@@ -92,11 +91,12 @@ export abstract class SproutsDataTool extends StructuredTool<JSONSchema, Args, A
     tags?: string[],
   ): Promise<ToolReturnType<TArg, TConfig, string>> {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-deprecated -- invoke() runs through call(); overriding it is the one hook ahead of LangChain's own input check, and `tags` must be passed on
       return await super.call(arg, configArg, tags);
     } catch (err) {
       if (!(err instanceof ToolInputParsingException)) throw err;
       const toolCall = isToolCall(arg) ? arg : configArg?.toolCall;
-      const content = await this._call(isToolCall(arg) ? arg.args : (arg as Args));
+      const content = await this._call(isToolCall(arg) ? arg.args : arg);
       const answer =
         toolCall?.id === undefined
           ? content

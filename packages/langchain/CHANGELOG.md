@@ -1,6 +1,17 @@
 # Changelog
 
-## 0.0.1 (Unreleased)
+## Unreleased
+
+- Built on the realigned `sproutsdata` client and its `sproutsdata/tools`
+  connection helpers: a client you pass is used as it is, and connection
+  settings beside a client throw `ClientValidationError`.
+- The retriever sends `mode: 'fast'` unless told otherwise, and no mode with
+  `category: 'auto'`; its documents read the new rows and carry
+  `credits_charged`.
+- The `X-SproutsData-Client` header is no longer sent.
+- Requires Node.js 22.12.0 or later.
+
+## 0.0.1
 
 The first public release of `@sproutsdata.ai/langchain`: the Sprouts tools as
 LangChain tools, and Sprouts search as a retriever. Until 1.0, a minor version

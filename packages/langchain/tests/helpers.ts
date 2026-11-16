@@ -22,27 +22,29 @@ export function jsonResponse(body: unknown, status = 200, headers: Record<string
 }
 
 export function problemResponse(status: number, problem: Record<string, unknown>): Response {
-  return new Response(JSON.stringify({ status, title: 'Refused', ...problem }), {
+  return new Response(JSON.stringify({ type: 'about:blank', status, title: 'Refused', ...problem }), {
     status,
     headers: { 'content-type': 'application/problem+json', 'x-request-id': 'req_1' },
   });
 }
 
-/** A search answer: one company row unless `results` says otherwise. */
+/** The body the backend answered `operation` with (`spec/fixtures/responses/`), to change in a test. */
+export function recordedBody(operation: string, which: string): Record<string, unknown> {
+  const url = new URL(`../../../spec/fixtures/responses/${operation}/${which}.json`, import.meta.url);
+  return (JSON.parse(readFileSync(url, 'utf8')) as { body: Record<string, unknown> }).body;
+}
+
+/** A search answer: the recorded company page with one company row, unless `overrides` says otherwise. */
 export function envelope(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  const recorded = recordedBody('search', 'company');
   return {
+    ...recorded,
+    meta: { ...(recorded['meta'] as object), request_id: 'req_test', environment: 'test' },
     results: [{ id: 'acme.com', category: 'company', score: 0.9, account_name: 'Acme', domain: 'acme.com' }],
     total: 1,
     total_is_estimate: false,
     has_more: false,
     next_cursor: null,
-    resolved_search: null,
-    suggestion: null,
-    coverage: null,
-    attribution: [],
-    degradation: [],
-    columns: null,
-    meta: { request_id: 'req_test', environment: 'test', as_of: '2026-08-13T00:00:00Z', credential: 'api_key' },
     ...overrides,
   };
 }

@@ -8,10 +8,10 @@
         "Retry-After": "Wed, 01 Jan 2031 00:00:00 GMT"
       },
       "body": {
-        "type": "https://dashboard.sproutsdata.ai/errors/quota-monthly-exhausted",
-        "title": "Monthly quota exhausted",
+        "type": "https://dashboard.sproutsdata.ai/errors/quota-burst-exceeded",
+        "title": "Too many requests",
         "status": 429,
-        "code": "quota.monthly_exhausted"
+        "code": "quota.burst_exceeded"
       }
     },
     {

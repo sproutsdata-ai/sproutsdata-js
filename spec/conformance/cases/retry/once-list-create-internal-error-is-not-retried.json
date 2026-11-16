@@ -22,7 +22,15 @@
     {
       "status": 201,
       "headers": {},
-      "body": {}
+      "body": {
+        "id": "5f0c9a52-1d1e-4f61-9a43-1b3c8a1d7e10",
+        "name": "Prospects",
+        "entity_category": null,
+        "created_by": "user:12",
+        "created_at": "2026-11-11T00:00:00Z",
+        "updated_at": "2026-11-11T00:00:00Z",
+        "item_count": 0
+      }
     }
   ],
   "expect": {

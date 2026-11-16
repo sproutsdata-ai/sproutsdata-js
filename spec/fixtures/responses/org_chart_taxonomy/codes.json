@@ -1,0 +1,55 @@
+{
+  "body": {
+    "departments": [
+      {
+        "code": "engineering",
+        "label": "Engineering"
+      },
+      {
+        "code": "sales",
+        "label": "Sales"
+      }
+    ],
+    "employment_types": [
+      "full_time",
+      "contract"
+    ],
+    "governance_levels": [
+      "board",
+      "executive"
+    ],
+    "seniorities": [
+      {
+        "code": "senior",
+        "label": "Senior"
+      },
+      {
+        "code": "manager",
+        "label": "Manager"
+      }
+    ],
+    "subdepartments": [
+      {
+        "code": "backend",
+        "department": "engineering",
+        "label": "Backend"
+      }
+    ],
+    "taxonomy_version": "e2e-1"
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "60",
+    "ratelimit-remaining": "57",
+    "ratelimit-reset": "54",
+    "x-request-id": "4db61f76bb284221a2330e0c7b2101e6"
+  },
+  "operation": "org_chart_taxonomy",
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/v1/org-chart/taxonomy",
+    "query": {}
+  },
+  "status": 200
+}

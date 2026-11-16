@@ -21,6 +21,7 @@ import {
   InsufficientCreditsError,
   PermissionDeniedError,
 } from 'sproutsdata';
+import type * as SproutsDataModule from 'sproutsdata';
 import { TOOL_NAMES, Toolset, definitions } from 'sproutsdata/tools';
 import { afterEach, describe, expect, expectTypeOf, it, vi } from 'vitest';
 
@@ -65,7 +66,7 @@ function errorIn(content: unknown): { code: string; field_errors: string[]; requ
 describe('the tool definitions', () => {
   it('are the spec tools, in order, with the spec input schemas (one contract per name)', () => {
     const tools = sproutsDataTools({ client: client(fetchQueue()) });
-    expectTypeOf(tools).toMatchTypeOf<StructuredToolInterface[]>();
+    expectTypeOf(tools).toExtend<StructuredToolInterface[]>();
     expect(tools.map((tool) => tool.name)).toEqual(TOOL_NAMES);
     for (const tool of tools) {
       const name = tool.name as (typeof TOOL_NAMES)[number];
@@ -79,7 +80,7 @@ describe('the tool definitions', () => {
     const all = sproutsDataTools({ client: client(fetchQueue()) });
     expect(all.map((tool) => tool.description)).toEqual(definitions().map((entry) => entry.description));
     const [only] = sproutsDataTools({ client: client(fetchQueue()), include: ['search'] });
-    expect(only!.description).toBe(definitions({ include: ['search'] })[0]!.description);
+    expect(only!.description).toBe(definitions(['search'])[0]!.description);
     expect(only!.description).not.toContain('sprouts_entity_lookup');
   });
 
@@ -112,7 +113,7 @@ describe('invoke', () => {
     const fetchMock = fetchQueue(jsonResponse(envelope(), 200, { 'x-request-id': 'req_1' }));
     const content = await search(fetchMock).invoke({ query: 'payments companies in Germany' });
     expect(typeof content).toBe('string');
-    expect(JSON.parse(content)).toMatchObject({ total: 1, request_id: 'req_1', environment: 'test' });
+    expect(JSON.parse(content)).toMatchObject({ total: 1, request_id: 'req_test', environment: 'test' });
     expect(sentBody(fetchMock)).toEqual({
       category: 'company',
       query: 'payments companies in Germany',
@@ -128,12 +129,14 @@ describe('invoke', () => {
     expect(JSON.parse(String(message.content))).toMatchObject({ total: 1 });
   });
 
-  it('names this package in X-SproutsData-Client, without changing the caller’s client', async () => {
+  it('uses the caller’s client as it is, naming no integration', async () => {
     const fetchMock = fetchQueue(jsonResponse(envelope()));
-    const mine = client(fetchMock);
-    await sproutsDataTools({ client: mine, include: ['search'] })[0]!.invoke({ query: 'x' });
-    expect(sentHeaders(fetchMock)['X-SproutsData-Client']).toBe(`langchain/${VERSION}`);
-    expect(mine.integration).toBeUndefined();
+    await sproutsDataTools({ client: client(fetchMock), include: ['search'] })[0]!.invoke({ query: 'x' });
+    expect(sentHeaders(fetchMock)).not.toHaveProperty('X-SproutsData-Client');
+  });
+
+  it('refuses connection settings beside a client', () => {
+    expect(() => sproutsDataTools({ client: client(fetchQueue()), maxRetries: 2 })).toThrow(/maxRetries configure a client/);
   });
 
   it.each([
@@ -160,7 +163,7 @@ describe('invoke', () => {
     const fetchMock = fetchQueue(jsonResponse(envelope()));
     const message = await search(fetchMock).invoke(toolCall({ query: 'x', limit: '5' }));
     expect(JSON.parse(String(message.content))).toMatchObject({ total: 1 });
-    expect(sentBody(fetchMock).limit).toBe(5);
+    expect(sentBody(fetchMock)['limit']).toBe(5);
   });
 
   it('returns a 422 as data the model can act on', async () => {
@@ -232,7 +235,7 @@ describe('an agent loop with a fake chat model', () => {
 describe('a client from a second copy of sproutsdata', () => {
   // The application loads the SDK through CommonJS; this package, under
   // vitest, loads it as an ES module. Two copies, two sets of classes.
-  const cjs = createRequire(import.meta.url)('sproutsdata') as typeof import('sproutsdata');
+  const cjs = createRequire(import.meta.url)('sproutsdata') as typeof SproutsDataModule;
 
   function foreignTool(fetchMock: ReturnType<typeof fetchQueue>): SproutsDataTool {
     const foreign = new cjs.SproutsData({ apiKey: TEST_KEY, baseUrl: BASE_URL, fetch: fetchMock, maxRetries: 0 });
@@ -259,7 +262,7 @@ describe('construction', () => {
 
   it('refuses a browser-like environment', () => {
     vi.stubGlobal('window', { document: {} });
-    expect(() => sproutsDataTools({ apiKey: TEST_KEY })).toThrow(/auth\.browser_origin/);
+    expect(() => sproutsDataTools({ apiKey: TEST_KEY })).toThrow(/refuses an API key/);
   });
 
   it('never exposes the API key', () => {

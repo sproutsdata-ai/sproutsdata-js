@@ -1,5 +1,5 @@
 /**
- * Envelope → `Document[]` — the retriever's whole output contract.
+ * Envelope → `Document[]`: the retriever's whole output contract.
  *
  * Two rules that are easy to get wrong and expensive later:
  * `metadata.record` is always the complete raw row (the escape hatch that
@@ -11,9 +11,9 @@
  */
 
 import { Document } from '@langchain/core/documents';
-import type { Attribution, Degradation, EntityCategory, ResolvedSearch, SearchEnvelope, SearchHit } from 'sproutsdata';
+import type { Attribution, Degradation, ResolvedSearch, ResultCategory, SearchEnvelope, SearchHit } from 'sproutsdata';
 
-import { renderPageContent } from './render';
+import { renderPageContent } from './render.js';
 
 /**
  * The metadata on every `Document` the retriever returns. `record` is always
@@ -22,7 +22,7 @@ import { renderPageContent } from './render';
  */
 export interface SproutsDataDocumentMetadata {
   id: string;
-  category: EntityCategory;
+  category: ResultCategory;
   score: number | null;
   /** The complete raw search hit, untouched. The escape hatch. */
   record: SearchHit;
@@ -33,9 +33,11 @@ export interface SproutsDataDocumentMetadata {
   environment: string;
   as_of: string;
   credential: string;
+  /** What the page cost, in credits; `null` when not metered. */
+  credits_charged: number | null;
   /**
-   * What the platform decided the request meant: `filters`,
-   * `filters_source` and `conflicts`. Omitted when disabled.
+   * What the platform decided the request meant: its `category`,
+   * `filters`, `filters_source` and `conflicts`. Omitted when disabled.
    */
   resolved_search?: ResolvedSearch | null;
   /** How many records matched the whole request, not this page. */
@@ -43,17 +45,17 @@ export interface SproutsDataDocumentMetadata {
   /** When true, `total` is a floor: "at least N". Render "N+", never "N". */
   total_is_estimate: boolean;
   /** Non-empty means recall, precision or freshness was reduced. Never an error. */
-  degradation: Degradation[];
-  attribution: Attribution[];
+  degradation: readonly Degradation[];
+  attribution: readonly Attribution[];
 }
 
 export interface EnvelopeToDocumentsOptions {
-  contentFields?: string[];
+  contentFields?: readonly string[] | undefined;
   includeResolvedSearch: boolean;
 }
 
 function toSource(record: Record<string, unknown>): string | null {
-  for (const key of ['domain', 'li_url', 'linkedin_url']) {
+  for (const key of ['domain', 'linkedin_url', 'url']) {
     const value = record[key];
     if (typeof value === 'string' && value.length > 0) return value;
   }
@@ -61,9 +63,7 @@ function toSource(record: Record<string, unknown>): string | null {
 }
 
 export function envelopeToDocuments(envelope: SearchEnvelope, options: EnvelopeToDocumentsOptions): Document[] {
-  // Every field read with a fallback: a response missing part of `meta`
-  // still yields documents, as the Python adapter's do.
-  const meta: Partial<SearchEnvelope['meta']> = envelope.meta ?? {};
+  const { meta } = envelope;
   return envelope.results.map((hit) => {
     const metadata: SproutsDataDocumentMetadata = {
       id: hit.id,
@@ -71,10 +71,11 @@ export function envelopeToDocuments(envelope: SearchEnvelope, options: EnvelopeT
       score: hit.score,
       record: hit,
       source: toSource(hit),
-      request_id: meta.request_id ?? '',
-      environment: meta.environment ?? '',
-      as_of: meta.as_of ?? '',
-      credential: meta.credential ?? '',
+      request_id: meta.request_id,
+      environment: meta.environment,
+      as_of: meta.as_of,
+      credential: meta.credential,
+      credits_charged: meta.credits_charged,
       total: envelope.total,
       total_is_estimate: envelope.total_is_estimate,
       degradation: envelope.degradation,

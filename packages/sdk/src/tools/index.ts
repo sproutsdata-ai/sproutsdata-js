@@ -1,5 +1,5 @@
 /**
- * The Sprouts tools, for any model that calls functions.
+ * The Sprouts Data API as tools a language model can call: `sproutsdata/tools`.
  *
  * ```ts
  * import { SproutsData } from 'sproutsdata';
@@ -11,52 +11,39 @@
  * await tools.run('sprouts_search', { query: 'fintech companies in Germany' });
  * ```
  *
- * Three tools — `sprouts_search`, `sprouts_similar` and
- * `sprouts_entity_lookup` — with the same names, input schemas and result
- * shape as the Sprouts MCP server and the Python SDK's `sproutsdata.tools`,
- * all generated from `spec/tools/`. One name means one contract on every
- * surface, so a prompt written for one works with the others.
+ * Three tools, `sprouts_search`, `sprouts_similar` and `sprouts_entity_lookup`, with the same
+ * names, input schemas and result shape as the Sprouts MCP server and the Python SDK's
+ * `sproutsdata.tools`, all from `spec/tools/`. Built on the public client only, so an adapter
+ * (LangChain, the AI SDK) needs nothing else. The provider helpers build plain objects and
+ * import no provider SDK.
  *
- * The provider helpers build plain objects and import no provider SDK.
- * `handleOpenAIToolCalls` and `handleAnthropicToolUse` run every call in a
- * model's message and answer each one — an unknown tool name or bad
- * arguments included — so the conversation can always continue.
- *
- * What a model may fix comes back as data (`{ error: {...} }`); what only the
- * application can fix — a rejected key, a missing scope, no credits — is
- * thrown.
+ * @packageDocumentation
  */
 
-export { TOOL_NAMES, toJson } from './spec';
-export {
-  DEFAULT_INTEGRATION,
-  MAX_RESULTS_CEILING,
-  Toolset,
-  anthropic,
-  definitions,
-  openai,
-  type CatalogOptions,
-  type OpenAIOptions,
-  type ToolsetOptions,
-} from './toolset';
-export type { OpenAIApi } from './providers';
-export type {
-  AnthropicTool,
-  AnthropicToolResult,
-  InterpretedAs,
-  JsonSchema,
-  JsonValue,
-  LookupToolHit,
-  LookupToolResult,
-  OpenAIChatTool,
-  OpenAIChatToolMessage,
-  OpenAIResponsesTool,
-  OpenAIResponsesToolOutput,
-  SearchToolResult,
-  ToolArguments,
-  ToolDefinition,
-  ToolError,
-  ToolName,
-  ToolResult,
-  ToolSettings,
-} from './types';
+import { Catalog } from './catalog-set.js';
+import type { AnthropicTool, OpenAIChatTool, OpenAIResponsesTool, ToolDefinition, ToolSettings } from './types.js';
+
+export { toJson } from './canonical.js';
+export { MAX_RESULTS_CEILING, TOOL_NAMES } from './catalog.js';
+export { APPLICATION_ERRORS, isApplicationError, isSproutsData, resolveClient, type ConnectionOptions } from './connection.js';
+export { Toolset, type ToolsetOptions } from './toolset.js';
+export type * from './types.js';
+export type { LookupArguments, SearchArguments, SimilarArguments } from './specs.gen.js';
+
+/** Provider-neutral tool specs, without a client. See {@link Toolset} for the options. */
+export function definitions(include?: readonly string[], options: { readonly fixed?: ToolSettings } = {}): ToolDefinition[] {
+  return new Catalog(include, options.fixed).definitions();
+}
+
+/** OpenAI function tools, without a client. See {@link Toolset.openai}. */
+export function openai(
+  include?: readonly string[],
+  options: { readonly fixed?: ToolSettings; readonly strict?: boolean; readonly api?: 'chat' | 'responses' } = {},
+): (OpenAIChatTool | OpenAIResponsesTool)[] {
+  return new Catalog(include, options.fixed).openai(options.strict ?? true, options.api ?? 'chat');
+}
+
+/** Anthropic tool definitions, without a client. See {@link Toolset.anthropic}. */
+export function anthropic(include?: readonly string[], options: { readonly fixed?: ToolSettings } = {}): AnthropicTool[] {
+  return new Catalog(include, options.fixed).anthropic();
+}

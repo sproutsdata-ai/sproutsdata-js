@@ -1,0 +1,467 @@
+{
+  "body": {
+    "attribution": [
+      {
+        "as_of": "2026-11-10T22:30:06.505000Z",
+        "domain": null,
+        "quote": null,
+        "source_corpus": "affiliations",
+        "url": null
+      }
+    ],
+    "columns": null,
+    "connection_basis": "overlapping",
+    "coverage": null,
+    "degradation": [],
+    "has_more": true,
+    "institutions": [
+      {
+        "id": "edu:school-0",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 0",
+        "people_at_target": 4
+      },
+      {
+        "id": "edu:school-1",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 1",
+        "people_at_target": 4
+      },
+      {
+        "id": "edu:school-2",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 2",
+        "people_at_target": 4
+      },
+      {
+        "id": "edu:school-3",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 3",
+        "people_at_target": 4
+      },
+      {
+        "id": "edu:school-4",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 4",
+        "people_at_target": 4
+      },
+      {
+        "id": "edu:school-5",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 5",
+        "people_at_target": 4
+      },
+      {
+        "id": "edu:school-6",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 6",
+        "people_at_target": 4
+      },
+      {
+        "id": "edu:school-7",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 7",
+        "people_at_target": 4
+      },
+      {
+        "id": "edu:school-8",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 8",
+        "people_at_target": 4
+      },
+      {
+        "id": "edu:school-9",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 9",
+        "people_at_target": 4
+      }
+    ],
+    "meta": {
+      "as_of": "2026-11-10T22:30:06.505000Z",
+      "credential": "api_key",
+      "credits_charged": 2.0,
+      "environment": "live",
+      "request_id": "aa20d96757484fcbbc5f7bcb9e2d6a07"
+    },
+    "next_cursor": "eyJmIjoiNmIzNmI1YmJhMzhjMDZmM2FkNWNmNWM5NjEyYjExNTEiLCJvIjoxMCwicyI6IjUxZjE2YjA4NzdjNzRmMzBiMmFkNzA5Yzg2Y2Q5ODQwIiwidCI6MTc5NDM0OTgwNiwidSI6IjIifQ.b9ba2e1e66e6f5f90a1f99a75961bb81",
+    "resolved_search": {
+      "category": "person",
+      "conflicts": [],
+      "filters": {
+        "connection_basis": "overlapping",
+        "person": "https://www.linkedin.com/in/e2e-person",
+        "target_company": "stripe.com"
+      },
+      "filters_source": "caller",
+      "keyword_query": null,
+      "mode": "fast",
+      "overrides": [],
+      "parser_version": "none",
+      "query": null,
+      "semantic_query": null,
+      "semantic_scope": null,
+      "sort": []
+    },
+    "results": [
+      {
+        "category": "person",
+        "company_name": null,
+        "country": "Germany",
+        "department": "Engineering",
+        "full_name": "Person 0",
+        "how": [
+          {
+            "anchor_ended": null,
+            "anchor_role": "PM",
+            "anchor_started": null,
+            "inst": "linkedin.com/company/google",
+            "kind": "company",
+            "match_confidence": null,
+            "match_type": "work",
+            "name": "Google",
+            "overlap_months": 18,
+            "their_ended": null,
+            "their_role": "Engineer",
+            "their_started": null
+          }
+        ],
+        "id": "71bdc7984b710814",
+        "linkedin_url": "https://linkedin.com/in/person-0",
+        "match_type": [
+          "overlapping"
+        ],
+        "reached_by": null,
+        "seniority": "VP",
+        "target_index": null,
+        "title": "VP Engineering"
+      },
+      {
+        "category": "person",
+        "company_name": null,
+        "country": "Germany",
+        "department": "Engineering",
+        "full_name": "Person 1",
+        "how": [
+          {
+            "anchor_ended": null,
+            "anchor_role": "PM",
+            "anchor_started": null,
+            "inst": "linkedin.com/company/google",
+            "kind": "company",
+            "match_confidence": null,
+            "match_type": "work",
+            "name": "Google",
+            "overlap_months": 18,
+            "their_ended": null,
+            "their_role": "Engineer",
+            "their_started": null
+          }
+        ],
+        "id": "c96d71a4e21fc545",
+        "linkedin_url": "https://linkedin.com/in/person-1",
+        "match_type": [
+          "overlapping"
+        ],
+        "reached_by": null,
+        "seniority": "VP",
+        "target_index": null,
+        "title": "VP Engineering"
+      },
+      {
+        "category": "person",
+        "company_name": null,
+        "country": "Germany",
+        "department": "Engineering",
+        "full_name": "Person 2",
+        "how": [
+          {
+            "anchor_ended": null,
+            "anchor_role": "PM",
+            "anchor_started": null,
+            "inst": "linkedin.com/company/google",
+            "kind": "company",
+            "match_confidence": null,
+            "match_type": "work",
+            "name": "Google",
+            "overlap_months": 18,
+            "their_ended": null,
+            "their_role": "Engineer",
+            "their_started": null
+          }
+        ],
+        "id": "6657fabd17b52b1a",
+        "linkedin_url": "https://linkedin.com/in/person-2",
+        "match_type": [
+          "overlapping"
+        ],
+        "reached_by": null,
+        "seniority": "VP",
+        "target_index": null,
+        "title": "VP Engineering"
+      },
+      {
+        "category": "person",
+        "company_name": null,
+        "country": "Germany",
+        "department": "Engineering",
+        "full_name": "Person 3",
+        "how": [
+          {
+            "anchor_ended": null,
+            "anchor_role": "PM",
+            "anchor_started": null,
+            "inst": "linkedin.com/company/google",
+            "kind": "company",
+            "match_confidence": null,
+            "match_type": "work",
+            "name": "Google",
+            "overlap_months": 18,
+            "their_ended": null,
+            "their_role": "Engineer",
+            "their_started": null
+          }
+        ],
+        "id": "d1b0a6a40ff9051a",
+        "linkedin_url": "https://linkedin.com/in/person-3",
+        "match_type": [
+          "overlapping"
+        ],
+        "reached_by": null,
+        "seniority": "VP",
+        "target_index": null,
+        "title": "VP Engineering"
+      },
+      {
+        "category": "person",
+        "company_name": null,
+        "country": "Germany",
+        "department": "Engineering",
+        "full_name": "Person 4",
+        "how": [
+          {
+            "anchor_ended": null,
+            "anchor_role": "PM",
+            "anchor_started": null,
+            "inst": "linkedin.com/company/google",
+            "kind": "company",
+            "match_confidence": null,
+            "match_type": "work",
+            "name": "Google",
+            "overlap_months": 18,
+            "their_ended": null,
+            "their_role": "Engineer",
+            "their_started": null
+          }
+        ],
+        "id": "c414b06f966c6149",
+        "linkedin_url": "https://linkedin.com/in/person-4",
+        "match_type": [
+          "overlapping"
+        ],
+        "reached_by": null,
+        "seniority": "VP",
+        "target_index": null,
+        "title": "VP Engineering"
+      },
+      {
+        "category": "person",
+        "company_name": null,
+        "country": "Germany",
+        "department": "Engineering",
+        "full_name": "Person 5",
+        "how": [
+          {
+            "anchor_ended": null,
+            "anchor_role": "PM",
+            "anchor_started": null,
+            "inst": "linkedin.com/company/google",
+            "kind": "company",
+            "match_confidence": null,
+            "match_type": "work",
+            "name": "Google",
+            "overlap_months": 18,
+            "their_ended": null,
+            "their_role": "Engineer",
+            "their_started": null
+          }
+        ],
+        "id": "3632d5770ab5ce73",
+        "linkedin_url": "https://linkedin.com/in/person-5",
+        "match_type": [
+          "overlapping"
+        ],
+        "reached_by": null,
+        "seniority": "VP",
+        "target_index": null,
+        "title": "VP Engineering"
+      },
+      {
+        "category": "person",
+        "company_name": null,
+        "country": "Germany",
+        "department": "Engineering",
+        "full_name": "Person 6",
+        "how": [
+          {
+            "anchor_ended": null,
+            "anchor_role": "PM",
+            "anchor_started": null,
+            "inst": "linkedin.com/company/google",
+            "kind": "company",
+            "match_confidence": null,
+            "match_type": "work",
+            "name": "Google",
+            "overlap_months": 18,
+            "their_ended": null,
+            "their_role": "Engineer",
+            "their_started": null
+          }
+        ],
+        "id": "3fef524c5e58918f",
+        "linkedin_url": "https://linkedin.com/in/person-6",
+        "match_type": [
+          "overlapping"
+        ],
+        "reached_by": null,
+        "seniority": "VP",
+        "target_index": null,
+        "title": "VP Engineering"
+      },
+      {
+        "category": "person",
+        "company_name": null,
+        "country": "Germany",
+        "department": "Engineering",
+        "full_name": "Person 7",
+        "how": [
+          {
+            "anchor_ended": null,
+            "anchor_role": "PM",
+            "anchor_started": null,
+            "inst": "linkedin.com/company/google",
+            "kind": "company",
+            "match_confidence": null,
+            "match_type": "work",
+            "name": "Google",
+            "overlap_months": 18,
+            "their_ended": null,
+            "their_role": "Engineer",
+            "their_started": null
+          }
+        ],
+        "id": "66be2a016ebfd351",
+        "linkedin_url": "https://linkedin.com/in/person-7",
+        "match_type": [
+          "overlapping"
+        ],
+        "reached_by": null,
+        "seniority": "VP",
+        "target_index": null,
+        "title": "VP Engineering"
+      },
+      {
+        "category": "person",
+        "company_name": null,
+        "country": "Germany",
+        "department": "Engineering",
+        "full_name": "Person 8",
+        "how": [
+          {
+            "anchor_ended": null,
+            "anchor_role": "PM",
+            "anchor_started": null,
+            "inst": "linkedin.com/company/google",
+            "kind": "company",
+            "match_confidence": null,
+            "match_type": "work",
+            "name": "Google",
+            "overlap_months": 18,
+            "their_ended": null,
+            "their_role": "Engineer",
+            "their_started": null
+          }
+        ],
+        "id": "80f55e13d64c6496",
+        "linkedin_url": "https://linkedin.com/in/person-8",
+        "match_type": [
+          "overlapping"
+        ],
+        "reached_by": null,
+        "seniority": "VP",
+        "target_index": null,
+        "title": "VP Engineering"
+      },
+      {
+        "category": "person",
+        "company_name": null,
+        "country": "Germany",
+        "department": "Engineering",
+        "full_name": "Person 9",
+        "how": [
+          {
+            "anchor_ended": null,
+            "anchor_role": "PM",
+            "anchor_started": null,
+            "inst": "linkedin.com/company/google",
+            "kind": "company",
+            "match_confidence": null,
+            "match_type": "work",
+            "name": "Google",
+            "overlap_months": 18,
+            "their_ended": null,
+            "their_role": "Engineer",
+            "their_started": null
+          }
+        ],
+        "id": "b475a026e9975697",
+        "linkedin_url": "https://linkedin.com/in/person-9",
+        "match_type": [
+          "overlapping"
+        ],
+        "reached_by": null,
+        "seniority": "VP",
+        "target_index": null,
+        "title": "VP Engineering"
+      }
+    ],
+    "seeds": null,
+    "suggestion": null,
+    "targets": null,
+    "total": 57,
+    "total_is_estimate": false
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "60",
+    "ratelimit-remaining": "57",
+    "ratelimit-reset": "54",
+    "x-request-id": "aa20d96757484fcbbc5f7bcb9e2d6a07"
+  },
+  "operation": "relationships_reach",
+  "request": {
+    "body": {
+      "limit": 2,
+      "person": {
+        "li_url": "https://www.linkedin.com/in/e2e-person"
+      },
+      "target_company": {
+        "by": "domain",
+        "value": "stripe.com"
+      }
+    },
+    "method": "POST",
+    "path": "/v1/relationships/reach",
+    "query": {}
+  },
+  "status": 200
+}

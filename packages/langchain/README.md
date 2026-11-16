@@ -218,7 +218,7 @@ writes no row to the credit ledger; the answer says `environment: "test"`.
 ## See also
 
 - [`sproutsdata`](https://github.com/sproutsdata-ai/sproutsdata-js/tree/main/packages/sdk): the SDK, with pagination, typed filters,
-  relationships, research runs and usage.
+  relationships, agent runs and usage.
 - [`@sproutsdata.ai/ai-sdk`](https://github.com/sproutsdata-ai/sproutsdata-js/tree/main/packages/ai-sdk): the same tools for the Vercel AI SDK.
 - [Integrations](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/integrations/README.md): the same tools in
   frameworks without a package of their own.

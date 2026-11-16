@@ -3,7 +3,7 @@
 The official JavaScript and TypeScript SDK for the **Sprouts Data API**, and its
 AI-framework adapters. Search and look up companies, people, patents, news,
 funding rounds, job openings and market research; map who knows whom; count a
-company's people; run research; keep saved lists; and read credits, history and
+company's people; start agent runs; keep saved lists; and read credits, history and
 feedback.
 
 | Package | Path | What it is |
@@ -62,7 +62,7 @@ else its LinkedIn page; a person by their LinkedIn URL; a document by its
 | `entities.*` | Full records, one method per category; values that matched nothing are reported, not dropped |
 | `relationships.*` | Who is connected to whom, and why. [Relationships](docs/relationships.md) |
 | `orgChart.*` | A company's people counted by department, seniority and place. [Org charts](docs/org-chart.md) |
-| `runs.*` | Research runs: start, follow, read. [Research runs](docs/runs.md) |
+| `runs.*` | Agents: start an agent run, follow it, read it. [Agent runs](docs/runs.md) |
 | `lists.*`, `searchExport`, `exports.*` | Saved lists, and CSV export as a file or a job. [Saved lists](docs/lists.md) |
 | `credits.*`, `history.*` | The balance, the ledger, the call history and daily totals; free. [Credits and usage](docs/usage.md) |
 | `feedback.*` | Reports and votes on answers; free. [Feedback](docs/feedback.md) |

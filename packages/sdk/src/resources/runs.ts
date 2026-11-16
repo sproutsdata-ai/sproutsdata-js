@@ -1,4 +1,4 @@
-/** Research runs: a question worked through for minutes, with cited criteria. */
+/** Agents: an agent run is a question worked through for minutes, with cited criteria. */
 
 import type { ServerSentEvent } from '../core/sse.js';
 import type { RequestOptions } from '../core/transport.js';

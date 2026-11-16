@@ -189,7 +189,7 @@ never retried, so the key is never sent to wherever a redirect points.
 **Event streams.** On `runs.events`, retries and `timeoutMs` apply until the
 stream opens. After that, 60 seconds without data throws `APITimeoutError`, and
 a broken stream throws `APIConnectionError`; both carry `lastEventId` to resume
-from. See [Research runs](runs.md#follow-it-as-it-happens).
+from. See [Agent runs](runs.md#follow-it-as-it-happens).
 
 ```ts
 import { SproutsData } from 'sproutsdata';

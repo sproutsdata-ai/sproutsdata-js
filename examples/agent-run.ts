@@ -1,5 +1,5 @@
 /**
- * A research run: start it, follow it, and read its rows.
+ * An agent run: start it, follow it, and read its rows.
  *
  * A run is the one call that works in the background. Follow it by streaming its events or by
  * waiting for it to finish; `runs.wait` polls with a growing interval and throws

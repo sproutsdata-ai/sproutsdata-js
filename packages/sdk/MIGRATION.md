@@ -24,7 +24,7 @@ is now a string) are marked **Behaviour change**.
 - [Usage history](#usage-history)
 - [Feedback](#feedback)
 - [Relationships](#relationships)
-- [Research runs](#research-runs)
+- [Agent runs](#agent-runs)
 - [Errors](#errors)
 - [Removed value exports](#removed-value-exports)
 - [Renamed types](#renamed-types)
@@ -615,7 +615,7 @@ for await (const row of client.relationships.iterReach({
 - A company or institution that matches nothing, or several, throws `InvalidRequestError`
   (`relationship.anchor_not_found`, `relationship.anchor_ambiguous`).
 
-## Research runs
+## Agent runs
 
 | 0.0.1 | Now |
 |---|---|
@@ -703,7 +703,7 @@ key and an `Origin` header also answers 401.
 | `DEFAULT_BASE_URL` | Removed: the default is `https://api.sproutsdata.ai` |
 | `UNKNOWN_LOCATION` | Removed with the old org chart filters |
 | `failureRate` | Removed ([Usage history](#usage-history)) |
-| `TERMINAL_RUN_EVENTS` | Removed ([Research runs](#research-runs)) |
+| `TERMINAL_RUN_EVENTS` | Removed ([Agent runs](#agent-runs)) |
 | `parseSseStream` | Removed: `runs.events` yields parsed events (`ServerSentEvent`) |
 | `RunWaitTimeoutError`, `IdempotencyConflictError`, `RequestTooLargeError` | See [Errors](#errors) |
 

@@ -2,8 +2,8 @@
 
 The JavaScript and TypeScript SDK for the Sprouts Data API: search and look up
 companies, people, patents, news, funding rounds, job openings and market
-research, map who knows whom, count a company's people, run research, and keep
-saved lists.
+research, map who knows whom, count a company's people, start agent runs, and
+keep saved lists.
 
 ```sh
 npm install sproutsdata
@@ -27,7 +27,7 @@ Upgrading from `sproutsdata@0.0.1`? Read the
 | [Sorting](sorting.md) | Ordering by a field instead of relevance, and the sort catalogue |
 | [Relationships](relationships.md) | Who knows whom: `find`, `reach`, `institutions`, `ask` |
 | [Org charts](org-chart.md) | A company's people counted by department, seniority and place |
-| [Research runs](runs.md) | Asynchronous research: start, follow, read |
+| [Agent runs](runs.md) | Agents: start a run, follow it, read it |
 | [Saved lists and export](lists.md) | The workspace's saved lists, and CSV export of lists and search rows |
 | [Feedback](feedback.md) | Reporting on an answer, and voting on one |
 | [Credits and usage history](usage.md) | The balance, the ledger, the call history and daily totals |

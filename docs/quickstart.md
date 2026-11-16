@@ -27,7 +27,7 @@ already paid for is free. Asking for page 1 again opens a new session and is
 charged again. Every billed answer says what it cost in `meta.credits_charged`.
 
 Look-alikes and relationships are billed by session in the same way. Lookups
-are billed per record returned, org charts per call, and research runs when
+are billed per record returned, org charts per call, and agent runs when
 they settle. Coverage, sorts, filter values, credits, history, feedback, lists
 and exports are free.
 

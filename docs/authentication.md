@@ -60,8 +60,8 @@ that capability.
 | `dsp.search.read` or `dsp.entities.read` | `lists.*`, `exports.*`, `searchExport` |
 | `dsp.search.read` or `dsp.usage.read` | `feedback.*`, including `feedback.tags` and `feedback.votes.*` |
 
-A key made with the default scopes has no `dsp.agents.*` scope. Research
-[runs](runs.md) need a key created with them.
+A key made with the default scopes has no `dsp.agents.*` scope. [Agent
+runs](runs.md) need a key created with them.
 
 A call that needs a workspace throws `WorkspaceRequiredError`, a subclass of
 `PermissionDeniedError`.

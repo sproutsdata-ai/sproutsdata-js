@@ -11,7 +11,7 @@ A report names its subject:
 - `{ kind: 'request', id }`: a call in the usage history (a search, a
   look-alike search, a lookup, a relationship query), by the `meta.request_id`
   of its answer;
-- `{ kind: 'agent_run', id }`: a research run, by its `run_id`.
+- `{ kind: 'agent_run', id }`: an agent run, by its `run_id`.
 
 And a target: one row (`{ kind: 'result', entity_id }`) or the whole answer
 (`{ kind: 'result_set' }`).

@@ -13,7 +13,7 @@ every changed call with its replacement.
 - The `integration` option and the `X-SproutsData-Client` and `X-Dsp-Source`
   headers, which the backend no longer reads.
 - `client.agents`, `credits.usage()` and `members.resolve()`, which the backend
-  does not serve; research runs are `client.runs`.
+  does not serve; agent runs are `client.runs`.
 
 ### Changed
 

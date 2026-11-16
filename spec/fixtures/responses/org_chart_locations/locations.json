@@ -1,0 +1,71 @@
+{
+  "body": {
+    "attribution": [
+      {
+        "as_of": "2026-11-10T22:30:06.563904Z",
+        "domain": null,
+        "quote": null,
+        "source_corpus": "gtm_index",
+        "url": null
+      }
+    ],
+    "company": {
+      "company_ref": null,
+      "domain": "acme.com",
+      "linkedin_url": null,
+      "name": "acme.com Inc"
+    },
+    "countries": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "count": 6,
+                "value": "Berlin"
+              }
+            ],
+            "count": 6,
+            "value": "Berlin"
+          }
+        ],
+        "count": 6,
+        "value": "Germany"
+      },
+      {
+        "children": [],
+        "count": 4,
+        "value": null
+      }
+    ],
+    "data_version": "people-e2e",
+    "degradation": [],
+    "matched": null,
+    "meta": {
+      "as_of": "2026-11-10T22:30:06.563904Z",
+      "credential": "api_key",
+      "credits_charged": 1.0,
+      "environment": "live",
+      "request_id": "892cf18818834c3bb679e0bf5c739568"
+    },
+    "total": 10
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "60",
+    "ratelimit-remaining": "57",
+    "ratelimit-reset": "54",
+    "x-request-id": "892cf18818834c3bb679e0bf5c739568"
+  },
+  "operation": "org_chart_locations",
+  "request": {
+    "body": {
+      "domain": "acme.com"
+    },
+    "method": "POST",
+    "path": "/v1/org-chart/locations",
+    "query": {}
+  },
+  "status": 200
+}

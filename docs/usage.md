@@ -1,141 +1,110 @@
-# Credits, usage history and members
+# Credits and usage history
 
-The operational reads. All free, and all safe to retry. Credits and history need
-`dsp.usage.read`; members needs `dsp.search.read` or `dsp.agents.write`.
+Two free resources, both needing a key with `dsp.usage.read`:
 
-Two resources that are easy to confuse:
+- **`client.credits`**: the workspace's balance, and the ledger of every charge
+  and grant behind it.
+- **`client.history`**: the workspace's individual calls, with what was asked,
+  what it cost and how long it took, and daily totals.
 
-- **`client.credits`** — the billing view: the balance, and requests and credits
-  per period.
-- **`client.history`** — the operational view: individual calls, with what was
-  asked, what came back, what it cost and how long it took. It is where "this
-  query returned nothing yesterday" gets answered.
-
-## What can this tenant still spend?
+## The balance
 
 ```ts
+import { canAfford } from 'sproutsdata';
+
 const credits = await client.credits.retrieve();
-console.log(credits.spendable); // spendable on this platform right now
-console.log(credits.allocated?.remaining, credits.allocated?.reserved);
+console.log(credits.balance, credits.reserved, credits.available, credits.debt);
+console.log(credits.status, credits.has_paid, credits.rate_card, credits.stale);
+
+if (!canAfford(credits, 50)) console.warn('Fewer than 50 credits available');
 ```
 
-**Gate on `spendable`.** Do not add `allocated.remaining` to `shared.remaining`:
-the shared pool is reported for visibility but is not available to this
-platform, so the sum is a number that looks like credit and buys nothing. When
-`scope` is `'tenant_wide_fallback'`, only `spendable` is answerable and
-`allocated` / `shared` are `null` — deliberately, rather than filled with totals
-that are not this platform's to report.
+| Field | Meaning |
+|---|---|
+| `balance` | The workspace's credits. |
+| `reserved` | Credits held for agent runs that have not settled. |
+| `available` | What can be spent now: the balance, less what is reserved and any debt. |
+| `debt` | Credits owed. |
+| `status` | The wallet's status. A `frozen` wallet spends nothing until Sprouts unfreezes it; a billed call then throws `WalletFrozenError`. |
+| `has_paid` | Whether the workspace has paid for credits. |
+| `rate_card` | The price list the workspace is billed on. |
+| `stale` | The balance was read from a cache while the ledger was unreachable. |
 
-## What has this key spent?
+`canAfford(credits, n)` compares `n` with `available`. Credits do not come in
+lots and have no fixed expiry.
 
-`credits.usage()` reports **the calling key only** — one key cannot read another
-key's spend; tenant-wide reporting is a dashboard feature.
+A billed call the workspace cannot pay for throws `InsufficientCreditsError`
+(402) and charges nothing; `err.availableCredits` and `err.requiredCredits` say
+how far short it is. Waiting does not help: the workspace needs credits.
+
+## The ledger
+
+`credits.transactions` is the ledger, newest first. Each row has a `kind`
+(`charge`, `grant`, ...), signed `credits` (negative for a charge),
+`balance_after`, and the `action` or `source` behind it.
 
 ```ts
-// Default: the last 30 days, bucketed by day
-const usage = await client.credits.usage();
-console.log(usage.total_requests, 'requests,', usage.total_credits, 'credits');
+const page = await client.credits.transactions({ limit: 20 });
+for (const row of page.results) console.log(row.created_at, row.kind, row.credits, row.balance_after, row.action ?? row.source);
 
-// A custom window and bucket size
-const monthly = await client.credits.usage({
-  granularity: 'month', // 'hour' | 'day' | 'month' | 'total'
-  from: new Date('2026-01-01'),
-  to: new Date('2026-07-01'),
-});
-for (const bucket of monthly.buckets) {
-  console.log(bucket.period_start, bucket.action_type, bucket.requests, bucket.credits);
+// Every row, page after page
+for await (const row of client.credits.iterTransactions({ maxResults: 500 })) {
+  if (row.kind === 'charge') console.log(row.action, row.credits);
 }
 ```
 
-- `total_credits` is what the key was charged, in credits to at most three
-  decimals. Add credit figures as whole thousandths if you sum many, so floating
-  point cannot drift.
-- Buckets are split by `action_type` (each search mode bills as its own action),
-  so you can see what kind of call is spending.
-- A new key has an empty report, not an error.
+A call made with a test key is free and writes no ledger row.
 
-## What this key has done
+## What the workspace has done
+
+`history.list` is one page of calls, newest first; `history.iterList` walks
+them all. Both are free.
 
 ```ts
-for await (const page of client.history.listPages({
-  action_type: ['dsp.search.fast', 'dsp.relationships'], // one value or several (any of them)
-  from: new Date('2026-08-01'),
-})) {
-  for (const call of page.results) {
-    console.log(call.id, call.occurred_at, call.query, call.status, call.credits_charged);
-  }
+for await (const call of client.history.iterList({ action_type: 'dsp.search.fast', from: new Date('2026-11-01'), maxResults: 200 })) {
+  console.log(call.id, call.occurred_at, call.query, call.status, call.credits_charged, call.latency_ms);
 }
 ```
 
-Cursor-paginated like a search, and free, so walking it costs nothing but rate
-limit. `action_type` accepts thirteen values: `dsp.search.fast` / `.auto` /
-`.deep`, `dsp.similar`, `dsp.entities`, `dsp.relationships`,
-`dsp.relationships.ask`, `dsp.org_chart`, and `dsp.agent.run.minimal` / `.low` /
-`.medium` / `.high` / `.xhigh`. Pass an array to match any of several; the SDK
-sends the key once per value and the server de-duplicates and sorts the set, so
-argument order does not change the cursor.
+- `action_type` takes one action. The SDK refuses a list, since the server
+  would keep only the last one: list the history once per action.
+- `from` and `to` take a `Date` or an ISO 8601 string.
+- `limit` is 1 to 100 rows a page. A page holds `results` and `next_cursor`.
+- `credits_charged` is a decimal string (`"0.500"`), or `null` when the call
+  was not metered. `latency_ms` may be `null`.
+- `status` is `pending`, `ok` or `failed`; `error_code` says why a call failed,
+  in the same codes the errors carry.
 
-`status` is one of three values — `pending`, `ok` or `failed`. A call is
-**pending** from the moment it starts costing something until its outcome is
-written (an agent run is pending until it settles); one pending too long to be
-believed is reported by the server as `failed`. A pending call is not a failure,
-however long it has run. To find out *why* a call failed, branch on
-`error_code` — the same vocabulary the errors map from.
-
-A list page's `total` is its own count (`total_is_estimate: true`), not an
-all-time number. History ids are numbers — unlike agent run ids, which are
-strings.
+History rows are written in background batches after each answer, so a call
+made a moment ago may not be listed yet.
 
 ## One call, in full
 
 ```ts
-const detail = await client.history.retrieve(42);
-detail.request;        // the original body minus the cursor — replay it, don't rebuild it
-detail.snapshot;       // the page-1 envelope exactly as it was served — or null…
-detail.snapshot_state; // …and this says why: 'present' | 'expired' | 'omitted_too_large' | 'absent'
-```
-
-Requests are kept indefinitely; **result snapshots expire**. That is the
-difference between "re-run it" and "see what it gave last time", and an
-investigation usually wants the second. An unknown id is
-`404 history.not_found` (`NotFoundError`).
-
-## Totals
-
-```ts
-import { failureRate } from 'sproutsdata';
-
-const daily = await client.history.metrics({ from: new Date('2026-08-01') });
-console.log(daily.total_ok, daily.total_failed, daily.total_pending, daily.total_credits);
-
-const rate = failureRate(daily); // or one bucket: failureRate(daily.buckets[0])
-console.log(rate === null ? 'nothing finished in this window' : `${(rate * 100).toFixed(1)}% failed`);
-```
-
-`failureRate` is `failed / (ok + failed)`. Pending calls count on neither side:
-they have no outcome yet, and counting them either way would move the rate while
-nothing had changed. They are reported separately as `total_pending`, and as
-`pending` on each bucket. It is `null` rather than `0` when nothing finished: no
-traffic is not a perfect success rate.
-
-## Members
-
-One question, for integrations that must attribute work to a person before
-spending the organisation's credits: does this email belong to a member of the
-key's own organisation?
-
-```ts
-const member = await client.members.resolve('ada@example.com'); // matched case-insensitively
-if (member.found && member.state === 'active') {
-  // attribute the work to member.user_id
+const page = await client.history.list({ limit: 1 });
+const latest = page.results[0];
+if (latest !== undefined) {
+  const detail = await client.history.retrieve(latest.id);
+  console.log(detail.request); // the request as it was sent, or null
+  console.log(detail.snapshot_state); // 'present', 'absent' or 'continuation'
+  console.log(detail.snapshot); // the answer as it was served, when one was kept
 }
 ```
 
-- `found: false` is an **answer**, returned as a 200 with `state: 'unknown'`.
-  Every error means "could not determine" — never treat an error as "not a
-  member".
-- `state` is `active`, `not_activated` (has a role, has not activated the
-  platform yet), `invitation_pending`, `no_access` (in the organisation, no role
-  on this platform), or `unknown`.
-- One email per call, never a roster: the organisation is always the
-  credential's own.
+A row's `id` is a digit string, which `retrieve` takes as it is. An unknown id
+throws `NotFoundError` (`history.not_found`).
+
+`snapshot_state` is `present` when the answer was kept, `absent` when it was
+not, and `continuation` for a later page of a search, whose snapshot is its
+session's first page.
+
+## Daily totals
+
+```ts
+const metrics = await client.history.metrics({ from: new Date('2026-11-01') });
+console.log(metrics.total_requests, metrics.total_ok, metrics.total_failed, metrics.total_pending, metrics.total_credits);
+for (const bucket of metrics.buckets) console.log(bucket.day, bucket.action_type, bucket.requests, bucket.credits);
+```
+
+`metrics` gives daily totals by action: requests, outcomes and credits. Credits
+are decimal strings; parse them with a decimal library if you add many of them.

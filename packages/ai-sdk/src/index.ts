@@ -1,5 +1,5 @@
 /**
- * `@sproutsdata.ai/ai-sdk` — the Sprouts tools for the Vercel AI SDK.
+ * `@sproutsdata.ai/ai-sdk`: the Sprouts tools for the Vercel AI SDK.
  *
  * ```ts
  * import { generateText, stepCountIs } from 'ai';
@@ -19,6 +19,6 @@
  * and the error policy all live in the `sproutsdata` SDK.
  */
 
-export { raiseSproutsDataErrors } from './raise';
-export { sproutsDataTools, type SproutsDataTool, type SproutsDataToolsOptions } from './tools';
-export { VERSION } from './version';
+export { raiseSproutsDataErrors } from './raise.js';
+export { sproutsDataTools, type SproutsDataTool, type SproutsDataToolsOptions } from './tools.js';
+export { VERSION } from './version.js';

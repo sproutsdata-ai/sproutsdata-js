@@ -8,10 +8,10 @@
         "Retry-After": "36000"
       },
       "body": {
-        "type": "https://dashboard.sproutsdata.ai/errors/quota-monthly-exhausted",
-        "title": "Monthly quota exhausted",
+        "type": "https://dashboard.sproutsdata.ai/errors/quota-burst-exceeded",
+        "title": "Too many requests",
         "status": 429,
-        "code": "quota.monthly_exhausted"
+        "code": "quota.burst_exceeded"
       }
     }
   ],

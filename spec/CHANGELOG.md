@@ -4,15 +4,75 @@ A human record of what moved in the Sprouts Data Platform API and what each SDK
 had to do about it. Written when `spec-drift.yml` fires, or when the backend team
 announces a change.
 
-`openapi.json` is the pinned snapshot the SDKs are built against (it was
-`specs/openapi.v1.json` before 2026-10-01). Refresh it from production with:
+`openapi.json` is the pinned snapshot the SDKs are built against. It names the
+commit it came from under `x-source`. Refresh it from a dsp-backend checkout,
+offline and without touching the checkout, with:
 
 ```bash
-python scripts/check_spec_drift.py --update
+python scripts/export_openapi.py --backend ../dsp-backend --ref origin/sd-qa
 ```
 
-or, for an unreleased backend branch, with that branch's
-`scripts/export_openapi.py`, which renders the same document offline.
+or from a deployment that serves its document (every environment but
+production) with `--url https://<host>/openapi.json`. `records.schema.json`
+(the entity record shapes) comes from prism the same way:
+
+```bash
+python scripts/export_records_schema.py --prism ../prism --ref origin/qa
+```
+
+Then run `python scripts/check_spec.py --backend ../dsp-backend`, which checks
+every file here against the others and the error table against the backend.
+
+---
+
+## 2026-11-11 — the new dsp-backend (sd-qa), dsp-auth and dsp-mint
+
+Every file here was rebuilt against the new stack: dsp-backend `sd-qa` at
+5d16024 (Sougata's rewrite: prism behind it, keys exchanged at dsp-auth,
+credits through dsp-mint), prism `qa` at 3e6a78a for the record shapes. The
+previous snapshot described the legacy backend and is not a base for anything
+below.
+
+- **openapi.json**: 50 operations, 194 schemas, exported from the backend's own
+  `create_app()` (`scripts/export_openapi.py`; production serves no document).
+  Same 46 routes as before plus `GET /v1/credits/transactions`,
+  `GET /v1/exports/{job_id}`, `GET /v1/exports/{job_id}/file` and
+  `GET /v1/org-chart/taxonomy`. Gone: `GET /v1/keys/usage` (planned, not built)
+  and `POST /v1/members/resolve` (dropped until the Slack work). Request and
+  response shapes changed on almost every route; see
+  `zarkdown/sdk-new-stack-realign/ASSESSMENT.md` for the per-route detail.
+- **records.schema.json** (new): the nine entity record shapes, from prism's
+  verified models (`scripts/export_records_schema.py`). The OpenAPI no longer
+  types `matches`; dsp-backend forwards prism's raw rows, so every field is
+  optional and nullable and list fields may arrive as a scalar (`x-flex-list`).
+- **routes.json** v2: adds the SDK `name` each generator keys on (FastAPI
+  generates some operation ids), `response` (json, empty, sse, csv,
+  csv_or_job), `idempotency` and `paging`. Both exports are now `safe` (free,
+  and a large one answers 202 with a job); `POST /v1/feedback` is `keyed` (the
+  server now honours Idempotency-Key there). Billed routes no longer get an
+  Idempotency-Key: the server ignores it. The reach cursor binds `limit`.
+- **error-codes.json** v2: 32 codes, exactly what the backend declares for
+  key callers. New: `auth.workspace_required`, `credits.wallet_frozen`,
+  `credits.unavailable` (503, Retry-After 30, while the ledger is down),
+  `lists.name_taken`, `lists.category_mismatch`, `export.not_found`,
+  `export.too_large`, `feedback.not_found`, `agents.run_not_found`,
+  `relationship.anchor_not_found`, `org_chart.company_ambiguous`,
+  `service.overloaded`, `service.unavailable`. Removed: every legacy auth,
+  payment, referral, cohort, idempotency and quota code the new backend never
+  sends. An unknown 409 is now a plain `conflict`. 402 `extra` is
+  `available_credits` / `required_credits`; field errors are the problem's
+  top-level `errors`.
+- **retry-policy.json** v2: the rows hold; the reasons now rest on the new
+  meter (charged after the work succeeds, as its last step).
+- **defaults.json** v2: keys must be `sk_dsp_(live|test)_…`, at most 200
+  characters; browsers are not supported (the backend refuses a key sent with
+  an Origin header); `export_wait` added for polling export jobs.
+- **surface-map.json** v2, **schema-names.json** (new: SDK names for the four
+  module-qualified schema names), and the conformance cases: 54, each now
+  validated against openapi.json by `scripts/check_spec.py`.
+- **tools/**: unchanged in this drop. The tool specs move with the toolset's
+  behaviour (local `fields` projection for company and person lookups, document
+  ids as lookup keys) and are rewritten with it.
 
 ---
 

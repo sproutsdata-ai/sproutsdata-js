@@ -1,0 +1,36 @@
+{
+  "body": {
+    "removed": 1,
+    "saved_list": {
+      "created_at": "2026-11-10T22:30:06.574118Z",
+      "created_by": "user:1",
+      "entity_category": "company",
+      "id": "caf54ee0-237b-43cc-a506-68fed3d17517",
+      "item_count": 49,
+      "name": "E2E prospects 62ba8da2 (renamed)",
+      "updated_at": "2026-11-10T22:30:07.269352Z"
+    }
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "60",
+    "ratelimit-remaining": "57",
+    "ratelimit-reset": "53",
+    "x-request-id": "97fe5a64691c4eaa8bdb72d63c59ad9d"
+  },
+  "operation": "lists_remove_items",
+  "request": {
+    "body": {
+      "items": [
+        {
+          "entity_category": "company",
+          "entity_id": "example-0.de"
+        }
+      ]
+    },
+    "method": "DELETE",
+    "path": "/v1/lists/caf54ee0-237b-43cc-a506-68fed3d17517/items",
+    "query": {}
+  },
+  "status": 200
+}

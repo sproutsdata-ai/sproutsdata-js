@@ -1,0 +1,29 @@
+{
+  "body": {
+    "created_at": "2026-11-10T22:30:06.574118Z",
+    "created_by": "user:1",
+    "entity_category": "company",
+    "id": "caf54ee0-237b-43cc-a506-68fed3d17517",
+    "item_count": 0,
+    "name": "E2E prospects 62ba8da2",
+    "updated_at": "2026-11-10T22:30:06.574118Z"
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "60",
+    "ratelimit-remaining": "55",
+    "ratelimit-reset": "54",
+    "x-request-id": "b7a68313a7104b0aa82b40c0586f0b6d"
+  },
+  "operation": "lists_create",
+  "request": {
+    "body": {
+      "entity_category": "company",
+      "name": "E2E prospects 62ba8da2"
+    },
+    "method": "POST",
+    "path": "/v1/lists",
+    "query": {}
+  },
+  "status": 201
+}

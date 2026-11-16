@@ -1,6 +1,17 @@
 # Changelog
 
-## 0.0.1 (Unreleased)
+## Unreleased
+
+- Built on the realigned `sproutsdata` client: `sproutsDataTools()` resolves its
+  client with `sproutsdata/tools`' `resolveClient`, so a client you pass is used
+  as it is, and connection settings beside it throw `ClientValidationError`.
+- `raiseSproutsDataErrors` recognises the application errors with
+  `sproutsdata/tools`' own check, including errors from a second copy of the
+  package.
+- The `X-SproutsData-Client` header is no longer sent.
+- Requires Node.js 22.12.0 or later.
+
+## 0.0.1
 
 The first public release of `@sproutsdata.ai/ai-sdk`: the Sprouts tools for the
 Vercel AI SDK. Until 1.0, a minor version may include breaking changes; each

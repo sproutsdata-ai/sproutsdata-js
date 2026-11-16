@@ -1,99 +1,107 @@
 # Pagination
 
-Results are cursor-paginated. `next_cursor` is **opaque and signed** — there is
-no page number or offset — and `has_more === (next_cursor !== null)`.
+Searches, look-alikes and every list the API keeps page by cursor.
+`next_cursor` is opaque and signed; there is no page number or offset. A search
+answer has `has_more` exactly when `next_cursor` is set.
 
-## Iterate across pages
+## Walk every row
+
+Each paged call has an `iter*` form that follows the cursors for you and yields
+rows, not pages:
 
 ```ts
-for await (const page of client.searchPages({ query: 'fintech', limit: 100 })) {
-  process(page.results);
+for await (const hit of client.iterSearch({ query: 'fintech companies in Germany', limit: 50, maxResults: 200 })) {
+  console.log(hit.id, hit['account_name']);
 }
 
-for await (const page of client.similarPages({ anchors: [{ value: 'acme.com' }] })) {
-  process(page.results);
+for await (const hit of client.iterSimilar({ anchors: ['acme.com'], maxResults: 100 })) {
+  console.log(hit.id);
 }
 ```
 
-The same pattern works everywhere a cursor exists:
-`client.relationships.findPages` / `.reachPages` / `.askPages`,
-`client.history.listPages`, and `client.runs.resultsPages(runId, …)`.
+| One page | Every row |
+|---|---|
+| `search` | `iterSearch` |
+| `similar` | `iterSimilar` |
+| `relationships.find` | `relationships.iterFind` |
+| `relationships.reach` | `relationships.iterReach` |
+| `lists.items` | `lists.iterItems` |
+| `history.list` | `history.iterList` |
+| `credits.transactions` | `credits.iterTransactions` |
+| `feedback.list` | `feedback.iterList` |
+| `runs.list` | `runs.iterList` |
+| `runs.results` | `runs.iterResults` |
+| `filterValues` | `iterFilterValues` |
+| `documentFilterValues` | `iterDocumentFilterValues` |
 
-Every iterator takes paging options as its second argument:
+`maxResults` stops the walk after that many rows. The first page asks for no
+more rows than are wanted, the last page only for the rows still wanted, and no
+page is fetched that nobody reads: stopping a walk early (with `maxResults`, or
+by breaking out of the loop) fetches, and pays for, no further page.
+`maxResults` must be a whole number of at least 1; leave it out for every row.
 
-```ts
-for await (const page of client.searchPages(
-  { query: 'fintech', limit: 10 }, // the first page's size
-  { limit: 100, maxResults: 500 }, // later pages' size; stop after 500 rows
-)) {
-  process(page.results);
-}
-```
+Per-call options go in the second argument and apply to every page (`signal`,
+`timeoutMs`, `maxRetries`, `onResponse`). `requestId` is the exception: it is
+sent with the first page only, because every request needs its own id.
 
-`maxResults` stops once that many rows have been yielded — the last page is cut
-to fit — without fetching a page nobody reads. Per-call options (`timeoutMs`,
-`headers`, `signal`, `maxRetries`) go in the same object and apply to every
-page. `requestId` (or a raw `X-Request-Id` header) is the exception: it goes
-with the first page only, because every request needs its own id. Each page is
-a call of its own, with its own generated `Idempotency-Key`, and is charged
-only for the results it adds.
+A walk over a search is one search session, billed as a search is: page 1
+costs the price list's base, and each later page only the rows it adds beyond
+what that base covers. See [Quickstart](quickstart.md#how-searches-are-billed).
 
 ## One page at a time
 
 ```ts
 let cursor: string | undefined;
 do {
-  const page = await client.search({ query: 'fintech', limit: 100, cursor });
-  process(page.results);
+  const page = await client.search({ query: 'fintech companies in Germany', limit: 50, cursor });
+  for (const hit of page.results) console.log(hit.id);
   cursor = page.next_cursor ?? undefined;
-} while (cursor);
+} while (cursor !== undefined);
 ```
 
 ## What the server enforces
 
-1. **Do not change the request mid-pagination.** A cursor is signed against a
-   fingerprint of every parameter except `cursor` and `limit`; a page whose
-   other parameters changed gets `422 pagination.cursor_invalid`
-   (`CursorInvalidError`) rather than silently reshuffled results. The `*Pages`
-   iterators take a deep copy of `params` before the first request and re-send
-   that copy, so editing your own object (or its nested `filters`)
-   mid-iteration cannot break the next page. `limit` is the one field you may
-   change — through the iterator's `limit` option.
-2. **Cursors expire.** A stale one is `pagination.cursor_expired`
-   (`CursorExpiredError`): restart from page one.
-3. **Paging stops at 10,000 rows.** The iterators stop at the cap with one
-   process warning (`SPROUTSDATA_DEPTH_CAP`) instead of asking for a page the
-   server would refuse; following cursors by hand past it raises
-   `PaginationDepthExceededError`. Narrow the search to reach the rest.
-4. **A search is charged for the results it delivers**, across all its pages:
-   page size does not change the total, and sending a cursor you already used
-   again costs nothing. A Basic search that delivers 500 results costs
-   0.5 + 490 × 0.08 = 39.7 credits. Set `maxResults` to what you will actually
-   read.
+1. **Send a cursor with the same arguments.** A cursor is signed against the
+   request that produced it. A page sent with different arguments throws
+   `CursorInvalidError`. `limit` may change between pages, except on
+   `relationships.reach`, whose cursor binds the page size too. The `iter*`
+   walks keep a deep copy of the first request and resend it, so changing your
+   own object (or its nested `filters`) during a walk cannot break the next
+   page.
+2. **A cursor expires after 24 hours.** An expired one throws
+   `CursorExpiredError`: start again from page 1, which opens a new session.
+3. **Paging stops at 10,000 results.** A walk that would go past them throws
+   `PaginationDepthExceededError` before asking for that page. Narrow the
+   request to reach the rest.
+4. **A short page is not the last page.** Rows can be removed after a page is
+   cut (Do-Not-Contact rules, for example), so the walks go on while
+   `next_cursor` is set, whatever the page's size. Do the same in your own
+   loops.
 
-A `sort` is part of the signed request, so page 2 keeps page 1's order without
-being asked again.
+A `sort` is part of the signed request, so later pages keep page 1's order.
 
 ## Truncated results
 
-If the corpus stops issuing cursors before `total` is reached, the response
-says so: `degradation[]` holds reason `pagination_truncated`, the SDK sets the
-page's `truncated` to `true`, and the iterators warn once
-(`SPROUTSDATA_TRUNCATED`). `has_more: false` then does **not** mean you have
-everything.
+When the server stops issuing cursors before the results run out, it says so:
+the answer's `degradation` holds a `pagination_truncated` entry while
+`has_more` is false. `has_more: false` then does not mean you have every row.
+
+```ts
+const page = await client.search({ query: 'fintech companies in Germany', limit: 100 });
+const truncated = !page.has_more && page.degradation.some((d) => d.reason === 'pagination_truncated');
+if (truncated) console.warn('The server stopped paging early; narrow the search to see the rest.');
+```
 
 ## What does not page like a search
 
-- **`mode: 'deep'`** returns a single page with no cursor; `searchPages`
-  yields exactly one.
-- **`filterValues` / `documentFilterValues`** use plain page numbers with a
-  fixed page size of 20. Loop `page + 1` while `has_more`, or let
-  `iterFilterValues` / `iterDocumentFilterValues` walk the pages and yield each
-  value.
-- **`relationships.institutions` and the org-chart routes** are single
-  aggregations with nothing to page; branch on `truncated` for institutions.
-- **`relationships.askPages`** follows whichever slot of the answer is
-  populated; a `compare` or `fan_out` answer has no cursor, so it yields once.
-- **`feedback.list`** is offset-paginated: loop with `offset += limit` while
-  `offset + results.length < total`.
-- **Entity lookups** are not paginated: one hit per requested id.
+- **`mode: 'deep'`** returns one page and has no cursor. The SDK refuses a
+  `cursor` on a deep search.
+- **`relationships.reach`** binds its page size to its cursor: every later page
+  must ask for page 1's `limit`. `iterReach` does this for you and trims the
+  last page locally to `maxResults`.
+- **`relationships.ask`** pages when its answer is a `relationships` or `reach`
+  answer: send its `next_cursor` back to `ask` with the same `query`.
+- **`filterValues` and `documentFilterValues`** page by number, 20 values a
+  page, while `has_more` is true. The `iter*` forms yield each value.
+- **`relationships.institutions`, the org chart calls and entity lookups**
+  answer in one response, with nothing to page.

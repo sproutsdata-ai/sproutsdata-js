@@ -7,10 +7,15 @@
 //   node scripts/sync-spec.mjs --check         # verify spec/ against PIN.json
 //
 // The vendored copy is never edited by hand: a case that looks wrong is fixed
-// in sproutsdata-py first and re-synced here (contract 02 §14). `--check` is what
-// catches a hand edit — any file whose hash differs from its pin, any file
-// added, and any pinned file removed.
+// in sproutsdata-py first and re-synced here. `--check` is what catches a hand
+// edit — any file whose hash differs from its pin, any file added, and any
+// pinned file removed.
+//
+// PIN.json also records the sproutsdata-py commit the files came from, so a
+// reader can tell exactly which spec this SDK is built against. A source with
+// uncommitted changes under spec/ is refused: its commit would not describe it.
 
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
@@ -73,10 +78,28 @@ function check() {
   return 0;
 }
 
+/** The commit `dir` is checked out at, or an error message when it has uncommitted changes. */
+function sourceCommit(dir) {
+  const git = (...args) => execFileSync('git', ['-C', dir, ...args], { encoding: 'utf8' }).trim();
+  try {
+    if (git('status', '--porcelain', '--', '.') !== '') {
+      return { error: `${dir} has uncommitted changes; commit them in sproutsdata-py first.` };
+    }
+    return { commit: git('rev-parse', 'HEAD') };
+  } catch {
+    return { error: `${dir} is not inside a git checkout of sproutsdata-py.` };
+  }
+}
+
 function sync(sourceArg) {
   const source = resolve(ROOT, sourceArg);
   if (!existsSync(source) || !statSync(source).isDirectory()) {
     console.error(`No spec directory at ${source}. Pass --from <path to sproutsdata-py/spec>.`);
+    return 1;
+  }
+  const origin = sourceCommit(source);
+  if (origin.error !== undefined) {
+    console.error(origin.error);
     return 1;
   }
   rmSync(SPEC_DIR, { recursive: true, force: true });
@@ -88,8 +111,11 @@ function sync(sourceArg) {
     cpSync(join(source, path), target);
   }
   const pins = Object.fromEntries(files.map((path) => [path, sha256(join(SPEC_DIR, path))]));
-  writeFileSync(PIN_FILE, `${JSON.stringify({ source: SOURCE_LABEL, files: pins }, null, 2)}\n`);
-  console.log(`Synced ${files.length} files from ${relative(ROOT, source) || source} into spec/.`);
+  const pin = { source: SOURCE_LABEL, source_commit: origin.commit, files: pins };
+  writeFileSync(PIN_FILE, `${JSON.stringify(pin, null, 2)}\n`);
+  console.log(
+    `Synced ${files.length} files from ${relative(ROOT, source) || source} (${origin.commit.slice(0, 7)}) into spec/.`,
+  );
   return 0;
 }
 

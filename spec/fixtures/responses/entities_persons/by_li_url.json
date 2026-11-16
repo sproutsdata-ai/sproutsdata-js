@@ -1,0 +1,101 @@
+{
+  "body": {
+    "attribution": [
+      {
+        "as_of": "2026-11-10T22:30:06.290317Z",
+        "domain": null,
+        "quote": null,
+        "source_corpus": "gtm_index",
+        "url": null
+      }
+    ],
+    "columns": null,
+    "coverage": null,
+    "degradation": [],
+    "has_more": false,
+    "meta": {
+      "as_of": "2026-11-10T22:30:06.290317Z",
+      "credential": "api_key",
+      "credits_charged": 1.0,
+      "environment": "live",
+      "request_id": "0711cea6b143437498c749a7d40fb089"
+    },
+    "next_cursor": null,
+    "resolved_search": null,
+    "results": [
+      {
+        "category": "person",
+        "found": true,
+        "id": "https://www.linkedin.com/in/e2e-person",
+        "matches": [
+          {
+            "account_name": "Example Fintech 0",
+            "city": "Berlin",
+            "cmp_id": "es-company-0",
+            "company_id": "es-company-0",
+            "contact_name": "Alex Example 0",
+            "country": "Germany",
+            "department": "Engineering",
+            "division": "Technology",
+            "domain": "fintech-0.de",
+            "employment_history": [
+              {
+                "company": "Previous Bank AG",
+                "title": "Data Engineer",
+                "years": 4
+              },
+              {
+                "company": "Startup GmbH",
+                "title": "Engineer",
+                "years": 2
+              }
+            ],
+            "employment_type": "full_time",
+            "first_name": "Alex",
+            "id": "c456c786c51c8c3f",
+            "job_title": "Head of Data Engineering",
+            "last_name": "Example 0",
+            "linkedin_connections": 500,
+            "linkedin_url": "https://www.linkedin.com/in/alex-example-0",
+            "region": "Europe",
+            "seniority": "Head",
+            "skills": [
+              "spark",
+              "kafka",
+              "dbt",
+              "python",
+              "airflow",
+              "snowflake"
+            ],
+            "state": "Berlin",
+            "sub_department": "Data",
+            "tenure": 3.4
+          }
+        ]
+      }
+    ],
+    "suggestion": null,
+    "total": 1,
+    "total_is_estimate": false
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "60",
+    "ratelimit-remaining": "57",
+    "ratelimit-reset": "54",
+    "x-request-id": "0711cea6b143437498c749a7d40fb089"
+  },
+  "operation": "entities_persons",
+  "request": {
+    "body": {
+      "by": "li_url",
+      "ids": [
+        "https://www.linkedin.com/in/e2e-person"
+      ]
+    },
+    "method": "POST",
+    "path": "/v1/entities/persons",
+    "query": {}
+  },
+  "status": 200
+}

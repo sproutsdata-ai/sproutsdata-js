@@ -42,5 +42,9 @@
       "first_category": "a_category_invented_later",
       "first_degradation_reason": "a_reason_invented_later"
     }
-  }
+  },
+  "off_spec": [
+    "$.degradation[0].reason",
+    "$.results[0].category"
+  ]
 }

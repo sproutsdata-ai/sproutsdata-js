@@ -1,0 +1,113 @@
+{
+  "body": {
+    "as_of": "2026-11-10T22:29:41.033191Z",
+    "degradation": [
+      {
+        "detail": "The job-openings corpus could not be counted and is absent from this report. That does not mean it is empty.",
+        "impact": "recall",
+        "reason": "corpus_unavailable",
+        "source_corpus": "job_openings"
+      }
+    ],
+    "meta": {
+      "as_of": "2026-11-10T22:30:06.265902Z",
+      "credential": "api_key",
+      "credits_charged": null,
+      "environment": "live",
+      "request_id": "35256f8ceea44bb2a7925140ff354cab"
+    },
+    "not_in_index": [
+      "private company financials",
+      "personal contact details"
+    ],
+    "segments": [
+      {
+        "category": "company",
+        "name": "companies",
+        "source_corpus": "gtm_index",
+        "total": 1000000,
+        "with_domain": null,
+        "with_embeddings": 0
+      },
+      {
+        "category": "person",
+        "name": "people",
+        "source_corpus": "gtm_index",
+        "total": 1000001,
+        "with_domain": null,
+        "with_embeddings": 1
+      },
+      {
+        "category": "person",
+        "name": "affiliations",
+        "source_corpus": "affiliations",
+        "total": 1000002,
+        "with_domain": null,
+        "with_embeddings": 2
+      },
+      {
+        "category": "patent",
+        "name": "patents",
+        "source_corpus": "patents",
+        "total": 1000003,
+        "with_domain": null,
+        "with_embeddings": 3
+      },
+      {
+        "category": "news_article",
+        "name": "news",
+        "source_corpus": "news",
+        "total": 1000004,
+        "with_domain": null,
+        "with_embeddings": 4
+      },
+      {
+        "category": "trend",
+        "name": "trends",
+        "source_corpus": "trends",
+        "total": 1000005,
+        "with_domain": null,
+        "with_embeddings": 5
+      },
+      {
+        "category": "market_report",
+        "name": "market-reports",
+        "source_corpus": "market_reports",
+        "total": 1000006,
+        "with_domain": null,
+        "with_embeddings": 6
+      },
+      {
+        "category": "funding_round",
+        "name": "fundings",
+        "source_corpus": "fundings",
+        "total": 1000007,
+        "with_domain": null,
+        "with_embeddings": 7
+      },
+      {
+        "category": "academic_report",
+        "name": "academic-reports",
+        "source_corpus": "academic_reports",
+        "total": 1000008,
+        "with_domain": null,
+        "with_embeddings": 8
+      }
+    ]
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "60",
+    "ratelimit-remaining": "57",
+    "ratelimit-reset": "54",
+    "x-request-id": "35256f8ceea44bb2a7925140ff354cab"
+  },
+  "operation": "coverage",
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/v1/coverage",
+    "query": {}
+  },
+  "status": 200
+}

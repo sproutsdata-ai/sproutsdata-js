@@ -11,7 +11,8 @@ import { inspect } from 'node:util';
 
 import { asSchema, generateText, stepCountIs } from 'ai';
 import { AuthenticationError, ClientValidationError, InsufficientCreditsError, PermissionDeniedError } from 'sproutsdata';
-import { TOOL_NAMES, definitions, type ToolName } from 'sproutsdata/tools';
+import type * as SproutsDataModule from 'sproutsdata';
+import { TOOL_NAMES, definitions } from 'sproutsdata/tools';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { VERSION, raiseSproutsDataErrors, sproutsDataTools, type SproutsDataTool } from '../src/index';
@@ -59,8 +60,8 @@ describe('the tool definitions', () => {
     const some = sproutsDataTools({ client: client(fetchQueue()), include: ['search'] });
     for (const definition of definitions()) expect(all[definition.name]!.description).toBe(definition.description);
     expect(Object.keys(some)).toEqual(['sprouts_search']);
-    expect(some.sprouts_search!.description).toBe(definitions({ include: ['search'] })[0]!.description);
-    expect(some.sprouts_search!.description).not.toContain('sprouts_entity_lookup');
+    expect(some['sprouts_search']!.description).toBe(definitions(['search'])[0]!.description);
+    expect(some['sprouts_search']!.description).not.toContain('sprouts_entity_lookup');
   });
 
   it('hide a fixed argument from the model', async () => {
@@ -68,16 +69,16 @@ describe('the tool definitions', () => {
       client: client(fetchQueue()),
       fixed: { sprouts_search: { category: 'person' } },
     });
-    const schema = (await schemaOf(tools.sprouts_search)) as { properties: Record<string, unknown> };
+    const schema = (await schemaOf(tools['sprouts_search'])) as { properties: Record<string, unknown> };
     expect(schema.properties).not.toHaveProperty('category');
   });
 
   it('offer no deep mode and no updated_after, and refuse them as settings', async () => {
     const tools = sproutsDataTools({ client: client(fetchQueue()) });
-    const schema = (await schemaOf(tools.sprouts_search)) as {
+    const schema = (await schemaOf(tools['sprouts_search'])) as {
       properties: Record<string, { enum?: unknown[] }>;
     };
-    expect(schema.properties.mode!.enum).toEqual(['fast', 'auto']);
+    expect(schema.properties['mode']!.enum).toEqual(['fast', 'auto']);
     expect(schema.properties).not.toHaveProperty('updated_after');
     expect(() =>
       sproutsDataTools({ client: client(fetchQueue()), fixed: { sprouts_search: { mode: 'deep' } } }),
@@ -105,16 +106,18 @@ describe('generateText with the ai mock model', () => {
     });
     const output = answer.toolResults[0]!.output as Record<string, unknown>;
     expect(output).toMatchObject({ total: 1, request_id: 'req_1', environment: 'test' });
-    expect(output.interpreted_as).toEqual({ filters: {}, source: 'none', conflicts: [] });
+    expect(output['interpreted_as']).toEqual({ filters: {}, source: 'none', conflicts: [] });
     expect(toolOutputSeen(model)).toEqual({ type: 'json', value: output });
   });
 
-  it('names this package in X-SproutsData-Client, without changing the caller’s client', async () => {
+  it('uses the caller’s client as it is, naming no integration', async () => {
     const fetchMock = fetchQueue(jsonResponse(searchBody()));
-    const mine = client(fetchMock);
-    await run(sproutsDataTools({ client: mine }), 'sprouts_search', { query: 'x' }).result;
-    expect(sentHeaders(fetchMock)['X-SproutsData-Client']).toBe(`ai-sdk/${VERSION}`);
-    expect(mine.integration).toBeUndefined();
+    await run(sproutsDataTools({ client: client(fetchMock) }), 'sprouts_search', { query: 'x' }).result;
+    expect(sentHeaders(fetchMock)).not.toHaveProperty('X-SproutsData-Client');
+  });
+
+  it('refuses connection settings beside a client', () => {
+    expect(() => sproutsDataTools({ client: client(fetchQueue()), baseUrl: BASE_URL })).toThrow(/baseUrl configure a client/);
   });
 
   it('returns invalid arguments to the model as data, every problem named, and sends nothing', async () => {
@@ -138,7 +141,7 @@ describe('generateText with the ai mock model', () => {
     const fetchMock = fetchQueue(jsonResponse(searchBody()));
     await run(sproutsDataTools({ client: client(fetchMock) }), 'sprouts_search', { query: 'x', limit: '5' })
       .result;
-    expect(sentBody(fetchMock).limit).toBe(5);
+    expect(sentBody(fetchMock)['limit']).toBe(5);
   });
 
   it('returns a 422 as data the model can act on', async () => {
@@ -146,7 +149,7 @@ describe('generateText with the ai mock model', () => {
       problemResponse(422, {
         code: 'request.invalid',
         detail: 'Unknown industry.',
-        extra: { errors: [{ loc: ['body', 'filters', 'industry'], msg: 'unknown value' }] },
+        errors: [{ loc: ['body', 'filters', 'industry'], msg: 'unknown value' }],
       }),
     );
     const { model, result } = run(sproutsDataTools({ client: client(fetchMock) }), 'sprouts_search', {
@@ -171,7 +174,7 @@ describe('generateText with the ai mock model', () => {
   it('does not offer a billed call that timed out after sending for retry', async () => {
     const hang = (_url: unknown, init?: RequestInit) =>
       new Promise<Response>((_resolve, reject) => {
-        init?.signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')));
+        init?.signal?.addEventListener('abort', () => { reject(new DOMException('aborted', 'AbortError')); });
       });
     const tools = sproutsDataTools({ apiKey: TEST_KEY, baseUrl: BASE_URL, timeoutMs: 5, maxRetries: 0 });
     vi.stubGlobal('fetch', hang);
@@ -207,7 +210,7 @@ describe('generateText with the ai mock model', () => {
 describe('a client from a second copy of sproutsdata', () => {
   // The application loads the SDK through CommonJS; this package, under
   // vitest, loads it as an ES module. Two copies, two sets of classes.
-  const cjs = createRequire(import.meta.url)('sproutsdata') as typeof import('sproutsdata');
+  const cjs = createRequire(import.meta.url)('sproutsdata') as typeof SproutsDataModule;
 
   function foreignClient(fetchImpl: typeof globalThis.fetch) {
     return new cjs.SproutsData({ apiKey: TEST_KEY, baseUrl: BASE_URL, fetch: fetchImpl, maxRetries: 0 });
@@ -244,14 +247,14 @@ describe('construction', () => {
 
   it('refuses a browser-like environment', () => {
     vi.stubGlobal('window', { document: {} });
-    expect(() => sproutsDataTools({ apiKey: TEST_KEY })).toThrow(/auth\.browser_origin/);
+    expect(() => sproutsDataTools({ apiKey: TEST_KEY })).toThrow(/refuses an API key/);
   });
 
   it('never exposes the API key', () => {
     const tools = sproutsDataTools({ apiKey: TEST_KEY, baseUrl: BASE_URL });
     expect(JSON.stringify(tools)).not.toContain(TEST_KEY);
     expect(inspect(tools, { depth: 10, showHidden: true })).not.toContain(TEST_KEY);
-    for (const name of TOOL_NAMES) expect(String(tools[name as ToolName]?.execute)).not.toContain(TEST_KEY);
+    for (const name of TOOL_NAMES) expect(String(tools[name]?.execute)).not.toContain(TEST_KEY);
   });
 
   it('reports the version package.json declares', () => {

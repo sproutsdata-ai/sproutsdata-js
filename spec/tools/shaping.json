@@ -1,6 +1,6 @@
 {
   "$comment": "The numbers and tables every language's tools module shapes results with (contract 02 §12.2). A tool result lands in a model's context window, so rows are projected, long text is cut and long lists are capped — identically in every SDK, which is what lets fixtures/ hold them to byte-identical output. README.md explains each entry.",
-  "version": 1,
+  "version": 2,
   "list_max_entries": 15,
   "text_max_chars": 300,
   "matches_max": 3,
@@ -64,7 +64,7 @@
         "li_url",
         "name"
       ],
-      "default": null
+      "default": "auto"
     },
     "person": {
       "accepts": [
@@ -72,7 +72,7 @@
         "li_url",
         "name"
       ],
-      "default": null
+      "default": "auto"
     },
     "patent": {
       "accepts": [],
@@ -115,5 +115,18 @@
       "default": "id"
     }
   },
-  "search_id_pattern": "^[0-9a-f]{16}$"
+  "search_id_pattern": "^[0-9a-f]{16}$",
+  "document_categories": [
+    "patent",
+    "news_article",
+    "trend",
+    "market_report",
+    "funding_round",
+    "academic_report",
+    "job_opening"
+  ],
+  "resolved_filters_skipped": [
+    "anchors",
+    "combine"
+  ]
 }

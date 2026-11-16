@@ -74,15 +74,16 @@
           "reason": "vector_coverage_incomplete",
           "detail": "9% of company records have no embedding and were matched lexically only.",
           "impact": "recall",
-          "source_corpus": "companies"
+          "source_corpus": "gtm_index"
         }
       ],
       "columns": null,
       "meta": {
-        "request_id": "req_5c0e19ab47",
-        "environment": "test",
         "as_of": "2026-10-01T09:30:00Z",
-        "credential": "api_key"
+        "credential": "api_key",
+        "credits_charged": null,
+        "environment": "test",
+        "request_id": "req_5c0e19ab47"
       }
     }
   },
@@ -107,7 +108,6 @@
           "weight": 0
         }
       ],
-      "category": "company",
       "filters": {
         "employee_count": {
           "gte": 500,

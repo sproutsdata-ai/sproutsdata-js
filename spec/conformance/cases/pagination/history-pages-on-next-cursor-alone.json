@@ -1,0 +1,64 @@
+{
+  "name": "history_pages_on_next_cursor_without_has_more",
+  "description": "Usage history pages carry next_cursor and no has_more. A client that waited for has_more would stop after the first page; the next page is there exactly when next_cursor is set.",
+  "request": {
+    "method": "GET",
+    "path": "/v1/usage/history"
+  },
+  "responses": [
+    {
+      "status": 200,
+      "headers": {},
+      "body": {
+        "results": [
+          {
+            "id": "101",
+            "occurred_at": "2026-11-11T00:00:00Z",
+            "action_type": "search",
+            "actor_type": "api_key",
+            "environment": "test",
+            "status": "ok",
+            "error_code": null,
+            "query": "fintech in Berlin",
+            "result_count": 10,
+            "credits_charged": "0.500",
+            "latency_ms": 840
+          }
+        ],
+        "next_cursor": "CURSOR_H"
+      }
+    },
+    {
+      "status": 200,
+      "headers": {},
+      "body": {
+        "results": [
+          {
+            "id": "100",
+            "occurred_at": "2026-11-11T00:00:00Z",
+            "action_type": "search",
+            "actor_type": "api_key",
+            "environment": "test",
+            "status": "ok",
+            "error_code": null,
+            "query": "fintech in Berlin",
+            "result_count": 10,
+            "credits_charged": "0.500",
+            "latency_ms": 840
+          }
+        ],
+        "next_cursor": null
+      }
+    }
+  ],
+  "paginate": "next_page",
+  "expect": {
+    "attempts": 2,
+    "sent": [
+      {},
+      {
+        "cursor": "CURSOR_H"
+      }
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 {
   "name": "saved_items_cap_is_a_conflict_and_is_not_retried",
-  "description": "A free workspace's saved-items cap answers 409 lists.item_cap_reached. Nothing was added and waiting does not change that, so it is raised at once as a conflict, never as an idempotency conflict or a rate limit.",
+  "description": "A list over a size limit answers 409 lists.item_cap_reached. Nothing was added and waiting does not change that, so it is raised at once as a conflict, never as a rate limit.",
   "request": {
     "method": "POST",
     "path": "/v1/lists/5f0c9a52-1d1e-4f61-9a43-1b3c8a1d7e10/items",
@@ -21,15 +21,10 @@
       },
       "body": {
         "type": "https://dashboard.sproutsdata.ai/errors/lists-item-cap-reached",
-        "title": "Saved-items cap reached",
+        "title": "List limit reached",
         "status": 409,
         "code": "lists.item_cap_reached",
-        "detail": "Your workspace can save 100 items; 99 are saved and 2 would be added.",
-        "extra": {
-          "cap": 100,
-          "saved": 99,
-          "adding": 2
-        }
+        "detail": "This list can hold 10000 items."
       }
     }
   ],
@@ -38,7 +33,6 @@
     "no_sleep": true,
     "error": {
       "concept": "conflict",
-      "not_concept": "idempotency_conflict",
       "status": 409,
       "code": "lists.item_cap_reached",
       "request_id": "req_cap"

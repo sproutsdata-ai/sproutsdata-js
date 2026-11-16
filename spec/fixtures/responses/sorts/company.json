@@ -1,0 +1,226 @@
+{
+  "body": {
+    "category": "company",
+    "directions": [
+      "asc",
+      "desc"
+    ],
+    "meta": {
+      "as_of": "2026-11-10T22:30:06.262808Z",
+      "credential": "api_key",
+      "credits_charged": null,
+      "environment": "live",
+      "request_id": "c7cb39c9b080494e88b3e3b9264cb0a7"
+    },
+    "sorts": [
+      {
+        "default_direction": "desc",
+        "definition": null,
+        "direction_labels": {
+          "asc": "Lowest first",
+          "desc": "Highest first"
+        },
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "field": "field_1",
+        "group": null,
+        "kind": "number",
+        "label": "Field 1"
+      },
+      {
+        "default_direction": "desc",
+        "definition": null,
+        "direction_labels": {
+          "asc": "Lowest first",
+          "desc": "Highest first"
+        },
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "field": "field_3",
+        "group": null,
+        "kind": "number",
+        "label": "Field 3"
+      },
+      {
+        "default_direction": "desc",
+        "definition": null,
+        "direction_labels": {
+          "asc": "Lowest first",
+          "desc": "Highest first"
+        },
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "field": "field_5",
+        "group": null,
+        "kind": "number",
+        "label": "Field 5"
+      },
+      {
+        "default_direction": "desc",
+        "definition": null,
+        "direction_labels": {
+          "asc": "Lowest first",
+          "desc": "Highest first"
+        },
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "field": "field_7",
+        "group": null,
+        "kind": "number",
+        "label": "Field 7"
+      },
+      {
+        "default_direction": "desc",
+        "definition": null,
+        "direction_labels": {
+          "asc": "Lowest first",
+          "desc": "Highest first"
+        },
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "field": "field_9",
+        "group": null,
+        "kind": "number",
+        "label": "Field 9"
+      },
+      {
+        "default_direction": "desc",
+        "definition": null,
+        "direction_labels": {
+          "asc": "Lowest first",
+          "desc": "Highest first"
+        },
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "field": "field_11",
+        "group": null,
+        "kind": "number",
+        "label": "Field 11"
+      },
+      {
+        "default_direction": "desc",
+        "definition": null,
+        "direction_labels": {
+          "asc": "Lowest first",
+          "desc": "Highest first"
+        },
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "field": "field_13",
+        "group": null,
+        "kind": "number",
+        "label": "Field 13"
+      },
+      {
+        "default_direction": "desc",
+        "definition": null,
+        "direction_labels": {
+          "asc": "Lowest first",
+          "desc": "Highest first"
+        },
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "field": "field_15",
+        "group": null,
+        "kind": "number",
+        "label": "Field 15"
+      },
+      {
+        "default_direction": "desc",
+        "definition": null,
+        "direction_labels": {
+          "asc": "Lowest first",
+          "desc": "Highest first"
+        },
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "field": "field_17",
+        "group": null,
+        "kind": "number",
+        "label": "Field 17"
+      },
+      {
+        "default_direction": "desc",
+        "definition": null,
+        "direction_labels": {
+          "asc": "Lowest first",
+          "desc": "Highest first"
+        },
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "field": "field_19",
+        "group": null,
+        "kind": "number",
+        "label": "Field 19"
+      },
+      {
+        "default_direction": "desc",
+        "definition": null,
+        "direction_labels": {
+          "asc": "Lowest first",
+          "desc": "Highest first"
+        },
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "field": "field_21",
+        "group": null,
+        "kind": "number",
+        "label": "Field 21"
+      },
+      {
+        "default_direction": "desc",
+        "definition": null,
+        "direction_labels": {
+          "asc": "Lowest first",
+          "desc": "Highest first"
+        },
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "field": "field_23",
+        "group": null,
+        "kind": "number",
+        "label": "Field 23"
+      }
+    ],
+    "total": 12
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "60",
+    "ratelimit-remaining": "57",
+    "ratelimit-reset": "54",
+    "x-request-id": "c7cb39c9b080494e88b3e3b9264cb0a7"
+  },
+  "operation": "sorts",
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/v1/sorts/company",
+    "query": {}
+  },
+  "status": 200
+}

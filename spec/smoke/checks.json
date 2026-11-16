@@ -1,0 +1,28 @@
+{
+  "$comment": "The live smoke checks, in order: sproutsdata-py scripts/smoke.py and sproutsdata-js scripts/smoke-live.mjs each implement exactly these names and refuse to run if a name is missing or extra, so the two report the same checks against the same deployment. `billed` marks a check that spends credits on a live key (a test key's calls are free).",
+  "version": 1,
+  "checks": [
+    { "name": "local.unknown_argument_refused", "call": "search(..., colour=...)", "billed": false },
+    { "name": "local.crossed_range_refused", "call": "search(filters.employee_count gte > lte)", "billed": false },
+    { "name": "local.document_filters_refused", "call": "search(category=news_article, DiscoverFilters)", "billed": false },
+    { "name": "credits.retrieve", "call": "GET /v1/credits", "billed": false },
+    { "name": "credits.transactions", "call": "GET /v1/credits/transactions", "billed": false },
+    { "name": "coverage", "call": "GET /v1/coverage", "billed": false },
+    { "name": "sorts", "call": "GET /v1/sorts/company", "billed": false },
+    { "name": "filter_values", "call": "GET /v1/search/filters/industry", "billed": false },
+    { "name": "search.page_one", "call": "POST /v1/search", "billed": true },
+    { "name": "search.page_two", "call": "POST /v1/search (cursor)", "billed": true },
+    { "name": "search.cursor_bound_to_request", "call": "POST /v1/search (cursor, other query)", "billed": false },
+    { "name": "iter_search.max_results", "call": "POST /v1/search (walk)", "billed": true },
+    { "name": "similar", "call": "POST /v1/similar", "billed": true },
+    { "name": "entities.companies", "call": "POST /v1/entities/companies", "billed": true },
+    { "name": "relationships.find", "call": "POST /v1/relationships", "billed": true },
+    { "name": "relationships.institutions", "call": "POST /v1/relationships/institutions", "billed": true },
+    { "name": "org_chart.retrieve", "call": "POST /v1/org-chart", "billed": true },
+    { "name": "history.list", "call": "GET /v1/usage/history", "billed": false },
+    { "name": "history.metrics", "call": "GET /v1/usage/metrics", "billed": false },
+    { "name": "feedback.tags", "call": "GET /v1/feedback/tags", "billed": false },
+    { "name": "lists.round_trip", "call": "POST, GET, DELETE /v1/lists", "billed": false },
+    { "name": "runs.list", "call": "GET /v1/agents/runs", "billed": false }
+  ]
+}

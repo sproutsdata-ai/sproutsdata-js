@@ -273,7 +273,7 @@ The answer carries fields that say how far to trust it:
 | `has_more`, `next_cursor` | Whether another page exists, and the cursor to fetch it. See [Pagination](pagination.md). |
 | `degradation` | What the server could not do for this request, each with a `reason`, a `detail` and an `impact` (`recall`, `precision`, `freshness`, `fields`). Empty means checked and nothing degraded. |
 | `resolved_search` | What the server decided the request meant: the filters an `auto` reading inferred (`filters_source`), the sort applied, any conflicts. |
-| `suggestion` | Advisory: a different `category` would probably have answered better. The rows still come from the search you asked for. |
+| `suggestion` | Advisory, or `null`: a different `category` would probably have answered better (`kind: 'search'`; the rows still come from the search you asked for), or, on an empty first page, filters to leave out (`kind: 'relax'`, with `without`). |
 | `coverage` | For `deep`: how much of the matching set the answer represents. `null` for `fast` and `auto`. |
 | `attribution` | Which corpora the content came from, and how fresh each is. |
 | `meta` | `request_id` (quote it to support), `as_of`, `credential`, `credits_charged`. |
@@ -285,6 +285,33 @@ const page = await client.search({ query: 'battery recycling startups' });
 const recall = page.degradation.filter((d) => d.impact === 'recall');
 if (recall.length > 0) console.warn('Results may be incomplete:', recall.map((d) => d.detail));
 ```
+
+### When nothing matches
+
+Every empty first page carries a `no_match` degradation whose `detail` says why.
+When leaving out one filter would find records, `page.suggestion` says so: its
+`kind` is `'relax'`, its `category` is `null`, and `without` lists those
+filters, fewest records first, each with the `total` the search finds without
+it. `filter` names the request field (`topic` means the query's topic) and
+`label` says it in words. A search that finds nothing is free.
+
+```ts
+const filters = { geo: { places: [{ level: 'country' as const, value: 'Iceland' }] }, employee_count: { gte: 5000 } };
+const empty = await client.search({ query: 'enterprise software', filters });
+if (empty.suggestion?.kind === 'relax') {
+  for (const option of empty.suggestion.without ?? []) console.log(`${String(option.total)} without ${option.label ?? option.filter}`);
+}
+```
+
+`examples/relax-search.ts` runs the search again without the first filter
+listed. Two more reasons qualify an answer that has rows:
+
+- `sparse_filter`: an applied filter's field is held by few records (under
+  5%), so a small `total` may reflect missing data rather than a narrow ask.
+  The numbers are in `resolved_search.sparse_filters` (`filter`, `record_type`,
+  `populated`, `of`, `share`).
+- `topic_not_required`: none of the records the filters match mention the
+  query's topic, so they are ranked by how close they come to it.
 
 ### The coverage block
 

@@ -20,13 +20,14 @@
     "degradation": [],
     "has_more": true,
     "meta": {
-      "as_of": "2026-11-10T22:30:06.441800Z",
+      "as_of": "2026-11-16T23:02:25.887762Z",
       "credential": "api_key",
+      "credits_balance": null,
       "credits_charged": null,
       "environment": "live",
-      "request_id": "0f2d38b57b9f4a908469f2e722630e39"
+      "request_id": "080e463a883e4ba7b00384b22fb5f1ec"
     },
-    "next_cursor": "eyJmIjoiOTYzNDc3NjY1NGJjNzU3MjYyOGU2YTMwYmJhYmE2ZmMiLCJvIjoyNSwicyI6IjRlZGJhZmQyNjdmODQ5OWY4MTM2YmQ2OWVmNWQ4NmE4IiwidCI6MTc5NDM0OTgwNiwidSI6IjI1In0.06cf13a1acefae88b8889ffc466a8424",
+    "next_cursor": "eyJmIjoiOTYzNDc3NjY1NGJjNzU3MjYyOGU2YTMwYmJhYmE2ZmMiLCJvIjoyNSwicyI6IjVhYTIxOGEwYjhmNTQ1ZmM4NjI4YWY3NTUyOGVlMGYyIiwidCI6MTc5NDg3MDE0NSwidSI6IjI1In0.9eab4619e0e8e0060048607a12ff0733",
     "resolved_search": null,
     "results": [
       {
@@ -1812,9 +1813,9 @@
   "headers": {
     "content-type": "application/json",
     "ratelimit-limit": "600",
-    "ratelimit-remaining": "597",
-    "ratelimit-reset": "54",
-    "x-request-id": "0f2d38b57b9f4a908469f2e722630e39"
+    "ratelimit-remaining": "599",
+    "ratelimit-reset": "35",
+    "x-request-id": "080e463a883e4ba7b00384b22fb5f1ec"
   },
   "operation": "runs_results",
   "request": {

@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-10T22:30:06.362466Z",
+        "as_of": "2026-11-16T23:02:25.809763Z",
         "domain": null,
         "quote": null,
         "source_corpus": "market_reports",
@@ -14,11 +14,12 @@
     "degradation": [],
     "has_more": false,
     "meta": {
-      "as_of": "2026-11-10T22:30:06.362466Z",
+      "as_of": "2026-11-16T23:02:25.809763Z",
       "credential": "api_key",
+      "credits_balance": 987.905,
       "credits_charged": 1.0,
       "environment": "live",
-      "request_id": "89286f404e3845a6a20c503e2fd2cc97"
+      "request_id": "23da8233cea1463394e84c9be07c741d"
     },
     "next_cursor": null,
     "resolved_search": null,
@@ -68,10 +69,10 @@
   },
   "headers": {
     "content-type": "application/json",
-    "ratelimit-limit": "60",
-    "ratelimit-remaining": "57",
-    "ratelimit-reset": "54",
-    "x-request-id": "89286f404e3845a6a20c503e2fd2cc97"
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "35",
+    "x-request-id": "23da8233cea1463394e84c9be07c741d"
   },
   "operation": "entities_market_reports",
   "request": {

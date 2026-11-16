@@ -54,7 +54,7 @@ describe('the public surface', () => {
     expect(client.map((meta) => meta.status)).toEqual([200, 200]);
     expect(call).toHaveLength(1);
     expect(call[0]?.requestId).toBeTruthy();
-    expect(call[0]?.rateLimit.limit).toBe(60);
+    expect(call[0]?.rateLimit.limit).toBe(Number(recorded('search', 'company').headers?.['ratelimit-limit']));
   });
 });
 

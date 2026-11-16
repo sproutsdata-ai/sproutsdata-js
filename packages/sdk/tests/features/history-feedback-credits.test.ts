@@ -134,7 +134,9 @@ describe('feedback', () => {
 
 describe('credits', () => {
   it('K1: the balance, and canAfford on available', async () => {
-    const r = rig([recorded('credits_retrieve', 'balance')]);
+    // An agent run holds 17.
+    const held = { ...recordedBody<object>('credits_retrieve', 'balance'), balance: 919.215, reserved: 17, available: 902.215 };
+    const r = rig([respond('credits_retrieve', 200, held)]);
     const balance = await new Credits(r.transport).retrieve();
     expect([balance.balance, balance.reserved, balance.available, balance.debt]).toEqual([919.215, 17, 902.215, 0]);
     expect([balance.status, balance.has_paid, balance.stale]).toEqual(['active', false, false]);

@@ -12,7 +12,7 @@
 
 import { type EntitiesEnvelope, lookupRef, type SearchEnvelope, type SearchHit } from '../index.js';
 import { join, render, SHAPING, text } from './catalog.js';
-import type { InterpretedAs, LookupToolResult, SearchToolResult } from './types.js';
+import type { InterpretedAs, LookupToolResult, SearchToolResult, SparseFilterNote } from './types.js';
 import { isObject } from './validate.js';
 
 const PROJECTIONS = SHAPING.default_projection;
@@ -142,7 +142,10 @@ function parserSkipped(resolved: SearchEnvelope['resolved_search'], askedInWords
 /** `resolved_search` as the model needs it. Present even when the server sent none. */
 export function interpretedAs(resolved: SearchEnvelope['resolved_search']): InterpretedAs {
   if (resolved === null) return { filters: {}, source: 'none', conflicts: [] };
-  return { filters: resolvedFilters(resolved), source: resolved.filters_source, conflicts: resolved.conflicts };
+  const shaped = { filters: resolvedFilters(resolved), source: resolved.filters_source, conflicts: resolved.conflicts };
+  // Answers are not validated, and one from a backend older than dsp-backend #179 has none.
+  const sparse: readonly SparseFilterNote[] = resolved.sparse_filters;
+  return Array.isArray(sparse) && sparse.length > 0 ? { ...shaped, sparse_filters: sparse } : shaped;
 }
 
 function lookupOf(hit: SearchHit): { readonly by?: string; readonly value: string } | undefined {

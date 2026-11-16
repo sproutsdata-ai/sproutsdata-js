@@ -39,10 +39,10 @@
   },
   "headers": {
     "content-type": "application/json",
-    "ratelimit-limit": "60",
-    "ratelimit-remaining": "57",
-    "ratelimit-reset": "54",
-    "x-request-id": "4db61f76bb284221a2330e0c7b2101e6"
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "34",
+    "x-request-id": "0ce82424e6ac4803a9b2bfa20453cc4e"
   },
   "operation": "org_chart_taxonomy",
   "request": {

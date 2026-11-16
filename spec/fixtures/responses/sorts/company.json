@@ -6,11 +6,12 @@
       "desc"
     ],
     "meta": {
-      "as_of": "2026-11-10T22:30:06.262808Z",
+      "as_of": "2026-11-16T23:02:25.713540Z",
       "credential": "api_key",
+      "credits_balance": null,
       "credits_charged": null,
       "environment": "live",
-      "request_id": "c7cb39c9b080494e88b3e3b9264cb0a7"
+      "request_id": "3de307c14a2c45e3aca455b25a02d781"
     },
     "sorts": [
       {
@@ -210,10 +211,10 @@
   },
   "headers": {
     "content-type": "application/json",
-    "ratelimit-limit": "60",
-    "ratelimit-remaining": "57",
-    "ratelimit-reset": "54",
-    "x-request-id": "c7cb39c9b080494e88b3e3b9264cb0a7"
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "35",
+    "x-request-id": "3de307c14a2c45e3aca455b25a02d781"
   },
   "operation": "sorts",
   "request": {

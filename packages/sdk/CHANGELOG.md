@@ -49,6 +49,11 @@ every changed call with its replacement.
 - `onResponse` on the client and per call; `scripts/smoke-live.mjs` checks a
   deployment with the check names the Python SDK shares.
 - Requires Node.js 22.12.0 or later.
+- An empty search says why: `degradation` carries `no_match`, and
+  `suggestion` can be `kind: 'relax'` with `without`, the filters whose removal
+  alone finds records (`examples/relax-search.ts`). `sparse_filter` and
+  `topic_not_required` name thin filters and unmentioned topics. The search
+  tool's `interpreted_as` carries `sparse_filters`.
 
 ## 0.0.1
 

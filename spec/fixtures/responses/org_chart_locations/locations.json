@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-10T22:30:06.563904Z",
+        "as_of": "2026-11-16T23:02:26.015349Z",
         "domain": null,
         "quote": null,
         "source_corpus": "gtm_index",
@@ -43,20 +43,21 @@
     "degradation": [],
     "matched": null,
     "meta": {
-      "as_of": "2026-11-10T22:30:06.563904Z",
+      "as_of": "2026-11-16T23:02:26.015349Z",
       "credential": "api_key",
+      "credits_balance": null,
       "credits_charged": 1.0,
       "environment": "live",
-      "request_id": "892cf18818834c3bb679e0bf5c739568"
+      "request_id": "5b56129efd7d497aa4878106b2f49657"
     },
     "total": 10
   },
   "headers": {
     "content-type": "application/json",
-    "ratelimit-limit": "60",
-    "ratelimit-remaining": "57",
-    "ratelimit-reset": "54",
-    "x-request-id": "892cf18818834c3bb679e0bf5c739568"
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "34",
+    "x-request-id": "5b56129efd7d497aa4878106b2f49657"
   },
   "operation": "org_chart_locations",
   "request": {

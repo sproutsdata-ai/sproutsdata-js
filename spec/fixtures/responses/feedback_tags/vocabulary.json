@@ -83,10 +83,10 @@
   },
   "headers": {
     "content-type": "application/json",
-    "ratelimit-limit": "60",
-    "ratelimit-remaining": "57",
-    "ratelimit-reset": "53",
-    "x-request-id": "493b5af80e3946df9085d413e5f38031"
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "34",
+    "x-request-id": "57156c0b18fe4cbc9e41c6f4a43bb805"
   },
   "operation": "feedback_tags",
   "request": {

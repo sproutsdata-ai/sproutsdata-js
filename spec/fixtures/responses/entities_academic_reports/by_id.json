@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-10T22:30:06.333183Z",
+        "as_of": "2026-11-16T23:02:25.784402Z",
         "domain": null,
         "quote": null,
         "source_corpus": "academic_reports",
@@ -14,11 +14,12 @@
     "degradation": [],
     "has_more": false,
     "meta": {
-      "as_of": "2026-11-10T22:30:06.333183Z",
+      "as_of": "2026-11-16T23:02:25.784402Z",
       "credential": "api_key",
+      "credits_balance": 989.905,
       "credits_charged": 1.0,
       "environment": "live",
-      "request_id": "de20f51d68db43548f52978090dfbda7"
+      "request_id": "71c244a7df1546f2bfc0dd79ea77d44d"
     },
     "next_cursor": null,
     "resolved_search": null,
@@ -68,10 +69,10 @@
   },
   "headers": {
     "content-type": "application/json",
-    "ratelimit-limit": "60",
-    "ratelimit-remaining": "57",
-    "ratelimit-reset": "54",
-    "x-request-id": "de20f51d68db43548f52978090dfbda7"
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "35",
+    "x-request-id": "71c244a7df1546f2bfc0dd79ea77d44d"
   },
   "operation": "entities_academic_reports",
   "request": {

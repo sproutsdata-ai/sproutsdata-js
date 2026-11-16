@@ -1,27 +1,27 @@
 {
   "body": {
-    "created_at": "2026-11-10T22:30:06.739550Z",
+    "created_at": "2026-11-16T23:02:26.128762Z",
     "error": null,
     "expires_at": null,
     "file_url": null,
     "finished_at": null,
-    "job_id": "a0a53c6a-12d2-480d-acc6-0b27ec8e6460",
+    "job_id": "decd1069-f132-48b6-b270-4bb580e6f7ba",
     "rows": null,
     "skipped": null,
     "status": "queued"
   },
   "headers": {
     "content-type": "application/json",
-    "ratelimit-limit": "60",
-    "ratelimit-remaining": "54",
-    "ratelimit-reset": "54",
-    "x-request-id": "091c3e46651b4824b65a17524ea96fc1"
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1998",
+    "ratelimit-reset": "34",
+    "x-request-id": "c8cc018920df450c9b1e63e5502a733c"
   },
   "operation": "lists_export",
   "request": {
     "body": {},
     "method": "POST",
-    "path": "/v1/lists/caf54ee0-237b-43cc-a506-68fed3d17517/export",
+    "path": "/v1/lists/7715190d-24fe-48f6-8f26-4577056707a7/export",
     "query": {}
   },
   "status": 202

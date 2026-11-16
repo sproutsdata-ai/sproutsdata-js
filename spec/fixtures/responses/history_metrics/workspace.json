@@ -3,73 +3,73 @@
     "buckets": [
       {
         "action_type": "dsp.agents",
-        "credits": "25.500",
-        "day": "2026-11-11",
+        "credits": "8.500",
+        "day": "2026-11-17",
         "failed": 0,
-        "ok": 3,
+        "ok": 1,
         "pending": 0,
-        "requests": 3
+        "requests": 1
       },
       {
         "action_type": "dsp.entities",
-        "credits": "27.000",
-        "day": "2026-11-11",
+        "credits": "9.000",
+        "day": "2026-11-17",
         "failed": 0,
-        "ok": 27,
+        "ok": 9,
         "pending": 0,
-        "requests": 27
+        "requests": 9
       },
       {
         "action_type": "dsp.org_chart",
-        "credits": "9.000",
-        "day": "2026-11-11",
-        "failed": 3,
-        "ok": 9,
+        "credits": "3.000",
+        "day": "2026-11-17",
+        "failed": 1,
+        "ok": 3,
         "pending": 0,
-        "requests": 12
+        "requests": 4
       },
       {
         "action_type": "dsp.relationships",
-        "credits": "24.000",
-        "day": "2026-11-11",
+        "credits": "8.000",
+        "day": "2026-11-17",
         "failed": 0,
-        "ok": 12,
+        "ok": 4,
         "pending": 0,
-        "requests": 12
+        "requests": 4
       },
       {
         "action_type": "dsp.search",
-        "credits": "6.285",
-        "day": "2026-11-11",
+        "credits": "3.095",
+        "day": "2026-11-17",
         "failed": 0,
-        "ok": 12,
+        "ok": 7,
         "pending": 0,
-        "requests": 12
+        "requests": 7
       },
       {
         "action_type": "dsp.similar",
-        "credits": "6.000",
-        "day": "2026-11-11",
+        "credits": "2.000",
+        "day": "2026-11-17",
         "failed": 0,
-        "ok": 3,
+        "ok": 1,
         "pending": 0,
-        "requests": 3
+        "requests": 1
       }
     ],
-    "period_from": "2026-10-11T22:30:07.310623Z",
-    "period_to": "2026-11-10T22:30:07.310623Z",
-    "total_credits": "97.785",
-    "total_failed": 3,
-    "total_ok": 66,
+    "period_from": "2026-10-17T23:02:26.700989Z",
+    "period_to": "2026-11-16T23:02:26.700989Z",
+    "total_credits": "33.595",
+    "total_failed": 1,
+    "total_ok": 25,
     "total_pending": 0,
-    "total_requests": 69
+    "total_requests": 26
   },
   "headers": {
     "content-type": "application/json",
-    "ratelimit-limit": "60",
-    "ratelimit-remaining": "57",
-    "ratelimit-reset": "53",
-    "x-request-id": "9a49240596404b50b0c635e84db1d089"
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "34",
+    "x-request-id": "bcd8013ebe34481794ed0fd0bf11210b"
   },
   "operation": "history_metrics",
   "request": {

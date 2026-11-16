@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-10T22:30:06.184188Z",
+        "as_of": "2026-11-16T23:02:25.608868Z",
         "domain": null,
         "quote": null,
         "source_corpus": "gtm_index",
@@ -14,13 +14,14 @@
     "degradation": [],
     "has_more": true,
     "meta": {
-      "as_of": "2026-11-10T22:30:06.184188Z",
+      "as_of": "2026-11-16T23:02:25.608868Z",
       "credential": "api_key",
+      "credits_balance": 999.0,
       "credits_charged": 0.5,
       "environment": "live",
-      "request_id": "9828382b88e745cfb7dc15bb0de1a6c0"
+      "request_id": "53e0e592ddda403a957750e3df9abb8b"
     },
-    "next_cursor": "eyJmIjoiZjQ4YjFlZDQ2YzcyZDNjMWU5ZjE0YjBhZjgwNWM4NGUiLCJvIjoyLCJzIjoiZDkwOTFjODczZDg1NGEyNThiMTU4Njg2ZTkxODJlYTYiLCJ0IjoxNzk0MzQ5ODA2LCJ1IjoicHJpc218cGVyc29ufDEifQ.f0a40ced8e25d6a3db6474731e8bdfe7",
+    "next_cursor": "eyJmIjoiZjQ4YjFlZDQ2YzcyZDNjMWU5ZjE0YjBhZjgwNWM4NGUiLCJvIjoyLCJzIjoiMmYwZjA1YTc1NWJiNDA3YmFmNTAxOTdlZTBhYWJmNzIiLCJ0IjoxNzk0ODcwMTQ1LCJ1IjoicHJpc218cGVyc29ufDEifQ.506c51bbfa7c8fa9998e3d22d9eaa022",
     "resolved_search": {
       "category": "person",
       "conflicts": [],
@@ -39,7 +40,8 @@
       "query": "security leaders",
       "semantic_query": "industrial automation",
       "semantic_scope": null,
-      "sort": []
+      "sort": [],
+      "sparse_filters": []
     },
     "results": [
       {
@@ -139,10 +141,10 @@
   },
   "headers": {
     "content-type": "application/json",
-    "ratelimit-limit": "60",
-    "ratelimit-remaining": "50",
-    "ratelimit-reset": "54",
-    "x-request-id": "9828382b88e745cfb7dc15bb0de1a6c0"
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1998",
+    "ratelimit-reset": "35",
+    "x-request-id": "53e0e592ddda403a957750e3df9abb8b"
   },
   "operation": "search",
   "request": {

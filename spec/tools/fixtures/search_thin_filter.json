@@ -1,0 +1,153 @@
+{
+  "description": "A company search with a filter few records hold. dsp-backend names it in a `sparse_filter` degradation (a caveat) and puts its numbers in `resolved_search.sparse_filters`, which `interpreted_as` carries as `sparse_filters`; an answer without thin filters has no such key.",
+  "tool": "sprouts_search",
+  "options": {},
+  "arguments": {
+    "query": "robotics",
+    "filters": {
+      "last_funding_date": {
+        "gte": "now-90d"
+      }
+    },
+    "limit": 1
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "X-Request-Id": "1eba56061d814472b4e5e056d4baa4b8"
+    },
+    "body": {
+      "attribution": [
+        {
+          "as_of": "2026-11-16T23:02:25.654112Z",
+          "domain": null,
+          "quote": null,
+          "source_corpus": "gtm_index",
+          "url": null
+        }
+      ],
+      "columns": null,
+      "coverage": null,
+      "degradation": [
+        {
+          "detail": "`last_funding_date` is held by only 2.0% of companies (246 of 12,345), so this search can reach at most that share. A small answer may reflect missing data rather than a narrow ask.",
+          "impact": "recall",
+          "reason": "sparse_filter",
+          "source_corpus": "gtm_index"
+        }
+      ],
+      "has_more": true,
+      "meta": {
+        "as_of": "2026-11-16T23:02:25.654112Z",
+        "credential": "api_key",
+        "credits_balance": 997.405,
+        "credits_charged": 0.5,
+        "environment": "live",
+        "request_id": "1eba56061d814472b4e5e056d4baa4b8"
+      },
+      "next_cursor": "eyJvIjoxfQ.e2e",
+      "resolved_search": {
+        "category": "company",
+        "conflicts": [],
+        "filters": {
+          "last_funding_date": {
+            "gte": "now-90d"
+          }
+        },
+        "filters_source": "caller",
+        "keyword_query": null,
+        "mode": "fast",
+        "overrides": [],
+        "parser_version": "none",
+        "query": "robotics",
+        "semantic_query": "industrial automation",
+        "semantic_scope": null,
+        "sort": [],
+        "sparse_filters": [
+          {
+            "filter": "last_funding_date",
+            "of": 12345,
+            "populated": 246,
+            "record_type": "company",
+            "share": 0.0199
+          }
+        ]
+      },
+      "results": [
+        {
+          "id": "example-0.de",
+          "category": "company",
+          "score": 1.0,
+          "account_name": "Example Industrial Automation GmbH 0",
+          "domain": "example-0.de",
+          "industry": "Industrial Machinery & Equipment",
+          "employee_count": 1200,
+          "country": "Germany"
+        }
+      ],
+      "suggestion": null,
+      "total": 37,
+      "total_is_estimate": false
+    }
+  },
+  "expected_request": {
+    "method": "POST",
+    "path": "/v1/search",
+    "body": {
+      "category": "company",
+      "filters": {
+        "last_funding_date": {
+          "gte": "now-90d"
+        }
+      },
+      "limit": 1,
+      "mode": "fast",
+      "query": "robotics"
+    }
+  },
+  "expected_output": {
+    "results": [
+      {
+        "category": "company",
+        "id": "example-0.de",
+        "score": 1.0,
+        "account_name": "Example Industrial Automation GmbH 0",
+        "domain": "example-0.de",
+        "industry": "Industrial Machinery & Equipment",
+        "employee_count": 1200,
+        "country": "Germany",
+        "lookup": {
+          "by": "domain",
+          "value": "example-0.de"
+        }
+      }
+    ],
+    "total": 37,
+    "total_is_estimate": false,
+    "has_more": true,
+    "next_cursor": "eyJvIjoxfQ.e2e",
+    "interpreted_as": {
+      "filters": {
+        "last_funding_date": {
+          "gte": "now-90d"
+        }
+      },
+      "source": "caller",
+      "conflicts": [],
+      "sparse_filters": [
+        {
+          "filter": "last_funding_date",
+          "of": 12345,
+          "populated": 246,
+          "record_type": "company",
+          "share": 0.0199
+        }
+      ]
+    },
+    "caveats": [
+      "sparse_filter: `last_funding_date` is held by only 2.0% of companies (246 of 12,345), so this search can reach at most that share. A small answer may reflect missing data rather than a narrow ask. (impact: recall)"
+    ],
+    "suggestion": null,
+    "request_id": "1eba56061d814472b4e5e056d4baa4b8"
+  }
+}

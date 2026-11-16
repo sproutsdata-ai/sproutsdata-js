@@ -33,6 +33,7 @@ export type ErrorCode =
   | "relationship.anchor_ambiguous"
   | "relationship.anchor_not_found"
   | "request.invalid"
+  | "request.too_large"
   | "request.unsupported"
   | "service.overloaded"
   | "service.unavailable"
@@ -246,6 +247,11 @@ export const ERROR_CODES: Readonly<Record<ErrorCode, CodeInfo>> = {
    * refusal (404 unknown path, 405 wrong method), with that status.
    */
   "request.invalid": { status: 422, concept: "invalid_request", retry: false },
+  /**
+   * The request body is larger than the route accepts (the Tools routes cap
+   * it). Send a smaller body: fewer items, or a shorter query.
+   */
+  "request.too_large": { status: 413, concept: "invalid_request", retry: false },
   /**
    * A relationships question the network cannot answer as asked. `extra.kind`
    * says which refusal and `extra.try_instead`, when present, suggests a

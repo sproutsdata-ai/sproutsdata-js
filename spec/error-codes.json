@@ -245,6 +245,13 @@
       "meaning": "The request is invalid. Validation failures carry the field-level detail in the top-level `errors` array (`loc`, `msg`, `type`); `detail` names the fields. The server forbids unknown body fields. Also the code of a 400 (a missing or unusable Idempotency-Key on an agent run start) and of a routing refusal (404 unknown path, 405 wrong method), with that status."
     },
     {
+      "code": "request.too_large",
+      "status": 413,
+      "concept": "invalid_request",
+      "retry": false,
+      "meaning": "The request body is larger than the route accepts (the Tools routes cap it). Send a smaller body: fewer items, or a shorter query."
+    },
+    {
       "code": "request.unsupported",
       "status": 422,
       "concept": "invalid_request",

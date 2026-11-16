@@ -48,14 +48,15 @@ describe('history', () => {
     expect(r.sent).toHaveLength(1);
   });
 
-  it('H4: snapshot_state, and no resolved search', async () => {
+  it('H4: snapshot_state, and the resolved search', async () => {
     const detail = { ...recordedBody('history_retrieve', 'one_run'), snapshot_state: 'continuation' };
     const r = rig([respond('history_retrieve', 200, detail), recorded('history_metrics', 'workspace')]);
     const history = new History(r.transport);
     const run = await history.retrieve('69');
     const metrics = await history.metrics({ from: '2026-11-01T00:00:00Z' });
     expect(run.snapshot_state).toBe('continuation');
-    expect(run).not.toHaveProperty('resolved_search');
+    // Kept for searches only (dsp-backend 2f4973b); the recorded run is an org chart.
+    expect(run.resolved_search).toBeNull();
     expect(typeof metrics.total_credits).toBe('string');
     expect(r.query(1)).toEqual({ from: '2026-11-01T00:00:00Z' });
   });

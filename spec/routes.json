@@ -525,5 +525,11 @@
       "idempotency": "none"
     }
   ],
-  "not_wrapped": []
+  "not_wrapped": [
+    {
+      "method": "POST",
+      "path": "/v1/credits/quote",
+      "reason": "New in dsp-backend #180; credits.quote() wraps it next."
+    }
+  ]
 }

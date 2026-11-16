@@ -721,7 +721,7 @@ The type names now follow the API's own models. Where an old name has a clear re
 | `EntityCategory` | `SearchCategory` (a category to search), `ResultCategory` (a row's category) |
 | `DiscoverSearchParams` | `EntitySearchParams`, and `AutoSearchParams` for `category: 'auto'` |
 | `SimilarAnchor`, `SimilarAnchorBy`, `SimilarCombine` | `Anchor` (or `AnchorParam`, which also takes a bare domain), `AnchorBy`, `Combine` |
-| `SproutsDataEnvironment` | `KeyEnvironment` |
+| `SproutsDataEnvironment` | Removed: there are no test keys, and `meta.environment` is a deprecated constant (`'live'`) |
 | `Envelope` | `SearchEnvelope`, `EntitiesEnvelope` and the other named envelopes |
 | `Coverage` | `SearchCoverage` (a search answer's `coverage`) |
 | `FilterValuesResponse`, `DocumentFilterValuesResponse` | `FilterValues`, `DocumentFilterValues` |

@@ -613,6 +613,9 @@ export type DegradationReason =
   | "axis_not_applicable"
   | "planner_step_incomplete"
   | "upstream_advisory"
+  | "no_match"
+  | "topic_not_required"
+  | "sparse_filter"
   | (string & {});
 
 /**
@@ -1441,11 +1444,6 @@ export interface JobWorkArrangement {
   readonly [key: string]: unknown;
 }
 
-export type KeyEnvironment =
-  | "live"
-  | "test"
-  | (string & {});
-
 /**
  * Keyword sets that must match (``positive``) and sets that demote
  * (``negative``).
@@ -1792,6 +1790,33 @@ export interface OfficeLocation {
   readonly country?: string | null;
   readonly [key: string]: unknown;
 }
+
+/**
+ * The billable calls, named for what a caller does.
+ */
+export type Operation =
+  | "search"
+  | "search_auto"
+  | "similar"
+  | "relationships"
+  | "institutions"
+  | "lookup"
+  | "org_chart"
+  | "agent_run"
+  | (string & {});
+
+/**
+ * The billable calls, named for what a caller does.
+ */
+export type OperationInput =
+  | "search"
+  | "search_auto"
+  | "similar"
+  | "relationships"
+  | "institutions"
+  | "lookup"
+  | "org_chart"
+  | "agent_run";
 
 export interface OrgChartCompany {
   readonly company_ref: string | null;
@@ -2140,6 +2165,7 @@ export interface PersonRecord {
   readonly linkedin_url?: string | null;
   readonly listing_status?: string | null;
   readonly location?: string | null;
+  readonly logo?: string | null;
   readonly naics: readonly string[];
   readonly other_industries: readonly string[];
   readonly owned_by_organization: readonly string[];
@@ -2192,6 +2218,50 @@ export interface Product {
   readonly description?: string | null;
   readonly name?: string | null;
   readonly [key: string]: unknown;
+}
+
+export interface QuoteIn {
+  /**
+   * `agent_run` only, and required for it.
+   */
+  readonly effort?: "minimal" | "low" | "medium" | "high" | "xhigh" | "auto" | null;
+  readonly operation: OperationInput;
+  /**
+   * Rows on the page (paged operations, up to 100), or records found (`lookup`,
+   * up to 1,000). Ignored by flat operations and agent runs.
+   */
+  readonly rows?: number;
+  /**
+   * Rows of the same search already paid for (the next page's offset): only the
+   * rows beyond them are charged.
+   */
+  readonly start?: number;
+}
+
+export interface QuoteOut {
+  /**
+   * What the workspace can spend now, in credits; `null` when not known.
+   */
+  readonly available: number | null;
+  /**
+   * `page`: these rows of a search; `records`: per record found; `call`: flat,
+   * whatever it returns; `run`: an agent run at that effort; `run_up_to`:
+   * `auto` holds this much and is charged at the effort it chooses.
+   */
+  readonly basis: "page" | "records" | "call" | "run" | "run_up_to" | (string & {});
+  /**
+   * Whether `available` covers this quote; `null` when not known.
+   */
+  readonly covered: boolean | null;
+  /**
+   * What the call would be charged, in credits.
+   */
+  readonly credits: number;
+  readonly operation: Operation;
+  /**
+   * The price list this quote is from.
+   */
+  readonly rate_card: string;
 }
 
 /**
@@ -2365,6 +2435,24 @@ export interface RelationshipRequest {
   readonly relation?: RelationshipRelation;
 }
 
+/**
+ * The same search with one filter left out.
+ */
+export interface RelaxedFilter {
+  /**
+   * The request field to leave out (`topic`: the topic).
+   */
+  readonly filter: string;
+  /**
+   * The filter as a person reads it.
+   */
+  readonly label: string | null;
+  /**
+   * Records the search finds without it.
+   */
+  readonly total: number;
+}
+
 export interface RemoveItemsResponse {
   readonly removed: number;
   readonly saved_list: SavedListView;
@@ -2424,16 +2512,31 @@ export interface ResolvedSearch {
   readonly semantic_query: string | null;
   readonly semantic_scope: "company" | "person" | (string & {}) | null;
   readonly sort: readonly Readonly<Record<string, string>>[];
+  /**
+   * Applied filters whose field fewer than 5% of records hold, thinnest first:
+   * a small count may reflect missing data rather than a narrow ask. Companies
+   * and people only.
+   */
+  readonly sparse_filters: readonly SparseFilter[];
 }
 
 export interface ResponseMeta {
   readonly as_of: string;
   readonly credential: "api_key" | "session" | (string & {});
   /**
+   * What the workspace has available after this request, in credits (credits
+   * held for running agent runs excluded). `null` when not metered or not known
+   * just now; `GET /v1/credits` always has it.
+   */
+  readonly credits_balance: number | null;
+  /**
    * What this request cost, in credits. `null` when not metered.
    */
   readonly credits_charged: number | null;
-  readonly environment: KeyEnvironment;
+  /**
+   * Deprecated: always `live` (there are no test keys). Will be removed.
+   */
+  readonly environment: "live";
   readonly request_id: string;
 }
 
@@ -2479,13 +2582,14 @@ export interface RunDetail {
   readonly action_type: string;
   readonly actor_type: string;
   readonly credits_charged: string | null;
-  readonly environment: string;
+  readonly environment: "live";
   readonly error_code: string | null;
   readonly id: string;
   readonly latency_ms: number | null;
   readonly occurred_at: string;
   readonly query: string | null;
   readonly request: Readonly<Record<string, unknown>> | null;
+  readonly resolved_search: Readonly<Record<string, unknown>> | null;
   readonly result_count: number | null;
   readonly snapshot: Readonly<Record<string, unknown>> | null;
   readonly snapshot_state: "present" | "absent" | "continuation" | (string & {});
@@ -2634,7 +2738,7 @@ export interface RunSummary {
   readonly action_type: string;
   readonly actor_type: string;
   readonly credits_charged: string | null;
-  readonly environment: string;
+  readonly environment: "live";
   readonly error_code: string | null;
   readonly id: string;
   readonly latency_ms: number | null;
@@ -2816,12 +2920,24 @@ export type SearchModeInput =
   | "deep";
 
 /**
- * Advisory: a different ``category`` would probably have answered this better.
+ * Advisory, never an error. - ``kind: "search"``: a different ``category``
+ * would probably answer this better. - ``kind: "relax"``: the search found
+ * nothing, and the same search without one of its filters finds something.
+ * ``without`` lists those filters, fewest records first (the smallest change to
+ * the ask). Only on an empty first page, when no ``search`` suggestion applies;
+ * ``category`` is null.
  */
 export interface SearchSuggestion {
-  readonly category: ResultCategory;
-  readonly kind: "search";
+  /**
+   * The category to search instead. Set iff `kind` is `search`.
+   */
+  readonly category: ResultCategory | null;
+  readonly kind: "search" | "relax" | (string & {});
   readonly message: string;
+  /**
+   * Set iff `kind` is `relax`: the filters to leave out, fewest records first.
+   */
+  readonly without: readonly RelaxedFilter[] | null;
 }
 
 export interface SeedReach {
@@ -2971,6 +3087,29 @@ export type SourceCorpus =
   | "fundings"
   | "job_openings"
   | (string & {});
+
+/**
+ * An applied filter whose field few records hold.
+ */
+export interface SparseFilter {
+  /**
+   * The applied filter, as named in `filters`.
+   */
+  readonly filter: string;
+  /**
+   * Records of that type in the index.
+   */
+  readonly of: number;
+  /**
+   * Records of that type holding the filter's field.
+   */
+  readonly populated: number;
+  readonly record_type: "company" | "person" | (string & {});
+  /**
+   * `populated` / `of`, 0 to 1: the most this search can reach.
+   */
+  readonly share: number;
+}
 
 export interface SubdepartmentCount {
   readonly count: number;

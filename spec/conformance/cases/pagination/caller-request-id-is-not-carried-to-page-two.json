@@ -25,7 +25,7 @@
         "degradation": [],
         "meta": {
           "request_id": "req_caller_1",
-          "environment": "test",
+          "environment": "live",
           "as_of": "2026-08-13T00:00:00Z",
           "credential": "api_key"
         }
@@ -53,7 +53,7 @@
         "degradation": [],
         "meta": {
           "request_id": "req_p2",
-          "environment": "test",
+          "environment": "live",
           "as_of": "2026-08-13T00:00:00Z",
           "credential": "api_key"
         }

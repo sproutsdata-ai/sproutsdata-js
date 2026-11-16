@@ -12,6 +12,7 @@
     "request": {
       "domain": "twin.example"
     },
+    "resolved_search": null,
     "result_count": null,
     "snapshot": null,
     "snapshot_state": "absent",

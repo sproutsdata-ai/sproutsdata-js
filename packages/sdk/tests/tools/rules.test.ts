@@ -177,6 +177,15 @@ describe('shaping', () => {
     expect(caveatsOf(result)[0]).toBe('mode_downgraded: d (impact: recall)');
   });
 
+  it('say why an empty answer is empty, and what to leave out', async () => {
+    const without = [{ filter: 'hq_country', label: 'HQ in Iceland', total: 40 }];
+    const suggestion = { kind: 'relax', category: null, message: '0 with every filter; 40 without HQ in Iceland.', without };
+    const degradation = [{ reason: 'no_match', impact: 'recall', detail: 'Nothing there has 5,000+.' }];
+    const result = await toolset([searchOk([], { total: 0, suggestion, degradation })]).tools.run('sprouts_search', { query: 'companies in Iceland with 5,000+ staff' });
+    expect('suggestion' in result && result.suggestion).toEqual({ kind: 'relax', message: suggestion.message, without });
+    expect(caveatsOf(result)[0]).toBe('no_match: Nothing there has 5,000+. (impact: recall)');
+  });
+
   it('give rows a lookup only when lookup is offered, and count rows with none', async () => {
     expect(rowsOf(await toolset([searchOk([companyRow()])], { include: ['search'] }).tools.run('sprouts_search', { query: 'acme' }))[0]).not.toHaveProperty('lookup');
     const bare = companyRow({ domain: undefined, linkedin_url: undefined });

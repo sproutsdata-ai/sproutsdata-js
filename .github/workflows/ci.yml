@@ -31,11 +31,13 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # First: the adapters and the examples import `sproutsdata` as a consumer does, from its
+      # built declarations, so typed lint needs the build.
+      - run: npm run build
       - run: npm run lint
       - run: npm run lint:layers
       - name: Vendored spec and generated code are current
         run: npm run check:generated
-      - run: npm run build
       - run: npm run typecheck
       - name: Every code block in the docs compiles
         run: npm run check:docs

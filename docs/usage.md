@@ -22,7 +22,7 @@ if (!canAfford(credits, 50)) console.warn('Fewer than 50 credits available');
 | Field | Meaning |
 |---|---|
 | `balance` | The workspace's credits. |
-| `reserved` | Credits held for research runs that have not settled. |
+| `reserved` | Credits held for agent runs that have not settled. |
 | `available` | What can be spent now: the balance, less what is reserved and any debt. |
 | `debt` | Credits owed. |
 | `status` | The wallet's status. A `frozen` wallet spends nothing until Sprouts unfreezes it; a billed call then throws `WalletFrozenError`. |

@@ -2,8 +2,8 @@
 
 The official JavaScript and TypeScript SDK for the **Sprouts Data API**: search
 and look up companies, people, patents, news, funding rounds, job openings and
-market research; map who knows whom; count a company's people; run research;
-keep saved lists and export them; and read credits, history and feedback.
+market research; map who knows whom; count a company's people; start agent
+runs; keep saved lists and export them; and read credits, history and feedback.
 
 No runtime dependencies. Node.js 22.12.0 or newer, or Deno, Bun or an edge
 runtime, on a server: the client refuses to run in a browser. ESM and CommonJS,
@@ -59,7 +59,7 @@ else its LinkedIn page; a person by their LinkedIn URL; a document by its
 | `entities.*` | Full records, one method per category | [Quickstart](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/quickstart.md#full-records) |
 | `relationships.find`, `reach`, `institutions`, `ask` | Who knows whom, and why | [Relationships](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/relationships.md) |
 | `orgChart.retrieve`, `departments`, `locations`, `taxonomy` | A company's people, counted | [Org charts](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/org-chart.md) |
-| `runs.*` | Research runs: start, follow, read | [Research runs](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/runs.md) |
+| `runs.*` | Agents: start an agent run, follow it, read it | [Agent runs](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/runs.md) |
 | `lists.*`, `searchExport`, `exports.*` | Saved lists, and CSV export as a file or a job | [Saved lists](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/lists.md) |
 | `credits.retrieve`, `credits.transactions` | The balance and the ledger; free | [Credits and usage](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/usage.md) |
 | `history.list`, `retrieve`, `metrics` | The workspace's calls and daily totals; free | [Credits and usage](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/usage.md) |

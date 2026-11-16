@@ -1,5 +1,5 @@
 /**
- * Waiting for work that runs server-side (a research run, an export job): poll until it
+ * Waiting for work that runs server-side (an agent run, an export job): poll until it
  * settles, waiting longer between polls up to a cap, and give up in time. The multiplier, the
  * cap and the defaults are the route's entry in `spec/defaults.json` (`runWait`, `exportWait`),
  * as the Python SDK paces the same waits.

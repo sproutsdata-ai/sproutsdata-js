@@ -89,7 +89,7 @@ export class SproutsData {
     return (this.#entities ??= new Entities(this.#transport));
   }
 
-  /** Research runs. */
+  /** Agents: start, follow and read agent runs. */
   get runs(): Runs {
     return (this.#runs ??= new Runs(this.#transport));
   }

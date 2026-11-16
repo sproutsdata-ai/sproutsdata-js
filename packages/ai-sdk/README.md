@@ -153,7 +153,7 @@ no row to the credit ledger; the result says `environment: "test"`.
 ## See also
 
 - [`sproutsdata`](https://github.com/sproutsdata-ai/sproutsdata-js/tree/main/packages/sdk): the SDK, with pagination, typed filters,
-  relationships, research runs and usage.
+  relationships, agent runs and usage.
 - [`@sproutsdata.ai/langchain`](https://github.com/sproutsdata-ai/sproutsdata-js/tree/main/packages/langchain): the same tools for LangChain.
 - [Integrations](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/integrations/README.md): the same tools in
   frameworks without a package of their own.

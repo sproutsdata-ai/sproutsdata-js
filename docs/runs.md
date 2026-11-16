@@ -1,9 +1,9 @@
-# Research runs
+# Agent runs
 
-Research rather than retrieval: a question worked through for minutes, which
-finds candidates, checks them against criteria you state in words, fills the
-enrichment columns you name, and reports its own coverage. The flow is start,
-follow, read.
+Agents do research rather than retrieval. An agent run is a question worked
+through for minutes, which finds candidates, checks them against criteria you
+state in words, fills the enrichment columns you name, and reports its own
+coverage. The flow is start, follow, read.
 
 A run needs a key with the `dsp.agents.*` scopes: `dsp.agents.write` to start
 and cancel one, `dsp.agents.read` (or write) to read and follow it. A key made

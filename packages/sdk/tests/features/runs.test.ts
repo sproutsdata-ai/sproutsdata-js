@@ -1,4 +1,4 @@
-/** Research runs (U1-U6): start, list, wait, events and results. */
+/** Agent runs (U1-U6): start, list, wait, events and results. */
 
 import { describe, expect, it } from 'vitest';
 

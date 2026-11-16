@@ -57,6 +57,35 @@ describe.skipIf(STACK === undefined)('phase 5, live', () => {
     expect((page.resolved_search?.filters['anchors'] as { value: string }[])[0]?.value).toBe('stripe.com');
   });
 
+  // Facts of the stack's fake prism index (sproutsdata-py e2e/fake_prism.py): no company in
+  // Iceland, `revenue` held by few records, and no Mining record mentions a topic.
+  it('an empty search says why, and leaving out the suggested filter finds rows', async () => {
+    const sdk = client();
+    const filters = { geo: { places: [{ level: 'country' as const, value: 'Iceland' }] }, employee_count: { gte: 5000 } };
+    const empty = await sdk.search({ query: 'enterprise software', filters, limit: 2 });
+    expect([empty.total, empty.results]).toEqual([0, []]);
+    expect(empty.degradation[0]?.reason).toBe('no_match');
+    expect(empty.degradation[0]?.detail).toContain('Iceland');
+    expect([empty.suggestion?.kind, empty.suggestion?.category]).toEqual(['relax', null]);
+    const dropped = new Set((empty.suggestion?.without ?? []).map((w) => w.filter));
+    expect([...dropped]).toEqual(['geo']);
+    expect(empty.meta.credits_charged).toBe(0);
+    const kept = Object.fromEntries(Object.entries(filters).filter(([name]) => !dropped.has(name)));
+    const relaxed = await sdk.search({ query: 'enterprise software', filters: kept, limit: 2 });
+    expect(relaxed.results.length).toBeGreaterThan(0);
+  });
+
+  it('a thin filter and an unmentioned topic are named', async () => {
+    const sdk = client();
+    const thin = await sdk.search({ query: 'robotics', filters: { revenue: { gte: 100_000_000 } }, limit: 1 });
+    const offTopic = await sdk.search({ query: 'quantum sensing', filters: { industry: { include: ['Mining'] } }, limit: 1 });
+    expect(thin.degradation.map((d) => d.reason)).toEqual(['sparse_filter']);
+    expect(thin.resolved_search?.sparse_filters[0]?.filter).toBe('revenue');
+    expect(thin.resolved_search?.sparse_filters[0]?.share).toBeLessThan(0.05);
+    expect(offTopic.degradation.map((d) => d.reason)).toEqual(['topic_not_required']);
+    expect(thin.meta.credits_balance).not.toBeNull();
+  });
+
   it('filter values for company and another filter, sorts and coverage', async () => {
     const sdk = client();
     const industry = await sdk.filterValues('industry');

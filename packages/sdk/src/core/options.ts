@@ -15,7 +15,7 @@ import { isBrowserLike, readEnvWithFallback } from './runtime.js';
 
 /** What a client is constructed with. Every field is optional. */
 export interface ClientOptions {
-  /** The API key; else `SPROUTSDATA_API_KEY`. Keys look like `sk_dsp_live_…` or `sk_dsp_test_…`. */
+  /** The API key; else `SPROUTSDATA_API_KEY`. Keys look like `sk_dsp_live_…`. */
   readonly apiKey?: string;
   /** The API's origin; else `SPROUTSDATA_BASE_URL`, else the production API. */
   readonly baseUrl?: string;
@@ -68,12 +68,19 @@ export function checkApiKey(key: unknown): string {
   if (typeof key !== 'string' || key === '') {
     throw new ClientValidationError(
       `No API key. Pass \`apiKey\` or set ${DEFAULTS.env.apiKey}. Keys are created in the Sprouts Data ` +
-        "dashboard and look like 'sk_dsp_live_…' or 'sk_dsp_test_…'.",
+        "dashboard and look like 'sk_dsp_live_…'.",
+    );
+  }
+  if (key.startsWith(DEFAULTS.retiredApiKeyPrefix)) {
+    // The server would answer a bare 401; say why instead.
+    throw new ClientValidationError(
+      "Test keys ('sk_dsp_test_…') were retired: every key is now a live key, and its calls are charged " +
+        "to the workspace's credits. Create a key in the Sprouts Data dashboard.",
     );
   }
   if (key.length > DEFAULTS.apiKeyMaxLength || !DEFAULTS.apiKeyPattern.test(key)) {
     throw new ClientValidationError(
-      "That is not a Sprouts Data API key: keys look like 'sk_dsp_live_…' or 'sk_dsp_test_…', at most " +
+      "That is not a Sprouts Data API key: keys look like 'sk_dsp_live_…', at most " +
         `${String(DEFAULTS.apiKeyMaxLength)} characters.`,
     );
   }

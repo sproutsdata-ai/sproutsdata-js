@@ -15,6 +15,8 @@ export interface Defaults {
   readonly plainHttpHosts: readonly string[];
   readonly apiKeyPattern: RegExp;
   readonly apiKeyMaxLength: number;
+  /** A key with this prefix was retired: refused at construction, saying so. */
+  readonly retiredApiKeyPrefix: string;
   readonly env: { readonly apiKey: string; readonly baseUrl: string };
   readonly deprecatedEnv: { readonly apiKey: string; readonly baseUrl: string };
   readonly timeoutMs: number;
@@ -30,8 +32,9 @@ export interface Defaults {
 export const DEFAULTS: Defaults = {
   baseUrl: "https://api.sproutsdata.ai",
   plainHttpHosts: ["localhost","127.0.0.1"],
-  apiKeyPattern: /^sk_dsp_(live|test)_[A-Za-z0-9_-]+$/,
+  apiKeyPattern: /^sk_dsp_live_[A-Za-z0-9_-]+$/,
   apiKeyMaxLength: 200,
+  retiredApiKeyPrefix: "sk_dsp_test_",
   env: { apiKey: "SPROUTSDATA_API_KEY", baseUrl: "SPROUTSDATA_BASE_URL" },
   deprecatedEnv: { apiKey: "DSP_API_KEY", baseUrl: "DSP_BASE_URL" },
   timeoutMs: 60000,

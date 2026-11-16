@@ -1,7 +1,7 @@
 /**
  * Search, then fetch the full record behind the first result: the smallest useful program.
  *
- *   export SPROUTSDATA_API_KEY=sk_dsp_test_<your-key>
+ *   export SPROUTSDATA_API_KEY=sk_dsp_live_<your-key>
  *   node examples/quickstart.ts
  */
 

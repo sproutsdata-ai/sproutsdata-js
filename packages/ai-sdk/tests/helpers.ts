@@ -6,7 +6,7 @@ import type { JsonSchema, ToolName } from 'sproutsdata/tools';
 import { vi } from 'vitest';
 
 /** Built at run time, so no key-shaped string sits in the repository. */
-export const TEST_KEY = 'sk_dsp_test_' + 'x'.repeat(22);
+export const FIXTURE_KEY = 'sk_dsp_live_' + 'x'.repeat(22);
 export const BASE_URL = 'https://dsp.example.test/backend';
 
 /** A tool's file in the vendored `spec/tools/`. */
@@ -41,7 +41,7 @@ export function searchBody(overrides: Record<string, unknown> = {}): Record<stri
     has_more: false,
     next_cursor: null,
     resolved_search: null,
-    meta: { ...(recorded['meta'] as object), request_id: 'req_1', environment: 'test' },
+    meta: { ...(recorded['meta'] as object), request_id: 'req_1' },
     ...overrides,
   };
 }
@@ -56,7 +56,7 @@ export function fetchQueue(...queue: Response[]) {
 }
 
 export function client(fetchImpl: typeof globalThis.fetch): SproutsData {
-  return new SproutsData({ apiKey: TEST_KEY, baseUrl: BASE_URL, fetch: fetchImpl, maxRetries: 0 });
+  return new SproutsData({ apiKey: FIXTURE_KEY, baseUrl: BASE_URL, fetch: fetchImpl, maxRetries: 0 });
 }
 
 export function sentBody(fetchMock: ReturnType<typeof fetchQueue>, index = 0): Record<string, unknown> {

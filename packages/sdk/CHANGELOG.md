@@ -14,6 +14,10 @@ every changed call with its replacement.
   headers, which the backend no longer reads.
 - `client.agents`, `credits.usage()` and `members.resolve()`, which the backend
   does not serve; agent runs are `client.runs`.
+- Test keys, which the backend retired: keys look like `sk_dsp_live_…`, and a
+  `sk_dsp_test_…` key throws `ClientValidationError` saying so. Tool results no
+  longer carry `environment`, and `meta.environment` is a deprecated constant
+  (`'live'`).
 
 ### Changed
 

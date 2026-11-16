@@ -110,8 +110,7 @@ Search and look-alike:
   "interpreted_as": {"filters": {}, "source": "parser", "conflicts": []},
   "caveats": ["vector_coverage_incomplete: … (impact: recall)"],
   "suggestion": null,
-  "request_id": "…",
-  "environment": "test"
+  "request_id": "…"
 }
 ```
 
@@ -156,8 +155,7 @@ Lookup:
 {
   "results": [{"id": "stripe.com", "found": true, "matches": [{"…": "…"}], "ambiguous": false}],
   "caveats": [],
-  "request_id": "…",
-  "environment": "test"
+  "request_id": "…"
 }
 ```
 

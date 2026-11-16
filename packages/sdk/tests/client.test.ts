@@ -5,12 +5,12 @@ import { describe, expect, it } from 'vitest';
 import { SproutsData } from '../src/client.js';
 import { ClientValidationError } from '../src/core/errors.js';
 import { recorded } from './support/answers.js';
-import { BASE_URL, recordingFetch, TEST_KEY } from './support/fakes.js';
+import { BASE_URL, recordingFetch, FIXTURE_KEY } from './support/fakes.js';
 import { collect } from './support/rig.js';
 
 function client(script: Parameters<typeof recordingFetch>[0]): { client: SproutsData; sent: ReturnType<typeof recordingFetch>['sent'] } {
   const { fetch, sent } = recordingFetch(script);
-  return { client: new SproutsData({ apiKey: TEST_KEY, baseUrl: BASE_URL, fetch, maxRetries: 0 }), sent };
+  return { client: new SproutsData({ apiKey: FIXTURE_KEY, baseUrl: BASE_URL, fetch, maxRetries: 0 }), sent };
 }
 
 describe('SproutsData', () => {
@@ -22,7 +22,7 @@ describe('SproutsData', () => {
     const { client: c } = client([]);
     expect(c.runs).toBe(c.runs);
     expect(c.entities).toBe(c.entities);
-    expect(JSON.stringify(c)).not.toContain(TEST_KEY);
+    expect(JSON.stringify(c)).not.toContain(FIXTURE_KEY);
   });
 
   it('answers every top-level method through its resource', async () => {

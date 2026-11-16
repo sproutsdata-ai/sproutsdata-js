@@ -3,12 +3,12 @@
 // scripts/smoke.py. The checks are named in spec/smoke/checks.json (vendored from sproutsdata-py),
 // and the script refuses to run if its checks and that file differ, so both report one list.
 //
-//   export SPROUTSDATA_API_KEY=sk_dsp_test_<your-key>
+//   export SPROUTSDATA_API_KEY=sk_dsp_live_<your-key>
 //   export SPROUTSDATA_BASE_URL=<origin>     # optional; production otherwise
 //   npm run build && node scripts/smoke-live.mjs
 //
-// Use a test key: its calls are free. A live key is refused unless `--allow-live` is given, since
-// several checks are billed.
+// Several checks are billed, and every key is charged (test keys were retired), so the run ends by
+// saying how many credits it spent.
 //
 // Exit codes: 0 every check passed (or was skipped), 1 a check failed, 2 misconfigured.
 
@@ -17,7 +17,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { ClientValidationError, CursorInvalidError, entityHit, missingValues, PermissionDeniedError, SproutsData, totalFor, VERSION } from 'sproutsdata';
+import { ClientValidationError, CursorInvalidError, entityHit, missingValues, PermissionDeniedError, SproutsData, SproutsDataError, totalFor, VERSION } from 'sproutsdata';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CHECKS = JSON.parse(readFileSync(join(ROOT, 'spec', 'smoke', 'checks.json'), 'utf8')).checks.map((check) => check.name);
@@ -113,16 +113,21 @@ const IMPLEMENTED = {
   },
 };
 
-async function main(argv) {
+/** The wallet's balance, or `undefined` when it cannot be read (the checks still run). */
+async function balance(client) {
+  try {
+    return (await client.credits.retrieve()).balance;
+  } catch (error) {
+    if (error instanceof SproutsDataError) return undefined;
+    throw error;
+  }
+}
+
+async function main() {
   const implemented = Object.keys(IMPLEMENTED);
   const differ = [...CHECKS.filter((name) => !implemented.includes(name)), ...implemented.filter((name) => !CHECKS.includes(name))];
   if (differ.length > 0) {
     console.error(`error: the checks differ from spec/smoke/checks.json: ${differ.join(', ')}`);
-    return 2;
-  }
-  const key = process.env.SPROUTSDATA_API_KEY ?? '';
-  if (key.startsWith('sk_dsp_live_') && !argv.includes('--allow-live')) {
-    console.error('error: this is a live key; use a test key, or pass --allow-live');
     return 2;
   }
   let client;
@@ -133,6 +138,7 @@ async function main(argv) {
     console.error(`error: ${error.message}`);
     return 2;
   }
+  const before = await balance(client);
   let failed = 0;
   for (const name of CHECKS) {
     let verdict = '  ok  ';
@@ -147,7 +153,11 @@ async function main(argv) {
     console.log(`[${verdict}] ${name.padEnd(36)} ${note}`);
   }
   console.log(`\n${CHECKS.length - failed} of ${CHECKS.length} checks passed or skipped (sproutsdata ${VERSION})`);
+  const after = await balance(client);
+  if (before !== undefined && after !== undefined) {
+    console.log(`${(before - after).toFixed(2)} credits spent (balance ${before.toFixed(2)} -> ${after.toFixed(2)})`);
+  }
   return failed > 0 ? 1 : 0;
 }
 
-process.exitCode = await main(process.argv.slice(2));
+process.exitCode = await main();

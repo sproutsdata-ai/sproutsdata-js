@@ -8,7 +8,7 @@ import * as sdk from '../src/index.js';
 import { SproutsData } from '../src/client.js';
 import type { AnswerMeta } from '../src/core/answer.js';
 import { recorded } from './support/answers.js';
-import { BASE_URL, recordingFetch, TEST_KEY } from './support/fakes.js';
+import { BASE_URL, recordingFetch, FIXTURE_KEY } from './support/fakes.js';
 
 const ERRORS = [
   'SproutsDataError', 'ClientValidationError', 'WaitTimeoutError', 'ExportFailedError', 'APIConnectionError', 'APITimeoutError',
@@ -25,13 +25,13 @@ describe('the public surface', () => {
 
   it('Z2: there is no browser mode, and a browser is refused', () => {
     Reflect.set(globalThis, 'window', { document: {} });
-    expect(() => new SproutsData({ apiKey: TEST_KEY, baseUrl: BASE_URL, dangerouslyAllowBrowser: true } as never)).toThrow(sdk.ClientValidationError);
-    expect(() => new SproutsData({ apiKey: TEST_KEY, baseUrl: BASE_URL })).toThrow('runs on servers only');
+    expect(() => new SproutsData({ apiKey: FIXTURE_KEY, baseUrl: BASE_URL, dangerouslyAllowBrowser: true } as never)).toThrow(sdk.ClientValidationError);
+    expect(() => new SproutsData({ apiKey: FIXTURE_KEY, baseUrl: BASE_URL })).toThrow('runs on servers only');
   });
 
   it('Z3: no analytics header is sent, and the User-Agent is', async () => {
     const { fetch, sent } = recordingFetch([recorded('coverage', 'all')]);
-    await new SproutsData({ apiKey: TEST_KEY, baseUrl: BASE_URL, fetch }).coverage();
+    await new SproutsData({ apiKey: FIXTURE_KEY, baseUrl: BASE_URL, fetch }).coverage();
     const headers = sent[0]?.headers;
     expect(headers?.has('x-dsp-source')).toBe(false);
     expect(headers?.has('x-sproutsdata-client')).toBe(false);
@@ -48,7 +48,7 @@ describe('the public surface', () => {
     const client: AnswerMeta[] = [];
     const call: AnswerMeta[] = [];
     const { fetch } = recordingFetch([recorded('search', 'company'), recorded('coverage', 'all')]);
-    const sproutsdata = new SproutsData({ apiKey: TEST_KEY, baseUrl: BASE_URL, fetch, onResponse: (meta) => client.push(meta) });
+    const sproutsdata = new SproutsData({ apiKey: FIXTURE_KEY, baseUrl: BASE_URL, fetch, onResponse: (meta) => client.push(meta) });
     await sproutsdata.search({ query: 'x' }, { onResponse: (meta) => call.push(meta) });
     await sproutsdata.coverage();
     expect(client.map((meta) => meta.status)).toEqual([200, 200]);
@@ -61,7 +61,7 @@ describe('the public surface', () => {
 describe('the edge smoke', () => {
   it('Z5: calls every resource family in workerd (scripts/smoke-edge.mjs)', () => {
     const smoke = readFileSync(new URL('../../../scripts/smoke-edge.mjs', import.meta.url), 'utf8');
-    const client = new SproutsData({ apiKey: TEST_KEY, baseUrl: BASE_URL });
+    const client = new SproutsData({ apiKey: FIXTURE_KEY, baseUrl: BASE_URL });
     const resources = Object.entries(Object.getOwnPropertyDescriptors(SproutsData.prototype)).filter(([, d]) => d.get !== undefined).map(([name]) => name);
     expect(resources).toHaveLength(9);
     for (const name of resources) expect(smoke).toContain(`client.${name}.`);

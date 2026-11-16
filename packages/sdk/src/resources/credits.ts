@@ -21,7 +21,6 @@ export class Credits extends Resource {
   /**
    * One page of the ledger, newest first: each row's `kind` (`charge`, `grant`, ...), signed
    * `credits` (negative for a charge), `balance_after`, and the `action` or `source` behind it.
-   * A call made with a test key is free and writes no row.
    */
   async transactions(params: PageParams = {}, options?: RequestOptions): Promise<W.TransactionsOut> {
     return this.json('creditsTransactions', { query: ledgerQuery(params) }, options);

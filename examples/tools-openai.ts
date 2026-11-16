@@ -8,7 +8,7 @@
  * `client.chat.completions.create`. Without `OPENAI_API_KEY` it replays one scripted tool call,
  * so you can see what the model would receive.
  *
- *   export SPROUTSDATA_API_KEY=sk_dsp_test_<your-key>
+ *   export SPROUTSDATA_API_KEY=sk_dsp_live_<your-key>
  *   export OPENAI_API_KEY=<your-openai-key> OPENAI_MODEL=<a model that calls tools>
  *   node examples/tools-openai.ts "Companies like Adyen and Checkout.com in the Nordics"
  */

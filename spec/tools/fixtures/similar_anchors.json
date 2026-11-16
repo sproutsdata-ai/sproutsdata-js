@@ -123,7 +123,6 @@
       "anchors_by_name: Adyen — resolved by name with no disambiguation, so a same-named company may have been used. Prefer a domain.",
       "anchors_removed: stripe.com — returned as a look-alike of itself and removed."
     ],
-    "environment": "live",
     "has_more": true,
     "interpreted_as": {
       "conflicts": [],

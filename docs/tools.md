@@ -170,8 +170,7 @@ definitions are available without a client from the module-level
 - **`total_is_estimate: true`** makes `total` a floor: "at least N".
 - **`caveats`** lists anything the server could not do, and anything the
   toolset changed (a row cap, an application filter that replaced the model's).
-- **`request_id`** and **`environment`** identify the call (`test` for a test
-  key).
+- **`request_id`** identifies the call; quote it to support.
 
 A lookup answers every id: `found`, up to three `matches`, and `ambiguous` when
 more than one record matched. Company and person lookups apply `fields`

@@ -317,8 +317,7 @@ for await (const row of client.credits.iterTransactions({ maxResults: 20 })) {
 }
 ```
 
-A ledger row's `credits` is signed: negative for a charge, positive for a grant. A call made
-with a test key is free and writes no ledger row.
+A ledger row's `credits` is signed: negative for a charge, positive for a grant.
 
 A billed call on a frozen wallet throws `WalletFrozenError`, a subclass of
 `InsufficientCreditsError`.

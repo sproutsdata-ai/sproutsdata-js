@@ -95,7 +95,6 @@
   },
   "expected_output": {
     "caveats": [],
-    "environment": "live",
     "request_id": "req_0a9d3c5e81",
     "results": [
       {

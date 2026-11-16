@@ -4,7 +4,7 @@ import { ClientValidationError } from '../../src/core/errors.js';
 import { checkBaseUrl, checkHeaders, checkRetries, checkTimeout, resolveOptions } from '../../src/core/options.js';
 import { isBrowserLike, newIdempotencyKey, readEnv, readEnvWithFallback, userAgent, warnOnce } from '../../src/core/runtime.js';
 import { redactKey } from '../../src/core/redact.js';
-import { TEST_KEY } from '../support/fakes.js';
+import { FIXTURE_KEY } from '../support/fakes.js';
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -14,9 +14,9 @@ afterEach(() => {
 
 describe('options', () => {
   it('resolve from the options first, then the environment', () => {
-    const resolved = resolveOptions({ apiKey: TEST_KEY, baseUrl: 'https://api.example.com/', timeoutMs: 5, maxRetries: 0 });
+    const resolved = resolveOptions({ apiKey: FIXTURE_KEY, baseUrl: 'https://api.example.com/', timeoutMs: 5, maxRetries: 0 });
     expect([resolved.baseUrl, resolved.timeoutMs, resolved.maxRetries]).toEqual(['https://api.example.com', 5, 0]);
-    vi.stubEnv('SPROUTSDATA_API_KEY', TEST_KEY);
+    vi.stubEnv('SPROUTSDATA_API_KEY', FIXTURE_KEY);
     vi.stubEnv('SPROUTSDATA_BASE_URL', 'http://localhost:8001');
     expect(resolveOptions().baseUrl).toBe('http://localhost:8001');
     expect(typeof resolveOptions().fetch).toBe('function');
@@ -24,9 +24,9 @@ describe('options', () => {
 
   it('read a deprecated variable with one warning', () => {
     const warn = vi.spyOn(process, 'emitWarning').mockImplementation(() => undefined);
-    vi.stubEnv('DSP_API_KEY', TEST_KEY);
-    expect(resolveOptions().apiKey).toBe(TEST_KEY);
-    expect(resolveOptions().apiKey).toBe(TEST_KEY);
+    vi.stubEnv('DSP_API_KEY', FIXTURE_KEY);
+    expect(resolveOptions().apiKey).toBe(FIXTURE_KEY);
+    expect(resolveOptions().apiKey).toBe(FIXTURE_KEY);
     expect(warn).toHaveBeenCalledTimes(1);
   });
 
@@ -37,6 +37,11 @@ describe('options', () => {
       expect(() => resolveOptions(apiKey === undefined ? {} : { apiKey })).toThrow(ClientValidationError);
     },
   );
+
+  it('refuse a retired test key, saying why', () => {
+    // dsp-auth refuses it at exchange, which the caller would only see as a bare 401.
+    expect(() => resolveOptions({ apiKey: 'sk_dsp_test_' + 'retired' })).toThrow(/Test keys .* were retired/);
+  });
 
   it.each(['api.example.com', 'ftp://api.example.com', 'http://api.example.com'])('refuse a base URL that would expose the key: %s', (url) => {
     expect(() => checkBaseUrl(url)).toThrow(ClientValidationError);
@@ -52,7 +57,7 @@ describe('options', () => {
   it('refuse to construct in a browser', () => {
     vi.stubGlobal('window', { document: {} });
     expect(isBrowserLike()).toBe(true);
-    expect(() => resolveOptions({ apiKey: TEST_KEY })).toThrow(/servers only/);
+    expect(() => resolveOptions({ apiKey: FIXTURE_KEY })).toThrow(/servers only/);
   });
 });
 
@@ -99,7 +104,7 @@ describe('runtime', () => {
   });
 
   it('redacts a key to its first three parts', () => {
-    expect(redactKey(TEST_KEY)).toBe('sk_dsp_test_***');
+    expect(redactKey(FIXTURE_KEY)).toBe('sk_dsp_live_***');
     expect(redactKey('not_a_key')).toBe('***');
   });
 });

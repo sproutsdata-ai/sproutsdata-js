@@ -55,7 +55,7 @@ describe.skipIf(STACK === undefined)('phase 7, live', () => {
     expect(votes.votes).toHaveLength(2);
   });
 
-  it('a search writes a charge into the ledger, and a test key writes none', async () => {
+  it('a search writes a charge into the ledger', async () => {
     const sdk = client();
     const balance = await sdk.credits.retrieve();
     const newest = (await sdk.credits.transactions({ limit: 1 })).results[0]?.id;
@@ -66,8 +66,16 @@ describe.skipIf(STACK === undefined)('phase 7, live', () => {
     expect(charge?.credits).toBeLessThan(0);
     expect(charge?.action?.startsWith('dsp.search')).toBe(true);
     expect(canAfford(balance, 0.5)).toBe(true);
-    const marker = (await sdk.credits.transactions({ limit: 1 })).results[0]?.id;
-    await client({ key: setting('SPROUTSDATA_E2E_TEST_KEY') }).search({ query: 'robotics', limit: 1 });
-    expect((await sdk.credits.transactions({ limit: 1 })).results[0]?.id).toBe(marker);
+  });
+
+  it('a retired test key is refused by the server too', async () => {
+    // The SDK refuses `sk_dsp_test_` before sending (`checkApiKey`); dsp-auth refuses one at
+    // exchange, which reaches the caller as a bare 401.
+    const answer = await fetch(`${setting('SPROUTSDATA_E2E_BASE_URL')}/v1/credits`, {
+      headers: { 'X-API-Key': 'sk_dsp_test_' + 'retired-e2e-key' },
+    });
+    const body = (await answer.json()) as { code: string };
+    expect(answer.status).toBe(401);
+    expect(body.code.startsWith('auth.')).toBe(true);
   });
 });

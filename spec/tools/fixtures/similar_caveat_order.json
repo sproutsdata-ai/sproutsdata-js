@@ -129,7 +129,6 @@
       "anchors_removed: stripe.com — returned as a look-alike of itself and removed.",
       "rows_without_lookup: 1 of 2 rows carry no domain or LinkedIn URL, so they have no `lookup` value and cannot be looked up."
     ],
-    "environment": "live",
     "has_more": true,
     "interpreted_as": {
       "conflicts": [],

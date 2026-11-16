@@ -17,32 +17,34 @@ The SDK sends the key in `X-API-Key` and nowhere else.
 
 ```
 sk_dsp_live_<secret>
-sk_dsp_test_<secret>
 ```
 
 Keys are created in the Sprouts Data dashboard. The client checks the shape of
-the key before it sends anything: `sk_dsp_`, then `live` or `test`, then the
-secret, at most 200 characters. A key with a trailing newline (a common
+the key before it sends anything: `sk_dsp_live_`, then the secret, at most 200
+characters. A key with a trailing newline (a common
 copy-paste accident) is refused with a `ClientValidationError`. The secret may
 contain `_` and `-`, so if you parse a key at all, split on the first three
 underscores only.
 
-## Live and test keys
+## Every key is charged
 
-A key's environment is chosen when it is created. There is no environment
-parameter on requests: the key decides. A call made with a test key is free and
-writes no row to the credit ledger.
+Every key spends the workspace's credits; a new workspace starts with sign-up
+credits for evaluation. Test keys (`sk_dsp_test_…`) were retired, and the server
+no longer accepts them. The client refuses one when it is constructed, with a
+`ClientValidationError` that says so, rather than letting the call fail with a
+bare `401`.
 
-The prefix decides live or test only, not which deployment answers. The SDK
-talks to `https://api.sproutsdata.ai` for both; to point it elsewhere, set
-`SPROUTSDATA_BASE_URL` or `baseUrl`.
-
-Every response says which environment answered:
+Use a separate key for development and CI, so that it can be revoked without
+affecting production. Every response says what it cost:
 
 ```ts
 const page = await client.search({ query: 'fintech' });
-console.log(page.meta.environment); // 'live' or 'test'
+console.log(page.meta.credits_charged);
 ```
+
+The key does not decide which deployment answers. The SDK talks to
+`https://api.sproutsdata.ai`; to point it elsewhere, set `SPROUTSDATA_BASE_URL`
+or `baseUrl`.
 
 ## Scopes
 
@@ -130,7 +132,7 @@ What the SDK does to keep the key safe:
   redirect points (`RedirectRefusedError`). Plain `http://` is refused except
   for `localhost` and `127.0.0.1`.
 - The key is held in a private field. `JSON.stringify(client)` and
-  `util.inspect(client)` show it redacted (`sk_dsp_test_***`), never the
+  `util.inspect(client)` show it redacted (`sk_dsp_live_***`), never the
   secret.
 
 ## Configuration
@@ -139,7 +141,7 @@ What the SDK does to keep the key safe:
 import { SproutsData } from 'sproutsdata';
 
 const client = new SproutsData({
-  apiKey: 'sk_dsp_test_<your-key>', // default: SPROUTSDATA_API_KEY
+  apiKey: 'sk_dsp_live_<your-key>', // default: SPROUTSDATA_API_KEY
   baseUrl: 'https://api.sproutsdata.ai', // default: SPROUTSDATA_BASE_URL, then this
   timeoutMs: 60_000, // per attempt
   maxRetries: 2, // see Errors and retries

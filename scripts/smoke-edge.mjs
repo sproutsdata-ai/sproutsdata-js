@@ -32,7 +32,7 @@ export default {
       if (path.endsWith('/export')) return new Response('entity_category,entity_id\\r\\n', { headers: { 'content-type': 'text/csv' } });
       return Response.json({ meta: { request_id: 'edge' }, results: [], segments, values: [], lists: [], tags: [] });
     };
-    const client = new SproutsData({ apiKey: 'sk_dsp_test_' + 'edge-smoke', baseUrl: 'https://api.test.invalid', fetch });
+    const client = new SproutsData({ apiKey: 'sk_dsp_live_' + 'edge-smoke', baseUrl: 'https://api.test.invalid', fetch });
     const families = {
       search: () => client.search({ query: 'x' }),
       vocabulary: () => client.filterValues('industry'),

@@ -35,7 +35,7 @@ describe('the transport', () => {
     expect(answer.kind).toBe('json');
     expect(seen).toEqual(['r1']);
     expect(JSON.stringify(t)).not.toContain('fixture_key');
-    expect(JSON.stringify(t)).toContain('sk_dsp_test_***');
+    expect(JSON.stringify(t)).toContain('sk_dsp_live_***');
   });
 
   it('stops at the caller\'s abort, before an attempt and while waiting to retry', async () => {

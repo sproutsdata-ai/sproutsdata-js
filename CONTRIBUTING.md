@@ -98,8 +98,8 @@ npm run smoke:live     # scripts/smoke-live.mjs: the checks in spec/smoke/checks
 ```
 
 `smoke:live` reads `SPROUTSDATA_API_KEY` (and `SPROUTSDATA_BASE_URL`, if set).
-Use a test key: its calls are free. A live key is refused unless `--allow-live`
-is given, since several checks are billed.
+Several checks are billed, and every key is charged, so the script ends by
+printing the credits the run spent.
 
 ## Design rules
 
@@ -137,9 +137,9 @@ test.
 Tests and docs must not contain anything that matches the key pattern, so a
 secret scanner can run with push protection and never raise a false alarm:
 
-- In tests, build fixture keys at run time: `'sk_dsp_test_' + '...'` (see
+- In tests, build fixture keys at run time: `'sk_dsp_live_' + '...'` (see
   `packages/sdk/tests/support/fakes.ts`).
-- In docs, write `sk_dsp_test_<your-key>`, or an elided `sk_dsp_live_…`.
+- In docs, write `sk_dsp_live_<your-key>`, or an elided `sk_dsp_live_…`.
 
 ## Keeping up with the API
 

@@ -53,8 +53,6 @@ for await (const row of client.credits.iterTransactions({ maxResults: 500 })) {
 }
 ```
 
-A call made with a test key is free and writes no ledger row.
-
 ## What the workspace has done
 
 `history.list` is one page of calls, newest first; `history.iterList` walks

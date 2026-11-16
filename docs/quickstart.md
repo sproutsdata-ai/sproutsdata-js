@@ -13,8 +13,9 @@ You need:
    It refuses to run in a browser: see
    [Authentication](authentication.md#keys-are-server-side-credentials).
 2. **An API key**, created in the Sprouts Data dashboard. Keys look like
-   `sk_dsp_live_…` or `sk_dsp_test_…`. A call made with a test key is free and
-   writes no row to the credit ledger.
+   `sk_dsp_live_…`. Every key is a live key: each billed call is charged to the
+   workspace's credits, and a new workspace starts with sign-up credits for
+   evaluation.
 3. **The scopes your calls need** on that key. See
    [Authentication](authentication.md#scopes).
 
@@ -42,7 +43,7 @@ The package ships ESM and CommonJS builds, with types for both.
 ## Configure
 
 ```sh
-export SPROUTSDATA_API_KEY=sk_dsp_test_<your-key>
+export SPROUTSDATA_API_KEY=sk_dsp_live_<your-key>
 ```
 
 ```ts
@@ -275,7 +276,7 @@ The answer carries fields that say how far to trust it:
 | `suggestion` | Advisory: a different `category` would probably have answered better. The rows still come from the search you asked for. |
 | `coverage` | For `deep`: how much of the matching set the answer represents. `null` for `fast` and `auto`. |
 | `attribution` | Which corpora the content came from, and how fresh each is. |
-| `meta` | `request_id` (quote it to support), `environment` (`live` or `test`), `as_of`, `credential`, `credits_charged`. |
+| `meta` | `request_id` (quote it to support), `as_of`, `credential`, `credits_charged`. |
 
 Show degraded recall to your own users rather than hiding it:
 

@@ -71,7 +71,6 @@
     "caveats": [
       "search_ids_not_found: 9c41e2a07b3d5f18 — these look like the hash a search gives a person row, which no lookup resolves. Look the row up by its `lookup` value (its LinkedIn URL); this miss does not mean the record is not held."
     ],
-    "environment": "live",
     "request_id": "req_b85f1d2a60",
     "results": [
       {

@@ -6,8 +6,8 @@
  * person to a default field set, or to the `fields` named), absent values are dropped, long text
  * is cut, and long lists are capped with the values the request asked for first.
  *
- * Never cut: the totals, `interpreted_as`, `caveats`, `suggestion`, `request_id` and
- * `environment`, which are how a model knows what it is looking at.
+ * Never cut: the totals, `interpreted_as`, `caveats`, `suggestion` and `request_id`, which are
+ * how a model knows what it is looking at.
  */
 
 import { type EntitiesEnvelope, lookupRef, type SearchEnvelope, type SearchHit } from '../index.js';
@@ -187,7 +187,6 @@ export function shapePage(page: SearchEnvelope, shaping: PageShaping): SearchToo
     caveats: notes,
     suggestion: suggestion === null ? null : Object.fromEntries(Object.entries(suggestion).filter(([, v]) => !isEmpty(v))),
     request_id: page.meta.request_id,
-    environment: page.meta.environment,
   };
 }
 
@@ -207,5 +206,5 @@ export function shapeLookup(answer: EntitiesEnvelope, category: string, fields: 
   if (ADDRESSABLE.has(category) && !byWasSet && searchIds.length > 0) notes.push(text('caveats', 'search_ids_not_found', { ids: join(searchIds) }));
   const empty = answer.results.filter((hit) => hit.found && hit.matches.length === 0).map((hit) => hit.id);
   if (empty.length > 0) notes.push(text('caveats', 'record_unavailable', { ids: join(empty) }));
-  return { results, caveats: notes, request_id: answer.meta.request_id, environment: answer.meta.environment };
+  return { results, caveats: notes, request_id: answer.meta.request_id };
 }

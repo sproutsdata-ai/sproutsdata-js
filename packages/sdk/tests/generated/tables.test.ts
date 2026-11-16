@@ -89,8 +89,9 @@ describe('generated tables', () => {
     expect(DEFAULTS.timeoutMs).toBe(defaults.timeout_seconds * 1000);
     expect(DEFAULTS.maxRetries).toBe(defaults.max_retries);
     expect(DEFAULTS.exportWait.deadlineMs).toBe(defaults.export_wait.deadline_seconds * 1000);
-    expect(DEFAULTS.apiKeyPattern.test('sk_dsp_test_abc')).toBe(true);
-    expect(DEFAULTS.apiKeyPattern.test('sk_other_test_abc')).toBe(false);
+    expect(DEFAULTS.apiKeyPattern.test('sk_dsp_live_abc')).toBe(true);
+    expect(DEFAULTS.apiKeyPattern.test('sk_dsp_test_abc')).toBe(false);
+    expect(DEFAULTS.retiredApiKeyPrefix).toBe('sk_dsp_test_');
   });
 
   it('generates a type for every type in the model IR', () => {

@@ -5,7 +5,7 @@
  * id (a company's domain), never by a search row's `id`. An export comes back as a file when it
  * is small, or as a job to wait for when it is not. Every call here is free.
  *
- *   export SPROUTSDATA_API_KEY=sk_dsp_test_<your-key>
+ *   export SPROUTSDATA_API_KEY=sk_dsp_live_<your-key>
  *   node examples/saved-lists.ts
  */
 

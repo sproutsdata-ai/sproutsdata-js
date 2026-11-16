@@ -135,7 +135,6 @@
       "application_filter: `filters.geo.places` is fixed by this application to [{\"level\":\"country\",\"value\":\"united states\"}]; your [{\"level\":\"country\",\"value\":\"germany\"}] was not applied.",
       "limit_capped: you asked for 50 rows; this application returns at most 10 per call."
     ],
-    "environment": "live",
     "has_more": true,
     "interpreted_as": {
       "conflicts": [],

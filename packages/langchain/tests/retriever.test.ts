@@ -13,7 +13,7 @@ import { afterEach, describe, expect, expectTypeOf, it, vi } from 'vitest';
 import { SproutsDataRetriever, type SproutsDataRetrieverFields } from '../src/index';
 import {
   BASE_URL,
-  TEST_KEY,
+  FIXTURE_KEY,
   client,
   envelope,
   fetchQueue,
@@ -93,7 +93,7 @@ describe('request building', () => {
   });
 
   it('refuses connection settings beside a client', () => {
-    expect(() => new SproutsDataRetriever({ client: client(fetchQueue()), apiKey: TEST_KEY })).toThrow(/apiKey configure a client/);
+    expect(() => new SproutsDataRetriever({ client: client(fetchQueue()), apiKey: FIXTURE_KEY })).toThrow(/apiKey configure a client/);
   });
 
   it('throws the SDK’s errors unchanged', async () => {
@@ -104,10 +104,10 @@ describe('request building', () => {
 
 describe('the key', () => {
   it('is never a field: JSON, toJSON() and inspect do not show it', () => {
-    const retriever = new SproutsDataRetriever({ apiKey: TEST_KEY, baseUrl: BASE_URL, k: 5 });
-    expect(JSON.stringify(retriever)).not.toContain(TEST_KEY);
-    expect(JSON.stringify(retriever.toJSON())).not.toContain(TEST_KEY);
-    expect(inspect(retriever, { depth: 10, showHidden: true })).not.toContain(TEST_KEY);
+    const retriever = new SproutsDataRetriever({ apiKey: FIXTURE_KEY, baseUrl: BASE_URL, k: 5 });
+    expect(JSON.stringify(retriever)).not.toContain(FIXTURE_KEY);
+    expect(JSON.stringify(retriever.toJSON())).not.toContain(FIXTURE_KEY);
+    expect(inspect(retriever, { depth: 10, showHidden: true })).not.toContain(FIXTURE_KEY);
     expect(retriever.k).toBe(5);
   });
 
@@ -119,7 +119,7 @@ describe('the key', () => {
 
   it('is refused in a browser-like environment', () => {
     vi.stubGlobal('window', { document: {} });
-    expect(() => new SproutsDataRetriever({ apiKey: TEST_KEY })).toThrow(/refuses an API key/);
+    expect(() => new SproutsDataRetriever({ apiKey: FIXTURE_KEY })).toThrow(/refuses an API key/);
   });
 });
 
@@ -263,7 +263,6 @@ describe('metadata', () => {
         score: 0.9,
         source: 'acme.com',
         request_id: 'req_test',
-        environment: 'test',
         credential: 'api_key',
         total: 1200,
         total_is_estimate: true,
@@ -271,6 +270,7 @@ describe('metadata', () => {
         degradation,
         attribution: [],
       });
+      expect(doc.metadata).not.toHaveProperty('environment');
     }
   });
 

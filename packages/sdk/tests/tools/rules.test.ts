@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest';
 import { SproutsData } from '../../src/index.js';
 import { isSproutsData, resolveClient, Toolset, type ToolResult, type ToolsetOptions } from '../../src/tools/index.js';
 import { recordedBody, respond } from '../support/answers.js';
-import { BASE_URL, TEST_KEY } from '../support/fakes.js';
+import { BASE_URL, FIXTURE_KEY } from '../support/fakes.js';
 import { client, companyRow, lookupOk, searchOk, similarOk, toolset } from './support.js';
 
 const caveatsOf = (result: ToolResult): readonly string[] => ('caveats' in result ? result.caveats : []);
@@ -76,7 +76,7 @@ describe('settings', () => {
   it('resolve a client from settings or take the one given, never both', () => {
     const made = client([]).client;
     expect(resolveClient({ client: made })).toBe(made);
-    expect(resolveClient({ apiKey: TEST_KEY, baseUrl: BASE_URL })).toBeInstanceOf(SproutsData);
+    expect(resolveClient({ apiKey: FIXTURE_KEY, baseUrl: BASE_URL })).toBeInstanceOf(SproutsData);
     expect(() => resolveClient({ client: made, maxRetries: 4 })).toThrow(/maxRetries configure a client/);
     expect(() => resolveClient({ client: {} as SproutsData })).toThrow(TypeError);
   });

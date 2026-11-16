@@ -162,7 +162,6 @@ export interface SearchToolResult {
   readonly caveats: readonly string[];
   readonly suggestion: Readonly<Record<string, unknown>> | null;
   readonly request_id: string;
-  readonly environment: string;
 }
 
 /** One id of a `sprouts_entity_lookup` call, answered. */
@@ -180,7 +179,6 @@ export interface LookupToolResult {
   readonly results: readonly LookupToolHit[];
   readonly caveats: readonly string[];
   readonly request_id: string;
-  readonly environment: string;
 }
 
 /** A tool result: the shaped answer, or a {@link ToolError}. */

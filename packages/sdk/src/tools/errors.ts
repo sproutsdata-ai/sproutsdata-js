@@ -60,6 +60,7 @@ interface StatusFailure {
   readonly code: string | undefined;
   readonly title: string | undefined;
   readonly detail: string | undefined;
+  readonly nextStep: string | undefined;
   readonly retryAfter: number | undefined;
   readonly requestId: string | undefined;
   readonly fieldErrors: readonly unknown[];
@@ -79,6 +80,7 @@ function statusFailure(failure: object): StatusFailure {
     code: str(failure, 'code'),
     title: str(failure, 'title'),
     detail: str(failure, 'detail'),
+    nextStep: str(failure, 'nextStep'),
     retryAfter: typeof retryAfter === 'number' ? retryAfter : undefined,
     requestId: str(failure, 'requestId'),
     fieldErrors: Array.isArray(fieldErrors) ? fieldErrors : [],
@@ -102,7 +104,8 @@ function fromStatus(failure: StatusFailure): ErrorResult {
   if (GATEWAY_STATUSES.has(status)) {
     return error(code, text('errors', 'gateway_no_answer', { status }), { requestId: failure.requestId ?? null });
   }
-  return error(code, failure.detail ?? failure.title ?? text('errors', 'http_status', { status }), {
+  const said = failure.detail ?? failure.title ?? text('errors', 'http_status', { status });
+  return error(code, failure.nextStep === undefined ? said : `${said} ${failure.nextStep}`, {
     retryable: RETRYABLE_STATUSES.has(status),
     retryAfter: failure.retryAfter ?? null,
     fieldErrors: located(failure.fieldErrors),

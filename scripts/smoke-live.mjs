@@ -52,6 +52,10 @@ const IMPLEMENTED = {
     return `available ${wallet.available}, status ${wallet.status}`;
   },
   'credits.transactions': async (c) => `${(await c.credits.transactions({ limit: 5 })).results.length} rows`,
+  'credits.quote': async (c) => {
+    const quote = await c.credits.quote({ operation: 'search', rows: 10 });
+    return `${quote.credits} credits a page (${quote.basis}, ${quote.rate_card})`;
+  },
   coverage: async (c) => `${totalFor(await c.coverage(), 'company')} companies`,
   sorts: async (c) => `${(await c.sorts('company')).sorts.length} sortable fields`,
   filter_values: async (c) => `${(await c.filterValues('industry')).values.length} industries on page 1`,

@@ -54,6 +54,10 @@ every changed call with its replacement.
   alone finds records (`examples/relax-search.ts`). `sparse_filter` and
   `topic_not_required` name thin filters and unmentioned topics. The search
   tool's `interpreted_as` carries `sparse_filters`.
+- `credits.quote()`: what a call would cost, from the live price list (free; it
+  holds nothing). `meta.credits_balance` is the balance after each billed call.
+- `APIError.nextStep`: the server's one sentence on what to do now, after
+  `detail` in the message; tool errors carry it after the detail too.
 
 ## 0.0.1
 

@@ -8,7 +8,7 @@ import { Feedback } from '../../src/resources/feedback.js';
 import { canAfford } from '../../src/resources/helpers.js';
 import { History } from '../../src/resources/history.js';
 import { Search } from '../../src/resources/search.js';
-import type { HistoryParams, VoteParams } from '../../src/types/index.js';
+import type { HistoryParams, QuoteIn, VoteParams } from '../../src/types/index.js';
 import { assertValidRequest, recorded, recordedBody, respond } from '../support/answers.js';
 import { collect, rig } from '../support/rig.js';
 
@@ -142,6 +142,36 @@ describe('credits', () => {
     expect([balance.status, balance.has_paid, balance.stale]).toEqual(['active', false, false]);
     expect(canAfford(balance, 902.215)).toBe(true);
     expect(canAfford(balance, 910)).toBe(false);
+  });
+
+  it('K4: a quote sends what was set and reads the price', async () => {
+    const r = rig([recorded('credits_quote', 'search_page'), recorded('credits_quote', 'agent_run')]);
+    const credits = new Credits(r.transport);
+    const page = await credits.quote({ operation: 'search', rows: 25, start: 10 });
+    const run = await credits.quote({ operation: 'agent_run', effort: 'high' });
+    expect(r.body(0)).toEqual({ operation: 'search', rows: 25, start: 10 });
+    expect(r.body(1)).toEqual({ operation: 'agent_run', effort: 'high' });
+    expect([page.basis, run.basis]).toEqual(['page', 'run']);
+    expect(page.credits).toBeGreaterThan(0);
+    expect(run.covered).not.toBeNull();
+  });
+
+  it.each([
+    [{ operation: 'agent_run' }, /`effort` is required for agent_run/],
+    [{ operation: 'search', effort: 'high' }, /`effort` is required for agent_run/],
+    [{ operation: 'similar', rows: 101 }, /a page holds at most 100 rows/],
+    [{ operation: 'lookup', rows: 1001 }, /rows/],
+    [{ operation: 'refund' }, /operation/],
+  ])('K4: a quote the server would refuse is refused locally: %j', async (params, message) => {
+    const r = rig([]);
+    await expect(new Credits(r.transport).quote(params as QuoteIn)).rejects.toThrow(message);
+    expect(r.sent).toHaveLength(0);
+  });
+
+  it('K4: a lookup quote takes up to a thousand records', async () => {
+    const r = rig([recorded('credits_quote', 'search_page')]);
+    await new Credits(r.transport).quote({ operation: 'lookup', rows: 1000 });
+    expect(r.body(0)).toEqual({ operation: 'lookup', rows: 1000 });
   });
 
   it('K2: transactions page by cursor, with signed credits', async () => {

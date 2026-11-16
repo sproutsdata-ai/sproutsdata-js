@@ -1,5 +1,5 @@
 {
-  "$comment": "Every operation both SDKs wrap, keyed by METHOD + path exactly as openapi.json spells them. `operation_id` is the backend's (FastAPI generates some; never shown to users). `name` is the stable SDK operation name the generators key on: each language derives its method and type names from it. `class` decides what may be retried (retry-policy.json): `safe` - free, and a repeat changes nothing the first call did not (every GET, run cancel, list rename, list item add and remove, feedback vote, and the CSV exports, which are free; a repeated export that becomes a background job starts a second job, which is harmless and expires); `billed` - charged after the work succeeds, as the last step, so a failure before it costs nothing; a first page of search or similar opens a new paid session, so a request that may have been sent is never repeated; `keyed` - the server reads Idempotency-Key, so a repeat with the same key is recognised (agent run start, feedback); `once` - free, but a repeat is not the same as one call (a second list create answers 409 lists.name_taken, a second delete 404). `idempotency` is how the server treats Idempotency-Key (`required`, `optional` or `none`). The SDK sends one wherever it is not `none` (the `keyed` routes): one key per call, generated unless the caller passes one, and reused on that call's retries. `response` is the success body: `json`, `empty` (204), `sse` (text/event-stream), `csv`, or `csv_or_job` (200 text/csv for up to the server's sync row limit, else 202 JSON ExportJobView to poll at /v1/exports/{job_id}). `paging`, where present: `cursor` style sends `cursor` in the body or query and reads `next_cursor`, items under `items`; a page repeats the first request's other fields unchanged, and `binds_limit` means the cursor is also bound to `limit`, so the page size must not change between pages (POST /v1/relationships/reach); `page_number` style sends `page` and reads `has_more`. /v1/relationships/ask pages whichever envelope answered and is handled by each SDK by hand. A test fails if an operation in openapi.json is neither listed here nor under `not_wrapped`.",
+  "$comment": "Every operation both SDKs wrap, keyed by METHOD + path exactly as openapi.json spells them. `operation_id` is the backend's (FastAPI generates some; never shown to users). `name` is the stable SDK operation name the generators key on: each language derives its method and type names from it. `class` decides what may be retried (retry-policy.json): `safe` - free, and a repeat changes nothing the first call did not (every GET, run cancel, credit quote, list rename, list item add and remove, feedback vote, and the CSV exports, which are free; a repeated export that becomes a background job starts a second job, which is harmless and expires); `billed` - charged after the work succeeds, as the last step, so a failure before it costs nothing; a first page of search or similar opens a new paid session, so a request that may have been sent is never repeated; `keyed` - the server reads Idempotency-Key, so a repeat with the same key is recognised (agent run start, feedback); `once` - free, but a repeat is not the same as one call (a second list create answers 409 lists.name_taken, a second delete 404). `idempotency` is how the server treats Idempotency-Key (`required`, `optional` or `none`). The SDK sends one wherever it is not `none` (the `keyed` routes): one key per call, generated unless the caller passes one, and reused on that call's retries. `response` is the success body: `json`, `empty` (204), `sse` (text/event-stream), `csv`, or `csv_or_job` (200 text/csv for up to the server's sync row limit, else 202 JSON ExportJobView to poll at /v1/exports/{job_id}). `paging`, where present: `cursor` style sends `cursor` in the body or query and reads `next_cursor`, items under `items`; a page repeats the first request's other fields unchanged, and `binds_limit` means the cursor is also bound to `limit`, so the page size must not change between pages (POST /v1/relationships/reach); `page_number` style sends `page` and reads `has_more`. /v1/relationships/ask pages whichever envelope answered and is handled by each SDK by hand. A test fails if an operation in openapi.json is neither listed here nor under `not_wrapped`.",
   "version": 2,
   "classes": [
     "safe",
@@ -110,6 +110,15 @@
         "cursor_in": "query",
         "items": "results"
       }
+    },
+    {
+      "method": "POST",
+      "path": "/v1/credits/quote",
+      "operation_id": "credits_quote",
+      "name": "credits_quote",
+      "class": "safe",
+      "response": "json",
+      "idempotency": "none"
     },
     {
       "method": "POST",
@@ -525,11 +534,5 @@
       "idempotency": "none"
     }
   ],
-  "not_wrapped": [
-    {
-      "method": "POST",
-      "path": "/v1/credits/quote",
-      "reason": "New in dsp-backend #180; credits.quote() wraps it next."
-    }
-  ]
+  "not_wrapped": []
 }

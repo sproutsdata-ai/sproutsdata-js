@@ -179,7 +179,8 @@ All six keys, always. Returned, never raised: invalid arguments
 `message`, a rule refusal as the `message`), an unknown tool (`unknown_tool`),
 and every API failure except the three below — `code` is the problem
 document's, or `http.<status>` without one; `message` its `detail`, else its
-`title`, else `HTTP <status>`; `field_errors` its `errors` as `path: msg`
+`title`, else `HTTP <status>`, followed by its `next_step` (one sentence on what
+to do now) after a space when it has one; `field_errors` its `errors` as `path: msg`
 with a leading `body` or `query` segment dropped (`msg` defaults to `invalid`);
 `retry_after` in seconds. `retryable` is true for 429, 500, 503 and 504. A 502 or 408 is `gateway_no_answer`, and
 a timeout (`timeout`) or dropped connection (`connection_error`) after the

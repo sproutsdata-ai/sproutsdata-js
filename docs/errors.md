@@ -19,8 +19,10 @@ Everything the SDK throws is a `SproutsDataError`. The families:
 6. **`ExportFailedError`**: an export job ended `failed`; `job` is its last
    state and `job.error` says why.
 7. **`APIError`** and its subclasses: the server answered with an error. Every
-   instance carries `status`, `code`, `title`, `detail`, `requestId`,
-   `fieldErrors`, `extra`, `retryAfter`, `headers` and the raw `body`.
+   instance carries `status`, `code`, `title`, `detail`, `nextStep`, `requestId`,
+   `fieldErrors`, `extra`, `retryAfter`, `headers` and the raw `body`. `detail`
+   says what went wrong; `nextStep`, when the server gave one, is one sentence on
+   what to do about it, and follows `detail` in `err.message`.
 
 The class of an `APIError` is chosen by `code` first, then by HTTP status, so a
 code this release has not seen still maps to a class, and mapping never throws,

@@ -40,6 +40,18 @@
         }
       }
     },
+    "credits_quote": {
+      "body": {
+        "ref": "QuoteIn"
+      },
+      "path_params": [],
+      "query": [],
+      "responses": {
+        "200": {
+          "ref": "QuoteOut"
+        }
+      }
+    },
     "credits_retrieve": {
       "body": null,
       "path_params": [],

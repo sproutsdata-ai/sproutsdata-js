@@ -216,15 +216,18 @@
       "group": "credits",
       "endpoints": [
         "GET /v1/credits",
-        "GET /v1/credits/transactions"
+        "GET /v1/credits/transactions",
+        "POST /v1/credits/quote"
       ],
       "python": [
         "credits.retrieve",
-        "credits.transactions"
+        "credits.transactions",
+        "credits.quote"
       ],
       "js": [
         "credits.retrieve",
-        "credits.transactions"
+        "credits.transactions",
+        "credits.quote"
       ]
     },
     {

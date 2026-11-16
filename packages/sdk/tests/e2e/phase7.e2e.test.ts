@@ -1,12 +1,12 @@
-/** Phase 7 live: history, feedback and credits on the real stack. */
+/** Phase 7 live: history, feedback, credits and quotes on the real stack. */
 
 import { describe, expect, it } from 'vitest';
 
-import { NotFoundError } from '../../src/core/errors.js';
+import { ClientValidationError, NotFoundError } from '../../src/core/errors.js';
 import { canAfford } from '../../src/resources/helpers.js';
 import type { ReportView } from '../../src/types/index.js';
 import { collect } from '../support/rig.js';
-import { client, setting, STACK } from './stack.js';
+import { client, raw, setting, STACK } from './stack.js';
 
 /**
  * A report once the history has recorded its subject: dsp-backend writes history rows in
@@ -66,6 +66,31 @@ describe.skipIf(STACK === undefined)('phase 7, live', () => {
     expect(charge?.credits).toBeLessThan(0);
     expect(charge?.action?.startsWith('dsp.search')).toBe(true);
     expect(canAfford(balance, 0.5)).toBe(true);
+  });
+
+  it('a quote is what the meter then charges', async () => {
+    const sdk = client();
+    const quote = await sdk.credits.quote({ operation: 'search', rows: 1 });
+    const page = await sdk.search({ query: 'robotics', limit: 1 });
+    expect(quote.basis).toBe('page');
+    // `available` and `covered` rest on a balance read moments ago: null on a cold cache.
+    if (quote.available !== null) expect(quote.covered).toBe(quote.available >= quote.credits);
+    expect(page.meta.credits_charged).toBe(quote.credits);
+    expect(page.meta.credits_balance).not.toBeNull();
+  });
+
+  it('a quote the SDK refuses is the server\'s refusal', async () => {
+    await expect(client().credits.quote({ operation: 'agent_run' })).rejects.toBeInstanceOf(ClientValidationError);
+    expect((await raw('POST', '/v1/credits/quote', { operation: 'agent_run' })).status).toBe(422);
+  });
+
+  it('an error says what to do next', async () => {
+    const failure: unknown = await client().history.retrieve('999999999').catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(NotFoundError);
+    const error = failure as NotFoundError;
+    expect(error.code).toBe('history.not_found');
+    expect(error.nextStep).toBeTruthy();
+    expect(error.message).toContain(error.nextStep ?? '');
   });
 
   it('a retired test key is refused by the server too', async () => {

@@ -128,6 +128,8 @@ export class APIError extends SproutsDataError {
   readonly code: string | undefined;
   readonly title: string | undefined;
   readonly detail: string | undefined;
+  /** What to do now, in one sentence, when the server said (the problem's `next_step`). */
+  readonly nextStep: string | undefined;
   readonly instance: string | undefined;
   readonly type: string | undefined;
   /** The `X-Request-Id` header, else the body's `request_id`. Quote it to support. */
@@ -146,11 +148,12 @@ export class APIError extends SproutsDataError {
     const problem = isRecord(answer.body) ? answer.body : {};
     const text = (key: string): string | undefined => (typeof problem[key] === 'string' ? problem[key] : undefined);
     const requestId = answer.headers['x-request-id'] ?? text('request_id');
-    super(describe(answer.status, answer.headers, text('code'), text('title'), text('detail'), requestId));
+    super(describe(answer.status, answer.headers, text('code'), text('title'), [text('detail'), text('next_step')], requestId));
     this.status = answer.status;
     this.code = text('code');
     this.title = text('title');
     this.detail = text('detail');
+    this.nextStep = text('next_step');
     this.instance = text('instance');
     this.type = text('type');
     this.requestId = requestId;
@@ -167,7 +170,7 @@ function describe(
   headers: Readonly<Record<string, string>>,
   code: string | undefined,
   title: string | undefined,
-  detail: string | undefined,
+  said: readonly (string | undefined)[],
   requestId: string | undefined,
 ): string {
   const parts: string[] = [];
@@ -180,7 +183,8 @@ function describe(
     );
   } else {
     parts.push(`${title ?? `HTTP ${String(status)}`} (${code ?? String(status)})`);
-    if (detail !== undefined) parts.push(detail);
+    // The detail, then the next step: what went wrong, then what to do about it.
+    for (const sentence of said) if (sentence !== undefined) parts.push(sentence);
   }
   if (requestId !== undefined) parts.push(`request_id=${requestId}`);
   return parts.join(' - ');

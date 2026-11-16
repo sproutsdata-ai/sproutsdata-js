@@ -1,6 +1,8 @@
 node_modules/
 dist/
 coverage/
+# The spec's coverage fixture is vendored from sproutsdata-py, not a coverage report.
+!spec/fixtures/responses/coverage/
 *.log
 .DS_Store
 *.tsbuildinfo

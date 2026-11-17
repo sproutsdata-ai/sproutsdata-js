@@ -8,7 +8,7 @@
  * `client.messages.create`. Without `ANTHROPIC_API_KEY` it replays one scripted tool call, so you
  * can see what the model would receive.
  *
- *   export SPROUTSDATA_API_KEY=sk_dsp_test_<your-key>
+ *   export SPROUTSDATA_API_KEY=sk_dsp_live_<your-key>
  *   export ANTHROPIC_API_KEY=<your-anthropic-key> ANTHROPIC_MODEL=<a Claude model>
  *   node examples/tools-anthropic.ts "Payments companies in Germany with 200 to 2,000 people"
  */

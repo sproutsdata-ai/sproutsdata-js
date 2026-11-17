@@ -21,17 +21,18 @@
       "identifier": "twin.example"
     },
     "instance": "/v1/org-chart",
-    "request_id": "614b17098b4b421eb76382c22e0834c6",
+    "next_step": "Name the company by its domain instead.",
+    "request_id": "bd499b420b774095860da6c7b556c22e",
     "status": 422,
     "title": "Ambiguous company",
     "type": "https://dashboard.sproutsdata.ai/errors/org-chart-company-ambiguous"
   },
   "headers": {
     "content-type": "application/problem+json",
-    "ratelimit-limit": "60",
-    "ratelimit-remaining": "54",
-    "ratelimit-reset": "54",
-    "x-request-id": "614b17098b4b421eb76382c22e0834c6"
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1998",
+    "ratelimit-reset": "34",
+    "x-request-id": "bd499b420b774095860da6c7b556c22e"
   },
   "operation": "org_chart",
   "request": {

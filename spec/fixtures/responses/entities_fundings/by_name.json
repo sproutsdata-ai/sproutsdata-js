@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-10T22:30:06.376969Z",
+        "as_of": "2026-11-16T23:02:25.823124Z",
         "domain": null,
         "quote": null,
         "source_corpus": "fundings",
@@ -14,11 +14,12 @@
     "degradation": [],
     "has_more": false,
     "meta": {
-      "as_of": "2026-11-10T22:30:06.376969Z",
+      "as_of": "2026-11-16T23:02:25.823124Z",
       "credential": "api_key",
+      "credits_balance": 986.905,
       "credits_charged": 1.0,
       "environment": "live",
-      "request_id": "d650c52200a341f98cc85e002243fc12"
+      "request_id": "9fb489ac050940a494cc4d9bc0edb261"
     },
     "next_cursor": null,
     "resolved_search": null,
@@ -68,10 +69,10 @@
   },
   "headers": {
     "content-type": "application/json",
-    "ratelimit-limit": "60",
-    "ratelimit-remaining": "57",
-    "ratelimit-reset": "54",
-    "x-request-id": "d650c52200a341f98cc85e002243fc12"
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "35",
+    "x-request-id": "9fb489ac050940a494cc4d9bc0edb261"
   },
   "operation": "entities_fundings",
   "request": {

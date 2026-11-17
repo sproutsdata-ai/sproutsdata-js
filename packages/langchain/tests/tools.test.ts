@@ -34,7 +34,7 @@ import {
 } from '../src/index';
 import {
   BASE_URL,
-  TEST_KEY,
+  FIXTURE_KEY,
   client,
   envelope,
   fetchQueue,
@@ -113,7 +113,8 @@ describe('invoke', () => {
     const fetchMock = fetchQueue(jsonResponse(envelope(), 200, { 'x-request-id': 'req_1' }));
     const content = await search(fetchMock).invoke({ query: 'payments companies in Germany' });
     expect(typeof content).toBe('string');
-    expect(JSON.parse(content)).toMatchObject({ total: 1, request_id: 'req_test', environment: 'test' });
+    expect(JSON.parse(content)).toMatchObject({ total: 1, request_id: 'req_test' });
+    expect(JSON.parse(content)).not.toHaveProperty('environment');
     expect(sentBody(fetchMock)).toEqual({
       category: 'company',
       query: 'payments companies in Germany',
@@ -238,7 +239,7 @@ describe('a client from a second copy of sproutsdata', () => {
   const cjs = createRequire(import.meta.url)('sproutsdata') as typeof SproutsDataModule;
 
   function foreignTool(fetchMock: ReturnType<typeof fetchQueue>): SproutsDataTool {
-    const foreign = new cjs.SproutsData({ apiKey: TEST_KEY, baseUrl: BASE_URL, fetch: fetchMock, maxRetries: 0 });
+    const foreign = new cjs.SproutsData({ apiKey: FIXTURE_KEY, baseUrl: BASE_URL, fetch: fetchMock, maxRetries: 0 });
     return sproutsDataTools({ client: foreign, include: ['search'] })[0]!;
   }
 
@@ -262,14 +263,14 @@ describe('construction', () => {
 
   it('refuses a browser-like environment', () => {
     vi.stubGlobal('window', { document: {} });
-    expect(() => sproutsDataTools({ apiKey: TEST_KEY })).toThrow(/refuses an API key/);
+    expect(() => sproutsDataTools({ apiKey: FIXTURE_KEY })).toThrow(/refuses an API key/);
   });
 
   it('never exposes the API key', () => {
-    const tools = sproutsDataTools({ apiKey: TEST_KEY, baseUrl: BASE_URL });
-    expect(JSON.stringify(tools)).not.toContain(TEST_KEY);
-    expect(JSON.stringify(tools.map((tool) => tool.toJSON()))).not.toContain(TEST_KEY);
-    expect(inspect(tools, { depth: 10, showHidden: true })).not.toContain(TEST_KEY);
+    const tools = sproutsDataTools({ apiKey: FIXTURE_KEY, baseUrl: BASE_URL });
+    expect(JSON.stringify(tools)).not.toContain(FIXTURE_KEY);
+    expect(JSON.stringify(tools.map((tool) => tool.toJSON()))).not.toContain(FIXTURE_KEY);
+    expect(inspect(tools, { depth: 10, showHidden: true })).not.toContain(FIXTURE_KEY);
   });
 
   it('reports the version package.json declares', () => {

@@ -5,11 +5,12 @@
     "fan_out": null,
     "institutions": null,
     "meta": {
-      "as_of": "2026-11-10T22:30:06.542183Z",
+      "as_of": "2026-11-16T23:02:26.000836Z",
       "credential": "api_key",
+      "credits_balance": 969.405,
       "credits_charged": 2.0,
       "environment": "live",
-      "request_id": "e38e96e0602447ecbdad05403baab512"
+      "request_id": "4c3a5f51e49d49a99ba29f18cfdd9b20"
     },
     "reach": null,
     "reading": {
@@ -20,7 +21,7 @@
     "relationships": {
       "attribution": [
         {
-          "as_of": "2026-11-10T22:30:06.542183Z",
+          "as_of": "2026-11-16T23:02:26.000836Z",
           "domain": null,
           "quote": null,
           "source_corpus": "affiliations",
@@ -116,13 +117,14 @@
         }
       ],
       "meta": {
-        "as_of": "2026-11-10T22:30:06.542183Z",
+        "as_of": "2026-11-16T23:02:26.000836Z",
         "credential": "api_key",
+        "credits_balance": 969.405,
         "credits_charged": 2.0,
         "environment": "live",
-        "request_id": "e38e96e0602447ecbdad05403baab512"
+        "request_id": "4c3a5f51e49d49a99ba29f18cfdd9b20"
       },
-      "next_cursor": "eyJmIjoiMTZlNzlkNmQzMWQ4Y2FlYWMzOThmYjA2Y2UyYzBiNzUiLCJvIjoxMCwicyI6ImNkNDZhZmE0NDE2ODQ0YzdhZjFiNDExOTBhODZhM2Q4IiwidCI6MTc5NDM0OTgwNiwidSI6IntcInJvdXRlXCI6XCJyZWxhdGlvbnNoaXBzXCIsXCJwbGFuXCI6e1wiY29tcGFuaWVzXCI6W3tcInZhbHVlXCI6XCJzdHJpcGUuY29tXCIsXCJieVwiOlwiZG9tYWluXCJ9LHtcInZhbHVlXCI6XCJhZHllbi5jb21cIixcImJ5XCI6XCJkb21haW5cIn1dLFwicGFnZVwiOjIsXCJwYWdlX3NpemVcIjoxMCxcIm91dHB1dFwiOntcInRvcF9pbnN0aXR1dGlvbnNcIjoxMDAwfX0sXCJwYWdlXCI6MixcInBhZ2Vfc2l6ZVwiOjEwfSJ9.09f4dd94bf1cff4e6e4e1e9e76dc8143",
+      "next_cursor": "eyJmIjoiMTZlNzlkNmQzMWQ4Y2FlYWMzOThmYjA2Y2UyYzBiNzUiLCJvIjoxMCwicyI6ImE3ZWM2NjQ2NjRmNDRmZDk4YzIxYzIzZTY4MzNmNGIzIiwidCI6MTc5NDg3MDE0NSwidSI6IntcInJvdXRlXCI6XCJyZWxhdGlvbnNoaXBzXCIsXCJwbGFuXCI6e1wiY29tcGFuaWVzXCI6W3tcInZhbHVlXCI6XCJzdHJpcGUuY29tXCIsXCJieVwiOlwiZG9tYWluXCJ9LHtcInZhbHVlXCI6XCJhZHllbi5jb21cIixcImJ5XCI6XCJkb21haW5cIn1dLFwicGFnZVwiOjIsXCJwYWdlX3NpemVcIjoxMCxcIm91dHB1dFwiOntcInRvcF9pbnN0aXR1dGlvbnNcIjoxMDAwfX0sXCJwYWdlXCI6MixcInBhZ2Vfc2l6ZVwiOjEwfSJ9.a7ae01d7c59fea0f43199eff0c55e631",
       "resolved_search": {
         "category": "person",
         "conflicts": [],
@@ -141,7 +143,8 @@
         "query": "who at Stripe used to work at Adyen",
         "semantic_query": null,
         "semantic_scope": null,
-        "sort": []
+        "sort": [],
+        "sparse_filters": []
       },
       "results": [
         {
@@ -584,10 +587,10 @@
   },
   "headers": {
     "content-type": "application/json",
-    "ratelimit-limit": "60",
-    "ratelimit-remaining": "57",
-    "ratelimit-reset": "54",
-    "x-request-id": "e38e96e0602447ecbdad05403baab512"
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "35",
+    "x-request-id": "4c3a5f51e49d49a99ba29f18cfdd9b20"
   },
   "operation": "relationships_ask",
   "request": {

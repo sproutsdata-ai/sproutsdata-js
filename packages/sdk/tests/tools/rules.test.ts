@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest';
 import { SproutsData } from '../../src/index.js';
 import { isSproutsData, resolveClient, Toolset, type ToolResult, type ToolsetOptions } from '../../src/tools/index.js';
 import { recordedBody, respond } from '../support/answers.js';
-import { BASE_URL, TEST_KEY } from '../support/fakes.js';
+import { BASE_URL, FIXTURE_KEY } from '../support/fakes.js';
 import { client, companyRow, lookupOk, searchOk, similarOk, toolset } from './support.js';
 
 const caveatsOf = (result: ToolResult): readonly string[] => ('caveats' in result ? result.caveats : []);
@@ -76,7 +76,7 @@ describe('settings', () => {
   it('resolve a client from settings or take the one given, never both', () => {
     const made = client([]).client;
     expect(resolveClient({ client: made })).toBe(made);
-    expect(resolveClient({ apiKey: TEST_KEY, baseUrl: BASE_URL })).toBeInstanceOf(SproutsData);
+    expect(resolveClient({ apiKey: FIXTURE_KEY, baseUrl: BASE_URL })).toBeInstanceOf(SproutsData);
     expect(() => resolveClient({ client: made, maxRetries: 4 })).toThrow(/maxRetries configure a client/);
     expect(() => resolveClient({ client: {} as SproutsData })).toThrow(TypeError);
   });
@@ -175,6 +175,15 @@ describe('shaping', () => {
     const result = await toolset([searchOk([], { suggestion, degradation })]).tools.run('sprouts_search', { query: 'x' });
     expect('suggestion' in result && result.suggestion).toEqual(suggestion);
     expect(caveatsOf(result)[0]).toBe('mode_downgraded: d (impact: recall)');
+  });
+
+  it('say why an empty answer is empty, and what to leave out', async () => {
+    const without = [{ filter: 'hq_country', label: 'HQ in Iceland', total: 40 }];
+    const suggestion = { kind: 'relax', category: null, message: '0 with every filter; 40 without HQ in Iceland.', without };
+    const degradation = [{ reason: 'no_match', impact: 'recall', detail: 'Nothing there has 5,000+.' }];
+    const result = await toolset([searchOk([], { total: 0, suggestion, degradation })]).tools.run('sprouts_search', { query: 'companies in Iceland with 5,000+ staff' });
+    expect('suggestion' in result && result.suggestion).toEqual({ kind: 'relax', message: suggestion.message, without });
+    expect(caveatsOf(result)[0]).toBe('no_match: Nothing there has 5,000+. (impact: recall)');
   });
 
   it('give rows a lookup only when lookup is offered, and count rows with none', async () => {

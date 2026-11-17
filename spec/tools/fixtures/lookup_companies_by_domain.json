@@ -110,7 +110,7 @@
         "as_of": "2026-10-01T09:12:44Z",
         "credential": "api_key",
         "credits_charged": null,
-        "environment": "test",
+        "environment": "live",
         "request_id": "req_e4b1f07c22"
       }
     }
@@ -128,7 +128,6 @@
   },
   "expected_output": {
     "caveats": [],
-    "environment": "test",
     "request_id": "req_e4b1f07c22",
     "results": [
       {

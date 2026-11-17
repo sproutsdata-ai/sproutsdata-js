@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-10T22:30:06.505000Z",
+        "as_of": "2026-11-16T23:02:25.963870Z",
         "domain": null,
         "quote": null,
         "source_corpus": "affiliations",
@@ -87,13 +87,14 @@
       }
     ],
     "meta": {
-      "as_of": "2026-11-10T22:30:06.505000Z",
+      "as_of": "2026-11-16T23:02:25.963870Z",
       "credential": "api_key",
+      "credits_balance": 973.405,
       "credits_charged": 2.0,
       "environment": "live",
-      "request_id": "aa20d96757484fcbbc5f7bcb9e2d6a07"
+      "request_id": "397f2fb17003422599c44a4e7b1d7cf8"
     },
-    "next_cursor": "eyJmIjoiNmIzNmI1YmJhMzhjMDZmM2FkNWNmNWM5NjEyYjExNTEiLCJvIjoxMCwicyI6IjUxZjE2YjA4NzdjNzRmMzBiMmFkNzA5Yzg2Y2Q5ODQwIiwidCI6MTc5NDM0OTgwNiwidSI6IjIifQ.b9ba2e1e66e6f5f90a1f99a75961bb81",
+    "next_cursor": "eyJmIjoiNmIzNmI1YmJhMzhjMDZmM2FkNWNmNWM5NjEyYjExNTEiLCJvIjoxMCwicyI6IjBmNzRhZDk4ZWI2ZjRiZGJiYWVlNDVjN2JiMmFjOWEyIiwidCI6MTc5NDg3MDE0NSwidSI6IjIifQ.328603f16a98baafc441b9a7d48e3fef",
     "resolved_search": {
       "category": "person",
       "conflicts": [],
@@ -110,7 +111,8 @@
       "query": null,
       "semantic_query": null,
       "semantic_scope": null,
-      "sort": []
+      "sort": [],
+      "sparse_filters": []
     },
     "results": [
       {
@@ -442,10 +444,10 @@
   },
   "headers": {
     "content-type": "application/json",
-    "ratelimit-limit": "60",
-    "ratelimit-remaining": "57",
-    "ratelimit-reset": "54",
-    "x-request-id": "aa20d96757484fcbbc5f7bcb9e2d6a07"
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "35",
+    "x-request-id": "397f2fb17003422599c44a4e7b1d7cf8"
   },
   "operation": "relationships_reach",
   "request": {

@@ -19,7 +19,7 @@ import { SproutsData, AuthenticationError, lookupRef, type SearchEnvelope, type 
 import { Toolset, definitions, resolveClient, toJson, type ToolResult } from 'sproutsdata/tools';
 
 export async function consume(): Promise<string> {
-  const client: SproutsData = resolveClient({ apiKey: 'sk_dsp_test_x' });
+  const client: SproutsData = resolveClient({ apiKey: 'sk_dsp_live_x' });
   const params: SearchParams = { query: 'robotics', limit: 5 };
   const page: SearchEnvelope = await client.search(params);
   const ref = page.results[0] === undefined ? undefined : lookupRef(page.results[0]);

@@ -1,416 +1,56 @@
 {
   "body": {
-    "next_cursor": "MjAyNi0xMS0xMFQyMjoyOTo0MS4yMTQzOTErMDA6MDB8MTY",
+    "next_cursor": null,
     "results": [
       {
         "action": "dsp.org_chart",
-        "balance_after": 919.215,
-        "created_at": "2026-11-10T22:30:06.564854Z",
-        "credits": -1.0,
-        "id": "txn_65",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.org_chart",
-        "balance_after": 920.215,
-        "created_at": "2026-11-10T22:30:06.558747Z",
-        "credits": -1.0,
-        "id": "txn_64",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.org_chart",
-        "balance_after": 921.215,
-        "created_at": "2026-11-10T22:30:06.547377Z",
-        "credits": -1.0,
-        "id": "txn_63",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.relationships.ask",
-        "balance_after": 922.215,
-        "created_at": "2026-11-10T22:30:06.539651Z",
-        "credits": -2.0,
-        "id": "txn_62",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.relationships",
-        "balance_after": 924.215,
-        "created_at": "2026-11-10T22:30:06.519161Z",
-        "credits": -2.0,
-        "id": "txn_61",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.relationships",
-        "balance_after": 926.215,
-        "created_at": "2026-11-10T22:30:06.501980Z",
-        "credits": -2.0,
-        "id": "txn_60",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.relationships",
-        "balance_after": 928.215,
-        "created_at": "2026-11-10T22:30:06.486609Z",
-        "credits": -2.0,
-        "id": "txn_59",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.entities",
-        "balance_after": 930.215,
-        "created_at": "2026-11-10T22:30:06.399660Z",
-        "credits": -1.0,
-        "id": "txn_58",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.entities",
-        "balance_after": 931.215,
-        "created_at": "2026-11-10T22:30:06.383934Z",
-        "credits": -1.0,
-        "id": "txn_57",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.entities",
-        "balance_after": 932.215,
-        "created_at": "2026-11-10T22:30:06.363821Z",
-        "credits": -1.0,
-        "id": "txn_56",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.entities",
-        "balance_after": 933.215,
-        "created_at": "2026-11-10T22:30:06.348808Z",
-        "credits": -1.0,
-        "id": "txn_55",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.entities",
-        "balance_after": 934.215,
-        "created_at": "2026-11-10T22:30:06.334485Z",
-        "credits": -1.0,
-        "id": "txn_54",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.entities",
-        "balance_after": 935.215,
-        "created_at": "2026-11-10T22:30:06.320462Z",
-        "credits": -1.0,
-        "id": "txn_53",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.entities",
-        "balance_after": 936.215,
-        "created_at": "2026-11-10T22:30:06.305988Z",
-        "credits": -1.0,
-        "id": "txn_52",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.entities",
-        "balance_after": 937.215,
-        "created_at": "2026-11-10T22:30:06.291664Z",
-        "credits": -1.0,
-        "id": "txn_51",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.entities",
-        "balance_after": 938.215,
-        "created_at": "2026-11-10T22:30:06.276660Z",
-        "credits": -1.0,
-        "id": "txn_50",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.similar",
-        "balance_after": 939.215,
-        "created_at": "2026-11-10T22:30:06.230782Z",
-        "credits": -2.0,
-        "id": "txn_49",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.search.auto",
-        "balance_after": 941.215,
-        "created_at": "2026-11-10T22:30:06.216866Z",
-        "credits": -0.595,
-        "id": "txn_48",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.search.fast",
-        "balance_after": 941.81,
-        "created_at": "2026-11-10T22:30:06.201518Z",
-        "credits": -0.5,
-        "id": "txn_47",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.search.fast",
-        "balance_after": 942.31,
-        "created_at": "2026-11-10T22:30:06.185751Z",
-        "credits": -0.5,
-        "id": "txn_46",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.search.fast",
-        "balance_after": 942.81,
-        "created_at": "2026-11-10T22:30:06.159764Z",
-        "credits": -0.5,
-        "id": "txn_45",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.org_chart",
-        "balance_after": 943.31,
-        "created_at": "2026-11-10T22:29:48.854710Z",
-        "credits": -1.0,
-        "id": "txn_44",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.org_chart",
-        "balance_after": 944.31,
-        "created_at": "2026-11-10T22:29:48.846593Z",
-        "credits": -1.0,
-        "id": "txn_43",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.org_chart",
-        "balance_after": 945.31,
-        "created_at": "2026-11-10T22:29:48.840533Z",
-        "credits": -1.0,
-        "id": "txn_42",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.relationships.ask",
-        "balance_after": 946.31,
-        "created_at": "2026-11-10T22:29:48.835003Z",
-        "credits": -2.0,
-        "id": "txn_41",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.relationships",
-        "balance_after": 948.31,
-        "created_at": "2026-11-10T22:29:48.813546Z",
-        "credits": -2.0,
-        "id": "txn_40",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.relationships",
-        "balance_after": 950.31,
-        "created_at": "2026-11-10T22:29:48.797586Z",
-        "credits": -2.0,
-        "id": "txn_39",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.relationships",
-        "balance_after": 952.31,
-        "created_at": "2026-11-10T22:29:48.781246Z",
-        "credits": -2.0,
-        "id": "txn_38",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.entities",
-        "balance_after": 954.31,
-        "created_at": "2026-11-10T22:29:48.693179Z",
-        "credits": -1.0,
-        "id": "txn_37",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.entities",
-        "balance_after": 955.31,
-        "created_at": "2026-11-10T22:29:48.678633Z",
-        "credits": -1.0,
-        "id": "txn_36",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.entities",
-        "balance_after": 956.31,
-        "created_at": "2026-11-10T22:29:48.663402Z",
-        "credits": -1.0,
-        "id": "txn_35",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.entities",
-        "balance_after": 957.31,
-        "created_at": "2026-11-10T22:29:48.648339Z",
-        "credits": -1.0,
-        "id": "txn_34",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.entities",
-        "balance_after": 958.31,
-        "created_at": "2026-11-10T22:29:48.634367Z",
-        "credits": -1.0,
-        "id": "txn_33",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.entities",
-        "balance_after": 959.31,
-        "created_at": "2026-11-10T22:29:48.619783Z",
-        "credits": -1.0,
-        "id": "txn_32",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.entities",
-        "balance_after": 960.31,
-        "created_at": "2026-11-10T22:29:48.604426Z",
-        "credits": -1.0,
-        "id": "txn_31",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.entities",
-        "balance_after": 961.31,
-        "created_at": "2026-11-10T22:29:48.590462Z",
-        "credits": -1.0,
-        "id": "txn_30",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.entities",
-        "balance_after": 962.31,
-        "created_at": "2026-11-10T22:29:48.575245Z",
-        "credits": -1.0,
-        "id": "txn_29",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.similar",
-        "balance_after": 963.31,
-        "created_at": "2026-11-10T22:29:48.529224Z",
-        "credits": -2.0,
-        "id": "txn_28",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.search.auto",
-        "balance_after": 965.31,
-        "created_at": "2026-11-10T22:29:48.514161Z",
-        "credits": -0.595,
-        "id": "txn_27",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.search.fast",
-        "balance_after": 965.905,
-        "created_at": "2026-11-10T22:29:48.500426Z",
-        "credits": -0.5,
-        "id": "txn_26",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.search.fast",
         "balance_after": 966.405,
-        "created_at": "2026-11-10T22:29:48.484420Z",
-        "credits": -0.5,
+        "created_at": "2026-11-16T23:02:26.016213Z",
+        "credits": -1.0,
         "id": "txn_25",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.search.fast",
-        "balance_after": 966.905,
-        "created_at": "2026-11-10T22:29:48.456337Z",
-        "credits": -0.5,
-        "id": "txn_24",
         "kind": "charge",
         "source": null
       },
       {
         "action": "dsp.org_chart",
         "balance_after": 967.405,
-        "created_at": "2026-11-10T22:29:41.396616Z",
+        "created_at": "2026-11-16T23:02:26.011077Z",
         "credits": -1.0,
-        "id": "txn_23",
+        "id": "txn_24",
         "kind": "charge",
         "source": null
       },
       {
         "action": "dsp.org_chart",
         "balance_after": 968.405,
-        "created_at": "2026-11-10T22:29:41.387374Z",
+        "created_at": "2026-11-16T23:02:26.005547Z",
         "credits": -1.0,
-        "id": "txn_22",
-        "kind": "charge",
-        "source": null
-      },
-      {
-        "action": "dsp.org_chart",
-        "balance_after": 969.405,
-        "created_at": "2026-11-10T22:29:41.380639Z",
-        "credits": -1.0,
-        "id": "txn_21",
+        "id": "txn_23",
         "kind": "charge",
         "source": null
       },
       {
         "action": "dsp.relationships.ask",
-        "balance_after": 970.405,
-        "created_at": "2026-11-10T22:29:41.370568Z",
+        "balance_after": 969.405,
+        "created_at": "2026-11-16T23:02:25.997024Z",
+        "credits": -2.0,
+        "id": "txn_22",
+        "kind": "charge",
+        "source": null
+      },
+      {
+        "action": "dsp.relationships",
+        "balance_after": 971.405,
+        "created_at": "2026-11-16T23:02:25.975826Z",
+        "credits": -2.0,
+        "id": "txn_21",
+        "kind": "charge",
+        "source": null
+      },
+      {
+        "action": "dsp.relationships",
+        "balance_after": 973.405,
+        "created_at": "2026-11-16T23:02:25.960467Z",
         "credits": -2.0,
         "id": "txn_20",
         "kind": "charge",
@@ -418,48 +58,183 @@
       },
       {
         "action": "dsp.relationships",
-        "balance_after": 972.405,
-        "created_at": "2026-11-10T22:29:41.350096Z",
+        "balance_after": 975.405,
+        "created_at": "2026-11-16T23:02:25.946749Z",
         "credits": -2.0,
         "id": "txn_19",
         "kind": "charge",
         "source": null
       },
       {
-        "action": "dsp.relationships",
-        "balance_after": 974.405,
-        "created_at": "2026-11-10T22:29:41.335117Z",
-        "credits": -2.0,
+        "action": "dsp.agent.run.medium",
+        "balance_after": 977.405,
+        "created_at": "2026-11-16T23:02:25.874823Z",
+        "credits": -8.5,
         "id": "txn_18",
-        "kind": "charge",
+        "kind": "hold_capture",
         "source": null
       },
       {
-        "action": "dsp.relationships",
-        "balance_after": 976.405,
-        "created_at": "2026-11-10T22:29:41.319352Z",
-        "credits": -2.0,
+        "action": "dsp.entities",
+        "balance_after": 985.905,
+        "created_at": "2026-11-16T23:02:25.836955Z",
+        "credits": -1.0,
         "id": "txn_17",
         "kind": "charge",
         "source": null
       },
       {
-        "action": "dsp.agent.run.medium",
-        "balance_after": 978.405,
-        "created_at": "2026-11-10T22:29:41.214391Z",
-        "credits": -8.5,
+        "action": "dsp.entities",
+        "balance_after": 986.905,
+        "created_at": "2026-11-16T23:02:25.824121Z",
+        "credits": -1.0,
         "id": "txn_16",
-        "kind": "hold_capture",
+        "kind": "charge",
         "source": null
+      },
+      {
+        "action": "dsp.entities",
+        "balance_after": 987.905,
+        "created_at": "2026-11-16T23:02:25.810995Z",
+        "credits": -1.0,
+        "id": "txn_15",
+        "kind": "charge",
+        "source": null
+      },
+      {
+        "action": "dsp.entities",
+        "balance_after": 988.905,
+        "created_at": "2026-11-16T23:02:25.797354Z",
+        "credits": -1.0,
+        "id": "txn_14",
+        "kind": "charge",
+        "source": null
+      },
+      {
+        "action": "dsp.entities",
+        "balance_after": 989.905,
+        "created_at": "2026-11-16T23:02:25.785507Z",
+        "credits": -1.0,
+        "id": "txn_13",
+        "kind": "charge",
+        "source": null
+      },
+      {
+        "action": "dsp.entities",
+        "balance_after": 990.905,
+        "created_at": "2026-11-16T23:02:25.771382Z",
+        "credits": -1.0,
+        "id": "txn_12",
+        "kind": "charge",
+        "source": null
+      },
+      {
+        "action": "dsp.entities",
+        "balance_after": 991.905,
+        "created_at": "2026-11-16T23:02:25.758287Z",
+        "credits": -1.0,
+        "id": "txn_11",
+        "kind": "charge",
+        "source": null
+      },
+      {
+        "action": "dsp.entities",
+        "balance_after": 992.905,
+        "created_at": "2026-11-16T23:02:25.745356Z",
+        "credits": -1.0,
+        "id": "txn_10",
+        "kind": "charge",
+        "source": null
+      },
+      {
+        "action": "dsp.entities",
+        "balance_after": 993.905,
+        "created_at": "2026-11-16T23:02:25.732029Z",
+        "credits": -1.0,
+        "id": "txn_9",
+        "kind": "charge",
+        "source": null
+      },
+      {
+        "action": "dsp.similar",
+        "balance_after": 994.905,
+        "created_at": "2026-11-16T23:02:25.684355Z",
+        "credits": -2.0,
+        "id": "txn_8",
+        "kind": "charge",
+        "source": null
+      },
+      {
+        "action": "dsp.search.fast",
+        "balance_after": 996.905,
+        "created_at": "2026-11-16T23:02:25.669030Z",
+        "credits": -0.5,
+        "id": "txn_7",
+        "kind": "charge",
+        "source": null
+      },
+      {
+        "action": "dsp.search.fast",
+        "balance_after": 997.405,
+        "created_at": "2026-11-16T23:02:25.655676Z",
+        "credits": -0.5,
+        "id": "txn_6",
+        "kind": "charge",
+        "source": null
+      },
+      {
+        "action": "dsp.search.auto",
+        "balance_after": 997.905,
+        "created_at": "2026-11-16T23:02:25.633791Z",
+        "credits": -0.595,
+        "id": "txn_5",
+        "kind": "charge",
+        "source": null
+      },
+      {
+        "action": "dsp.search.fast",
+        "balance_after": 998.5,
+        "created_at": "2026-11-16T23:02:25.621126Z",
+        "credits": -0.5,
+        "id": "txn_4",
+        "kind": "charge",
+        "source": null
+      },
+      {
+        "action": "dsp.search.fast",
+        "balance_after": 999.0,
+        "created_at": "2026-11-16T23:02:25.609872Z",
+        "credits": -0.5,
+        "id": "txn_3",
+        "kind": "charge",
+        "source": null
+      },
+      {
+        "action": "dsp.search.fast",
+        "balance_after": 999.5,
+        "created_at": "2026-11-16T23:02:25.590719Z",
+        "credits": -0.5,
+        "id": "txn_2",
+        "kind": "charge",
+        "source": null
+      },
+      {
+        "action": null,
+        "balance_after": 1000.0,
+        "created_at": "2026-11-16T23:02:25.331903Z",
+        "credits": 1000.0,
+        "id": "txn_1",
+        "kind": "grant",
+        "source": "signup"
       }
     ]
   },
   "headers": {
     "content-type": "application/json",
-    "ratelimit-limit": "60",
-    "ratelimit-remaining": "57",
-    "ratelimit-reset": "53",
-    "x-request-id": "751663d98fbd4a1d9c039f1107a65493"
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "34",
+    "x-request-id": "a89ccf5d45bc4fe291617680d9a25395"
   },
   "operation": "credits_transactions",
   "request": {

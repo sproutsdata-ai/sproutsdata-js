@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-10T22:30:06.319183Z",
+        "as_of": "2026-11-16T23:02:25.770307Z",
         "domain": null,
         "quote": null,
         "source_corpus": "trends",
@@ -14,11 +14,12 @@
     "degradation": [],
     "has_more": false,
     "meta": {
-      "as_of": "2026-11-10T22:30:06.319183Z",
+      "as_of": "2026-11-16T23:02:25.770307Z",
       "credential": "api_key",
+      "credits_balance": 990.905,
       "credits_charged": 1.0,
       "environment": "live",
-      "request_id": "4c2f50708e1e4a419e919a1ee87db64d"
+      "request_id": "0fa1bed1898647b68ae8f52a492ba653"
     },
     "next_cursor": null,
     "resolved_search": null,
@@ -68,10 +69,10 @@
   },
   "headers": {
     "content-type": "application/json",
-    "ratelimit-limit": "60",
-    "ratelimit-remaining": "57",
-    "ratelimit-reset": "54",
-    "x-request-id": "4c2f50708e1e4a419e919a1ee87db64d"
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "35",
+    "x-request-id": "0fa1bed1898647b68ae8f52a492ba653"
   },
   "operation": "entities_trends",
   "request": {

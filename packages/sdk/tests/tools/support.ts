@@ -6,14 +6,14 @@
 import { SproutsData } from '../../src/index.js';
 import { Toolset, type ToolsetOptions } from '../../src/tools/index.js';
 import { recordedBody, respond } from '../support/answers.js';
-import { BASE_URL, recordingFetch, type Scripted, type Sent, TEST_KEY } from '../support/fakes.js';
+import { BASE_URL, recordingFetch, type Scripted, type Sent, FIXTURE_KEY } from '../support/fakes.js';
 
 type Json = Record<string, unknown>;
 
 /** A client with retries off, over `script`. */
 export function client(script: readonly Scripted[]): { client: SproutsData; sent: Sent[] } {
   const { fetch, sent } = recordingFetch(script);
-  return { client: new SproutsData({ apiKey: TEST_KEY, baseUrl: BASE_URL, maxRetries: 0, fetch }), sent };
+  return { client: new SproutsData({ apiKey: FIXTURE_KEY, baseUrl: BASE_URL, maxRetries: 0, fetch }), sent };
 }
 
 /** A `Toolset` with `options`, over `script`. */

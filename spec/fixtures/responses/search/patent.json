@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-10T22:30:06.200050Z",
+        "as_of": "2026-11-16T23:02:25.619874Z",
         "domain": null,
         "quote": null,
         "source_corpus": "patents",
@@ -14,13 +14,14 @@
     "degradation": [],
     "has_more": true,
     "meta": {
-      "as_of": "2026-11-10T22:30:06.200050Z",
+      "as_of": "2026-11-16T23:02:25.619874Z",
       "credential": "api_key",
+      "credits_balance": 998.5,
       "credits_charged": 0.5,
       "environment": "live",
-      "request_id": "8a8714091d80465bb4fbb08ee6257251"
+      "request_id": "c185ab325aa647aab2fe66edf49b3a3d"
     },
-    "next_cursor": "eyJmIjoiODQ1YjFmMDdhYzAyZmFmMjA5NjQ4MDAwMGY3MmI0MGYiLCJvIjoyLCJzIjoiYWNjMGQ2YzQ0YmE3NDc4NDhjYmI1Mzg3OTdkNTMyMDciLCJ0IjoxNzk0MzQ5ODA2LCJ1IjoicHJpc218cGF0ZW50fDEifQ.5801da1f16bd8c4547b14f996a96c74e",
+    "next_cursor": "eyJmIjoiODQ1YjFmMDdhYzAyZmFmMjA5NjQ4MDAwMGY3MmI0MGYiLCJvIjoyLCJzIjoiYzM3YTc4ODJlYTY1NDIzMTg4MWFkYWYxYTk3YjFjOTEiLCJ0IjoxNzk0ODcwMTQ1LCJ1IjoicHJpc218cGF0ZW50fDEifQ.407ef734cb675255287da499549d851d",
     "resolved_search": {
       "category": "patent",
       "conflicts": [],
@@ -39,7 +40,8 @@
       "query": "solid state battery",
       "semantic_query": "industrial automation",
       "semantic_scope": null,
-      "sort": []
+      "sort": [],
+      "sparse_filters": []
     },
     "results": [
       {
@@ -115,10 +117,10 @@
   },
   "headers": {
     "content-type": "application/json",
-    "ratelimit-limit": "60",
-    "ratelimit-remaining": "49",
-    "ratelimit-reset": "54",
-    "x-request-id": "8a8714091d80465bb4fbb08ee6257251"
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1997",
+    "ratelimit-reset": "35",
+    "x-request-id": "c185ab325aa647aab2fe66edf49b3a3d"
   },
   "operation": "search",
   "request": {

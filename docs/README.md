@@ -20,7 +20,7 @@ Upgrading from `sproutsdata@0.0.1`? Read the
 | Page | What it covers |
 |---|---|
 | [Quickstart](quickstart.md) | Install, configure, search, look-alikes, full records, and how to read an answer |
-| [Authentication](authentication.md) | Key format, live and test keys, scopes, rotation, server-side only, configuration |
+| [Authentication](authentication.md) | Key format, charging, scopes, rotation, server-side only, configuration |
 | [Errors and retries](errors.md) | The error classes, validation, what is retried and why, idempotency, rate limits, response details |
 | [Pagination](pagination.md) | Signed cursors, the `iter*` walks, the depth cap, truncated results |
 | [Filters](filters.md) | The typed filter vocabularies, domain lists, listing the values a filter accepts |

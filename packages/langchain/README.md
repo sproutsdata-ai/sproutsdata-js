@@ -115,7 +115,7 @@ A JSON string, compact and with sorted keys; or, when invoked with a model's
   them from the words.
 - `caveats`: anything the server could not do, and anything your settings
   changed.
-- `request_id` and `environment`.
+- `request_id`.
 - A lookup answers every id, with up to three `matches` and `ambiguous: true`
   when more than one record matched.
 
@@ -166,7 +166,7 @@ for (const doc of docs) console.log(doc.pageContent, doc.metadata['request_id'])
 
 Each `Document` renders a short line per category as `pageContent` (lossy by
 design) and carries the complete raw row under `metadata.record`. Request-level
-fields (`request_id`, `environment`, `as_of`, `credential`, `credits_charged`,
+fields (`request_id`, `as_of`, `credential`, `credits_charged`,
 `total`, `total_is_estimate`, `degradation`, `attribution` and
 `resolved_search`) are copied onto every document, typed as
 `SproutsDataDocumentMetadata`, because a step deep in a chain sees one
@@ -212,8 +212,8 @@ Generated from `package.json`; `tests/readme.test.ts` fails when they differ.
 
 Every tool call and every retrieval is billed (each answer's
 `meta.credits_charged` says what it cost), and an agent loop can fire several
-per user turn. A call made with a test key (`sk_dsp_test_...`) is free and
-writes no row to the credit ledger; the answer says `environment: "test"`.
+per user turn. Every key is a live key, so each of those calls is charged to the
+workspace's credits.
 
 ## See also
 

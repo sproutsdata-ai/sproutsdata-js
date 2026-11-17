@@ -110,8 +110,7 @@ Search and look-alike:
   "interpreted_as": {"filters": {}, "source": "parser", "conflicts": []},
   "caveats": ["vector_coverage_incomplete: … (impact: recall)"],
   "suggestion": null,
-  "request_id": "…",
-  "environment": "test"
+  "request_id": "…"
 }
 ```
 
@@ -135,7 +134,9 @@ Search and look-alike:
   (`source` is `filters_source`; a look-alike's `anchors` and `combine`, listed
   in `shaping.json` → `resolved_filters_skipped`, are left out of `filters`),
   and `{"filters": {}, "source": "none", "conflicts": []}` when the response had
-  none. It is never dropped.
+  none. It is never dropped. When `resolved_search.sparse_filters` is non-empty,
+  it is added as is under `sparse_filters` (`{filter, record_type, populated,
+  of, share}`, thinnest first); otherwise the key is absent.
 - **`caveats`**, in order: each degradation as `"<reason>: <detail> (impact:
   <impact>)"`; `coverage_truncated` and `constraint_unmet` from `coverage`;
   `parser_not_run` when the call sent a `query` and `resolved_search` has
@@ -156,8 +157,7 @@ Lookup:
 {
   "results": [{"id": "stripe.com", "found": true, "matches": [{"…": "…"}], "ambiguous": false}],
   "caveats": [],
-  "request_id": "…",
-  "environment": "test"
+  "request_id": "…"
 }
 ```
 
@@ -179,7 +179,8 @@ All six keys, always. Returned, never raised: invalid arguments
 `message`, a rule refusal as the `message`), an unknown tool (`unknown_tool`),
 and every API failure except the three below — `code` is the problem
 document's, or `http.<status>` without one; `message` its `detail`, else its
-`title`, else `HTTP <status>`; `field_errors` its `errors` as `path: msg`
+`title`, else `HTTP <status>`, followed by its `next_step` (one sentence on what
+to do now) after a space when it has one; `field_errors` its `errors` as `path: msg`
 with a leading `body` or `query` segment dropped (`msg` defaults to `invalid`);
 `retry_after` in seconds. `retryable` is true for 429, 500, 503 and 504. A 502 or 408 is `gateway_no_answer`, and
 a timeout (`timeout`) or dropped connection (`connection_error`) after the

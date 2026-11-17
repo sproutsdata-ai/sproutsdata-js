@@ -40,6 +40,18 @@
         }
       }
     },
+    "credits_quote": {
+      "body": {
+        "ref": "QuoteIn"
+      },
+      "path_params": [],
+      "query": [],
+      "responses": {
+        "200": {
+          "ref": "QuoteOut"
+        }
+      }
+    },
     "credits_retrieve": {
       "body": null,
       "path_params": [],
@@ -4584,7 +4596,10 @@
         "anchor_list_capped",
         "axis_not_applicable",
         "planner_step_incomplete",
-        "upstream_advisory"
+        "upstream_advisory",
+        "no_match",
+        "topic_not_required",
+        "sparse_filter"
       ]
     },
     "DepartmentHeadcountBound": {
@@ -9378,16 +9393,6 @@
       "kind": "object",
       "origin": "records"
     },
-    "KeyEnvironment": {
-      "direction": "output",
-      "kind": "enum",
-      "origin": "api",
-      "schema": "KeyEnvironment",
-      "values": [
-        "live",
-        "test"
-      ]
-    },
     "KeywordQuery": {
       "additional": false,
       "description": "Keyword sets that must match (``positive``) and sets that demote (``negative``).",
@@ -11400,6 +11405,40 @@
       ],
       "kind": "object",
       "origin": "records"
+    },
+    "Operation": {
+      "description": "The billable calls, named for what a caller does.",
+      "direction": "output",
+      "kind": "enum",
+      "origin": "api",
+      "schema": "Operation",
+      "values": [
+        "search",
+        "search_auto",
+        "similar",
+        "relationships",
+        "institutions",
+        "lookup",
+        "org_chart",
+        "agent_run"
+      ]
+    },
+    "OperationInput": {
+      "description": "The billable calls, named for what a caller does.",
+      "direction": "input",
+      "kind": "enum",
+      "origin": "api",
+      "schema": "Operation",
+      "values": [
+        "search",
+        "search_auto",
+        "similar",
+        "relationships",
+        "institutions",
+        "lookup",
+        "org_chart",
+        "agent_run"
+      ]
     },
     "OrgChartCompany": {
       "additional": false,
@@ -13782,6 +13821,20 @@
           }
         },
         {
+          "name": "logo",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
           "flex_list": true,
           "name": "naics",
           "required": false,
@@ -14301,6 +14354,164 @@
       ],
       "kind": "object",
       "origin": "records"
+    },
+    "QuoteIn": {
+      "additional": false,
+      "direction": "input",
+      "fields": [
+        {
+          "description": "`agent_run` only, and required for it.",
+          "name": "effort",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "literal": "minimal"
+              },
+              {
+                "literal": "low"
+              },
+              {
+                "literal": "medium"
+              },
+              {
+                "literal": "high"
+              },
+              {
+                "literal": "xhigh"
+              },
+              {
+                "literal": "auto"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "operation",
+          "required": true,
+          "type": {
+            "ref": "OperationInput"
+          }
+        },
+        {
+          "constraints": {
+            "maximum": 1000.0,
+            "minimum": 0.0
+          },
+          "default": 10,
+          "description": "Rows on the page (paged operations, up to 100), or records found (`lookup`, up to 1,000). Ignored by flat operations and agent runs.",
+          "name": "rows",
+          "required": false,
+          "type": {
+            "prim": "integer"
+          }
+        },
+        {
+          "constraints": {
+            "maximum": 100000.0,
+            "minimum": 0.0
+          },
+          "default": 0,
+          "description": "Rows of the same search already paid for (the next page's offset): only the rows beyond them are charged.",
+          "name": "start",
+          "required": false,
+          "type": {
+            "prim": "integer"
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "QuoteIn"
+    },
+    "QuoteOut": {
+      "additional": false,
+      "direction": "output",
+      "fields": [
+        {
+          "description": "What the workspace can spend now, in credits; `null` when not known.",
+          "name": "available",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "number"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "`page`: these rows of a search; `records`: per record found; `call`: flat, whatever it returns; `run`: an agent run at that effort; `run_up_to`: `auto` holds this much and is charged at the effort it chooses.",
+          "name": "basis",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "literal": "page"
+              },
+              {
+                "literal": "records"
+              },
+              {
+                "literal": "call"
+              },
+              {
+                "literal": "run"
+              },
+              {
+                "literal": "run_up_to"
+              }
+            ]
+          }
+        },
+        {
+          "description": "Whether `available` covers this quote; `null` when not known.",
+          "name": "covered",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "boolean"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "What the call would be charged, in credits.",
+          "name": "credits",
+          "required": true,
+          "type": {
+            "prim": "number"
+          }
+        },
+        {
+          "name": "operation",
+          "required": true,
+          "type": {
+            "ref": "Operation"
+          }
+        },
+        {
+          "description": "The price list this quote is from.",
+          "name": "rate_card",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "QuoteOut"
     },
     "RangeFilter": {
       "additional": false,
@@ -15601,6 +15812,47 @@
       "origin": "api",
       "schema": "RelationshipRequest"
     },
+    "RelaxedFilter": {
+      "additional": false,
+      "description": "The same search with one filter left out.",
+      "direction": "output",
+      "fields": [
+        {
+          "description": "The request field to leave out (`topic`: the topic).",
+          "name": "filter",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        },
+        {
+          "description": "The filter as a person reads it.",
+          "name": "label",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "Records the search finds without it.",
+          "name": "total",
+          "required": true,
+          "type": {
+            "prim": "integer"
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "RelaxedFilter"
+    },
     "RemoveItemsResponse": {
       "additional": false,
       "direction": "output",
@@ -16021,6 +16273,16 @@
               }
             }
           }
+        },
+        {
+          "description": "Applied filters whose field fewer than 5% of records hold, thinnest first: a small count may reflect missing data rather than a narrow ask. Companies and people only.",
+          "name": "sparse_filters",
+          "required": false,
+          "type": {
+            "array": {
+              "ref": "SparseFilter"
+            }
+          }
         }
       ],
       "kind": "object",
@@ -16055,6 +16317,21 @@
           }
         },
         {
+          "description": "What the workspace has available after this request, in credits (credits held for running agent runs excluded). `null` when not metered or not known just now; `GET /v1/credits` always has it.",
+          "name": "credits_balance",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "number"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
           "description": "What this request cost, in credits. `null` when not metered.",
           "name": "credits_charged",
           "required": false,
@@ -16070,10 +16347,12 @@
           }
         },
         {
+          "default": "live",
+          "description": "Deprecated: always `live` (there are no test keys). Will be removed.",
           "name": "environment",
-          "required": true,
+          "required": false,
           "type": {
-            "ref": "KeyEnvironment"
+            "literal": "live"
           }
         },
         {
@@ -16194,10 +16473,11 @@
           }
         },
         {
+          "default": "live",
           "name": "environment",
-          "required": true,
+          "required": false,
           "type": {
-            "prim": "string"
+            "literal": "live"
           }
         },
         {
@@ -16259,6 +16539,22 @@
         },
         {
           "name": "request",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "map": {
+                  "prim": "any"
+                }
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "resolved_search",
           "required": true,
           "type": {
             "union": [
@@ -16920,10 +17216,11 @@
           }
         },
         {
+          "default": "live",
           "name": "environment",
-          "required": true,
+          "required": false,
           "type": {
-            "prim": "string"
+            "literal": "live"
           }
         },
         {
@@ -17652,14 +17949,22 @@
     },
     "SearchSuggestion": {
       "additional": false,
-      "description": "Advisory: a different ``category`` would probably have answered this better.",
+      "description": "Advisory, never an error.\n\n- ``kind: \"search\"``: a different ``category`` would probably answer this better.\n- ``kind: \"relax\"``: the search found nothing, and the same search without one of its filters\n  finds something. ``without`` lists those filters, fewest records first (the smallest change\n  to the ask). Only on an empty first page, when no ``search`` suggestion applies;\n  ``category`` is null.",
       "direction": "output",
       "fields": [
         {
+          "description": "The category to search instead. Set iff `kind` is `search`.",
           "name": "category",
-          "required": true,
+          "required": false,
           "type": {
-            "ref": "ResultCategory"
+            "union": [
+              {
+                "ref": "ResultCategory"
+              },
+              {
+                "prim": "null"
+              }
+            ]
           }
         },
         {
@@ -17667,7 +17972,14 @@
           "name": "kind",
           "required": false,
           "type": {
-            "literal": "search"
+            "union": [
+              {
+                "literal": "search"
+              },
+              {
+                "literal": "relax"
+              }
+            ]
           }
         },
         {
@@ -17675,6 +17987,23 @@
           "required": true,
           "type": {
             "prim": "string"
+          }
+        },
+        {
+          "description": "Set iff `kind` is `relax`: the filters to leave out, fewest records first.",
+          "name": "without",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "array": {
+                  "ref": "RelaxedFilter"
+                }
+              },
+              {
+                "prim": "null"
+              }
+            ]
           }
         }
       ],
@@ -18296,6 +18625,62 @@
         "fundings",
         "job_openings"
       ]
+    },
+    "SparseFilter": {
+      "additional": false,
+      "description": "An applied filter whose field few records hold.",
+      "direction": "output",
+      "fields": [
+        {
+          "description": "The applied filter, as named in `filters`.",
+          "name": "filter",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        },
+        {
+          "description": "Records of that type in the index.",
+          "name": "of",
+          "required": true,
+          "type": {
+            "prim": "integer"
+          }
+        },
+        {
+          "description": "Records of that type holding the filter's field.",
+          "name": "populated",
+          "required": true,
+          "type": {
+            "prim": "integer"
+          }
+        },
+        {
+          "name": "record_type",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "literal": "company"
+              },
+              {
+                "literal": "person"
+              }
+            ]
+          }
+        },
+        {
+          "description": "`populated` / `of`, 0 to 1: the most this search can reach.",
+          "name": "share",
+          "required": true,
+          "type": {
+            "prim": "number"
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "SparseFilter"
     },
     "SubdepartmentCount": {
       "additional": false,
@@ -19942,7 +20327,7 @@
   },
   "version": 1,
   "x-source": {
-    "commit": "5d160249851179024181bdd66970d365368fd59b",
+    "commit": "8c06583ea53e56e492b160c627f209b3e5856652",
     "ref": "origin/sd-qa",
     "repo": "dsp-backend"
   }

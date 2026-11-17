@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 import { SproutsData } from '../src/client.js';
-import { BASE_URL, TEST_KEY } from './support/fakes.js';
+import { BASE_URL, FIXTURE_KEY } from './support/fakes.js';
 
 interface Group {
   readonly group: string;
@@ -23,7 +23,7 @@ function resolve(target: unknown, path: string): unknown {
 }
 
 describe('the surface map', () => {
-  const client = new SproutsData({ apiKey: TEST_KEY, baseUrl: BASE_URL });
+  const client = new SproutsData({ apiKey: FIXTURE_KEY, baseUrl: BASE_URL });
 
   it.each(NAMES)('Z4: %s is on the client', (path) => {
     expect(typeof resolve(client, path)).toBe('function');

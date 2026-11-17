@@ -147,6 +147,23 @@ export interface InterpretedAs {
   /** `filters_source`: `caller`, `parser`, `caller+parser`, or `none`. */
   readonly source: string;
   readonly conflicts: readonly unknown[];
+  /**
+   * Applied filters whose field few records hold, thinnest first: a small count may be thin
+   * data rather than a narrow ask. Only when there are some, so other answers read as before.
+   */
+  readonly sparse_filters?: readonly SparseFilterNote[];
+}
+
+/** One thin filter, as `resolved_search.sparse_filters` reports it. */
+export interface SparseFilterNote {
+  readonly filter: string;
+  readonly record_type: string;
+  /** Records of that type holding the filter's field. */
+  readonly populated: number;
+  /** Records of that type in the index. */
+  readonly of: number;
+  /** `populated` / `of`, 0 to 1. */
+  readonly share: number;
 }
 
 /** A `sprouts_search` or `sprouts_similar` result. */
@@ -162,7 +179,6 @@ export interface SearchToolResult {
   readonly caveats: readonly string[];
   readonly suggestion: Readonly<Record<string, unknown>> | null;
   readonly request_id: string;
-  readonly environment: string;
 }
 
 /** One id of a `sprouts_entity_lookup` call, answered. */
@@ -180,7 +196,6 @@ export interface LookupToolResult {
   readonly results: readonly LookupToolHit[];
   readonly caveats: readonly string[];
   readonly request_id: string;
-  readonly environment: string;
 }
 
 /** A tool result: the shaped answer, or a {@link ToolError}. */

@@ -5,7 +5,7 @@
  * category sorts on, with a label and its default direction, so read it rather than guess a field
  * name. The server echoes the clauses it applied in `resolved_search.sort`.
  *
- *   export SPROUTSDATA_API_KEY=sk_dsp_test_<your-key>
+ *   export SPROUTSDATA_API_KEY=sk_dsp_live_<your-key>
  *   node examples/sorted-search.ts
  */
 

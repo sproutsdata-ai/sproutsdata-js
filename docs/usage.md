@@ -2,8 +2,8 @@
 
 Two free resources, both needing a key with `dsp.usage.read`:
 
-- **`client.credits`**: the workspace's balance, and the ledger of every charge
-  and grant behind it.
+- **`client.credits`**: the workspace's balance, the ledger of every charge and
+  grant behind it, and what a call would cost.
 - **`client.history`**: the workspace's individual calls, with what was asked,
   what it cost and how long it took, and daily totals.
 
@@ -37,6 +37,36 @@ A billed call the workspace cannot pay for throws `InsufficientCreditsError`
 (402) and charges nothing; `err.availableCredits` and `err.requiredCredits` say
 how far short it is. Waiting does not help: the workspace needs credits.
 
+Each billed answer also carries the balance after it, in `meta.credits_balance`
+(`null` when the API could not say just then), so there is no need to call
+`credits.retrieve()` after every call.
+
+## What a call would cost
+
+`credits.quote` prices a call from the live price list before you make it. It
+holds nothing and charges nothing, and its arithmetic is the meter's own, so the
+charge that follows matches the quote while the price list is unchanged.
+
+```ts
+const page = await client.credits.quote({ operation: 'search', rows: 25, start: 10 });
+console.log(page.credits, page.basis); // the next 25 rows of a search, past the first 10
+
+const run = await client.credits.quote({ operation: 'agent_run', effort: 'high' });
+if (run.covered === false) console.warn(`An agent run at high effort costs ${String(run.credits)}; top up first`);
+```
+
+| Field | Meaning |
+|---|---|
+| `operation` | `search`, `search_auto` (an `auto` search), `similar`, `relationships`, `institutions`, `lookup`, `org_chart` or `agent_run`. |
+| `rows` | Rows on the page (up to 100), or records found for `lookup` (up to 1,000). Default 10; flat operations and agent runs ignore it. |
+| `start` | Rows of the same search already paid for (the next page's offset): only the rows beyond them are charged. |
+| `effort` | Required for `agent_run`, and refused for any other operation. |
+
+The answer has `credits`, its `basis` (`page`, `records`, `call`, `run`, or
+`run_up_to` for an `auto` agent run, which holds that much and is charged at the
+effort it chooses), the `rate_card` it was priced from, and `available` and
+`covered` from a balance read moments ago; both are `null` when there was none.
+
 ## The ledger
 
 `credits.transactions` is the ledger, newest first. Each row has a `kind`
@@ -52,8 +82,6 @@ for await (const row of client.credits.iterTransactions({ maxResults: 500 })) {
   if (row.kind === 'charge') console.log(row.action, row.credits);
 }
 ```
-
-A call made with a test key is free and writes no ledger row.
 
 ## What the workspace has done
 

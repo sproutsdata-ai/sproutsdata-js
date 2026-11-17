@@ -317,8 +317,7 @@ for await (const row of client.credits.iterTransactions({ maxResults: 20 })) {
 }
 ```
 
-A ledger row's `credits` is signed: negative for a charge, positive for a grant. A call made
-with a test key is free and writes no ledger row.
+A ledger row's `credits` is signed: negative for a charge, positive for a grant.
 
 A billed call on a frozen wallet throws `WalletFrozenError`, a subclass of
 `InsufficientCreditsError`.
@@ -721,7 +720,7 @@ The type names now follow the API's own models. Where an old name has a clear re
 | `EntityCategory` | `SearchCategory` (a category to search), `ResultCategory` (a row's category) |
 | `DiscoverSearchParams` | `EntitySearchParams`, and `AutoSearchParams` for `category: 'auto'` |
 | `SimilarAnchor`, `SimilarAnchorBy`, `SimilarCombine` | `Anchor` (or `AnchorParam`, which also takes a bare domain), `AnchorBy`, `Combine` |
-| `SproutsDataEnvironment` | `KeyEnvironment` |
+| `SproutsDataEnvironment` | Removed: there are no test keys, and `meta.environment` is a deprecated constant (`'live'`) |
 | `Envelope` | `SearchEnvelope`, `EntitiesEnvelope` and the other named envelopes |
 | `Coverage` | `SearchCoverage` (a search answer's `coverage`) |
 | `FilterValuesResponse`, `DocumentFilterValuesResponse` | `FilterValues`, `DocumentFilterValues` |

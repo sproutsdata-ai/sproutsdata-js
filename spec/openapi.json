@@ -1488,7 +1488,10 @@
           "anchor_list_capped",
           "axis_not_applicable",
           "planner_step_incomplete",
-          "upstream_advisory"
+          "upstream_advisory",
+          "no_match",
+          "topic_not_required",
+          "sparse_filter"
         ],
         "title": "DegradationReason",
         "type": "string"
@@ -4254,14 +4257,6 @@
         "title": "JobOpeningSortField",
         "type": "string"
       },
-      "KeyEnvironment": {
-        "enum": [
-          "live",
-          "test"
-        ],
-        "title": "KeyEnvironment",
-        "type": "string"
-      },
       "KeywordQuery": {
         "additionalProperties": false,
         "description": "Keyword sets that must match (``positive``) and sets that demote (``negative``).",
@@ -5183,6 +5178,21 @@
         "title": "NewsSortField",
         "type": "string"
       },
+      "Operation": {
+        "description": "The billable calls, named for what a caller does.",
+        "enum": [
+          "search",
+          "search_auto",
+          "similar",
+          "relationships",
+          "institutions",
+          "lookup",
+          "org_chart",
+          "agent_run"
+        ],
+        "title": "Operation",
+        "type": "string"
+      },
       "OrgChartCompany": {
         "properties": {
           "company_ref": {
@@ -6044,6 +6054,18 @@
             ],
             "title": "Instance"
           },
+          "next_step": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What to do now, in one short sentence. Absent when nothing.",
+            "title": "Next Step"
+          },
           "request_id": {
             "anyOf": [
               {
@@ -6075,6 +6097,115 @@
           "code"
         ],
         "title": "Problem",
+        "type": "object"
+      },
+      "QuoteIn": {
+        "properties": {
+          "effort": {
+            "anyOf": [
+              {
+                "enum": [
+                  "minimal",
+                  "low",
+                  "medium",
+                  "high",
+                  "xhigh",
+                  "auto"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "`agent_run` only, and required for it.",
+            "title": "Effort"
+          },
+          "operation": {
+            "$ref": "#/components/schemas/Operation"
+          },
+          "rows": {
+            "default": 10,
+            "description": "Rows on the page (paged operations, up to 100), or records found (`lookup`, up to 1,000). Ignored by flat operations and agent runs.",
+            "maximum": 1000.0,
+            "minimum": 0.0,
+            "title": "Rows",
+            "type": "integer"
+          },
+          "start": {
+            "default": 0,
+            "description": "Rows of the same search already paid for (the next page's offset): only the rows beyond them are charged.",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Start",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "operation"
+        ],
+        "title": "QuoteIn",
+        "type": "object"
+      },
+      "QuoteOut": {
+        "properties": {
+          "available": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What the workspace can spend now, in credits; `null` when not known.",
+            "title": "Available"
+          },
+          "basis": {
+            "description": "`page`: these rows of a search; `records`: per record found; `call`: flat, whatever it returns; `run`: an agent run at that effort; `run_up_to`: `auto` holds this much and is charged at the effort it chooses.",
+            "enum": [
+              "page",
+              "records",
+              "call",
+              "run",
+              "run_up_to"
+            ],
+            "title": "Basis",
+            "type": "string"
+          },
+          "covered": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Whether `available` covers this quote; `null` when not known.",
+            "title": "Covered"
+          },
+          "credits": {
+            "description": "What the call would be charged, in credits.",
+            "title": "Credits",
+            "type": "number"
+          },
+          "operation": {
+            "$ref": "#/components/schemas/Operation"
+          },
+          "rate_card": {
+            "description": "The price list this quote is from.",
+            "title": "Rate Card",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation",
+          "credits",
+          "basis",
+          "rate_card"
+        ],
+        "title": "QuoteOut",
         "type": "object"
       },
       "RangeFilter": {
@@ -7015,6 +7146,39 @@
         "title": "RelationshipRequest",
         "type": "object"
       },
+      "RelaxedFilter": {
+        "description": "The same search with one filter left out.",
+        "properties": {
+          "filter": {
+            "description": "The request field to leave out (`topic`: the topic).",
+            "title": "Filter",
+            "type": "string"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The filter as a person reads it.",
+            "title": "Label"
+          },
+          "total": {
+            "description": "Records the search finds without it.",
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "filter",
+          "total"
+        ],
+        "title": "RelaxedFilter",
+        "type": "object"
+      },
       "RemoveItemsResponse": {
         "properties": {
           "removed": {
@@ -7326,6 +7490,14 @@
             },
             "title": "Sort",
             "type": "array"
+          },
+          "sparse_filters": {
+            "description": "Applied filters whose field fewer than 5% of records hold, thinnest first: a small count may reflect missing data rather than a narrow ask. Companies and people only.",
+            "items": {
+              "$ref": "#/components/schemas/SparseFilter"
+            },
+            "title": "Sparse Filters",
+            "type": "array"
           }
         },
         "required": [
@@ -7352,6 +7524,18 @@
             "title": "Credential",
             "type": "string"
           },
+          "credits_balance": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What the workspace has available after this request, in credits (credits held for running agent runs excluded). `null` when not metered or not known just now; `GET /v1/credits` always has it.",
+            "title": "Credits Balance"
+          },
           "credits_charged": {
             "anyOf": [
               {
@@ -7365,7 +7549,12 @@
             "title": "Credits Charged"
           },
           "environment": {
-            "$ref": "#/components/schemas/KeyEnvironment"
+            "const": "live",
+            "default": "live",
+            "deprecated": true,
+            "description": "Deprecated: always `live` (there are no test keys). Will be removed.",
+            "title": "Environment",
+            "type": "string"
           },
           "request_id": {
             "title": "Request Id",
@@ -7374,7 +7563,6 @@
         },
         "required": [
           "request_id",
-          "environment",
           "as_of"
         ],
         "title": "ResponseMeta",
@@ -7418,6 +7606,9 @@
             "title": "Credits Charged"
           },
           "environment": {
+            "const": "live",
+            "default": "live",
+            "deprecated": true,
             "title": "Environment",
             "type": "string"
           },
@@ -7475,6 +7666,18 @@
             ],
             "title": "Request"
           },
+          "resolved_search": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved Search"
+          },
           "result_count": {
             "anyOf": [
               {
@@ -7522,7 +7725,6 @@
           "occurred_at",
           "action_type",
           "actor_type",
-          "environment",
           "status",
           "error_code",
           "query",
@@ -7530,6 +7732,7 @@
           "credits_charged",
           "latency_ms",
           "request",
+          "resolved_search",
           "snapshot",
           "snapshot_state"
         ],
@@ -7961,6 +8164,9 @@
             "title": "Credits Charged"
           },
           "environment": {
+            "const": "live",
+            "default": "live",
+            "deprecated": true,
             "title": "Environment",
             "type": "string"
           },
@@ -8032,7 +8238,6 @@
           "occurred_at",
           "action_type",
           "actor_type",
-          "environment",
           "status",
           "error_code",
           "query",
@@ -8414,24 +8619,49 @@
         "type": "string"
       },
       "SearchSuggestion": {
-        "description": "Advisory: a different ``category`` would probably have answered this better.",
+        "description": "Advisory, never an error.\n\n- ``kind: \"search\"``: a different ``category`` would probably answer this better.\n- ``kind: \"relax\"``: the search found nothing, and the same search without one of its filters\n  finds something. ``without`` lists those filters, fewest records first (the smallest change\n  to the ask). Only on an empty first page, when no ``search`` suggestion applies;\n  ``category`` is null.",
         "properties": {
           "category": {
-            "$ref": "#/components/schemas/ResultCategory"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ResultCategory"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The category to search instead. Set iff `kind` is `search`."
           },
           "kind": {
-            "const": "search",
             "default": "search",
+            "enum": [
+              "search",
+              "relax"
+            ],
             "title": "Kind",
             "type": "string"
           },
           "message": {
             "title": "Message",
             "type": "string"
+          },
+          "without": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/RelaxedFilter"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Set iff `kind` is `relax`: the filters to leave out, fewest records first.",
+            "title": "Without"
           }
         },
         "required": [
-          "category",
           "message"
         ],
         "title": "SearchSuggestion",
@@ -8919,6 +9149,48 @@
         ],
         "title": "SourceCorpus",
         "type": "string"
+      },
+      "SparseFilter": {
+        "description": "An applied filter whose field few records hold.",
+        "properties": {
+          "filter": {
+            "description": "The applied filter, as named in `filters`.",
+            "title": "Filter",
+            "type": "string"
+          },
+          "of": {
+            "description": "Records of that type in the index.",
+            "title": "Of",
+            "type": "integer"
+          },
+          "populated": {
+            "description": "Records of that type holding the filter's field.",
+            "title": "Populated",
+            "type": "integer"
+          },
+          "record_type": {
+            "enum": [
+              "company",
+              "person"
+            ],
+            "title": "Record Type",
+            "type": "string"
+          },
+          "share": {
+            "description": "`populated` / `of`, 0 to 1: the most this search can reach.",
+            "title": "Share",
+            "type": "number"
+          }
+        },
+        "required": [
+          "filter",
+          "record_type",
+          "populated",
+          "of",
+          "share"
+        ],
+        "title": "SparseFilter",
+        "type": "object"
       },
       "SubdepartmentCount": {
         "properties": {
@@ -10728,6 +11000,71 @@
           }
         },
         "summary": "The workspace's credits",
+        "tags": [
+          "Credits"
+        ]
+      }
+    },
+    "/v1/credits/quote": {
+      "post": {
+        "description": "Holds nothing and costs nothing. `available` and `covered` are from the balance read\nmoments ago, when there is one; a quote never waits on the ledger.",
+        "operationId": "credits_quote",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuoteIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "No credential, or one that does not verify (`auth.unauthorized`)."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The credential lacks the scope this route needs (`auth.insufficient_scope`), or the signed-in user has not chosen a workspace (`auth.workspace_required`)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The request is invalid (`request.invalid`), or its cursor is (`pagination.*`)."
+          }
+        },
+        "summary": "What a call would cost, from the live price list",
         "tags": [
           "Credits"
         ]
@@ -14869,7 +15206,7 @@
     }
   },
   "x-source": {
-    "commit": "5d160249851179024181bdd66970d365368fd59b",
+    "commit": "8c06583ea53e56e492b160c627f209b3e5856652",
     "ref": "origin/sd-qa",
     "repo": "dsp-backend"
   }

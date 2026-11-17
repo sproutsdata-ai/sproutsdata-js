@@ -25,6 +25,21 @@ describe('errors', () => {
     expect(error.reachedServer).toBe(true);
   });
 
+  it('keeps the next step, after the detail in the message', () => {
+    const body = {
+      code: 'credits.insufficient',
+      title: 'Insufficient credits',
+      detail: 'This search needs 2 credits; 0.5 are available.',
+      next_step: "Top up the workspace's credits in the dashboard, then retry.",
+    };
+    const error = new InsufficientCreditsError(answer(402, body, { 'x-request-id': 'req_1' }));
+    expect(error.nextStep).toBe(body.next_step);
+    expect(error.message).toBe(
+      "Insufficient credits (credits.insufficient) - This search needs 2 credits; 0.5 are available. - Top up the workspace's credits in the dashboard, then retry. - request_id=req_1",
+    );
+    expect(new InsufficientCreditsError(answer(402, { ...body, next_step: null })).nextStep).toBeUndefined();
+  });
+
   it('explains a redirect as refused', () => {
     expect(new APIError(answer(307, undefined, { location: 'https://x.example' })).message).toContain('redirected to https://x.example');
     expect(new APIError(answer(301, undefined)).message).toContain('with no Location');

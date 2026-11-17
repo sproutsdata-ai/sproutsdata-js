@@ -16,11 +16,12 @@ in the [migration guide](MIGRATION.md).
 
 ```sh
 npm install sproutsdata
-export SPROUTSDATA_API_KEY=sk_dsp_test_<your-key>
+export SPROUTSDATA_API_KEY=sk_dsp_live_<your-key>
 ```
 
-Keys are created in the Sprouts Data dashboard. A call made with a test key is
-free and writes no row to the credit ledger.
+Keys are created in the Sprouts Data dashboard. Every key is a live key: each
+billed call is charged to the workspace's credits, and a new workspace starts
+with sign-up credits for evaluation.
 
 ## Quick start
 

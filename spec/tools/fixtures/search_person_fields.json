@@ -148,7 +148,7 @@
         "as_of": "2026-10-01T09:12:44Z",
         "credential": "api_key",
         "credits_charged": null,
-        "environment": "test",
+        "environment": "live",
         "request_id": "req_c07e5a19b4"
       }
     }
@@ -188,7 +188,6 @@
     "caveats": [
       "rows_without_lookup: 1 of 2 rows carry no domain or LinkedIn URL, so they have no `lookup` value and cannot be looked up."
     ],
-    "environment": "test",
     "has_more": false,
     "interpreted_as": {
       "conflicts": [],

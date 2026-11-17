@@ -8,7 +8,7 @@ import { Feedback } from '../../src/resources/feedback.js';
 import { canAfford } from '../../src/resources/helpers.js';
 import { History } from '../../src/resources/history.js';
 import { Search } from '../../src/resources/search.js';
-import type { HistoryParams, VoteParams } from '../../src/types/index.js';
+import type { HistoryParams, QuoteIn, VoteParams } from '../../src/types/index.js';
 import { assertValidRequest, recorded, recordedBody, respond } from '../support/answers.js';
 import { collect, rig } from '../support/rig.js';
 
@@ -48,14 +48,15 @@ describe('history', () => {
     expect(r.sent).toHaveLength(1);
   });
 
-  it('H4: snapshot_state, and no resolved search', async () => {
+  it('H4: snapshot_state, and the resolved search', async () => {
     const detail = { ...recordedBody('history_retrieve', 'one_run'), snapshot_state: 'continuation' };
     const r = rig([respond('history_retrieve', 200, detail), recorded('history_metrics', 'workspace')]);
     const history = new History(r.transport);
     const run = await history.retrieve('69');
     const metrics = await history.metrics({ from: '2026-11-01T00:00:00Z' });
     expect(run.snapshot_state).toBe('continuation');
-    expect(run).not.toHaveProperty('resolved_search');
+    // Kept for searches only (dsp-backend 2f4973b); the recorded run is an org chart.
+    expect(run.resolved_search).toBeNull();
     expect(typeof metrics.total_credits).toBe('string');
     expect(r.query(1)).toEqual({ from: '2026-11-01T00:00:00Z' });
   });
@@ -133,12 +134,44 @@ describe('feedback', () => {
 
 describe('credits', () => {
   it('K1: the balance, and canAfford on available', async () => {
-    const r = rig([recorded('credits_retrieve', 'balance')]);
+    // An agent run holds 17.
+    const held = { ...recordedBody<object>('credits_retrieve', 'balance'), balance: 919.215, reserved: 17, available: 902.215 };
+    const r = rig([respond('credits_retrieve', 200, held)]);
     const balance = await new Credits(r.transport).retrieve();
     expect([balance.balance, balance.reserved, balance.available, balance.debt]).toEqual([919.215, 17, 902.215, 0]);
     expect([balance.status, balance.has_paid, balance.stale]).toEqual(['active', false, false]);
     expect(canAfford(balance, 902.215)).toBe(true);
     expect(canAfford(balance, 910)).toBe(false);
+  });
+
+  it('K4: a quote sends what was set and reads the price', async () => {
+    const r = rig([recorded('credits_quote', 'search_page'), recorded('credits_quote', 'agent_run')]);
+    const credits = new Credits(r.transport);
+    const page = await credits.quote({ operation: 'search', rows: 25, start: 10 });
+    const run = await credits.quote({ operation: 'agent_run', effort: 'high' });
+    expect(r.body(0)).toEqual({ operation: 'search', rows: 25, start: 10 });
+    expect(r.body(1)).toEqual({ operation: 'agent_run', effort: 'high' });
+    expect([page.basis, run.basis]).toEqual(['page', 'run']);
+    expect(page.credits).toBeGreaterThan(0);
+    expect(run.covered).not.toBeNull();
+  });
+
+  it.each([
+    [{ operation: 'agent_run' }, /`effort` is required for agent_run/],
+    [{ operation: 'search', effort: 'high' }, /`effort` is required for agent_run/],
+    [{ operation: 'similar', rows: 101 }, /a page holds at most 100 rows/],
+    [{ operation: 'lookup', rows: 1001 }, /rows/],
+    [{ operation: 'refund' }, /operation/],
+  ])('K4: a quote the server would refuse is refused locally: %j', async (params, message) => {
+    const r = rig([]);
+    await expect(new Credits(r.transport).quote(params as QuoteIn)).rejects.toThrow(message);
+    expect(r.sent).toHaveLength(0);
+  });
+
+  it('K4: a lookup quote takes up to a thousand records', async () => {
+    const r = rig([recorded('credits_quote', 'search_page')]);
+    await new Credits(r.transport).quote({ operation: 'lookup', rows: 1000 });
+    expect(r.body(0)).toEqual({ operation: 'lookup', rows: 1000 });
   });
 
   it('K2: transactions page by cursor, with signed credits', async () => {

@@ -5,7 +5,7 @@
  * (`NewsFilters`, `PatentFilters`, ...) and refuses the company ones. The client checks a body
  * before sending it and refuses what the server would, with the field named.
  *
- *   export SPROUTSDATA_API_KEY=sk_dsp_test_<your-key>
+ *   export SPROUTSDATA_API_KEY=sk_dsp_live_<your-key>
  *   node examples/typed-filters.ts
  */
 

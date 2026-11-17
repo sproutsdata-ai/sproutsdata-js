@@ -4,7 +4,7 @@ import type { Clock } from '../../src/core/clock.js';
 import type { ResolvedOptions } from '../../src/core/options.js';
 
 /** Built at run time, with `_` and `-` in the secret, so no source line looks like a leaked key. */
-export const TEST_KEY = 'sk_dsp_test_' + 'fixture_key-with_underscores';
+export const FIXTURE_KEY = 'sk_dsp_live_' + 'fixture_key-with_underscores';
 export const BASE_URL = 'https://api.test.invalid/backend';
 export const NOW = Date.UTC(2026, 10, 11, 12, 0, 0);
 
@@ -111,7 +111,7 @@ function response(entry: Scripted): Response {
 /** Resolved options for the test base URL and key. */
 export function options(changes: Partial<ResolvedOptions> = {}): ResolvedOptions {
   return {
-    apiKey: TEST_KEY,
+    apiKey: FIXTURE_KEY,
     baseUrl: BASE_URL,
     timeoutMs: 25,
     maxRetries: 2,

@@ -3821,6 +3821,16 @@
             }
           ]
         },
+        "logo": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "naics": {
           "anyOf": [
             {
@@ -4580,7 +4590,7 @@
   },
   "version": 1,
   "x-source": {
-    "commit": "3e6a78a794f379f335fb0ab311aca9cf11cd20a9",
+    "commit": "8ae39cddbdf89b4cea7d78fd1471e5193107c158",
     "ref": "origin/qa",
     "repo": "prism"
   }

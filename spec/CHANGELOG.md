@@ -25,6 +25,41 @@ every file here against the others and the error table against the backend.
 
 ---
 
+## 2026-11-17 — test keys removed, empty answers explained, balance and quote
+
+Re-exported from dsp-backend `sd-qa` at 8c06583 (#176, #179, #180, #181,
+#182) and prism `qa` at 8ae39cd. dsp-auth `qa` (7db1dbb, #7) issues only
+`sk_dsp_live_…` keys and refuses a `sk_dsp_test_…` key at exchange.
+
+- **openapi.json**: one new route, `POST /v1/credits/quote` (#180: what a call
+  would cost, free, scope `dsp.usage.read`). Listed under `not_wrapped` in
+  `routes.json` until the SDKs wrap it.
+  - `SearchSuggestion` (#179): `kind` is `search` or `relax`. A `relax`
+    suggestion has `category: null` and `without: [{filter, label, total}]`,
+    the filters whose removal alone finds records, fewest first.
+  - `DegradationReason` (#179): `no_match` (every empty first page, with
+    prism's explanation as `detail`), `topic_not_required` and
+    `sparse_filter`. `ResolvedSearch.sparse_filters` carries the numbers.
+  - `ResponseMeta.credits_balance` (#180): the credits left after the call,
+    `null` when not known. `Problem.next_step` (#180): what to do now.
+  - `environment` on `ResponseMeta`, `RunSummary` and `RunDetail` (#176,
+    #182): removed by #176, back in #182 as a deprecated constant `"live"`,
+    and no longer required. `KeyEnvironment` is gone. Every body in this
+    directory now says `"live"`.
+  - `RunDetail.resolved_search`: required, `null` for a run that is not a
+    search. The recorded `history_retrieve/one_run` (an org chart run) gains
+    it as `null`, which is what the backend answers for it.
+- **records.schema.json**: `PersonRecord.logo`.
+- **error-codes.json**: `request.too_large` (413, the Tools pass-through).
+  `scripts/check_spec.py` leaves out `credits.not_found` and
+  `credits.refused`, which only the staff credit routes raise.
+- **scripts/export_openapi.py**: the backend now logs to stdout while it
+  builds, so the document is written to a file instead. The Tools
+  pass-through (`/tools/v1`, `include_in_schema=False`) is mounted and stays
+  out of the document.
+
+---
+
 ## 2026-11-11 — the new dsp-backend (sd-qa), dsp-auth and dsp-mint
 
 Every file here was rebuilt against the new stack: dsp-backend `sd-qa` at

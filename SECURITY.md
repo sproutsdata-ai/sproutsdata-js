@@ -46,8 +46,8 @@ frontend. The packages enforce it on their side too:
 
 ## Key hygiene
 
-- Use `sk_dsp_test_` keys in development, CI and examples. Test keys are metered
-  but charged zero credits.
+- Every key is a live key, and its calls are charged. Use a separate key for
+  development and CI, so that it can be revoked without affecting production.
 - Keys expire — 365 days by default, 730 maximum. There is no non-expiring key.
 - The secret is shown once, at creation, and is unrecoverable afterwards. Store
   it in your secret manager, not in the repository. `.env` files are ignored

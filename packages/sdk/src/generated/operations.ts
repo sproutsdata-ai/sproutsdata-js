@@ -32,6 +32,7 @@ export interface OperationSpec {
 /** Every operation's spec, with each value as its literal type (a test checks each is an `OperationSpec`). */
 export interface Operations {
   readonly coverage: { readonly method: 'GET'; readonly path: '/v1/coverage'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
+  readonly creditsQuote: { readonly method: 'POST'; readonly path: '/v1/credits/quote'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
   readonly creditsRetrieve: { readonly method: 'GET'; readonly path: '/v1/credits'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
   readonly creditsTransactions: { readonly method: 'GET'; readonly path: '/v1/credits/transactions'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'query' } };
   readonly documentFilterValues: { readonly method: 'GET'; readonly path: '/v1/search/filters/{category}/{name}'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none'; readonly paging: { readonly style: 'page_number'; readonly items: 'values' } };
@@ -86,6 +87,7 @@ export interface Operations {
 /** Every operation the SDK wraps, by its SDK name. */
 export const OPERATIONS: Operations = {
   coverage: { method: 'GET', path: '/v1/coverage', routeClass: 'safe', response: 'json', idempotency: 'none' },
+  creditsQuote: { method: 'POST', path: '/v1/credits/quote', routeClass: 'safe', response: 'json', idempotency: 'none' },
   creditsRetrieve: { method: 'GET', path: '/v1/credits', routeClass: 'safe', response: 'json', idempotency: 'none' },
   creditsTransactions: { method: 'GET', path: '/v1/credits/transactions', routeClass: 'safe', response: 'json', idempotency: 'none', paging: { style: 'cursor', items: 'results', cursorIn: 'query' } },
   documentFilterValues: { method: 'GET', path: '/v1/search/filters/{category}/{name}', routeClass: 'safe', response: 'json', idempotency: 'none', paging: { style: 'page_number', items: 'values' } },
@@ -146,6 +148,12 @@ export interface OperationMap {
     query: { readonly category?: W.ResultCategoryInput | null; readonly segment?: W.CoverageSegmentNameInput | null; };
     body: undefined;
     responses: { 200: W.CoverageResponse };
+  };
+  creditsQuote: {
+    path: Readonly<Record<string, never>>;
+    query: Readonly<Record<string, never>>;
+    body: W.QuoteIn;
+    responses: { 200: W.QuoteOut };
   };
   creditsRetrieve: {
     path: Readonly<Record<string, never>>;

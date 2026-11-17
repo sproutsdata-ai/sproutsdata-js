@@ -161,7 +161,7 @@ jobs:
           npm run e2e
           npm run e2e:examples
           set -a; . ../sproutsdata-py/e2e/.state/env; set +a
-          SPROUTSDATA_API_KEY="$SPROUTSDATA_E2E_TEST_KEY" SPROUTSDATA_BASE_URL="$SPROUTSDATA_E2E_BASE_URL" node scripts/smoke-live.mjs
+          SPROUTSDATA_API_KEY="$SPROUTSDATA_E2E_KEY" SPROUTSDATA_BASE_URL="$SPROUTSDATA_E2E_BASE_URL" node scripts/smoke-live.mjs
       - name: Stop the stack
         if: always()
         working-directory: sproutsdata-py

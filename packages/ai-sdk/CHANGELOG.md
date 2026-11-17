@@ -9,6 +9,8 @@
   `sproutsdata/tools`' own check, including errors from a second copy of the
   package.
 - The `X-SproutsData-Client` header is no longer sent.
+- Tool results no longer carry `environment`: test keys were retired, so every
+  answer is a live one.
 - Requires Node.js 22.12.0 or later.
 
 ## 0.0.1

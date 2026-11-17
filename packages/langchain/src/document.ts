@@ -30,7 +30,6 @@ export interface SproutsDataDocumentMetadata {
   source: string | null;
   /** The handle for a support conversation. Empty only if the response carried none. */
   request_id: string;
-  environment: string;
   as_of: string;
   credential: string;
   /** What the page cost, in credits; `null` when not metered. */
@@ -72,7 +71,6 @@ export function envelopeToDocuments(envelope: SearchEnvelope, options: EnvelopeT
       record: hit,
       source: toSource(hit),
       request_id: meta.request_id,
-      environment: meta.environment,
       as_of: meta.as_of,
       credential: meta.credential,
       credits_charged: meta.credits_charged,

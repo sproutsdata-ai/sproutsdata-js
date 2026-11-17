@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-10T22:30:06.490373Z",
+        "as_of": "2026-11-16T23:02:25.950426Z",
         "domain": null,
         "quote": null,
         "source_corpus": "affiliations",
@@ -98,13 +98,14 @@
       }
     ],
     "meta": {
-      "as_of": "2026-11-10T22:30:06.490373Z",
+      "as_of": "2026-11-16T23:02:25.950426Z",
       "credential": "api_key",
+      "credits_balance": 975.405,
       "credits_charged": 2.0,
       "environment": "live",
-      "request_id": "875b0d856ade4f29a7a0af0611c2e0ea"
+      "request_id": "fe856c369e794408846d77491f84ad65"
     },
-    "next_cursor": "eyJmIjoiNGVhOWRiZTBjMDMwM2Y3NWZkNDBjMDAyY2MwZTI1N2IiLCJvIjoxMCwicyI6ImVlYTlkNzM0YzlmZjQyMjQ5MDQ2NGUzNzc3YzRhZjk4IiwidCI6MTc5NDM0OTgwNiwidSI6IntcImNvbXBhbmllc1wiOlt7XCJ2YWx1ZVwiOlwic3RyaXBlLmNvbVwiLFwiYnlcIjpcImRvbWFpblwifSx7XCJ2YWx1ZVwiOlwiYWR5ZW4uY29tXCIsXCJieVwiOlwiZG9tYWluXCJ9XSxcInBhZ2VcIjoyLFwicGFnZV9zaXplXCI6MTAsXCJvdXRwdXRcIjp7XCJ0b3BfaW5zdGl0dXRpb25zXCI6MTAwMH19In0.2a140652d4b33010a021b2224ec81449",
+    "next_cursor": "eyJmIjoiNGVhOWRiZTBjMDMwM2Y3NWZkNDBjMDAyY2MwZTI1N2IiLCJvIjoxMCwicyI6Ijk2MTRmMDJmNmRkNjQxMTRhM2U3NjhlYTdiMzc5MzAzIiwidCI6MTc5NDg3MDE0NSwidSI6IntcImNvbXBhbmllc1wiOlt7XCJ2YWx1ZVwiOlwic3RyaXBlLmNvbVwiLFwiYnlcIjpcImRvbWFpblwifSx7XCJ2YWx1ZVwiOlwiYWR5ZW4uY29tXCIsXCJieVwiOlwiZG9tYWluXCJ9XSxcInBhZ2VcIjoyLFwicGFnZV9zaXplXCI6MTAsXCJvdXRwdXRcIjp7XCJ0b3BfaW5zdGl0dXRpb25zXCI6MTAwMH19In0.430ec7eef9f3087c0dfd8dc915a616f3",
     "resolved_search": {
       "category": "person",
       "conflicts": [],
@@ -123,7 +124,8 @@
       "query": null,
       "semantic_query": null,
       "semantic_scope": null,
-      "sort": []
+      "sort": [],
+      "sparse_filters": []
     },
     "results": [
       {
@@ -564,10 +566,10 @@
   },
   "headers": {
     "content-type": "application/json",
-    "ratelimit-limit": "60",
-    "ratelimit-remaining": "57",
-    "ratelimit-reset": "54",
-    "x-request-id": "875b0d856ade4f29a7a0af0611c2e0ea"
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "35",
+    "x-request-id": "fe856c369e794408846d77491f84ad65"
   },
   "operation": "relationships",
   "request": {

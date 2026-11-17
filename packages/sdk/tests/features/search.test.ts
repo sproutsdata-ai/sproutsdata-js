@@ -100,6 +100,44 @@ describe('search', () => {
     expect(galaxy).toBe('galaxy');
   });
 
+  it('an empty answer reads why, what to leave out, and which filters are thin', async () => {
+    // dsp-backend #179 (no_match, relax, sparse filters), #180 (balance), #182 (environment
+    // deprecated, and absent from the builds before it).
+    const { environment: _dropped, ...meta } = COMPANY['meta'] as Record<string, unknown>;
+    const body = {
+      ...COMPANY,
+      results: [],
+      total: 0,
+      has_more: false,
+      next_cursor: null,
+      suggestion: {
+        kind: 'relax',
+        category: null,
+        message: '0 with every filter; 40 without HQ in Iceland.',
+        without: [{ filter: 'hq_country', label: 'HQ in Iceland', total: 40 }],
+      },
+      degradation: [
+        { reason: 'no_match', impact: 'recall', detail: 'No company there has 5,000+ staff.' },
+        { reason: 'sparse_filter', impact: 'recall', detail: '`revenue` is held by 2.0%.' },
+      ],
+      resolved_search: {
+        ...(COMPANY['resolved_search'] as object),
+        sparse_filters: [{ filter: 'revenue', record_type: 'company', populated: 2, of: 100, share: 0.02 }],
+      },
+      meta: { ...meta, credits_balance: 412.5 },
+    };
+    const r = rig([respond('search', 200, body)]);
+    const answer: SearchEnvelope = await new Search(r.transport).search({ query: 'companies in Iceland with 5,000+ staff' });
+    const suggestion = answer.suggestion;
+    expect(suggestion?.kind).toBe('relax');
+    expect(suggestion?.category).toBeNull();
+    expect(suggestion?.without).toEqual([{ filter: 'hq_country', label: 'HQ in Iceland', total: 40 }]);
+    expect(answer.degradation.map((d) => d.reason)).toEqual(['no_match', 'sparse_filter']);
+    expect(answer.resolved_search?.sparse_filters[0]?.share).toBe(0.02);
+    expect(answer.meta.credits_balance).toBe(412.5);
+    expect(answer.meta.environment).toBeUndefined();
+  });
+
   it('S10: lookupRef per category', () => {
     const company = recordedBody<SearchEnvelope>('search', 'company').results[0];
     const person = recordedBody<SearchEnvelope>('search', 'person').results[0];

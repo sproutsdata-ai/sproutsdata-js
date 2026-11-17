@@ -105,7 +105,7 @@ The toolset's result object; the model receives it as JSON.
   them from the words.
 - `caveats`: anything the server could not do, and anything your settings
   changed.
-- `request_id` and `environment`.
+- `request_id`.
 - A lookup answers every id, with up to three `matches` and `ambiguous: true`
   when more than one record matched.
 
@@ -147,8 +147,8 @@ Generated from `package.json`; `tests/readme.test.ts` fails when they differ.
 Every tool call is billed, and an agent loop can make several per user turn.
 Each result's `meta.credits_charged` says what that call cost. Bound the loop
 (`stopWhen: stepCountIs(n)`), and prefer `fixed` and `maxResults` over trusting
-the prompt. A call made with a test key (`sk_dsp_test_...`) is free and writes
-no row to the credit ledger; the result says `environment: "test"`.
+the prompt. Every key is a live key, so each of those calls is charged to the
+workspace's credits.
 
 ## See also
 

@@ -4,11 +4,12 @@
     "filter": "offices",
     "has_more": true,
     "meta": {
-      "as_of": "2026-11-10T22:30:06.253050Z",
+      "as_of": "2026-11-16T23:02:25.705376Z",
       "credential": "api_key",
+      "credits_balance": null,
       "credits_charged": null,
       "environment": "live",
-      "request_id": "34fb7cab405f4c909bbf06ef3e7580f2"
+      "request_id": "5227a033f42646ca8af36ab5dc05f76e"
     },
     "page": 1,
     "page_size": 20,
@@ -38,10 +39,10 @@
   },
   "headers": {
     "content-type": "application/json",
-    "ratelimit-limit": "60",
-    "ratelimit-remaining": "57",
-    "ratelimit-reset": "54",
-    "x-request-id": "34fb7cab405f4c909bbf06ef3e7580f2"
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "35",
+    "x-request-id": "5227a033f42646ca8af36ab5dc05f76e"
   },
   "operation": "document_filter_values",
   "request": {

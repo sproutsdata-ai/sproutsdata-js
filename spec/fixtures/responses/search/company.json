@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-10T22:30:06.133727Z",
+        "as_of": "2026-11-16T23:02:25.588072Z",
         "domain": null,
         "quote": null,
         "source_corpus": "gtm_index",
@@ -14,13 +14,14 @@
     "degradation": [],
     "has_more": true,
     "meta": {
-      "as_of": "2026-11-10T22:30:06.133727Z",
+      "as_of": "2026-11-16T23:02:25.588072Z",
       "credential": "api_key",
+      "credits_balance": 999.5,
       "credits_charged": 0.5,
       "environment": "live",
-      "request_id": "7a7acf7908514371b0fa2966a16158bd"
+      "request_id": "5500a7f707fe427b8a41e4bf3eaa53ad"
     },
-    "next_cursor": "eyJmIjoiOTJkYTRlZDMzYjVhZDdkZTUwMzg4NmU2YjAyMWFmZGYiLCJvIjoyLCJzIjoiZDFlNTQ4YzQ4MjM5NDJkOGFjY2FhZjI1NWNhOWM3OTYiLCJ0IjoxNzk0MzQ5ODA2LCJ1IjoicHJpc218Y29tcGFueXwxIn0.0d7ca592c19da7d6ca496a59a6ef0390",
+    "next_cursor": "eyJmIjoiOTJkYTRlZDMzYjVhZDdkZTUwMzg4NmU2YjAyMWFmZGYiLCJvIjoyLCJzIjoiY2ExNzhjNTVlYzdkNDU1NGFiNzI0ZWNkMTNiMzMxOTciLCJ0IjoxNzk0ODcwMTQ1LCJ1IjoicHJpc218Y29tcGFueXwxIn0.2bf0fa10172304c4d40e497f54400775",
     "resolved_search": {
       "category": "company",
       "conflicts": [],
@@ -39,7 +40,8 @@
       "query": "robotics",
       "semantic_query": "industrial automation",
       "semantic_scope": null,
-      "sort": []
+      "sort": [],
+      "sparse_filters": []
     },
     "results": [
       {
@@ -195,10 +197,10 @@
   },
   "headers": {
     "content-type": "application/json",
-    "ratelimit-limit": "60",
-    "ratelimit-remaining": "51",
-    "ratelimit-reset": "54",
-    "x-request-id": "7a7acf7908514371b0fa2966a16158bd"
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "35",
+    "x-request-id": "5500a7f707fe427b8a41e4bf3eaa53ad"
   },
   "operation": "search",
   "request": {

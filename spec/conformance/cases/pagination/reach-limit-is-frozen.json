@@ -35,7 +35,7 @@
         "next_cursor": "CURSOR_R",
         "meta": {
           "request_id": "req_ok",
-          "environment": "test",
+          "environment": "live",
           "as_of": "2026-11-11T00:00:00Z",
           "credential": "api_key"
         }
@@ -60,7 +60,7 @@
         "next_cursor": null,
         "meta": {
           "request_id": "req_ok",
-          "environment": "test",
+          "environment": "live",
           "as_of": "2026-11-11T00:00:00Z",
           "credential": "api_key"
         }

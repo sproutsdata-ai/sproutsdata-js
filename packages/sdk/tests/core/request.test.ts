@@ -4,7 +4,7 @@ import { OPERATIONS } from '../../src/generated/operations.js';
 import { ClientValidationError } from '../../src/core/errors.js';
 import { HeaderMap, lowered } from '../../src/core/headers.js';
 import { buildHeaders, buildUrl, encodeSegment, fillPath } from '../../src/core/request.js';
-import { TEST_KEY } from '../support/fakes.js';
+import { FIXTURE_KEY } from '../support/fakes.js';
 
 const search = { ...OPERATIONS.search, name: 'search' };
 const runsCreate = { ...OPERATIONS.runsCreate, name: 'runsCreate' };
@@ -22,8 +22,8 @@ describe('request', () => {
   });
 
   it('puts the SDK\'s own headers last, whatever a default spells them', () => {
-    const headers = buildHeaders(search, TEST_KEY, { 'x-team': 'a', 'user-agent': 'mine' }, {}, true);
-    expect(headers['X-API-Key']).toBe(TEST_KEY);
+    const headers = buildHeaders(search, FIXTURE_KEY, { 'x-team': 'a', 'user-agent': 'mine' }, {}, true);
+    expect(headers['X-API-Key']).toBe(FIXTURE_KEY);
     expect(headers['x-team']).toBe('a');
     expect(headers['user-agent']).toBeUndefined();
     expect(headers['User-Agent']).toMatch(/^sproutsdata-js\//);
@@ -33,23 +33,23 @@ describe('request', () => {
   it('asks each response kind for its media type', () => {
     const exportOp = { ...OPERATIONS.listsExport, name: 'listsExport' };
     const events = { ...OPERATIONS.runsEvents, name: 'runsEvents' };
-    expect(buildHeaders(exportOp, TEST_KEY, {}, {}, false)['Accept']).toBe('text/csv, application/json');
-    const streamHeaders = buildHeaders(events, TEST_KEY, {}, { lastEventId: '7' }, false);
+    expect(buildHeaders(exportOp, FIXTURE_KEY, {}, {}, false)['Accept']).toBe('text/csv, application/json');
+    const streamHeaders = buildHeaders(events, FIXTURE_KEY, {}, { lastEventId: '7' }, false);
     expect([streamHeaders['Accept'], streamHeaders['Last-Event-ID']]).toEqual(['text/event-stream', '7']);
   });
 
   it('refuses a request id the server would replace', () => {
-    expect(buildHeaders(search, TEST_KEY, {}, { requestId: 'req:1.a-b_c' }, false)['X-Request-Id']).toBe('req:1.a-b_c');
-    expect(() => buildHeaders(search, TEST_KEY, {}, { requestId: 'has space' }, false)).toThrow(ClientValidationError);
+    expect(buildHeaders(search, FIXTURE_KEY, {}, { requestId: 'req:1.a-b_c' }, false)['X-Request-Id']).toBe('req:1.a-b_c');
+    expect(() => buildHeaders(search, FIXTURE_KEY, {}, { requestId: 'has space' }, false)).toThrow(ClientValidationError);
   });
 
   it('sends an idempotency key on keyed operations only', () => {
-    expect(buildHeaders(search, TEST_KEY, {}, {}, false)['Idempotency-Key']).toBeUndefined();
-    expect(buildHeaders(runsCreate, TEST_KEY, {}, {}, false)['Idempotency-Key']).toMatch(/^sdk-/);
-    expect(buildHeaders(runsCreate, TEST_KEY, {}, { idempotencyKey: 'mine' }, false)['Idempotency-Key']).toBe('mine');
-    expect(() => buildHeaders(search, TEST_KEY, {}, { idempotencyKey: 'k' }, false)).toThrow(/does not take/);
+    expect(buildHeaders(search, FIXTURE_KEY, {}, {}, false)['Idempotency-Key']).toBeUndefined();
+    expect(buildHeaders(runsCreate, FIXTURE_KEY, {}, {}, false)['Idempotency-Key']).toMatch(/^sdk-/);
+    expect(buildHeaders(runsCreate, FIXTURE_KEY, {}, { idempotencyKey: 'mine' }, false)['Idempotency-Key']).toBe('mine');
+    expect(() => buildHeaders(search, FIXTURE_KEY, {}, { idempotencyKey: 'k' }, false)).toThrow(/does not take/);
     for (const bad of ['', 'x'.repeat(256), 'line\nbreak']) {
-      expect(() => buildHeaders(runsCreate, TEST_KEY, {}, { idempotencyKey: bad }, false)).toThrow(ClientValidationError);
+      expect(() => buildHeaders(runsCreate, FIXTURE_KEY, {}, { idempotencyKey: bad }, false)).toThrow(ClientValidationError);
     }
   });
 

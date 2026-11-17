@@ -19,12 +19,13 @@ the [migration guide](packages/sdk/MIGRATION.md).
 
 ```sh
 npm install sproutsdata
-export SPROUTSDATA_API_KEY=sk_dsp_test_<your-key>
+export SPROUTSDATA_API_KEY=sk_dsp_live_<your-key>
 ```
 
 Node.js 22.12.0 or newer (or Deno, Bun or an edge runtime); no runtime
-dependencies. The SDK runs on servers only: it refuses to run in a browser. A
-call made with a test key is free and writes no row to the credit ledger.
+dependencies. The SDK runs on servers only: it refuses to run in a browser.
+Every key is a live key: each billed call is charged to the workspace's credits,
+and a new workspace starts with sign-up credits for evaluation.
 
 ## Quick start
 

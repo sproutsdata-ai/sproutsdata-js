@@ -18,7 +18,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { VERSION, raiseSproutsDataErrors, sproutsDataTools, type SproutsDataTool } from '../src/index';
 import {
   BASE_URL,
-  TEST_KEY,
+  FIXTURE_KEY,
   client,
   fetchQueue,
   jsonResponse,
@@ -105,7 +105,8 @@ describe('generateText with the ai mock model', () => {
       limit: 10,
     });
     const output = answer.toolResults[0]!.output as Record<string, unknown>;
-    expect(output).toMatchObject({ total: 1, request_id: 'req_1', environment: 'test' });
+    expect(output).toMatchObject({ total: 1, request_id: 'req_1' });
+    expect(output).not.toHaveProperty('environment');
     expect(output['interpreted_as']).toEqual({ filters: {}, source: 'none', conflicts: [] });
     expect(toolOutputSeen(model)).toEqual({ type: 'json', value: output });
   });
@@ -176,7 +177,7 @@ describe('generateText with the ai mock model', () => {
       new Promise<Response>((_resolve, reject) => {
         init?.signal?.addEventListener('abort', () => { reject(new DOMException('aborted', 'AbortError')); });
       });
-    const tools = sproutsDataTools({ apiKey: TEST_KEY, baseUrl: BASE_URL, timeoutMs: 5, maxRetries: 0 });
+    const tools = sproutsDataTools({ apiKey: FIXTURE_KEY, baseUrl: BASE_URL, timeoutMs: 5, maxRetries: 0 });
     vi.stubGlobal('fetch', hang);
     const { model, result } = run(tools, 'sprouts_search', { query: 'x' });
     await result;
@@ -213,7 +214,7 @@ describe('a client from a second copy of sproutsdata', () => {
   const cjs = createRequire(import.meta.url)('sproutsdata') as typeof SproutsDataModule;
 
   function foreignClient(fetchImpl: typeof globalThis.fetch) {
-    return new cjs.SproutsData({ apiKey: TEST_KEY, baseUrl: BASE_URL, fetch: fetchImpl, maxRetries: 0 });
+    return new cjs.SproutsData({ apiKey: FIXTURE_KEY, baseUrl: BASE_URL, fetch: fetchImpl, maxRetries: 0 });
   }
 
   it('is a different copy', () => {
@@ -247,14 +248,14 @@ describe('construction', () => {
 
   it('refuses a browser-like environment', () => {
     vi.stubGlobal('window', { document: {} });
-    expect(() => sproutsDataTools({ apiKey: TEST_KEY })).toThrow(/refuses an API key/);
+    expect(() => sproutsDataTools({ apiKey: FIXTURE_KEY })).toThrow(/refuses an API key/);
   });
 
   it('never exposes the API key', () => {
-    const tools = sproutsDataTools({ apiKey: TEST_KEY, baseUrl: BASE_URL });
-    expect(JSON.stringify(tools)).not.toContain(TEST_KEY);
-    expect(inspect(tools, { depth: 10, showHidden: true })).not.toContain(TEST_KEY);
-    for (const name of TOOL_NAMES) expect(String(tools[name]?.execute)).not.toContain(TEST_KEY);
+    const tools = sproutsDataTools({ apiKey: FIXTURE_KEY, baseUrl: BASE_URL });
+    expect(JSON.stringify(tools)).not.toContain(FIXTURE_KEY);
+    expect(inspect(tools, { depth: 10, showHidden: true })).not.toContain(FIXTURE_KEY);
+    for (const name of TOOL_NAMES) expect(String(tools[name]?.execute)).not.toContain(FIXTURE_KEY);
   });
 
   it('reports the version package.json declares', () => {

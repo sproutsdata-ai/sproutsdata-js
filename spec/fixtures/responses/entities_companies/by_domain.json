@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-10T22:30:06.275326Z",
+        "as_of": "2026-11-16T23:02:25.730746Z",
         "domain": null,
         "quote": null,
         "source_corpus": "gtm_index",
@@ -14,11 +14,12 @@
     "degradation": [],
     "has_more": false,
     "meta": {
-      "as_of": "2026-11-10T22:30:06.275326Z",
+      "as_of": "2026-11-16T23:02:25.730746Z",
       "credential": "api_key",
+      "credits_balance": 993.905,
       "credits_charged": 1.0,
       "environment": "live",
-      "request_id": "ff91d0a6007d48638fc1f9d4085dcecc"
+      "request_id": "8c1bb0645b9e45e789396ba1e24ac58d"
     },
     "next_cursor": null,
     "resolved_search": null,
@@ -108,10 +109,10 @@
   },
   "headers": {
     "content-type": "application/json",
-    "ratelimit-limit": "60",
-    "ratelimit-remaining": "57",
-    "ratelimit-reset": "54",
-    "x-request-id": "ff91d0a6007d48638fc1f9d4085dcecc"
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "35",
+    "x-request-id": "8c1bb0645b9e45e789396ba1e24ac58d"
   },
   "operation": "entities_companies",
   "request": {

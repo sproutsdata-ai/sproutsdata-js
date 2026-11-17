@@ -1,6 +1,6 @@
 {
   "body": {
-    "as_of": "2026-11-10T22:29:41.033191Z",
+    "as_of": "2026-11-16T23:02:25.722001Z",
     "degradation": [
       {
         "detail": "The job-openings corpus could not be counted and is absent from this report. That does not mean it is empty.",
@@ -10,11 +10,12 @@
       }
     ],
     "meta": {
-      "as_of": "2026-11-10T22:30:06.265902Z",
+      "as_of": "2026-11-16T23:02:25.722016Z",
       "credential": "api_key",
+      "credits_balance": null,
       "credits_charged": null,
       "environment": "live",
-      "request_id": "35256f8ceea44bb2a7925140ff354cab"
+      "request_id": "4d02e46155e542f680538a37d5888087"
     },
     "not_in_index": [
       "private company financials",
@@ -97,10 +98,10 @@
   },
   "headers": {
     "content-type": "application/json",
-    "ratelimit-limit": "60",
-    "ratelimit-remaining": "57",
-    "ratelimit-reset": "54",
-    "x-request-id": "35256f8ceea44bb2a7925140ff354cab"
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "35",
+    "x-request-id": "4d02e46155e542f680538a37d5888087"
   },
   "operation": "coverage",
   "request": {

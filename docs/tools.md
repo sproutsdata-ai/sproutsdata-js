@@ -166,12 +166,15 @@ definitions are available without a client from the module-level
   by their LinkedIn URL, a document by its `d1_...` id. Rows carry `lookup`
   only when the lookup tool is offered; a caveat counts the rows that have none.
 - **`interpreted_as`** shows the filters the engine applied; `source:
-  "parser"` means it inferred them from the words.
+  "parser"` means it inferred them from the words. `sparse_filters`, present
+  only when there are some, names applied filters whose field few records hold.
 - **`total_is_estimate: true`** makes `total` a floor: "at least N".
 - **`caveats`** lists anything the server could not do, and anything the
   toolset changed (a row cap, an application filter that replaced the model's).
-- **`request_id`** and **`environment`** identify the call (`test` for a test
-  key).
+  An empty answer's first caveat is `no_match`, with the reason.
+- **`suggestion`** is advice: another `category` (`kind: "search"`), or, on an
+  empty answer, the filters to leave out (`kind: "relax"`, with `without`).
+- **`request_id`** identifies the call; quote it to support.
 
 A lookup answers every id: `found`, up to three `matches`, and `ambiguous` when
 more than one record matched. Company and person lookups apply `fields`

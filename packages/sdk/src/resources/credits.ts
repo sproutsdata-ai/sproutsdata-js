@@ -1,12 +1,13 @@
-/** The workspace's credits: the balance, and the ledger behind it. Free. */
+/** The workspace's credits: the balance, the ledger behind it, and what a call would cost. Free. */
 
 import type { RequestOptions } from '../core/transport.js';
 import type * as W from '../generated/wire.js';
+import { quoteBody } from '../requests/credits.js';
 import { ledgerQuery } from '../requests/history.js';
 import type { PageOptions, PageParams } from '../types/index.js';
 import { Resource } from './resource.js';
 
-/** The workspace's balance and ledger. */
+/** The workspace's balance, its ledger, and quotes. */
 export class Credits extends Resource {
   /**
    * The balance: `balance`, `reserved` (held for runs), `available`, `debt`, `status`.
@@ -19,9 +20,25 @@ export class Credits extends Resource {
   }
 
   /**
+   * What a call would cost, from the live price list. Holds nothing and costs nothing, and the
+   * arithmetic is the meter's own, so the charge that follows matches the quote while the price
+   * list is unchanged. `operation` is `search`, `search_auto` (an `auto` search), `similar`,
+   * `relationships`, `institutions`, `lookup`, `org_chart` or `agent_run`; `rows` the rows on
+   * the page (up to 100) or records found for `lookup` (up to 1,000), default 10; `start` the
+   * rows of the same search already paid for; `effort` is required for `agent_run` and refused
+   * otherwise (`auto` quotes what it holds: `basis` `run_up_to`). `available` and `covered` come
+   * from a balance read moments ago, and are `null` when there is none.
+   *
+   * @throws {ClientValidationError} `effort` missing for `agent_run` or given for another
+   *   operation, or more rows than a page holds. Nothing is sent.
+   */
+  async quote(params: W.QuoteIn, options?: RequestOptions): Promise<W.QuoteOut> {
+    return this.json('creditsQuote', { body: quoteBody('credits.quote', params) }, options);
+  }
+
+  /**
    * One page of the ledger, newest first: each row's `kind` (`charge`, `grant`, ...), signed
    * `credits` (negative for a charge), `balance_after`, and the `action` or `source` behind it.
-   * A call made with a test key is free and writes no row.
    */
   async transactions(params: PageParams = {}, options?: RequestOptions): Promise<W.TransactionsOut> {
     return this.json('creditsTransactions', { query: ledgerQuery(params) }, options);

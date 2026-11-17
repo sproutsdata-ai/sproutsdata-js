@@ -1,154 +1,141 @@
 /**
  * Which failures a model is told about, and which stop the application.
  *
- * Contract 02 §12.3, as one rule: **return what the model can act on; throw
- * what only the application can fix.**
+ * One rule: **return what the model can act on; throw what only the application can fix.**
  *
- * - Returned, as `{ error: {...} }`: invalid model input, 404, 409, 422, 429,
- *   5xx, timeouts and connection failures. The model can correct its
- *   arguments, wait, or tell the user — and an agent run that aborted on one
- *   bad argument would lose every turn before it.
- * - Thrown: 401, 403 and 402, plus the configuration errors the client
- *   throws before any call (a missing key, a bad base URL). A model cannot
- *   fix a key or buy credits, and a model told "insufficient credits" as
- *   data tends to retry, apologise, or invent an answer.
+ * - Returned, as `{ error: {...} }`: invalid model input, 404, 409, 422, 429, 5xx, timeouts and
+ *   connection failures. The model can correct its arguments, wait, or tell the user.
+ * - Thrown: 401, 403 and 402 ({@link APPLICATION_ERRORS}), and every error that is not the
+ *   SDK's own. A model cannot fix a key or buy credits.
  *
- * Every returned error has the same six keys. `retryable` answers "would
- * calling again, unchanged, be both useful and safe?" — and all three tools
- * are charged once the server has done the work, so a request that may have reached the
- * server (a read timeout, a dropped connection, a gateway's 502) is not
- * retryable: a repeat may be a second charge, and the message says so.
- *
- * Errors are recognised by `name` and `status`, not `instanceof`. An
- * application can hold a second copy of this SDK — another installed
- * version, or the CommonJS build beside the ES module one — whose classes
- * `instanceof` does not recognise; matching on the class only would turn
- * every API error from such a client into a throw that ends the agent run.
+ * Every returned error has the same six keys. `retryable` answers "would calling again,
+ * unchanged, be both useful and safe?": all three tools are charged once the server has done
+ * the work, so a request that may have reached the server is not retryable.
  */
 
-import type { APIError } from '../errors';
-import { text } from './spec';
-import { isObject } from './validate';
-import type { ToolError } from './types';
+import { text } from './catalog.js';
+import { errorClasses, isApplicationError } from './connection.js';
+import type { ToolError } from './types.js';
 
-/** Answered as such, and worth asking again: throttling, a server error answered before the charge, an unreachable dependency, a retrieval that ran out of time unbilled. */
+/** A returned error. */
+export type ErrorResult = ToolError;
+
 const RETRYABLE_STATUSES: ReadonlySet<number> = new Set([429, 500, 503, 504]);
-
-/** Sent, but nothing came back from the service itself. On a billed route the charge may have landed. */
 const GATEWAY_STATUSES: ReadonlySet<number> = new Set([408, 502]);
 
-/** A 500 that is not transient: the server has no price for the action. */
-const NEVER_RETRY_CODES: ReadonlySet<string> = new Set(['credits.unknown_action']);
-
-/** What only the application can fix: a rejected key, a missing scope, no credits. */
-const RAISED_ERRORS: ReadonlySet<string> = new Set([
-  'AuthenticationError',
-  'PermissionDeniedError',
-  'InsufficientCreditsError',
-]);
-
 interface ErrorFields {
-  retryable?: boolean;
-  retryAfter?: number | null;
-  fieldErrors?: string[];
-  requestId?: string | null;
+  readonly retryable?: boolean;
+  readonly retryAfter?: number | null;
+  readonly fieldErrors?: readonly string[];
+  readonly requestId?: string | null;
 }
 
 /** The one error shape every tool returns. */
-export function errorResult(code: string, message: string, fields: ErrorFields = {}): ToolError {
+export function error(code: string, message: string, fields: ErrorFields = {}): ErrorResult {
   return {
     error: {
       code,
       message,
       retryable: fields.retryable ?? false,
       retry_after: fields.retryAfter ?? null,
-      field_errors: fields.fieldErrors ?? [],
+      field_errors: [...(fields.fieldErrors ?? [])],
       request_id: fields.requestId ?? null,
     },
   };
 }
 
 /** Arguments the schema refused, every problem listed. */
-export function invalidArguments(fieldErrors: string[]): ToolError {
-  return errorResult('invalid_arguments', text('validation', 'summary'), { fieldErrors });
+export function invalidArguments(fieldErrors: readonly string[]): ErrorResult {
+  return error('invalid_arguments', text('validation', 'summary'), { fieldErrors });
 }
 
 /** Arguments that fit the schema but break one of the tool's rules. */
-export function refused(message: string): ToolError {
-  return errorResult('invalid_arguments', message);
+export function refused(message: string): ErrorResult {
+  return error('invalid_arguments', message);
 }
 
-/**
- * The server's field errors as `path: problem`, in the tool's own terms.
- * `loc` starts at `body` (or `query`); the tool's arguments are the body, so
- * that first segment is dropped and the path reads like the argument the
- * model sent.
- */
-function apiFieldErrors(error: APIError): string[] {
-  const entries = error.problem?.extra?.errors;
-  if (!Array.isArray(entries)) return [];
-  return entries.filter(isObject).map((entry) => {
-    let parts = Array.isArray(entry.loc) ? entry.loc.map(String) : [];
-    if (parts[0] === 'body' || parts[0] === 'query') parts = parts.slice(1);
-    const path = parts.length > 0 ? parts.join('.') : text('validation', 'root');
-    return `${path}: ${typeof entry.msg === 'string' ? entry.msg : 'invalid'}`;
+/** What a returned error reads from an `APIError`, read by name: the class may be another copy's. */
+interface StatusFailure {
+  readonly status: number;
+  readonly code: string | undefined;
+  readonly title: string | undefined;
+  readonly detail: string | undefined;
+  readonly nextStep: string | undefined;
+  readonly retryAfter: number | undefined;
+  readonly requestId: string | undefined;
+  readonly fieldErrors: readonly unknown[];
+}
+
+const str = (from: object, key: string): string | undefined => {
+  const value: unknown = Reflect.get(from, key);
+  return typeof value === 'string' ? value : undefined;
+};
+
+function statusFailure(failure: object): StatusFailure {
+  const status: unknown = Reflect.get(failure, 'status');
+  const retryAfter: unknown = Reflect.get(failure, 'retryAfter');
+  const fieldErrors: unknown = Reflect.get(failure, 'fieldErrors');
+  return {
+    status: typeof status === 'number' ? status : 0,
+    code: str(failure, 'code'),
+    title: str(failure, 'title'),
+    detail: str(failure, 'detail'),
+    nextStep: str(failure, 'nextStep'),
+    retryAfter: typeof retryAfter === 'number' ? retryAfter : undefined,
+    requestId: str(failure, 'requestId'),
+    fieldErrors: Array.isArray(fieldErrors) ? fieldErrors : [],
+  };
+}
+
+/** The server's field errors as `path: problem`, with a leading `body` or `query` dropped. */
+function located(entries: readonly unknown[]): string[] {
+  return entries.map((entry) => {
+    const loc: unknown = entry !== null && typeof entry === 'object' ? Reflect.get(entry, 'loc') : undefined;
+    const msg = entry !== null && typeof entry === 'object' ? str(entry, 'msg') : undefined;
+    const parts = Array.isArray(loc) ? loc.map(String) : [];
+    const path = parts[0] === 'body' || parts[0] === 'query' ? parts.slice(1) : parts;
+    return `${path.length > 0 ? path.join('.') : text('validation', 'root')}: ${msg ?? 'invalid'}`;
   });
 }
 
-function fromStatus(error: APIError): ToolError {
-  const status = error.status;
-  const code = error.code || `http.${status}`;
-  const requestId = error.requestId;
+function fromStatus(failure: StatusFailure): ErrorResult {
+  const { status } = failure;
+  const code = failure.code ?? `http.${String(status)}`;
   if (GATEWAY_STATUSES.has(status)) {
-    return errorResult(code, text('errors', 'gateway_no_answer', { status }), { requestId });
+    return error(code, text('errors', 'gateway_no_answer', { status }), { requestId: failure.requestId ?? null });
   }
-  return errorResult(code, error.detail || error.title || text('errors', 'http_status', { status }), {
-    retryable: RETRYABLE_STATUSES.has(status) && !NEVER_RETRY_CODES.has(code),
-    retryAfter: error.retryAfter,
-    fieldErrors: apiFieldErrors(error),
-    requestId,
+  const said = failure.detail ?? failure.title ?? text('errors', 'http_status', { status });
+  return error(code, failure.nextStep === undefined ? said : `${said} ${failure.nextStep}`, {
+    retryable: RETRYABLE_STATUSES.has(status),
+    retryAfter: failure.retryAfter ?? null,
+    fieldErrors: located(failure.fieldErrors),
+    requestId: failure.requestId ?? null,
   });
 }
 
-/** The error's class name, when it is an `Error` at all. */
-function errorName(err: unknown): string | undefined {
-  return err instanceof Error ? err.name : undefined;
-}
-
-/** An `APIError` of any subclass: a server answer, with its status and problem body. */
-function isApiError(err: unknown): err is APIError {
-  return (
-    err instanceof Error &&
-    typeof (err as { status?: unknown }).status === 'number' &&
-    'problem' in err &&
-    'headers' in err
-  );
+/** A request that failed on the way: retryable only if it never reached the server. */
+function fromConnection(failure: Error, timedOut: boolean): ErrorResult {
+  const code = timedOut ? 'timeout' : 'connection_error';
+  if (Reflect.get(failure, 'reachedServer') !== true) return error(code, text('errors', 'connection_unsent'), { retryable: true });
+  return error(code, text('errors', timedOut ? 'timeout_sent' : 'connection_sent'));
 }
 
 /**
- * The error result for a failed call, or a rethrow of what is not the
- * model's to handle: 401, 403 and 402, a caller's abort, and anything that
- * is not one of this SDK's errors — a defect, which data would hide.
+ * The error result for a failed call. The SDK's errors are recognised by class name
+ * (`errorClasses`), so a client from a second copy of the package is answered the same way.
+ *
+ * @throws The error itself when only the application can act on it, or when it is not the
+ * SDK's: a defect in calling code turned into data would be hidden.
  */
-export function fromError(err: unknown): ToolError {
-  const name = errorName(err);
-  if (name !== undefined && RAISED_ERRORS.has(name)) throw err;
-  // The client's own refusal of a request it can see will fail — a
-  // contradiction the tool's rules did not catch first.
-  if (name === 'ClientValidationError') return refused((err as Error).message);
-  if (isApiError(err)) return fromStatus(err);
-  // A timeout always follows sending here: a connect timeout, which proves
-  // nothing left, is an `APIConnectionError` with `reachedServer: false`.
-  if (name === 'APITimeoutError') return errorResult('timeout', text('errors', 'timeout_sent'));
-  if (name === 'APIConnectionError') {
-    return (err as { reachedServer?: unknown }).reachedServer === false
-      ? errorResult('connection_error', text('errors', 'connection_unsent'), { retryable: true })
-      : errorResult('connection_error', text('errors', 'connection_sent'));
+export function fromError(failure: unknown): ErrorResult {
+  if (isApplicationError(failure)) throw failure;
+  const names = errorClasses(failure);
+  if (!(failure instanceof Error)) throw failure;
+  if (names.has('ClientValidationError')) return refused(failure.message);
+  if (names.has('APIError')) return fromStatus(statusFailure(failure));
+  if (names.has('APIConnectionError')) return fromConnection(failure, names.has('APITimeoutError'));
+  if (names.has('APIResponseValidationError')) {
+    return error('response_invalid', text('errors', 'response_invalid'), { requestId: str(failure, 'requestId') ?? null });
   }
-  if (name === 'APIResponseValidationError') {
-    return errorResult('response_invalid', text('errors', 'response_invalid'), {
-      requestId: (err as { requestId?: string }).requestId,
-    });
-  }
-  throw err;
+  throw failure;
 }

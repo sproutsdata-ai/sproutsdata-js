@@ -1,5 +1,5 @@
 {
-  "description": "A company lookup without `by`, fed a search-result id and a domain. Both miss, and the caveats say why and how to look them up instead.",
+  "description": "A company lookup without `by` (so `auto`), fed a person row's search id and a domain the index does not hold. Both miss; the caveat says the search id is a hash no lookup resolves.",
   "tool": "sprouts_entity_lookup",
   "options": {},
   "arguments": {
@@ -38,7 +38,7 @@
       "coverage": null,
       "attribution": [
         {
-          "source_corpus": "companies",
+          "source_corpus": "gtm_index",
           "domain": null,
           "as_of": "2026-09-28T00:00:00Z",
           "url": null,
@@ -48,10 +48,11 @@
       "degradation": [],
       "columns": null,
       "meta": {
-        "request_id": "req_b85f1d2a60",
-        "environment": "test",
         "as_of": "2026-10-01T09:12:44Z",
-        "credential": "api_key"
+        "credential": "api_key",
+        "credits_charged": null,
+        "environment": "live",
+        "request_id": "req_b85f1d2a60"
       }
     }
   },
@@ -62,15 +63,14 @@
       "ids": [
         "9c41e2a07b3d5f18",
         "brightloop.io"
-      ]
+      ],
+      "by": "auto"
     }
   },
   "expected_output": {
     "caveats": [
-      "search_ids_not_found: 9c41e2a07b3d5f18 — search-result ids are not record ids and are never found here. Look the row up by its `lookup` value (domain or LinkedIn URL); this miss does not mean the record is not held.",
-      "raw_values_without_by: brightloop.io — read as record ids because `by` was not set. Call again with `by: \"domain\"` or `by: \"li_url\"`."
+      "search_ids_not_found: 9c41e2a07b3d5f18 — these look like the hash a search gives a person row, which no lookup resolves. Look the row up by its `lookup` value (its LinkedIn URL); this miss does not mean the record is not held."
     ],
-    "environment": "test",
     "request_id": "req_b85f1d2a60",
     "results": [
       {

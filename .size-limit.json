@@ -1,0 +1,4 @@
+[
+  { "name": "sproutsdata", "path": "packages/sdk/dist/index.js", "limit": "24 KB" },
+  { "name": "sproutsdata/tools", "path": "packages/sdk/dist/tools.js", "limit": "40 KB" }
+]

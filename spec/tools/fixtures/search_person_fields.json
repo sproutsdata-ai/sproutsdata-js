@@ -135,7 +135,7 @@
       "coverage": null,
       "attribution": [
         {
-          "source_corpus": "companies",
+          "source_corpus": "gtm_index",
           "domain": null,
           "as_of": "2026-09-28T00:00:00Z",
           "url": null,
@@ -145,10 +145,11 @@
       "degradation": [],
       "columns": null,
       "meta": {
-        "request_id": "req_c07e5a19b4",
-        "environment": "test",
         "as_of": "2026-10-01T09:12:44Z",
-        "credential": "api_key"
+        "credential": "api_key",
+        "credits_charged": null,
+        "environment": "live",
+        "request_id": "req_c07e5a19b4"
       }
     }
   },
@@ -187,7 +188,6 @@
     "caveats": [
       "rows_without_lookup: 1 of 2 rows carry no domain or LinkedIn URL, so they have no `lookup` value and cannot be looked up."
     ],
-    "environment": "test",
     "has_more": false,
     "interpreted_as": {
       "conflicts": [],

@@ -1,47 +1,32 @@
 /**
- * Responses → what a model reads (contract 02 §12.2).
+ * Responses, as a model reads them (`spec/tools/README.md`, "Result shape").
  *
- * A raw page of ten companies is about 17,600 tokens; shaped, about 2,300.
- * The cut comes from four rules, all in `spec/tools/shaping.json` so both
- * SDKs cut identically:
+ * A raw page of ten companies is about 17,600 tokens; shaped, about 2,300. Four rules, all in
+ * `spec/tools/shaping.json` so the Python SDK cuts identically: rows are projected (company and
+ * person to a default field set, or to the `fields` named), absent values are dropped, long text
+ * is cut, and long lists are capped with the values the request asked for first.
  *
- * - **Rows are projected** to a default field set per category (company and
- *   person; documents have no grounded default and pass whole), or to the
- *   `fields` the model named. `id` and `category` always survive.
- * - **Absent is absent.** `null`, `""`, `[]` and `{}` are dropped: they cost
- *   tokens and read as "we checked and it is empty", which the server never
- *   said.
- * - **Long text is cut** at 300 characters, marked `…`.
- * - **Long lists are capped** at 15, marked `"… +N more"` — and values that
- *   match the request's filters go first. Without that, "companies using
- *   HubSpot" showed HubSpot in none of ten rows: it sat at positions 31 to
- *   252 of each `technology` list.
- *
- * What is never cut: the totals, `interpreted_as`, `caveats`, `suggestion`,
- * `request_id` and `environment`. Those are how a model knows what it is
- * looking at.
+ * Never cut: the totals, `interpreted_as`, `caveats`, `suggestion` and `request_id`, which are
+ * how a model knows what it is looking at.
  */
 
-import { lookupRef } from '../lookup';
-import type { SearchHit } from '../types';
-import { join, render, SHAPING, text } from './spec';
-import type { InterpretedAs, LookupToolHit, LookupToolResult, SearchToolResult } from './types';
-import { isObject } from './validate';
+import { type EntitiesEnvelope, lookupRef, type SearchEnvelope, type SearchHit } from '../index.js';
+import { join, render, SHAPING, text } from './catalog.js';
+import type { InterpretedAs, LookupToolResult, SearchToolResult, SparseFilterNote } from './types.js';
+import { isObject } from './validate.js';
 
-const TEXT_MAX = SHAPING.text_max_chars;
-const LIST_MAX = SHAPING.list_max_entries;
-const MATCHES_MAX = SHAPING.matches_max;
-const SEARCH_ID = new RegExp(SHAPING.search_id_pattern);
+const PROJECTIONS = SHAPING.default_projection;
+const SKIPPED: ReadonlySet<string> = new Set(SHAPING.resolved_filters_skipped);
+const SEARCH_ID = new RegExp(SHAPING.search_id_pattern, 'u');
+/** Rows whose lookup value comes from their record, and can be missing. */
+const ADDRESSABLE: ReadonlySet<string> = new Set(['company', 'person']);
 
-/** Categories whose rows `lookupRef` can address, and whose misses the id mix-up explains. */
-const ADDRESSABLE: readonly string[] = ['company', 'person'];
-
-/** Field name → lower-cased values the request asked for, for list ordering. */
-export type Wanted = Map<string, Set<string>>;
+/** Field name to the lower-cased values the request asked for, for list ordering. */
+export type Wanted = ReadonlyMap<string, ReadonlySet<string>>;
 
 function isEmpty(value: unknown): boolean {
-  if (value === null || value === undefined || value === '') return true;
-  if (Array.isArray(value)) return value.length === 0;
+  if (value === null || value === undefined) return true;
+  if (typeof value === 'string' || Array.isArray(value)) return value.length === 0;
   return isObject(value) && Object.keys(value).length === 0;
 }
 
@@ -50,82 +35,74 @@ function moreMarker(count: number): string {
   return SHAPING.more_marker.replace('{count}', render(count));
 }
 
-/** Cut at `TEXT_MAX` code points, as Python slices. */
-function truncate(value: string): string {
-  const chars = Array.from(value);
-  return chars.length <= TEXT_MAX ? value : chars.slice(0, TEXT_MAX).join('') + SHAPING.ellipsis;
+function capList(values: readonly unknown[], limit: number): unknown[] {
+  return values.length <= limit ? [...values] : [...values.slice(0, limit), moreMarker(values.length - limit)];
 }
 
-function cap<T>(values: T[], limit: number): Array<T | string> {
-  return values.length <= limit ? values : [...values.slice(0, limit), moreMarker(values.length - limit)];
+/** A string cut to the shaping length, counted in code points as Python counts them. */
+function cutText(value: string): string {
+  let kept = '';
+  let count = 0;
+  for (const point of value) {
+    if (count === SHAPING.text_max_chars) return kept + SHAPING.ellipsis;
+    kept += point;
+    count += 1;
+  }
+  return value;
 }
 
-function matchesWanted(item: unknown, wanted: Set<string>): boolean {
-  return typeof item === 'string' && wanted.has(item.toLowerCase());
-}
-
-/** One value, trimmed. `wanted` orders a list's matching strings first. */
-function compact(value: unknown, wanted?: Set<string>): unknown {
-  if (typeof value === 'string') return truncate(value);
+/** One value, trimmed. `wanted` moves a list's matching strings first. */
+function compact(value: unknown, wanted?: ReadonlySet<string>): unknown {
+  if (typeof value === 'string') return cutText(value);
   if (Array.isArray(value)) {
-    let items = value.map((item) => compact(item)).filter((item) => !isEmpty(item));
-    if (wanted !== undefined && wanted.size > 0) {
-      // A stable partition: the original order holds within each half.
-      items = [
-        ...items.filter((item) => matchesWanted(item, wanted)),
-        ...items.filter((item) => !matchesWanted(item, wanted)),
-      ];
-    }
-    return cap(items, LIST_MAX);
+    const items = value.map((item: unknown) => compact(item)).filter((item) => !isEmpty(item));
+    const hit = (item: unknown): boolean => typeof item === 'string' && wanted?.has(item.toLowerCase()) === true;
+    // A stable partition: the original order holds within each half.
+    return capList([...items.filter(hit), ...items.filter((item) => !hit(item))], SHAPING.list_max_entries);
   }
   if (isObject(value)) {
-    return Object.fromEntries(
-      Object.entries(value)
-        .map(([key, item]) => [key, compact(item)] as const)
-        .filter(([, item]) => !isEmpty(item)),
-    );
+    const out: Record<string, unknown> = {};
+    for (const [key, item] of Object.entries(value)) {
+      const compacted = compact(item);
+      if (!isEmpty(compacted)) out[key] = compacted;
+    }
+    return out;
   }
   return value;
 }
 
 /** A row or record, projected and trimmed. Absent fields are never invented. */
-export function compactRecord(
-  record: Record<string, unknown>,
+function compactRecord(
+  record: Readonly<Record<string, unknown>>,
   category: string,
   fields: readonly string[] | undefined,
   wanted: Wanted = new Map(),
 ): Record<string, unknown> {
-  let keep: ReadonlySet<string> | undefined;
-  if (fields !== undefined) keep = new Set([...fields, ...SHAPING.identity_fields]);
-  else if (Object.hasOwn(SHAPING.default_projection, category)) {
-    keep = new Set(SHAPING.default_projection[category]);
-  }
-  const out: Array<[string, unknown]> = [];
+  const keep: ReadonlySet<string> | undefined =
+    fields !== undefined ? new Set([...fields, ...SHAPING.identity_fields]) : category in PROJECTIONS ? new Set(PROJECTIONS[category]) : undefined;
+  const out: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(record)) {
     if (keep !== undefined && !keep.has(key)) continue;
     const compacted = compact(value, wanted.get(key));
-    if (!isEmpty(compacted)) out.push([key, compacted]);
+    if (!isEmpty(compacted)) out[key] = compacted;
   }
-  return Object.fromEntries(out);
+  return out;
 }
 
 /** The literal values inside one filter, whatever its shape. */
 function strings(value: unknown): string[] {
   if (typeof value === 'string') return [value];
   if (Array.isArray(value)) return value.flatMap(strings);
-  if (isObject(value)) return strings(value.include);
-  return [];
+  return isObject(value) ? strings(value['include']) : [];
 }
 
 /**
- * What the request asked for, per field: its own filters plus the parser's.
- *
- * The parser's half matters most. "Companies using HubSpot" carries no
- * `technology` filter from the caller; the engine inferred one, and that is
- * the value each row's list has to show.
+ * What the request asked for, per field: its own filters plus the parser's. "Companies using
+ * HubSpot" carries no `technology` filter from the caller, but the engine inferred one, and each
+ * row's list has to show it.
  */
-export function wantedValues(...filterSets: Array<Record<string, unknown> | undefined>): Wanted {
-  const wanted: Wanted = new Map();
+export function wantedValues(...filterSets: (Readonly<Record<string, unknown>> | null | undefined)[]): Wanted {
+  const wanted = new Map<string, Set<string>>();
   for (const filters of filterSets) {
     for (const [name, value] of Object.entries(filters ?? {})) {
       const set = wanted.get(name) ?? new Set<string>();
@@ -136,162 +113,101 @@ export function wantedValues(...filterSets: Array<Record<string, unknown> | unde
   return wanted;
 }
 
-// -- caveats ------------------------------------------------------------------
-
-function degradationCaveats(entries: unknown): string[] {
-  if (!Array.isArray(entries)) return [];
-  return entries.filter(isObject).map((entry) =>
-    text('caveats', 'degradation', {
-      reason: entry.reason ?? null,
-      detail: entry.detail ?? null,
-      impact: entry.impact ?? null,
-    }),
-  );
+function degradation(entries: readonly { readonly reason: string; readonly detail: string; readonly impact: string }[]): string[] {
+  return entries.map((d) => text('caveats', 'degradation', { reason: d.reason, detail: d.detail, impact: d.impact }));
 }
 
-function coverageCaveats(coverage: unknown): string[] {
-  if (!isObject(coverage)) return [];
+function coverageNotes(coverage: SearchEnvelope['coverage']): string[] {
+  if (coverage === null) return [];
   const notes: string[] = [];
-  if (coverage.truncated_by) {
-    notes.push(
-      text('caveats', 'coverage_truncated', {
-        enumerated: coverage.enumerated ?? 0,
-        universe: coverage.universe ?? 0,
-        truncated_by: coverage.truncated_by,
-      }),
-    );
+  if (coverage.truncated_by !== null) {
+    const { enumerated, universe } = coverage;
+    notes.push(text('caveats', 'coverage_truncated', { enumerated, universe, truncated_by: coverage.truncated_by }));
   }
-  const unmet = Array.isArray(coverage.constraints_unmet) ? coverage.constraints_unmet : [];
-  for (const constraint of unmet) notes.push(text('caveats', 'constraint_unmet', { constraint }));
-  return notes;
+  return [...notes, ...coverage.constraints_unmet.map((constraint) => text('caveats', 'constraint_unmet', { constraint }))];
 }
 
-/**
- * Whether words were sent and nothing parsed them. `parser_version: "none"`
- * with no filters is the engine saying it did not read the sentence —
- * reported exactly like "read it and found nothing", which is why `fast`
- * mode dropping a country went unnoticed.
- */
-function parserSkipped(resolved: Record<string, unknown> | undefined, askedInWords: boolean): boolean {
-  if (resolved === undefined || !askedInWords) return false;
-  const version = resolved.parser_version ?? '';
-  return (version === '' || version === 'none') && isEmpty(resolved.filters);
+/** The filters a search resolved to, without a look-alike's anchors and `combine`. */
+function resolvedFilters(resolved: SearchEnvelope['resolved_search']): Record<string, unknown> {
+  const filters = resolved?.filters ?? {};
+  return Object.fromEntries(Object.entries(filters).filter(([key]) => !SKIPPED.has(key)));
 }
 
-function suggestion(value: unknown): Record<string, unknown> | null {
-  if (!isObject(value)) return null;
-  return Object.fromEntries(Object.entries(value).filter(([, item]) => !isEmpty(item)));
+/** Whether words were sent and nothing parsed them (`parser_version: "none"`). */
+function parserSkipped(resolved: SearchEnvelope['resolved_search'], askedInWords: boolean): boolean {
+  if (resolved === null || !askedInWords) return false;
+  return (resolved.parser_version === '' || resolved.parser_version === 'none') && Object.keys(resolvedFilters(resolved)).length === 0;
 }
 
 /** `resolved_search` as the model needs it. Present even when the server sent none. */
-function interpretedAs(resolved: Record<string, unknown> | undefined): InterpretedAs {
-  if (resolved === undefined) return { filters: {}, source: 'none', conflicts: [] };
-  return {
-    filters: (resolved.filters ?? {}) as Record<string, unknown>,
-    source: (resolved.filters_source ?? 'none') as string,
-    conflicts: (resolved.conflicts ?? []) as unknown[],
-  };
+export function interpretedAs(resolved: SearchEnvelope['resolved_search']): InterpretedAs {
+  if (resolved === null) return { filters: {}, source: 'none', conflicts: [] };
+  const shaped = { filters: resolvedFilters(resolved), source: resolved.filters_source, conflicts: resolved.conflicts };
+  // Answers are not validated, and one from a backend older than dsp-backend #179 has none.
+  const sparse: readonly SparseFilterNote[] = resolved.sparse_filters;
+  return Array.isArray(sparse) && sparse.length > 0 ? { ...shaped, sparse_filters: sparse } : shaped;
 }
 
-function meta(body: Record<string, unknown>): Record<string, unknown> {
-  return isObject(body.meta) ? body.meta : {};
+function lookupOf(hit: SearchHit): { readonly by?: string; readonly value: string } | undefined {
+  const ref = lookupRef(hit);
+  if (ref === undefined) return undefined;
+  return ref.by === undefined ? { value: ref.value } : { by: ref.by, value: ref.value };
 }
 
-/** The response's `resolved_search`, when it sent one. */
-export function resolvedSearch(body: Record<string, unknown>): Record<string, unknown> | undefined {
-  return isObject(body.resolved_search) ? body.resolved_search : undefined;
-}
-
+/** What a page needs shaped, beside the page itself. */
 export interface PageShaping {
-  /** The page's rows still to be shown. */
-  hits: SearchHit[];
-  category: string;
-  fields: readonly string[] | undefined;
-  wanted: Wanted;
-  withLookup: boolean;
-  askedInWords: boolean;
-  caveats: readonly string[];
+  readonly hits: readonly SearchHit[];
+  readonly category: string;
+  readonly fields: readonly string[] | undefined;
+  readonly wanted: Wanted;
+  readonly withLookup: boolean;
+  readonly askedInWords: boolean;
+  readonly caveats: readonly string[];
 }
 
-/** A search or look-alike page. */
-export function shapePage(body: Record<string, unknown>, options: PageShaping): SearchToolResult {
-  const { hits } = options;
+/** A search or look-alike page. `hits` are the page's rows still to be shown. */
+export function shapePage(page: SearchEnvelope, shaping: PageShaping): SearchToolResult {
   let unaddressed = 0;
-  const rows = hits.map((hit) => {
-    const declared: unknown = hit.category;
-    const hitCategory = typeof declared === 'string' && declared !== '' ? declared : options.category;
-    const row = compactRecord(hit, hitCategory, options.fields, options.wanted);
-    if (options.withLookup && ADDRESSABLE.includes(hit.category)) {
-      const ref = lookupRef(hit);
-      if (ref === null) unaddressed += 1;
-      else row.lookup = { by: ref.by, value: ref.value };
-    }
+  const rows = shaping.hits.map((hit) => {
+    const row = compactRecord(hit, hit.category, shaping.fields, shaping.wanted);
+    const lookup = shaping.withLookup ? lookupOf(hit) : undefined;
+    if (lookup !== undefined) row['lookup'] = lookup;
+    else if (shaping.withLookup && ADDRESSABLE.has(hit.category)) unaddressed += 1;
     return row;
   });
-
-  const resolved = resolvedSearch(body);
-  const notes = [...degradationCaveats(body.degradation), ...coverageCaveats(body.coverage)];
-  if (parserSkipped(resolved, options.askedInWords)) notes.push(text('caveats', 'parser_not_run'));
-  notes.push(...options.caveats);
-  if (unaddressed > 0) {
-    notes.push(text('caveats', 'rows_without_lookup', { count: unaddressed, shown: hits.length }));
-  }
-
+  const notes = [...degradation(page.degradation), ...coverageNotes(page.coverage)];
+  if (parserSkipped(page.resolved_search, shaping.askedInWords)) notes.push(text('caveats', 'parser_not_run'));
+  notes.push(...shaping.caveats);
+  if (unaddressed > 0) notes.push(text('caveats', 'rows_without_lookup', { count: unaddressed, shown: shaping.hits.length }));
+  const suggestion = page.suggestion ?? null;
   return {
     results: rows,
-    total: (body.total || 0) as number,
-    total_is_estimate: Boolean(body.total_is_estimate),
-    has_more: Boolean(body.has_more),
-    next_cursor: (body.next_cursor ?? null) as string | null,
-    interpreted_as: interpretedAs(resolved),
+    total: page.total,
+    total_is_estimate: page.total_is_estimate,
+    has_more: page.has_more,
+    next_cursor: page.next_cursor ?? null,
+    interpreted_as: interpretedAs(page.resolved_search),
     caveats: notes,
-    suggestion: suggestion(body.suggestion),
-    request_id: (meta(body).request_id || null) as string | null,
-    environment: (meta(body).environment ?? null) as string | null,
+    suggestion: suggestion === null ? null : Object.fromEntries(Object.entries(suggestion).filter(([, v]) => !isEmpty(v))),
+    request_id: page.meta.request_id,
   };
 }
 
-/** A domain or URL, as opposed to a record id. */
-function looksRaw(identifier: string): boolean {
-  return identifier.includes('.') || identifier.includes('/');
-}
-
-/** An entity lookup: every id answered, in order, misses included. */
-export function shapeLookup(
-  body: Record<string, unknown>,
-  category: string,
-  fields: readonly string[] | undefined,
-  byWasSet: boolean,
-): LookupToolResult {
-  const hits = (Array.isArray(body.results) ? body.results : []).filter(isObject);
-  const results: LookupToolHit[] = hits.map((hit) => {
-    const matches = (Array.isArray(hit.matches) ? hit.matches : []).filter(isObject);
-    return {
-      id: hit.id as string,
-      found: hit.found === true,
-      matches: cap(
-        matches.map((match) => compactRecord(match, category, fields)),
-        MATCHES_MAX,
-      ),
-      ambiguous: matches.length > 1,
-    };
-  });
-
-  const misses = results.filter((hit) => !hit.found).map((hit) => hit.id);
-  const notes = degradationCaveats(body.degradation);
-  if (ADDRESSABLE.includes(category) && !byWasSet) {
-    const searchIds = misses.filter((id) => SEARCH_ID.test(id));
-    const raw = misses.filter(looksRaw);
-    if (searchIds.length > 0) notes.push(text('caveats', 'search_ids_not_found', { ids: join(searchIds) }));
-    if (raw.length > 0) notes.push(text('caveats', 'raw_values_without_by', { ids: join(raw) }));
-  }
-  const empty = results.filter((hit) => hit.found && hit.matches.length === 0).map((hit) => hit.id);
+/** An entity lookup: every id answered, in the answer's order, misses included. */
+export function shapeLookup(answer: EntitiesEnvelope, category: string, fields: readonly string[] | undefined, byWasSet: boolean): LookupToolResult {
+  const results = answer.results.map((hit) => ({
+    id: hit.id,
+    found: hit.found,
+    matches: capList(
+      hit.matches.map((record) => compactRecord(record, category, fields)),
+      SHAPING.matches_max,
+    ).map((item) => (isObject(item) || typeof item === 'string' ? item : String(item))),
+    ambiguous: hit.matches.length > 1,
+  }));
+  const notes = degradation(answer.degradation);
+  const searchIds = answer.results.filter((hit) => !hit.found && SEARCH_ID.test(hit.id)).map((hit) => hit.id);
+  if (ADDRESSABLE.has(category) && !byWasSet && searchIds.length > 0) notes.push(text('caveats', 'search_ids_not_found', { ids: join(searchIds) }));
+  const empty = answer.results.filter((hit) => hit.found && hit.matches.length === 0).map((hit) => hit.id);
   if (empty.length > 0) notes.push(text('caveats', 'record_unavailable', { ids: join(empty) }));
-
-  return {
-    results,
-    caveats: notes,
-    request_id: (meta(body).request_id || null) as string | null,
-    environment: (meta(body).environment ?? null) as string | null,
-  };
+  return { results, caveats: notes, request_id: answer.meta.request_id };
 }

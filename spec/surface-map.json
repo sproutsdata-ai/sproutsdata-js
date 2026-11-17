@@ -1,6 +1,6 @@
 {
-  "$comment": "The public surface both SDKs expose (contract 02 §2): each group, the endpoints it wraps as `METHOD path` exactly as openapi.json spells them, and the client attribute paths that reach them in each language. Page-iteration helpers (`auto_paginate`, `*Pages`) are left out: §6 lets each language keep its own idiom there. Case follows the language; the shape does not. `absent` lists attribute names that must not exist on a client — the old `usage` namespace collided with credits.usage.",
-  "version": 1,
+  "$comment": "The public surface both SDKs expose: each group, the endpoints it wraps as `METHOD path` exactly as openapi.json spells them, and the client attribute paths that reach them in each language. Page-iteration helpers (`auto_paginate`, `*Pages`, `iter_*`) are left out: each language keeps its own idiom there. Case follows the language; the shape does not. Every endpoint in routes.json appears in exactly one group. `absent` lists attribute paths that must not exist on a client: `usage` (it collided with credits), and the surface removed with the old backend (`members`, `credits.usage`: the new backend has neither route yet).",
+  "version": 2,
   "groups": [
     {
       "group": "search",
@@ -167,17 +167,20 @@
       "endpoints": [
         "POST /v1/org-chart",
         "POST /v1/org-chart/departments",
-        "POST /v1/org-chart/locations"
+        "POST /v1/org-chart/locations",
+        "GET /v1/org-chart/taxonomy"
       ],
       "python": [
         "org_chart.retrieve",
         "org_chart.departments",
-        "org_chart.locations"
+        "org_chart.locations",
+        "org_chart.taxonomy"
       ],
       "js": [
         "orgChart.retrieve",
         "orgChart.departments",
-        "orgChart.locations"
+        "orgChart.locations",
+        "orgChart.taxonomy"
       ]
     },
     {
@@ -212,25 +215,19 @@
     {
       "group": "credits",
       "endpoints": [
-        "GET /v1/credits"
+        "GET /v1/credits",
+        "GET /v1/credits/transactions",
+        "POST /v1/credits/quote"
       ],
       "python": [
-        "credits.retrieve"
+        "credits.retrieve",
+        "credits.transactions",
+        "credits.quote"
       ],
       "js": [
-        "credits.retrieve"
-      ]
-    },
-    {
-      "group": "key_usage",
-      "endpoints": [
-        "GET /v1/keys/usage"
-      ],
-      "python": [
-        "credits.usage"
-      ],
-      "js": [
-        "credits.usage"
+        "credits.retrieve",
+        "credits.transactions",
+        "credits.quote"
       ]
     },
     {
@@ -285,18 +282,6 @@
       ]
     },
     {
-      "group": "members",
-      "endpoints": [
-        "POST /v1/members/resolve"
-      ],
-      "python": [
-        "members.resolve"
-      ],
-      "js": [
-        "members.resolve"
-      ]
-    },
-    {
       "group": "lists",
       "endpoints": [
         "GET /v1/lists",
@@ -330,6 +315,23 @@
       ]
     },
     {
+      "group": "exports",
+      "endpoints": [
+        "GET /v1/exports/{job_id}",
+        "GET /v1/exports/{job_id}/file"
+      ],
+      "python": [
+        "exports.retrieve",
+        "exports.download",
+        "exports.wait"
+      ],
+      "js": [
+        "exports.retrieve",
+        "exports.download",
+        "exports.wait"
+      ]
+    },
+    {
       "group": "search_export",
       "endpoints": [
         "POST /v1/search/export"
@@ -344,11 +346,15 @@
   ],
   "absent": {
     "python": [
-      "usage"
+      "usage",
+      "members",
+      "credits.usage"
     ],
     "js": [
       "usage",
-      "agents"
+      "agents",
+      "members",
+      "credits.usage"
     ]
   }
 }

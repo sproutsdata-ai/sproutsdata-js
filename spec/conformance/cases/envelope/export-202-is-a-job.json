@@ -1,0 +1,37 @@
+{
+  "name": "a_large_export_answers_with_a_job_not_a_file",
+  "description": "An export over the server's at-once row limit answers 202 with a JSON export job to poll, not 200 with CSV. A client that read every export body as CSV would hand the caller the job's JSON as if it were the file.",
+  "request": {
+    "method": "POST",
+    "path": "/v1/lists/5f0c9a52-1d1e-4f61-9a43-1b3c8a1d7e10/export",
+    "body": {}
+  },
+  "responses": [
+    {
+      "status": 202,
+      "headers": {
+        "X-Request-Id": "req_job",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "job_id": "exp_1",
+        "status": "queued",
+        "rows": null,
+        "skipped": 0,
+        "error": null,
+        "created_at": "2026-11-11T00:00:00Z",
+        "finished_at": null,
+        "expires_at": null,
+        "file_url": "/v1/exports/exp_1/file"
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "success": {
+      "export_kind": "job",
+      "job_id": "exp_1",
+      "request_id": "req_job"
+    }
+  }
+}

@@ -69,7 +69,7 @@
       "coverage": null,
       "attribution": [
         {
-          "source_corpus": "companies",
+          "source_corpus": "gtm_index",
           "domain": null,
           "as_of": "2026-09-28T00:00:00Z",
           "url": null,
@@ -79,10 +79,11 @@
       "degradation": [],
       "columns": null,
       "meta": {
-        "request_id": "req_77d2b9e104",
-        "environment": "test",
         "as_of": "2026-10-01T09:12:44Z",
-        "credential": "api_key"
+        "credential": "api_key",
+        "credits_charged": null,
+        "environment": "live",
+        "request_id": "req_77d2b9e104"
       }
     }
   },
@@ -102,7 +103,6 @@
           "weight": 1
         }
       ],
-      "category": "company",
       "filters": {
         "geo": {
           "places": [
@@ -123,7 +123,6 @@
       "anchors_by_name: Adyen — resolved by name with no disambiguation, so a same-named company may have been used. Prefer a domain.",
       "anchors_removed: stripe.com — returned as a look-alike of itself and removed."
     ],
-    "environment": "test",
     "has_more": true,
     "interpreted_as": {
       "conflicts": [],

@@ -1,0 +1,130 @@
+{
+  "body": {
+    "attribution": [
+      {
+        "as_of": "2026-11-16T23:02:26.004564Z",
+        "domain": null,
+        "quote": null,
+        "source_corpus": "gtm_index",
+        "url": null
+      }
+    ],
+    "cells": [
+      {
+        "count": 7,
+        "department": {
+          "code": "engineering",
+          "label": "Engineering"
+        },
+        "job_openings": 2,
+        "new_joiners": 1,
+        "seniority": {
+          "code": "senior",
+          "label": "Senior"
+        }
+      },
+      {
+        "count": 3,
+        "department": {
+          "code": "sales",
+          "label": "Sales"
+        },
+        "job_openings": 2,
+        "new_joiners": 1,
+        "seniority": {
+          "code": "manager",
+          "label": "Manager"
+        }
+      }
+    ],
+    "company": {
+      "company_ref": null,
+      "domain": "acme.com",
+      "linkedin_url": null,
+      "name": "acme.com Inc"
+    },
+    "coverage": {
+      "candidates": [],
+      "employee_count": 12,
+      "low": false,
+      "profiles": 10
+    },
+    "data_version": "people-e2e",
+    "degradation": [],
+    "department_totals": [
+      {
+        "code": "engineering",
+        "count": 7,
+        "label": "Engineering"
+      },
+      {
+        "code": "sales",
+        "count": 3,
+        "label": "Sales"
+      }
+    ],
+    "employment_mismatch_count": 0,
+    "job_openings_total": 4,
+    "jobs_data_version": "jobs-e2e",
+    "joiner_basis": "company_stint",
+    "matched": null,
+    "meta": {
+      "as_of": "2026-11-16T23:02:26.004564Z",
+      "credential": "api_key",
+      "credits_balance": null,
+      "credits_charged": 1.0,
+      "environment": "live",
+      "request_id": "97c5e3b9735d4496a7244e0b7d64b974"
+    },
+    "new_joiners_total": 2,
+    "seniority_totals": [
+      {
+        "code": "senior",
+        "count": 7,
+        "label": "Senior"
+      },
+      {
+        "code": "manager",
+        "count": 3,
+        "label": "Manager"
+      }
+    ],
+    "subdepartments": [
+      {
+        "count": 4,
+        "department": {
+          "code": "engineering",
+          "label": "Engineering"
+        },
+        "seniority": {
+          "code": "senior",
+          "label": "Senior"
+        },
+        "subdepartment": {
+          "code": "backend",
+          "label": "Backend"
+        }
+      }
+    ],
+    "suspect_count": 0,
+    "taxonomy_version": "e2e-1",
+    "total": 10
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "34",
+    "x-request-id": "97c5e3b9735d4496a7244e0b7d64b974"
+  },
+  "operation": "org_chart",
+  "request": {
+    "body": {
+      "domain": "acme.com"
+    },
+    "method": "POST",
+    "path": "/v1/org-chart",
+    "query": {}
+  },
+  "status": 200
+}

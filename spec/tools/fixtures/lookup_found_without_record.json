@@ -32,7 +32,7 @@
       "coverage": null,
       "attribution": [
         {
-          "source_corpus": "companies",
+          "source_corpus": "gtm_index",
           "domain": null,
           "as_of": "2026-09-28T00:00:00Z",
           "url": null,
@@ -42,10 +42,11 @@
       "degradation": [],
       "columns": null,
       "meta": {
-        "request_id": "req_6c2e90b1d4",
-        "environment": "test",
         "as_of": "2026-10-01T09:12:44Z",
-        "credential": "api_key"
+        "credential": "api_key",
+        "credits_charged": null,
+        "environment": "live",
+        "request_id": "req_6c2e90b1d4"
       }
     }
   },
@@ -63,7 +64,6 @@
     "caveats": [
       "record_unavailable: https://www.linkedin.com/in/ada-example — resolved, but no record came back. This is not a miss."
     ],
-    "environment": "test",
     "request_id": "req_6c2e90b1d4",
     "results": [
       {

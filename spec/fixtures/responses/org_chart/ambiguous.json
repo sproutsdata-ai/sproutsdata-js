@@ -1,0 +1,47 @@
+{
+  "body": {
+    "code": "org_chart.company_ambiguous",
+    "detail": "2 companies match 'twin.example'. Choose one and send its `company_ref` instead.",
+    "extra": {
+      "candidate_count": 2,
+      "candidates": [
+        {
+          "company_ref": "d1_rzrCWDkkb41S8ZXAVeCC6RKw_eeVw2Y8Ugg",
+          "domain": "twin.example",
+          "linkedin_url": "linkedin.com/company/twin-a",
+          "name": "Twin A"
+        },
+        {
+          "company_ref": "d1_jCtoKlqQR2-W8-30JmJFY0xnZflB0s1tJF4",
+          "domain": "twin.example",
+          "linkedin_url": "linkedin.com/company/twin-b",
+          "name": "Twin B"
+        }
+      ],
+      "identifier": "twin.example"
+    },
+    "instance": "/v1/org-chart",
+    "next_step": "Name the company by its domain instead.",
+    "request_id": "bd499b420b774095860da6c7b556c22e",
+    "status": 422,
+    "title": "Ambiguous company",
+    "type": "https://dashboard.sproutsdata.ai/errors/org-chart-company-ambiguous"
+  },
+  "headers": {
+    "content-type": "application/problem+json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1998",
+    "ratelimit-reset": "34",
+    "x-request-id": "bd499b420b774095860da6c7b556c22e"
+  },
+  "operation": "org_chart",
+  "request": {
+    "body": {
+      "domain": "twin.example"
+    },
+    "method": "POST",
+    "path": "/v1/org-chart",
+    "query": {}
+  },
+  "status": 422
+}

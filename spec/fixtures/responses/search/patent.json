@@ -1,0 +1,137 @@
+{
+  "body": {
+    "attribution": [
+      {
+        "as_of": "2026-11-16T23:02:25.619874Z",
+        "domain": null,
+        "quote": null,
+        "source_corpus": "patents",
+        "url": null
+      }
+    ],
+    "columns": null,
+    "coverage": null,
+    "degradation": [],
+    "has_more": true,
+    "meta": {
+      "as_of": "2026-11-16T23:02:25.619874Z",
+      "credential": "api_key",
+      "credits_balance": 998.5,
+      "credits_charged": 0.5,
+      "environment": "live",
+      "request_id": "c185ab325aa647aab2fe66edf49b3a3d"
+    },
+    "next_cursor": "eyJmIjoiODQ1YjFmMDdhYzAyZmFmMjA5NjQ4MDAwMGY3MmI0MGYiLCJvIjoyLCJzIjoiYzM3YTc4ODJlYTY1NDIzMTg4MWFkYWYxYTk3YjFjOTEiLCJ0IjoxNzk0ODcwMTQ1LCJ1IjoicHJpc218cGF0ZW50fDEifQ.407ef734cb675255287da499549d851d",
+    "resolved_search": {
+      "category": "patent",
+      "conflicts": [],
+      "filters": {
+        "industry": {
+          "include": [
+            "Industrial Machinery & Equipment"
+          ]
+        }
+      },
+      "filters_source": "none",
+      "keyword_query": null,
+      "mode": "fast",
+      "overrides": [],
+      "parser_version": "none",
+      "query": "solid state battery",
+      "semantic_query": "industrial automation",
+      "semantic_scope": null,
+      "sort": [],
+      "sparse_filters": []
+    },
+    "results": [
+      {
+        "authors": [
+          "A. Example",
+          "B. Sample",
+          "C. Placeholder"
+        ],
+        "category": "patent",
+        "companies": [
+          {
+            "domain": "example-0.de",
+            "name": "Example Industrial GmbH"
+          }
+        ],
+        "countries": [
+          "germany",
+          "japan",
+          "united states"
+        ],
+        "id": "d1_KB__hepWUqbGXIC9ilsg6uUr1gaS8efqMUwrjB7fnxZ1oQiXYLuS0Py1KXkWwQT6Z9S3Cg",
+        "keywords": [
+          "battery",
+          "electrolyte",
+          "anode",
+          "fast charging",
+          "solid state"
+        ],
+        "published_date": "2025-06-14",
+        "publisher": "Example Publishing Group",
+        "score": 0.9,
+        "summary": "Describes a sulfide electrolyte with a protective interlayer that keeps the lithium anode stable over a thousand cycles at high current density. Describes a sulfide electrolyte with a protective interlayer that keeps the lithium anode stable over a thousand cycles at high current density. Describes a sulfide electrolyte with a protective interlayer that keeps the lithium anode stable over a thousand cycles at high current density. Describes a sulfide electrolyte with a protective interlayer that keeps the lithium anode stable over a thousand cycles at high current density. ",
+        "title": "Solid-state electrolyte interfaces for fast-charging cells, part 0",
+        "url": "https://example.org/patent/0"
+      },
+      {
+        "authors": [
+          "A. Example",
+          "B. Sample",
+          "C. Placeholder"
+        ],
+        "category": "patent",
+        "companies": [
+          {
+            "domain": "example-1.de",
+            "name": "Example Industrial GmbH"
+          }
+        ],
+        "countries": [
+          "germany",
+          "japan",
+          "united states"
+        ],
+        "id": "d1_ffI-iUzOTjuOLpnRt-wRFHQEgCwO835nfEUlkDPRxbQxeDZFSfYGsMHn9qCDo1Xfx7OZgw",
+        "keywords": [
+          "battery",
+          "electrolyte",
+          "anode",
+          "fast charging",
+          "solid state"
+        ],
+        "published_date": "2025-06-14",
+        "publisher": "Example Publishing Group",
+        "score": 0.89,
+        "summary": "Describes a sulfide electrolyte with a protective interlayer that keeps the lithium anode stable over a thousand cycles at high current density. Describes a sulfide electrolyte with a protective interlayer that keeps the lithium anode stable over a thousand cycles at high current density. Describes a sulfide electrolyte with a protective interlayer that keeps the lithium anode stable over a thousand cycles at high current density. Describes a sulfide electrolyte with a protective interlayer that keeps the lithium anode stable over a thousand cycles at high current density. ",
+        "title": "Solid-state electrolyte interfaces for fast-charging cells, part 1",
+        "url": "https://example.org/patent/1"
+      }
+    ],
+    "suggestion": null,
+    "total": 12345,
+    "total_is_estimate": false
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1997",
+    "ratelimit-reset": "35",
+    "x-request-id": "c185ab325aa647aab2fe66edf49b3a3d"
+  },
+  "operation": "search",
+  "request": {
+    "body": {
+      "category": "patent",
+      "limit": 2,
+      "query": "solid state battery"
+    },
+    "method": "POST",
+    "path": "/v1/search",
+    "query": {}
+  },
+  "status": 200
+}

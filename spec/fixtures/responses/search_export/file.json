@@ -1,0 +1,26 @@
+{
+  "body": "entity_category,entity_id,account_name,domain,industry,sub_industry,employee_count,employee_range,founded_year,revenue,total_funding,funding_stage,linkedin_followers,country,linkedin_url,description\r\ncompany,example-1.de,Example Industrial Automation GmbH 0,example-0.de,Industrial Machinery & Equipment,Automation Machinery Manufacturing,1200,1001-5000,1987,250000000,85000000,Private Equity,48210,Germany,https://www.linkedin.com/company/example-0,\"Designs and builds automation systems, motion control and industrial robots for automotive, electronics and food production lines across Europe and Asia. Designs and builds automation systems, motion control and industrial robots for automotive, electronics and food production lines across Europe and Asia. Designs and builds automation systems, motion control and industrial robots for automotive, electronics and food production lines across Europe and Asia. \"\r\n",
+  "headers": {
+    "content-type": "text/csv; charset=utf-8",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "34",
+    "x-request-id": "c7f3cd85e7cd4045986a2b27b76953aa"
+  },
+  "operation": "search_export",
+  "request": {
+    "body": {
+      "items": [
+        {
+          "entity_category": "company",
+          "entity_id": "example-1.de"
+        }
+      ],
+      "request_id": "5500a7f707fe427b8a41e4bf3eaa53ad"
+    },
+    "method": "POST",
+    "path": "/v1/search/export",
+    "query": {}
+  },
+  "status": 200
+}

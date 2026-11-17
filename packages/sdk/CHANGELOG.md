@@ -1,6 +1,65 @@
 # Changelog
 
-## 0.0.1 (Unreleased)
+## Unreleased
+
+The SDK realigned to the new Sprouts Data Platform backend. **Breaking** for
+code written against the published `0.0.1`: [MIGRATION.md](MIGRATION.md) shows
+every changed call with its replacement.
+
+### Removed
+
+- `dangerouslyAllowBrowser`: the client refuses to run in a browser, and the
+  server refuses any key sent with an `Origin` header.
+- The `integration` option and the `X-SproutsData-Client` and `X-Dsp-Source`
+  headers, which the backend no longer reads.
+- `client.agents`, `credits.usage()` and `members.resolve()`, which the backend
+  does not serve; agent runs are `client.runs`.
+- Test keys, which the backend retired: keys look like `sk_dsp_live_…`, and a
+  `sk_dsp_test_…` key throws `ClientValidationError` saying so. Tool results no
+  longer carry `environment`, and `meta.environment` is a deprecated constant
+  (`'live'`).
+
+### Changed
+
+- **Search** covers every category (or `auto`, which lets the question choose)
+  and the `fast`, `auto` and `deep` modes; document categories take their own
+  filters and refuse company ones. Billing is per search session, and
+  `meta.credits_charged` is what each page cost. `iterSearch()` walks the pages.
+- **Lookups** default to `by: 'auto'`; company and person lookups apply `fields`
+  locally. `lookupRef(hit)` says how to look a search row up.
+- **Credits**: `credits.retrieve()` (`balance`, `reserved`, `available`, `debt`,
+  `status`) and `credits.transactions()`; a frozen wallet throws
+  `WalletFrozenError`.
+- **Lists** have unique names (`ListNameTakenError`) and take up to 1,000 items
+  per request; `lists.export()` and `searchExport()` return
+  `{ kind: 'file', csv }` or `{ kind: 'job', job }`, followed with
+  `exports.wait()` and `exports.download()`.
+- **Org chart** (`orgChart.retrieve`, `departments`, `locations`, `taxonomy`),
+  **relationships** (`find`, `reach`, `institutions`, `ask`), **runs**,
+  **history** and **feedback** (reports, tags and votes) follow the new routes.
+- **Errors** follow the backend's codes; every key failure is one
+  `AuthenticationError`.
+- **Tools** (`sproutsdata/tools`) are rebuilt on the client with the shared tool
+  specs; `resolveClient`, `ConnectionOptions` and `isApplicationError` are
+  exported for adapters, and a client from a second copy of the package is
+  recognised.
+
+### Added
+
+- `onResponse` on the client and per call; `scripts/smoke-live.mjs` checks a
+  deployment with the check names the Python SDK shares.
+- Requires Node.js 22.12.0 or later.
+- An empty search says why: `degradation` carries `no_match`, and
+  `suggestion` can be `kind: 'relax'` with `without`, the filters whose removal
+  alone finds records (`examples/relax-search.ts`). `sparse_filter` and
+  `topic_not_required` name thin filters and unmentioned topics. The search
+  tool's `interpreted_as` carries `sparse_filters`.
+- `credits.quote()`: what a call would cost, from the live price list (free; it
+  holds nothing). `meta.credits_balance` is the balance after each billed call.
+- `APIError.nextStep`: the server's one sentence on what to do now, after
+  `detail` in the message; tool errors carry it after the detail too.
+
+## 0.0.1
 
 The first public release of `sproutsdata`, the official JavaScript / TypeScript
 SDK for the Sprouts Data API. Until 1.0, a minor version may include breaking

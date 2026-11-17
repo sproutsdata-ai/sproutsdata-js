@@ -1,0 +1,237 @@
+{
+  "body": {
+    "attribution": [
+      {
+        "as_of": "2026-11-16T23:02:25.654112Z",
+        "domain": null,
+        "quote": null,
+        "source_corpus": "gtm_index",
+        "url": null
+      }
+    ],
+    "columns": null,
+    "coverage": null,
+    "degradation": [
+      {
+        "detail": "`revenue` is held by only 2.0% of companies (246 of 12,345), so this search can reach at most that share. A small answer may reflect missing data rather than a narrow ask.",
+        "impact": "recall",
+        "reason": "sparse_filter",
+        "source_corpus": "gtm_index"
+      }
+    ],
+    "has_more": true,
+    "meta": {
+      "as_of": "2026-11-16T23:02:25.654112Z",
+      "credential": "api_key",
+      "credits_balance": 997.405,
+      "credits_charged": 0.5,
+      "environment": "live",
+      "request_id": "1eba56061d814472b4e5e056d4baa4b8"
+    },
+    "next_cursor": "eyJmIjoiMjQyMmNiODgwYWI3YTg3MGE4ZDE1YTVkZGZkYjJjNDciLCJvIjoyLCJzIjoiMWZmNzAxZDk1MGQyNDYyMmE5ZDY0MDFiYjIwMmIyNGIiLCJ0IjoxNzk0ODcwMTQ1LCJ1IjoicHJpc218Y29tcGFueXwxIn0.d2f53533d89ffa980d99dee6a71da29b",
+    "resolved_search": {
+      "category": "company",
+      "conflicts": [],
+      "filters": {
+        "industry": {
+          "include": [
+            "Industrial Machinery & Equipment"
+          ]
+        }
+      },
+      "filters_source": "caller",
+      "keyword_query": null,
+      "mode": "fast",
+      "overrides": [],
+      "parser_version": "none",
+      "query": "robotics",
+      "semantic_query": "industrial automation",
+      "semantic_scope": null,
+      "sort": [],
+      "sparse_filters": [
+        {
+          "filter": "revenue",
+          "of": 12345,
+          "populated": 246,
+          "record_type": "company",
+          "share": 0.0199
+        }
+      ]
+    },
+    "results": [
+      {
+        "account_name": "Example Industrial Automation GmbH 0",
+        "category": "company",
+        "city": "Stuttgart",
+        "country": "Germany",
+        "description": "Designs and builds automation systems, motion control and industrial robots for automotive, electronics and food production lines across Europe and Asia. Designs and builds automation systems, motion control and industrial robots for automotive, electronics and food production lines across Europe and Asia. Designs and builds automation systems, motion control and industrial robots for automotive, electronics and food production lines across Europe and Asia. ",
+        "domain": "example-0.de",
+        "employee_by_department": {
+          "Engineering": 410,
+          "Operations": 300,
+          "Sales": 120
+        },
+        "employee_count": 1200,
+        "employee_range": "1001-5000",
+        "founded_year": 1987,
+        "funding_stage": "Private Equity",
+        "global_presence": [
+          "DEU",
+          "AUT",
+          "CHE",
+          "CHN",
+          "USA"
+        ],
+        "hiring_count": 37,
+        "id": "example-0.de",
+        "industry": "Industrial Machinery & Equipment",
+        "investors": [
+          "Example Capital",
+          "Industrie Fonds"
+        ],
+        "is_subsidiary": false,
+        "keywords": [
+          "automation",
+          "plc",
+          "robotics",
+          "motion control",
+          "mes",
+          "scada"
+        ],
+        "last_funding_amount": 40000000,
+        "last_funding_date": "2024-05-14",
+        "linkedin_followers": 48210,
+        "linkedin_url": "https://www.linkedin.com/company/example-0",
+        "listing_status": "private",
+        "naics": [
+          "333249"
+        ],
+        "other_industries": [
+          "Robotics",
+          "Electrical Equipment",
+          "Software"
+        ],
+        "phone": "+49 711 000000",
+        "primary_industry": "Manufacturing",
+        "region": "Europe",
+        "revenue": 250000000,
+        "revenue_range": "$100M-$500M",
+        "score": 1.0,
+        "sic": [
+          "3569"
+        ],
+        "state": "Baden-Wurttemberg",
+        "sub_industry": "Automation Machinery Manufacturing",
+        "technologies": [
+          "SAP",
+          "Siemens TIA Portal",
+          "Azure",
+          "Salesforce",
+          "HubSpot"
+        ],
+        "total_funding": 85000000,
+        "website": "https://example-0.de"
+      },
+      {
+        "account_name": "Example Industrial Automation GmbH 1",
+        "category": "company",
+        "city": "Stuttgart",
+        "country": "Germany",
+        "description": "Designs and builds automation systems, motion control and industrial robots for automotive, electronics and food production lines across Europe and Asia. Designs and builds automation systems, motion control and industrial robots for automotive, electronics and food production lines across Europe and Asia. Designs and builds automation systems, motion control and industrial robots for automotive, electronics and food production lines across Europe and Asia. ",
+        "domain": "example-1.de",
+        "employee_by_department": {
+          "Engineering": 410,
+          "Operations": 300,
+          "Sales": 120
+        },
+        "employee_count": 1201,
+        "employee_range": "1001-5000",
+        "founded_year": 1987,
+        "funding_stage": "Private Equity",
+        "global_presence": [
+          "DEU",
+          "AUT",
+          "CHE",
+          "CHN",
+          "USA"
+        ],
+        "hiring_count": 37,
+        "id": "example-1.de",
+        "industry": "Industrial Machinery & Equipment",
+        "investors": [
+          "Example Capital",
+          "Industrie Fonds"
+        ],
+        "is_subsidiary": false,
+        "keywords": [
+          "automation",
+          "plc",
+          "robotics",
+          "motion control",
+          "mes",
+          "scada"
+        ],
+        "last_funding_amount": 40000000,
+        "last_funding_date": "2024-05-14",
+        "linkedin_followers": 48210,
+        "linkedin_url": "https://www.linkedin.com/company/example-1",
+        "listing_status": "private",
+        "naics": [
+          "333249"
+        ],
+        "other_industries": [
+          "Robotics",
+          "Electrical Equipment",
+          "Software"
+        ],
+        "phone": "+49 711 000000",
+        "primary_industry": "Manufacturing",
+        "region": "Europe",
+        "revenue": 250000001,
+        "revenue_range": "$100M-$500M",
+        "score": 0.99,
+        "sic": [
+          "3569"
+        ],
+        "state": "Baden-Wurttemberg",
+        "sub_industry": "Automation Machinery Manufacturing",
+        "technologies": [
+          "SAP",
+          "Siemens TIA Portal",
+          "Azure",
+          "Salesforce",
+          "HubSpot"
+        ],
+        "total_funding": 85000000,
+        "website": "https://example-1.de"
+      }
+    ],
+    "suggestion": null,
+    "total": 12345,
+    "total_is_estimate": false
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1994",
+    "ratelimit-reset": "35",
+    "x-request-id": "1eba56061d814472b4e5e056d4baa4b8"
+  },
+  "operation": "search",
+  "request": {
+    "body": {
+      "category": "company",
+      "filters": {
+        "revenue": {
+          "gte": 100000000
+        }
+      },
+      "limit": 2,
+      "query": "robotics"
+    },
+    "method": "POST",
+    "path": "/v1/search",
+    "query": {}
+  },
+  "status": 200
+}

@@ -1,0 +1,17 @@
+{
+  "body": "",
+  "headers": {
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "34",
+    "x-request-id": "25c5b1ba82ca4bb69c6384259a84438a"
+  },
+  "operation": "lists_delete",
+  "request": {
+    "body": null,
+    "method": "DELETE",
+    "path": "/v1/lists/7715190d-24fe-48f6-8f26-4577056707a7",
+    "query": {}
+  },
+  "status": 204
+}

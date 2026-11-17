@@ -1,0 +1,36 @@
+{
+  "body": {
+    "changed": true,
+    "vote": {
+      "entity_category": "company",
+      "entity_id": "example-1.de",
+      "level": "result",
+      "reason_code": null,
+      "request_id": "5500a7f707fe427b8a41e4bf3eaa53ad",
+      "text": null,
+      "vote": "flag",
+      "vote_id": "3aa96c8b-2b7b-402a-8623-f9e13b459a95"
+    }
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1998",
+    "ratelimit-reset": "34",
+    "x-request-id": "3801ed668cc248db8d39a8ae113715e9"
+  },
+  "operation": "feedback_vote",
+  "request": {
+    "body": {
+      "entity_category": "company",
+      "entity_id": "example-1.de",
+      "level": "result",
+      "request_id": "5500a7f707fe427b8a41e4bf3eaa53ad",
+      "vote": "flag"
+    },
+    "method": "PUT",
+    "path": "/v1/feedback/votes",
+    "query": {}
+  },
+  "status": 200
+}

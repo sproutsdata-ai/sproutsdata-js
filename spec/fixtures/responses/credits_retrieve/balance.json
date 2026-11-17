@@ -1,0 +1,27 @@
+{
+  "body": {
+    "available": 966.405,
+    "balance": 966.405,
+    "debt": 0.0,
+    "has_paid": false,
+    "rate_card": "2026-10-model-a",
+    "reserved": 0.0,
+    "stale": false,
+    "status": "active"
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1998",
+    "ratelimit-reset": "34",
+    "x-request-id": "f3c33a2739244a2db33bff70076a75de"
+  },
+  "operation": "credits_retrieve",
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/v1/credits",
+    "query": {}
+  },
+  "status": 200
+}

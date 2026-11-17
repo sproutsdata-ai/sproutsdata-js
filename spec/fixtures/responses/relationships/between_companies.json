@@ -1,0 +1,594 @@
+{
+  "body": {
+    "attribution": [
+      {
+        "as_of": "2026-11-16T23:02:25.950426Z",
+        "domain": null,
+        "quote": null,
+        "source_corpus": "affiliations",
+        "url": null
+      }
+    ],
+    "breakdown": null,
+    "columns": null,
+    "connection_basis": "overlapping",
+    "coverage": null,
+    "degradation": [],
+    "has_more": true,
+    "institutions": [
+      {
+        "id": "edu:school-0",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 0",
+        "people_first": 12,
+        "people_second": 9
+      },
+      {
+        "id": "edu:school-1",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 1",
+        "people_first": 11,
+        "people_second": 8
+      },
+      {
+        "id": "edu:school-2",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 2",
+        "people_first": 10,
+        "people_second": 7
+      },
+      {
+        "id": "edu:school-3",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 3",
+        "people_first": 9,
+        "people_second": 6
+      },
+      {
+        "id": "edu:school-4",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 4",
+        "people_first": 8,
+        "people_second": 5
+      },
+      {
+        "id": "edu:school-5",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 5",
+        "people_first": 7,
+        "people_second": 4
+      },
+      {
+        "id": "edu:school-6",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 6",
+        "people_first": 6,
+        "people_second": 3
+      },
+      {
+        "id": "edu:school-7",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 7",
+        "people_first": 5,
+        "people_second": 2
+      },
+      {
+        "id": "edu:school-8",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 8",
+        "people_first": 4,
+        "people_second": 1
+      },
+      {
+        "id": "edu:school-9",
+        "kind": "school",
+        "match_confidence": null,
+        "name": "School 9",
+        "people_first": 3,
+        "people_second": 9
+      }
+    ],
+    "meta": {
+      "as_of": "2026-11-16T23:02:25.950426Z",
+      "credential": "api_key",
+      "credits_balance": 975.405,
+      "credits_charged": 2.0,
+      "environment": "live",
+      "request_id": "fe856c369e794408846d77491f84ad65"
+    },
+    "next_cursor": "eyJmIjoiNGVhOWRiZTBjMDMwM2Y3NWZkNDBjMDAyY2MwZTI1N2IiLCJvIjoxMCwicyI6Ijk2MTRmMDJmNmRkNjQxMTRhM2U3NjhlYTdiMzc5MzAzIiwidCI6MTc5NDg3MDE0NSwidSI6IntcImNvbXBhbmllc1wiOlt7XCJ2YWx1ZVwiOlwic3RyaXBlLmNvbVwiLFwiYnlcIjpcImRvbWFpblwifSx7XCJ2YWx1ZVwiOlwiYWR5ZW4uY29tXCIsXCJieVwiOlwiZG9tYWluXCJ9XSxcInBhZ2VcIjoyLFwicGFnZV9zaXplXCI6MTAsXCJvdXRwdXRcIjp7XCJ0b3BfaW5zdGl0dXRpb25zXCI6MTAwMH19In0.430ec7eef9f3087c0dfd8dc915a616f3",
+    "resolved_search": {
+      "category": "person",
+      "conflicts": [],
+      "filters": {
+        "companies": [
+          "stripe.com",
+          "adyen.com"
+        ],
+        "relation": "between_companies"
+      },
+      "filters_source": "caller",
+      "keyword_query": null,
+      "mode": "fast",
+      "overrides": [],
+      "parser_version": "none",
+      "query": null,
+      "semantic_query": null,
+      "semantic_scope": null,
+      "sort": [],
+      "sparse_filters": []
+    },
+    "results": [
+      {
+        "avatar": null,
+        "category": "person",
+        "company_domain": null,
+        "company_name": null,
+        "country": "Germany",
+        "currently_at_target": false,
+        "department": "Engineering",
+        "full_name": "Person 0",
+        "id": "71bdc7984b710814",
+        "is_alum": true,
+        "linkedin_url": "https://linkedin.com/in/person-0",
+        "match_reason_count": 2,
+        "match_type": [
+          "overlapping"
+        ],
+        "number_of_contacts_overlapping_tenure_with": 3,
+        "profile_complete": true,
+        "seniority": "VP",
+        "title": "VP Engineering",
+        "via": [
+          {
+            "ended": "2019-06",
+            "id": "linkedin.com/company/google",
+            "kind": "company",
+            "match_confidence": null,
+            "match_type": "work",
+            "name": "Google",
+            "role": "Engineer",
+            "started": "2015-01"
+          },
+          {
+            "ended": null,
+            "id": "edu:tum",
+            "kind": "school",
+            "match_confidence": null,
+            "match_type": "school",
+            "name": "TU Munich",
+            "role": null,
+            "started": null
+          }
+        ]
+      },
+      {
+        "avatar": null,
+        "category": "person",
+        "company_domain": null,
+        "company_name": null,
+        "country": "Germany",
+        "currently_at_target": false,
+        "department": "Engineering",
+        "full_name": "Person 1",
+        "id": "c96d71a4e21fc545",
+        "is_alum": true,
+        "linkedin_url": "https://linkedin.com/in/person-1",
+        "match_reason_count": 2,
+        "match_type": [
+          "overlapping"
+        ],
+        "number_of_contacts_overlapping_tenure_with": 3,
+        "profile_complete": true,
+        "seniority": "VP",
+        "title": "VP Engineering",
+        "via": [
+          {
+            "ended": "2019-06",
+            "id": "linkedin.com/company/google",
+            "kind": "company",
+            "match_confidence": null,
+            "match_type": "work",
+            "name": "Google",
+            "role": "Engineer",
+            "started": "2015-01"
+          },
+          {
+            "ended": null,
+            "id": "edu:tum",
+            "kind": "school",
+            "match_confidence": null,
+            "match_type": "school",
+            "name": "TU Munich",
+            "role": null,
+            "started": null
+          }
+        ]
+      },
+      {
+        "avatar": null,
+        "category": "person",
+        "company_domain": null,
+        "company_name": null,
+        "country": "Germany",
+        "currently_at_target": false,
+        "department": "Engineering",
+        "full_name": "Person 2",
+        "id": "6657fabd17b52b1a",
+        "is_alum": true,
+        "linkedin_url": "https://linkedin.com/in/person-2",
+        "match_reason_count": 2,
+        "match_type": [
+          "overlapping"
+        ],
+        "number_of_contacts_overlapping_tenure_with": 3,
+        "profile_complete": true,
+        "seniority": "VP",
+        "title": "VP Engineering",
+        "via": [
+          {
+            "ended": "2019-06",
+            "id": "linkedin.com/company/google",
+            "kind": "company",
+            "match_confidence": null,
+            "match_type": "work",
+            "name": "Google",
+            "role": "Engineer",
+            "started": "2015-01"
+          },
+          {
+            "ended": null,
+            "id": "edu:tum",
+            "kind": "school",
+            "match_confidence": null,
+            "match_type": "school",
+            "name": "TU Munich",
+            "role": null,
+            "started": null
+          }
+        ]
+      },
+      {
+        "avatar": null,
+        "category": "person",
+        "company_domain": null,
+        "company_name": null,
+        "country": "Germany",
+        "currently_at_target": false,
+        "department": "Engineering",
+        "full_name": "Person 3",
+        "id": "d1b0a6a40ff9051a",
+        "is_alum": true,
+        "linkedin_url": "https://linkedin.com/in/person-3",
+        "match_reason_count": 2,
+        "match_type": [
+          "overlapping"
+        ],
+        "number_of_contacts_overlapping_tenure_with": 3,
+        "profile_complete": true,
+        "seniority": "VP",
+        "title": "VP Engineering",
+        "via": [
+          {
+            "ended": "2019-06",
+            "id": "linkedin.com/company/google",
+            "kind": "company",
+            "match_confidence": null,
+            "match_type": "work",
+            "name": "Google",
+            "role": "Engineer",
+            "started": "2015-01"
+          },
+          {
+            "ended": null,
+            "id": "edu:tum",
+            "kind": "school",
+            "match_confidence": null,
+            "match_type": "school",
+            "name": "TU Munich",
+            "role": null,
+            "started": null
+          }
+        ]
+      },
+      {
+        "avatar": null,
+        "category": "person",
+        "company_domain": null,
+        "company_name": null,
+        "country": "Germany",
+        "currently_at_target": false,
+        "department": "Engineering",
+        "full_name": "Person 4",
+        "id": "c414b06f966c6149",
+        "is_alum": true,
+        "linkedin_url": "https://linkedin.com/in/person-4",
+        "match_reason_count": 2,
+        "match_type": [
+          "overlapping"
+        ],
+        "number_of_contacts_overlapping_tenure_with": 3,
+        "profile_complete": true,
+        "seniority": "VP",
+        "title": "VP Engineering",
+        "via": [
+          {
+            "ended": "2019-06",
+            "id": "linkedin.com/company/google",
+            "kind": "company",
+            "match_confidence": null,
+            "match_type": "work",
+            "name": "Google",
+            "role": "Engineer",
+            "started": "2015-01"
+          },
+          {
+            "ended": null,
+            "id": "edu:tum",
+            "kind": "school",
+            "match_confidence": null,
+            "match_type": "school",
+            "name": "TU Munich",
+            "role": null,
+            "started": null
+          }
+        ]
+      },
+      {
+        "avatar": null,
+        "category": "person",
+        "company_domain": null,
+        "company_name": null,
+        "country": "Germany",
+        "currently_at_target": false,
+        "department": "Engineering",
+        "full_name": "Person 5",
+        "id": "3632d5770ab5ce73",
+        "is_alum": true,
+        "linkedin_url": "https://linkedin.com/in/person-5",
+        "match_reason_count": 2,
+        "match_type": [
+          "overlapping"
+        ],
+        "number_of_contacts_overlapping_tenure_with": 3,
+        "profile_complete": true,
+        "seniority": "VP",
+        "title": "VP Engineering",
+        "via": [
+          {
+            "ended": "2019-06",
+            "id": "linkedin.com/company/google",
+            "kind": "company",
+            "match_confidence": null,
+            "match_type": "work",
+            "name": "Google",
+            "role": "Engineer",
+            "started": "2015-01"
+          },
+          {
+            "ended": null,
+            "id": "edu:tum",
+            "kind": "school",
+            "match_confidence": null,
+            "match_type": "school",
+            "name": "TU Munich",
+            "role": null,
+            "started": null
+          }
+        ]
+      },
+      {
+        "avatar": null,
+        "category": "person",
+        "company_domain": null,
+        "company_name": null,
+        "country": "Germany",
+        "currently_at_target": false,
+        "department": "Engineering",
+        "full_name": "Person 6",
+        "id": "3fef524c5e58918f",
+        "is_alum": true,
+        "linkedin_url": "https://linkedin.com/in/person-6",
+        "match_reason_count": 2,
+        "match_type": [
+          "overlapping"
+        ],
+        "number_of_contacts_overlapping_tenure_with": 3,
+        "profile_complete": true,
+        "seniority": "VP",
+        "title": "VP Engineering",
+        "via": [
+          {
+            "ended": "2019-06",
+            "id": "linkedin.com/company/google",
+            "kind": "company",
+            "match_confidence": null,
+            "match_type": "work",
+            "name": "Google",
+            "role": "Engineer",
+            "started": "2015-01"
+          },
+          {
+            "ended": null,
+            "id": "edu:tum",
+            "kind": "school",
+            "match_confidence": null,
+            "match_type": "school",
+            "name": "TU Munich",
+            "role": null,
+            "started": null
+          }
+        ]
+      },
+      {
+        "avatar": null,
+        "category": "person",
+        "company_domain": null,
+        "company_name": null,
+        "country": "Germany",
+        "currently_at_target": false,
+        "department": "Engineering",
+        "full_name": "Person 7",
+        "id": "66be2a016ebfd351",
+        "is_alum": true,
+        "linkedin_url": "https://linkedin.com/in/person-7",
+        "match_reason_count": 2,
+        "match_type": [
+          "overlapping"
+        ],
+        "number_of_contacts_overlapping_tenure_with": 3,
+        "profile_complete": true,
+        "seniority": "VP",
+        "title": "VP Engineering",
+        "via": [
+          {
+            "ended": "2019-06",
+            "id": "linkedin.com/company/google",
+            "kind": "company",
+            "match_confidence": null,
+            "match_type": "work",
+            "name": "Google",
+            "role": "Engineer",
+            "started": "2015-01"
+          },
+          {
+            "ended": null,
+            "id": "edu:tum",
+            "kind": "school",
+            "match_confidence": null,
+            "match_type": "school",
+            "name": "TU Munich",
+            "role": null,
+            "started": null
+          }
+        ]
+      },
+      {
+        "avatar": null,
+        "category": "person",
+        "company_domain": null,
+        "company_name": null,
+        "country": "Germany",
+        "currently_at_target": false,
+        "department": "Engineering",
+        "full_name": "Person 8",
+        "id": "80f55e13d64c6496",
+        "is_alum": true,
+        "linkedin_url": "https://linkedin.com/in/person-8",
+        "match_reason_count": 2,
+        "match_type": [
+          "overlapping"
+        ],
+        "number_of_contacts_overlapping_tenure_with": 3,
+        "profile_complete": true,
+        "seniority": "VP",
+        "title": "VP Engineering",
+        "via": [
+          {
+            "ended": "2019-06",
+            "id": "linkedin.com/company/google",
+            "kind": "company",
+            "match_confidence": null,
+            "match_type": "work",
+            "name": "Google",
+            "role": "Engineer",
+            "started": "2015-01"
+          },
+          {
+            "ended": null,
+            "id": "edu:tum",
+            "kind": "school",
+            "match_confidence": null,
+            "match_type": "school",
+            "name": "TU Munich",
+            "role": null,
+            "started": null
+          }
+        ]
+      },
+      {
+        "avatar": null,
+        "category": "person",
+        "company_domain": null,
+        "company_name": null,
+        "country": "Germany",
+        "currently_at_target": false,
+        "department": "Engineering",
+        "full_name": "Person 9",
+        "id": "b475a026e9975697",
+        "is_alum": true,
+        "linkedin_url": "https://linkedin.com/in/person-9",
+        "match_reason_count": 2,
+        "match_type": [
+          "overlapping"
+        ],
+        "number_of_contacts_overlapping_tenure_with": 3,
+        "profile_complete": true,
+        "seniority": "VP",
+        "title": "VP Engineering",
+        "via": [
+          {
+            "ended": "2019-06",
+            "id": "linkedin.com/company/google",
+            "kind": "company",
+            "match_confidence": null,
+            "match_type": "work",
+            "name": "Google",
+            "role": "Engineer",
+            "started": "2015-01"
+          },
+          {
+            "ended": null,
+            "id": "edu:tum",
+            "kind": "school",
+            "match_confidence": null,
+            "match_type": "school",
+            "name": "TU Munich",
+            "role": null,
+            "started": null
+          }
+        ]
+      }
+    ],
+    "share": null,
+    "suggestion": null,
+    "total": 214,
+    "total_is_estimate": false
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "35",
+    "x-request-id": "fe856c369e794408846d77491f84ad65"
+  },
+  "operation": "relationships",
+  "request": {
+    "body": {
+      "companies": [
+        {
+          "by": "domain",
+          "value": "stripe.com"
+        },
+        {
+          "by": "domain",
+          "value": "adyen.com"
+        }
+      ],
+      "limit": 2
+    },
+    "method": "POST",
+    "path": "/v1/relationships",
+    "query": {}
+  },
+  "status": 200
+}

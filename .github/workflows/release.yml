@@ -54,18 +54,23 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  gate:
+    # The whole CI gate (ci.yml), unchanged: what merges is what publishes.
+    uses: ./.github/workflows/ci.yml
+
   verify:
+    needs: gate
     runs-on: ubuntu-latest
     outputs:
       dir: ${{ steps.resolve.outputs.dir }}
       name: ${{ steps.resolve.outputs.name }}
       version: ${{ steps.resolve.outputs.version }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Full history, so the "is this commit on main" check below can run.
           fetch-depth: 0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
           cache: npm
@@ -113,12 +118,7 @@ jobs:
           fi
 
       - run: npm ci
-      - name: Full gate
-        run: |
-          npm run lint
-          npm run check:generated
-          npm run typecheck
-          npm test
+      - run: npm run build
 
       - name: What would be published
         env:
@@ -146,8 +146,8 @@ jobs:
       # OIDC for Trusted Publishing and for the provenance statement.
       id-token: write
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
@@ -159,7 +159,7 @@ jobs:
       - name: Build the sdk
         # The adapters' prepublishOnly runs their tests, which import the sdk
         # from its workspace build.
-        run: npm run build -w packages/sdk
+        run: npm run build
       - name: Publish
         env:
           DIR: ${{ needs.verify.outputs.dir }}

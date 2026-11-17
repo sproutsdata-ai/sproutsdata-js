@@ -1,6 +1,6 @@
 {
   "name": "validation_errors_expose_field_detail",
-  "description": "A 422 from the server carries per-field detail under extra.errors; a client that dropped it would leave the caller guessing.",
+  "description": "A 422 from the server carries per-field detail in the problem's top-level `errors` array; a client that dropped it would leave the caller guessing.",
   "responses": [
     {
       "status": 422,
@@ -9,20 +9,20 @@
       },
       "body": {
         "type": "https://dashboard.sproutsdata.ai/errors/request-invalid",
-        "title": "Validation failed",
+        "title": "Invalid request",
         "status": 422,
         "code": "request.invalid",
-        "extra": {
-          "errors": [
-            {
-              "loc": [
-                "body",
-                "limit"
-              ],
-              "msg": "Input should be less than or equal to 100"
-            }
-          ]
-        }
+        "detail": "limit: Input should be less than or equal to 100",
+        "errors": [
+          {
+            "loc": [
+              "body",
+              "limit"
+            ],
+            "msg": "Input should be less than or equal to 100",
+            "type": "less_than_equal"
+          }
+        ]
       }
     }
   ],

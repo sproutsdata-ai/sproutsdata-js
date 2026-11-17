@@ -1,137 +1,181 @@
 # Saved lists and export
 
-`client.lists` keeps named sets of records — accounts to work, people to reach —
-and `client.searchExport()` turns chosen records into a CSV file. Every call is
-free, and needs a key with `dsp.search.read` or `dsp.entities.read`.
+`client.lists` keeps named sets of records (accounts to work, people to reach),
+and `client.searchExport` turns rows of a search into a CSV file. Lists and
+exports are free, and need a key with `dsp.search.read` or `dsp.entities.read`.
 
 ```ts
-const saved = await client.lists.create('Fintech targets');
+const saved = await client.lists.create({ name: 'Fintech targets', entity_category: 'company' });
 
-await client.lists.addItems(saved.id, [
-  { entity_category: 'company', entity_id: 'stripe.com' },
-  { entity_category: 'company', entity_id: 'adyen.com' },
-]);
+await client.lists.addItems(saved.id, {
+  items: [
+    { entity_category: 'company', entity_id: 'stripe.com' },
+    { entity_category: 'company', entity_id: 'adyen.com' },
+  ],
+});
 
 for await (const item of client.lists.iterItems(saved.id)) {
-  console.log(item.entity_id, item.record);
+  console.log(item.entity_id, item.available, item.record);
 }
 ```
 
-A list belongs to the workspace, not to one key: every key and every dashboard
-user of the workspace sees the same lists. `created_by` and `added_by` name the
-dashboard user who acted, and are `null` when an API key did.
+A list belongs to the workspace, not to one key: every key and every user of
+the workspace sees the same lists. `created_by` and `added_by` are strings
+naming who acted (`"user:1"`), or `null`.
 
-## Name records by their natural id
+## Names are unique
 
-An item is `{ entity_category, entity_id }`, where the id is the one the record
-is known by:
-
-| Category | `entity_id` |
-|---|---|
-| `company` | the domain — `stripe.com` |
-| `person` | the LinkedIn URL |
-| `patent` | the patent number |
-| `academic_report` | the DOI |
-| `trend` | the trend name |
-| other documents | the id their `client.entities` lookup takes |
-
-**Not a search hit's `id`.** For people and documents that is a one-way hash that
-cannot be read back later, so an item saved by it would never resolve; use
-`lookupRef(hit)` for a company or person. The SDK refuses an item without
-`entity_category` and `entity_id`.
-
-The server normalises the id on the way in — a domain is lower-cased and stripped
-of scheme and `www.`, a LinkedIn URL reduced to `linkedin.com/in/<slug>` — so the
-same record saved under two spellings is one item.
-
-## Adding and removing
+A list's name is 1 to 120 characters and unique in the workspace, ignoring
+case. Creating or renaming a list to a name the workspace already uses throws
+`ListNameTakenError` (409), a subclass of `ConflictError`:
 
 ```ts
-const added = await client.lists.addItems(saved.id, items); // at most 500 per call
-added.added; added.already_present; added.suppressed;
-
-const removed = await client.lists.removeItems(saved.id, items);
-removed.removed;
-```
-
-Adding is idempotent: a record the list already holds is counted in
-`already_present`, not added twice, so the SDK retries it like a read. Records on
-the Do-Not-Contact list are refused and counted in `suppressed`; they are never
-stored or returned. Removing a record the list does not hold is not an error.
-
-A free workspace has a cap on distinct saved records across all its lists
-(`(await client.lists.list()).saved_items_cap`; `null` means no cap). Going over
-throws a `ConflictError` with code `lists.item_cap_reached` — nothing was added —
-and `err.problem.extra` says how many fit:
-
-```ts
-import { ConflictError } from 'sproutsdata';
+import { ListNameTakenError } from 'sproutsdata';
 
 try {
-  await client.lists.addItems(saved.id, items);
+  await client.lists.create({ name: 'Fintech targets' });
 } catch (err) {
-  if (err instanceof ConflictError && err.code === 'lists.item_cap_reached') {
-    const { cap, saved: already, adding } = err.problem?.extra ?? {};
-    console.log(cap, already, adding);
-  } else {
-    throw err;
+  if (!(err instanceof ListNameTakenError)) throw err;
+  const existing = (await client.lists.list()).lists.find((list) => list.name.toLowerCase() === 'fintech targets');
+  console.log('Already there:', existing?.id);
+}
+```
+
+`entity_category` is optional. A list holds one kind of record, fixed when it
+is created or by its first add; adding a record of another kind throws
+`InvalidRequestError` (`lists.category_mismatch`).
+
+## Items
+
+An item is `{ entity_category, entity_id }`. Use the id a lookup takes for that
+record: `lookupRef(hit)` gives it for a search row (a company's domain, a
+person's LinkedIn URL, a document's `d1_...` id). A person row's `id` is a hash
+that no lookup resolves, so do not save it.
+
+```ts
+import { lookupRef } from 'sproutsdata';
+
+const page = await client.search({ query: 'payments companies in Germany', limit: 25 });
+const items = page.results.flatMap((hit) => {
+  const ref = lookupRef(hit);
+  return ref === undefined ? [] : [{ entity_category: 'company' as const, entity_id: ref.value }];
+});
+
+const list = await client.lists.create({ name: `Payments DE ${Date.now()}`, entity_category: 'company' });
+const added = await client.lists.addItems(list.id, { items });
+console.log(added.added, added.already_present, added.suppressed, added.not_found);
+
+const removed = await client.lists.removeItems(list.id, { items: items.slice(0, 1) });
+console.log(removed.removed);
+```
+
+- `addItems` and `removeItems` take 1 to 1,000 items per request. The SDK
+  checks this before sending; split a larger set into several requests.
+- A record the list already holds is counted in `already_present`, not added
+  twice. Records on the Do-Not-Contact list are refused and counted in
+  `suppressed`. Records that could not be found are counted in `not_found`.
+- Removing a record the list does not hold is not an error.
+- Going over a size limit (lists per workspace, items per list, or a free
+  workspace's saved-items cap) throws `ConflictError` with code
+  `lists.item_cap_reached`, and nothing is added.
+  `(await client.lists.list()).saved_items_cap` is the workspace's cap, or
+  `null` for none.
+
+## Reading items
+
+`items` reads one page, newest first; `iterItems` follows the cursor through
+every page.
+
+```ts
+const lists = await client.lists.list();
+const first = lists.lists[0];
+if (first !== undefined) {
+  const page = await client.lists.items(first.id, { limit: 50 }); // 1 to 100
+  console.log(page.saved_list.name, page.field_tier, page.next_cursor);
+  for (const item of page.items) {
+    if (!item.available) console.log(item.entity_id, item.unavailable_reason);
   }
 }
 ```
 
-A record already saved in another list does not count against the cap again.
-
-## Reading items
-
-`items()` reads one page, newest first, each record fresh from the index;
-`iterItems()` follows the cursor through every page.
-
-```ts
-const page = await client.lists.items(saved.id, { limit: 50 }); // default 25, at most 100
-page.next_cursor; // null on the last page
-page.field_tier;  // 'free' or 'unlocked'
-```
-
-A free workspace sees the fields a result card shows (`field_tier: 'free'`); one
-that has bought credits sees the full record (`'unlocked'`). An item whose
-record cannot be read right now is still returned, with `available: false` and
-`unavailable_reason` — `not_found` or `retrieval_unavailable`.
+An item whose record cannot be read right now is still returned, with
+`available: false` and an `unavailable_reason` (`not_found` or
+`retrieval_unavailable`).
 
 ## Managing lists
 
 ```ts
-await client.lists.list();                         // every list, newest first, with the cap
-await client.lists.rename(saved.id, 'Fintech, EU');
-await client.lists.delete(saved.id);               // the list and its items
+const lists = await client.lists.list(); // every list, with the saved-items count and cap
+for (const list of lists.lists) console.log(list.id, list.name, list.item_count);
+
+const saved = await client.lists.create({ name: 'Fintech, EU' });
+await client.lists.rename(saved.id, { name: 'Fintech, Europe' });
+await client.lists.delete(saved.id); // the list and its items
 ```
 
 A list that does not exist, was deleted, or belongs to another workspace throws
-`NotFoundError` (`lists.not_found`) — one answer for all three, on purpose.
+`NotFoundError` (`lists.not_found`).
 
-Creating and deleting are not repeated after a failure that may have reached the
-server: a repeat would make a second list, or answer `lists.not_found` for a list
+`create` and `delete` are never repeated after a failure that may have reached
+the server: a repeat would make a second list (409), or answer 404 for the list
 the first call deleted. Check `client.lists.list()` before trying again.
 
 ## CSV export
 
-```ts
-const fromList = await client.lists.export(saved.id); // at most 1,000 rows
-const fromSearch = await client.searchExport({
-  items: [{ entity_category: 'company', entity_id: 'stripe.com' }], // at most 1,000
-  request_id: page.meta.request_id, // optional: the search they came from
-});
+`lists.export` and `searchExport` answer in one of two ways:
 
-await writeFile(fromList.filename ?? 'export.csv', fromList.content);
+- `{ kind: 'file', csv }`: the CSV text at once, for a small export;
+- `{ kind: 'job', job }`: an export job for a larger one. Wait for it with
+  `client.exports.wait(job.job_id)`, then fetch the file with
+  `client.exports.download(job.job_id)`.
+
+```ts
+import { writeFile } from 'node:fs/promises';
+import type { ExportResult, SproutsData } from 'sproutsdata';
+
+async function csvOf(client: SproutsData, result: ExportResult): Promise<string> {
+  if (result.kind === 'file') return result.csv;
+  const job = await client.exports.wait(result.job.job_id);
+  return client.exports.download(job.job_id);
+}
+
+const lists = await client.lists.list();
+const first = lists.lists[0];
+if (first !== undefined) {
+  await writeFile('list.csv', await csvOf(client, await client.lists.export(first.id)));
+
+  // Only some rows of the list, newest first
+  await writeFile('latest.csv', await csvOf(client, await client.lists.export(first.id, { offset: 0, limit: 100 })));
+}
 ```
 
-A `CsvExport` carries the file (`content` as bytes, or `text()`), the server's
-suggested `filename`, the `field_tier` of its rows, `row_count`, `skipped`
-(records that could not be read) and `credits_charged` (exports are free). The
-columns are `entity_category`, `entity_id`, then each record field as a dotted
-path.
+`searchExport` takes the rows to export (up to 50,000) and, optionally, the
+`request_id` of the search they came from:
 
-**Export is switched off until export pricing ships.** Until then both calls
-throw `NotFoundError` with code `export.not_enabled`, which is never retried.
-Because an export will be priced through the same meter as a search, it is
-retried like a billed call: it carries an `Idempotency-Key`, and an answer lost
-after sending is thrown rather than repeated.
+```ts
+import type { ItemRef } from 'sproutsdata';
+
+const page = await client.search({ query: 'payments companies in Germany', limit: 50 });
+const items: ItemRef[] = page.results.map((hit) => ({ entity_category: 'company', entity_id: hit.id }));
+const result = await client.searchExport({ items, request_id: page.meta.request_id });
+if (result.kind === 'file') console.log(result.csv.split('\n').length - 1, 'rows');
+else console.log('export job', result.job.job_id, result.job.status);
+```
+
+### Export jobs
+
+- `exports.retrieve(jobId)` reads a job as it stands: `status` (`queued`,
+  `running`, `done`, `failed`), `rows`, `skipped`, `error`, `expires_at`.
+- `exports.wait(jobId, { pollIntervalMs, maxWaitMs })` polls until the job is
+  `done` and returns it. A failed job throws `ExportFailedError`, with the job
+  on `err.job`. A job still running when `maxWaitMs` runs out throws
+  `WaitTimeoutError`, with the last state on `err.last`; the job goes on
+  server-side, so call `exports.wait` again. `maxWaitMs: null` waits for as
+  long as it takes.
+- `exports.download(jobId)` returns the finished file as CSV text, with the
+  byte-order mark removed. A file is kept for 24 hours; after that, or for an
+  unknown job, it throws `NotFoundError` (`export.not_found`).
+
+An export job reads the list when it runs, not when it was started. An export
+with more rows than one export may hold throws `InvalidRequestError`
+(`export.too_large`): export a narrower range with `offset` and `limit`.

@@ -1,0 +1,36 @@
+{
+  "body": {
+    "action_type": "dsp.org_chart",
+    "actor_type": "api_key",
+    "credits_charged": null,
+    "environment": "live",
+    "error_code": "org_chart.company_ambiguous",
+    "id": "26",
+    "latency_ms": 1,
+    "occurred_at": "2026-11-16T23:02:26.023379Z",
+    "query": null,
+    "request": {
+      "domain": "twin.example"
+    },
+    "resolved_search": null,
+    "result_count": null,
+    "snapshot": null,
+    "snapshot_state": "absent",
+    "status": "failed"
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "34",
+    "x-request-id": "16a7aca135e746c48b6d43d372893328"
+  },
+  "operation": "history_retrieve",
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/v1/usage/history/26",
+    "query": {}
+  },
+  "status": 200
+}

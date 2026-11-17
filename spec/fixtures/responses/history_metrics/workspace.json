@@ -1,0 +1,82 @@
+{
+  "body": {
+    "buckets": [
+      {
+        "action_type": "dsp.agents",
+        "credits": "8.500",
+        "day": "2026-11-17",
+        "failed": 0,
+        "ok": 1,
+        "pending": 0,
+        "requests": 1
+      },
+      {
+        "action_type": "dsp.entities",
+        "credits": "9.000",
+        "day": "2026-11-17",
+        "failed": 0,
+        "ok": 9,
+        "pending": 0,
+        "requests": 9
+      },
+      {
+        "action_type": "dsp.org_chart",
+        "credits": "3.000",
+        "day": "2026-11-17",
+        "failed": 1,
+        "ok": 3,
+        "pending": 0,
+        "requests": 4
+      },
+      {
+        "action_type": "dsp.relationships",
+        "credits": "8.000",
+        "day": "2026-11-17",
+        "failed": 0,
+        "ok": 4,
+        "pending": 0,
+        "requests": 4
+      },
+      {
+        "action_type": "dsp.search",
+        "credits": "3.095",
+        "day": "2026-11-17",
+        "failed": 0,
+        "ok": 7,
+        "pending": 0,
+        "requests": 7
+      },
+      {
+        "action_type": "dsp.similar",
+        "credits": "2.000",
+        "day": "2026-11-17",
+        "failed": 0,
+        "ok": 1,
+        "pending": 0,
+        "requests": 1
+      }
+    ],
+    "period_from": "2026-10-17T23:02:26.700989Z",
+    "period_to": "2026-11-16T23:02:26.700989Z",
+    "total_credits": "33.595",
+    "total_failed": 1,
+    "total_ok": 25,
+    "total_pending": 0,
+    "total_requests": 26
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "34",
+    "x-request-id": "bcd8013ebe34481794ed0fd0bf11210b"
+  },
+  "operation": "history_metrics",
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/v1/usage/metrics",
+    "query": {}
+  },
+  "status": 200
+}

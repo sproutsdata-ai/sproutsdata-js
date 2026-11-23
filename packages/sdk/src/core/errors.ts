@@ -274,13 +274,23 @@ export class PaginationDepthExceededError extends InvalidRequestError {}
 /** 404: no such resource for this workspace. */
 export class NotFoundError extends APIError {}
 
+/**
+ * 410 `agents.results_expired` / `enrichment.results_expired`: the rows are no longer kept.
+ * A run's or an enrichment job's rows are kept for a limited time after it ends; start it again
+ * for fresh rows. Never retried.
+ */
+export class ResultsExpiredError extends NotFoundError {}
+
 /** 409: the request conflicts with the current state. */
 export class ConflictError extends APIError {}
 
 /** 409 `lists.name_taken`: the workspace already has a list by that name. */
 export class ListNameTakenError extends ConflictError {}
 
-/** 429: over a per-minute limit. Retried while its Retry-After is within the cap. */
+/**
+ * 429: over a per-minute limit. Retried while its Retry-After is within the cap
+ * (`ConcurrencyLimitError`, a kind of this one, is never retried).
+ */
 export class RateLimitError extends APIError {
   /** Calls allowed per window. */
   get limit(): number | undefined {
@@ -303,11 +313,26 @@ export class RateLimitError extends APIError {
   }
 }
 
+/**
+ * 429 `quota.concurrency_exceeded`: too many agent runs going at once. A credential may have
+ * two runs going (or the engine is running as many as it takes). Thrown at once, never
+ * retried: a run takes minutes, so follow or cancel one, then start again. `retryAfter` is
+ * the server's suggested wait.
+ */
+export class ConcurrencyLimitError extends RateLimitError {}
+
 /** 501: the server cannot do this yet; the request is not the problem. */
 export class FeatureNotAvailableError extends APIError {}
 
 /** 503: the API or a service behind it is unavailable. Nothing was charged. */
 export class ServiceUnavailableError extends APIError {}
+
+/**
+ * 503 `credits.refused`: the credits ledger refused to hold credits for this work. Nothing ran
+ * and nothing was charged. Never retried: a repeat cannot help. Contact support with
+ * `requestId`.
+ */
+export class CreditsRefusedError extends ServiceUnavailableError {}
 
 /** 504: the work did not finish in time; abandoned and not charged. */
 export class UpstreamTimeoutError extends APIError {}

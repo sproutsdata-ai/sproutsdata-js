@@ -6,6 +6,8 @@ import { backoffMs, consequence, decide, outcomeFor, provablyNotSent } from '../
 import { networkError } from '../support/fakes.js';
 
 const status = (code: number, retryAfter?: number): APIError => new APIError({ status: code, headers: {}, body: undefined, retryAfter });
+const coded = (code: number, problem: string, retryAfter?: number): APIError =>
+  new APIError({ status: code, headers: {}, body: { status: code, code: problem }, retryAfter });
 
 describe('retry', () => {
   it.each<[string, SproutsDataError, RouteClass, string]>([
@@ -19,9 +21,20 @@ describe('retry', () => {
     ['500 billed', status(500), 'billed', 'retry'],
     ['503 once', status(503, 30), 'once', 'retry'],
     ['418', status(418), 'safe', 'raise'],
+    ['503 service.unavailable, billed', coded(503, 'service.unavailable'), 'billed', 'retry'],
+    ['503 credits.refused, billed', coded(503, 'credits.refused'), 'billed', 'raise'],
+    ['503 credits.refused, safe', coded(503, 'credits.refused'), 'safe', 'raise'],
+    ['429 quota.concurrency_exceeded within the cap, keyed', coded(429, 'quota.concurrency_exceeded', 30), 'keyed', 'raise'],
+    ['429 quota.burst_exceeded within the cap, keyed', coded(429, 'quota.burst_exceeded', 5), 'keyed', 'retry'],
+    ['410 agents.results_expired', coded(410, 'agents.results_expired'), 'safe', 'raise'],
     ['local', new ClientValidationError('x'), 'safe', 'raise'],
   ])('decides as the policy says: %s', (_, error, routeClass, decision) => {
     expect(decide(error, routeClass)).toBe(decision);
+  });
+
+  it('decides a code the policy names by its own row, whatever its status', () => {
+    expect(outcomeFor(coded(429, 'quota.concurrency_exceeded'))?.name).toBe('never_retried_code');
+    expect(outcomeFor(coded(429, 'quota.something_invented_later'))?.name).toBe('rate_limited');
   });
 
   it('matches no row for a failure outside the policy', () => {

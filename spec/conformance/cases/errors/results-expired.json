@@ -1,0 +1,33 @@
+{
+  "name": "results_expired",
+  "description": "A finished run's rows are kept for a limited time. Asked for after that, the results answer 410 agents.results_expired: raised on the first attempt as its own concept, which is a kind of not found.",
+  "request": {
+    "method": "GET",
+    "path": "/v1/agents/runs/run_1/results"
+  },
+  "responses": [
+    {
+      "status": 410,
+      "headers": {
+        "X-Request-Id": "req_gone"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/agents-results-expired",
+        "title": "This run's results have expired",
+        "status": 410,
+        "code": "agents.results_expired",
+        "detail": "A run's results are kept for a limited time after it finishes. Start the run again for fresh results."
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "no_sleep": true,
+    "error": {
+      "concept": "results_expired",
+      "status": 410,
+      "code": "agents.results_expired",
+      "request_id": "req_gone"
+    }
+  }
+}

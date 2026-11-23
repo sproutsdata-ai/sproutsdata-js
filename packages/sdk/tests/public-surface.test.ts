@@ -16,6 +16,7 @@ const ERRORS = [
   'WorkspaceRequiredError', 'InsufficientCreditsError', 'WalletFrozenError', 'InvalidRequestError', 'OrgChartCompanyAmbiguousError',
   'CursorInvalidError', 'CursorExpiredError', 'PaginationDepthExceededError', 'NotFoundError', 'ConflictError', 'ListNameTakenError',
   'RateLimitError', 'FeatureNotAvailableError', 'ServiceUnavailableError', 'UpstreamTimeoutError', 'InternalServerError',
+  'ResultsExpiredError', 'ConcurrencyLimitError', 'CreditsRefusedError',
 ] as const;
 
 describe('the public surface', () => {

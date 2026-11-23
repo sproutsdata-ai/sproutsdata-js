@@ -132,12 +132,16 @@ try {
 | `PaginationDepthExceededError` | 422 `pagination.depth_exceeded` | Past 10,000 results | Narrow the request |
 | `NotFoundError` | 404 `agents.run_not_found`, `history.not_found`, `feedback.not_found`, `lists.not_found`, `export.not_found` | No such resource for this workspace | Check the id |
 | `NotFoundError` | 404 `feedback.subject_not_found` | The request a report names is not (yet) in the history | Report again shortly; see [Feedback](feedback.md) |
+| `ResultsExpiredError` | 410 `agents.results_expired`, `enrichment.results_expired` | A run's or an enrichment job's rows are no longer kept; a `NotFoundError` | Start the run or the job again |
+| `InvalidRequestError` | 422 `relationship.filter_value_unknown` | A department or seniority the taxonomy does not hold; `extra.allowed` lists the values | Use one of `extra.allowed` |
 | `ListNameTakenError` | 409 `lists.name_taken` | The workspace already has a list by that name | Choose another name |
 | `ConflictError` | 409 `lists.item_cap_reached` | Over a list size limit; nothing was added | Save fewer records |
 | `RateLimitError` | 429 `quota.burst_exceeded` | Over a per-minute limit. `limit`, `window`, `operation`, `scope` | Wait `retryAfter` seconds (the SDK already did, within the cap) |
+| `ConcurrencyLimitError` | 429 `quota.concurrency_exceeded` | The key already has as many agent runs going as it may (two), or the engine is full; a `RateLimitError`, thrown at once | Follow or cancel a run, then start again |
 | `InternalServerError` | 500 `internal` | An unexpected server error | Retried where safe; quote `requestId` if it persists |
 | `FeatureNotAvailableError` | 501 `not_implemented` | The server cannot do this yet (today: listing runs) | Not transient |
 | `ServiceUnavailableError` | 502, 503 `service.unavailable`, `service.overloaded`, `upstream.unavailable`, `auth.unavailable`, `credits.unavailable` | The API or a service behind it is unavailable; nothing was charged | Retried; try again later |
+| `CreditsRefusedError` | 503 `credits.refused` | The credits ledger refused to hold credits for a run or an enrichment job; nothing ran or was charged. A `ServiceUnavailableError`, never retried | Contact support with `requestId` |
 | `UpstreamTimeoutError` | 504 `upstream.timeout` | The work did not finish in time; abandoned and not charged | Retried; narrow the request if it recurs |
 | `APITimeoutError` | | No answer within `timeoutMs` | Check the network; see below for billed calls |
 | `APIConnectionError` | | DNS, TCP or TLS failure, or a broken event stream (`lastEventId`) | Check `baseUrl` and the network |
@@ -168,11 +172,12 @@ belongs to one class:
 |---|---|---|---|---|
 | Never sent: connection refused, DNS failure, connect timeout | retry | retry | retry | retry |
 | Sent, no answer: a timeout, a dropped connection, a 408 or 502 | retry | **raise** | retry | **raise** |
+| 429 `quota.concurrency_exceeded`, 503 `credits.refused` | raise | raise | raise | raise |
 | 429 with `Retry-After` of 60 s or less | retry | retry | retry | retry |
 | 429 with a longer `Retry-After` | raise | raise | raise | raise |
 | 500 | retry | retry | retry | raise |
 | 503, 504 | retry | retry | retry | retry |
-| 400, 401, 402, 403, 404, 405, 409, 413, 415, 422, 501 | raise | raise | raise | raise |
+| 400, 401, 402, 403, 404, 405, 409, 410, 413, 415, 422, 501 | raise | raise | raise | raise |
 
 "Never sent" is known only when the runtime says so (`ECONNREFUSED`,
 `ENOTFOUND`, `EAI_AGAIN` or `UND_ERR_CONNECT_TIMEOUT` in the error's cause
@@ -229,6 +234,11 @@ The API limits calls per endpoint, by default 60 a minute. Going over is a 429
 (`RateLimitError`) with a `Retry-After`, which the SDK waits out and retries
 like any other 429 within the 60-second cap. `RateLimitError` reads `limit`,
 `window`, `operation` and `scope` from the answer.
+
+A key may also have two agent runs going at once. Starting a third answers 429
+`quota.concurrency_exceeded`, thrown as `ConcurrencyLimitError` (a `RateLimitError`) at
+once: a run takes minutes, so waiting out its `Retry-After` rarely frees a place. Follow
+a run to its end or cancel it, then start again.
 
 ## Response details
 

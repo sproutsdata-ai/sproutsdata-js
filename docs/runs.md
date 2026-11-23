@@ -29,6 +29,12 @@ console.log(handle.run_id, handle.status);
 The earlier effort names (`minimal`, `low`, `medium`, `high`, `xhigh`, typed
 `LegacyEffort`) are still accepted, and the SDK sends them as the names above.
 
+A key may have two runs going at once. Starting a third throws `ConcurrencyLimitError` at
+once, without retrying: follow one to its end or cancel it, then start again. A run frees
+its place when a read sees it ended, or when it is cancelled. A run's rows are kept for a
+limited time after it finishes; read after that, `results` throws `ResultsExpiredError`
+(a `NotFoundError`).
+
 `create` answers at once with the run's id; the work goes on server-side. The
 run is billed when it settles (`credits_charged` on the result). A run
 cancelled before it finishes is not billed.

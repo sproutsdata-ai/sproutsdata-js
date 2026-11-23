@@ -6,14 +6,23 @@ export const PROBLEM_MEDIA_TYPE = "application/problem+json";
 
 /** Every code the server sends an API-key caller. */
 export type ErrorCode =
+  | "agents.results_expired"
   | "agents.run_not_found"
   | "auth.insufficient_scope"
   | "auth.unauthorized"
   | "auth.unavailable"
   | "auth.workspace_required"
+  | "credits.idempotency_key_reused"
   | "credits.insufficient"
+  | "credits.no_card_on_file"
+  | "credits.purchase_not_allowed"
+  | "credits.refused"
   | "credits.unavailable"
   | "credits.wallet_frozen"
+  | "enrichment.idempotency_key_reused"
+  | "enrichment.job_finished"
+  | "enrichment.job_not_found"
+  | "enrichment.results_expired"
   | "export.not_found"
   | "export.too_large"
   | "feedback.not_found"
@@ -30,8 +39,10 @@ export type ErrorCode =
   | "pagination.cursor_invalid"
   | "pagination.depth_exceeded"
   | "quota.burst_exceeded"
+  | "quota.concurrency_exceeded"
   | "relationship.anchor_ambiguous"
   | "relationship.anchor_not_found"
+  | "relationship.filter_value_unknown"
   | "request.invalid"
   | "request.too_large"
   | "request.unsupported"
@@ -50,14 +61,17 @@ export type ErrorConcept =
   | "invalid_request"
   | "org_chart_company_ambiguous"
   | "not_found"
+  | "results_expired"
   | "conflict"
   | "list_name_taken"
   | "cursor_invalid"
   | "cursor_expired"
   | "pagination_depth_exceeded"
   | "rate_limit"
+  | "concurrency_limit"
   | "feature_not_available"
   | "service_unavailable"
+  | "credits_refused"
   | "upstream_timeout"
   | "internal";
 
@@ -70,14 +84,17 @@ export const CONCEPTS: readonly ErrorConcept[] = [
   "invalid_request",
   "org_chart_company_ambiguous",
   "not_found",
+  "results_expired",
   "conflict",
   "list_name_taken",
   "cursor_invalid",
   "cursor_expired",
   "pagination_depth_exceeded",
   "rate_limit",
+  "concurrency_limit",
   "feature_not_available",
   "service_unavailable",
+  "credits_refused",
   "upstream_timeout",
   "internal",
 ];
@@ -91,6 +108,11 @@ export interface CodeInfo {
 }
 
 export const ERROR_CODES: Readonly<Record<ErrorCode, CodeInfo>> = {
+  /**
+   * A finished run's rows are kept for a limited time; these are gone. Start
+   * the run again for fresh results.
+   */
+  "agents.results_expired": { status: 410, concept: "results_expired", retry: false },
   /**
    * No agent run with that id in this workspace.
    */
@@ -122,12 +144,33 @@ export const ERROR_CODES: Readonly<Record<ErrorCode, CodeInfo>> = {
    */
   "auth.workspace_required": { status: 403, concept: "workspace_required", retry: false },
   /**
+   * This Idempotency-Key already started another credit purchase. Purchases are
+   * dashboard-only; an API key never gets this far.
+   */
+  "credits.idempotency_key_reused": { status: 409, concept: "conflict", retry: false },
+  /**
    * The workspace cannot pay for this call. Nothing was charged and the answer
    * is withheld. `extra` carries `available_credits` and `required_credits`. No
    * Retry-After: waiting does not help, buying credits does. Never retried,
    * never conflated with a 429.
    */
   "credits.insufficient": { status: 402, concept: "insufficient_credits", retry: false },
+  /**
+   * Auto top-up needs the card a dashboard purchase saves, and there is none.
+   * Dashboard-only.
+   */
+  "credits.no_card_on_file": { status: 409, concept: "conflict", retry: false },
+  /**
+   * Buying credits and saving auto top-up take a signed-in owner or billing
+   * member; an API key is always refused.
+   */
+  "credits.purchase_not_allowed": { status: 403, concept: "permission_denied", retry: false },
+  /**
+   * The credits ledger refused to hold credits for this work (an agent run or
+   * an enrichment start), so it did not run and nothing was charged. A repeat
+   * cannot help: contact support with the request_id.
+   */
+  "credits.refused": { status: 503, concept: "credits_refused", retry: false },
   /**
    * The credit ledger is unreachable and the backend cannot vouch for this
    * workspace's credits (no recent balance, it does not cover the call, or the
@@ -141,6 +184,26 @@ export const ERROR_CODES: Readonly<Record<ErrorCode, CodeInfo>> = {
    * it is unfrozen. Contact support. Never retried.
    */
   "credits.wallet_frozen": { status: 402, concept: "wallet_frozen", retry: false },
+  /**
+   * This Idempotency-Key already started an enrichment job or lookup with
+   * another body. Send a new key for a new job; reuse one only to retry the
+   * same request.
+   */
+  "enrichment.idempotency_key_reused": { status: 409, concept: "conflict", retry: false },
+  /**
+   * A cancel of an enrichment job that has already ended. The API answers with
+   * the job instead, so a caller rarely sees it.
+   */
+  "enrichment.job_finished": { status: 409, concept: "conflict", retry: false },
+  /**
+   * No enrichment job with that id in this workspace.
+   */
+  "enrichment.job_not_found": { status: 404, concept: "not_found", retry: false },
+  /**
+   * An enrichment job's rows are kept for 7 days after it ends; these are gone.
+   * Start a new job to enrich them again.
+   */
+  "enrichment.results_expired": { status: 410, concept: "results_expired", retry: false },
   /**
    * No such export job for this workspace, or its file has expired (exports are
    * kept 24 hours).
@@ -230,6 +293,12 @@ export const ERROR_CODES: Readonly<Record<ErrorCode, CodeInfo>> = {
    */
   "quota.burst_exceeded": { status: 429, concept: "rate_limit", retry: true },
   /**
+   * This credential already has as many agent runs going as it may (two), or
+   * the engine is running as many as it takes. Sent with Retry-After, but never
+   * retried: a run takes minutes, so follow or cancel one, then start again.
+   */
+  "quota.concurrency_exceeded": { status: 429, concept: "concurrency_limit", retry: false },
+  /**
    * A relationship anchor named more than one company or institution.
    * `extra.anchor` and `extra.candidates` list the choices; name it more
    * precisely (a domain or LinkedIn URL rather than a name).
@@ -239,6 +308,11 @@ export const ERROR_CODES: Readonly<Record<ErrorCode, CodeInfo>> = {
    * A relationship anchor matched no company or institution.
    */
   "relationship.anchor_not_found": { status: 422, concept: "invalid_request", retry: false },
+  /**
+   * A department or seniority the taxonomy does not hold. `extra.allowed` lists
+   * the values it takes.
+   */
+  "relationship.filter_value_unknown": { status: 422, concept: "invalid_request", retry: false },
   /**
    * The request is invalid. Validation failures carry the field-level detail in
    * the top-level `errors` array (`loc`, `msg`, `type`); `detail` names the
@@ -288,6 +362,7 @@ export const STATUS_FALLBACKS: Readonly<Record<number, ErrorConcept>> = {
   404: "not_found",
   405: "invalid_request",
   409: "conflict",
+  410: "results_expired",
   413: "invalid_request",
   415: "invalid_request",
   422: "invalid_request",

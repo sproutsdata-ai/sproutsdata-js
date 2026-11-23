@@ -1,0 +1,37 @@
+{
+  "name": "concurrency_exceeded_is_never_retried",
+  "description": "A credential may have two agent runs going. A third start answers 429 quota.concurrency_exceeded with Retry-After: 30, within the cap, which would be slept and retried for any other 429. A run takes minutes, so the wait rarely frees a slot: it is raised at once, on a keyed route too, as its own concept.",
+  "request": {
+    "method": "POST",
+    "path": "/v1/agents/runs",
+    "body": {
+      "query": "fintech companies"
+    }
+  },
+  "responses": [
+    {
+      "status": 429,
+      "headers": {
+        "X-Request-Id": "req_busy",
+        "Retry-After": "30"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/quota-concurrency-exceeded",
+        "title": "Too many runs at once",
+        "status": 429,
+        "code": "quota.concurrency_exceeded",
+        "detail": "This credential already has 2 runs going. Wait for one to finish, then try again."
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "no_sleep": true,
+    "error": {
+      "concept": "concurrency_limit",
+      "status": 429,
+      "code": "quota.concurrency_exceeded",
+      "request_id": "req_busy"
+    }
+  }
+}

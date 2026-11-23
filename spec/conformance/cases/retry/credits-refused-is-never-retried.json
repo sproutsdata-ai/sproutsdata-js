@@ -1,0 +1,36 @@
+{
+  "name": "credits_refused_is_never_retried",
+  "description": "When the credit ledger refuses to hold credits for an agent run, the start answers 503 credits.refused. Any other 503 is retried; this one cannot change by repeating, so it is raised at once, as its own concept. Nothing ran and nothing was charged.",
+  "request": {
+    "method": "POST",
+    "path": "/v1/agents/runs",
+    "body": {
+      "query": "fintech companies"
+    }
+  },
+  "responses": [
+    {
+      "status": 503,
+      "headers": {
+        "X-Request-Id": "req_refused"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/credits-refused",
+        "title": "The credits ledger refused this",
+        "status": 503,
+        "code": "credits.refused",
+        "detail": "The credits ledger refused to hold credits for this run."
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "no_sleep": true,
+    "error": {
+      "concept": "credits_refused",
+      "status": 503,
+      "code": "credits.refused",
+      "request_id": "req_refused"
+    }
+  }
+}

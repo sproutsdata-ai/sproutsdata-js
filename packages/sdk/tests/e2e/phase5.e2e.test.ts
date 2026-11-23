@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { APIError, ClientValidationError, PermissionDeniedError } from '../../src/core/errors.js';
+import { APIError, ClientValidationError, ConcurrencyLimitError, PermissionDeniedError } from '../../src/core/errors.js';
 import { entityHit, lookupRef, totalFor } from '../../src/resources/helpers.js';
 import type { SearchParams } from '../../src/types/index.js';
 import { collect } from '../support/rig.js';
@@ -142,6 +142,23 @@ describe.skipIf(STACK === undefined)('phase 5, live', () => {
     const handle = await sdk.runs.create({ query: 'fintech companies', effort: 'minimal' });
     const cancelled = await sdk.runs.cancel(handle.run_id);
     expect(cancelled.run_id).toBe(handle.run_id);
+  });
+
+  it('a third run at once is refused at once and never retried', async () => {
+    const sdk = client();
+    const started: string[] = [];
+    const began = Date.now();
+    let refused: unknown;
+    try {
+      for (let n = 0; n < 3; n += 1) started.push((await sdk.runs.create({ query: `fintech companies ${String(n)}` })).run_id);
+    } catch (error) {
+      refused = error;
+    } finally {
+      for (const id of started) await sdk.runs.cancel(id); // a cancelled run gives its place back
+    }
+    expect(refused).toBeInstanceOf(ConcurrencyLimitError);
+    expect((refused as ConcurrencyLimitError).retryAfter).toBe(30);
+    expect(Date.now() - began).toBeLessThan(5_000);
   });
 
   it('a key with the default scopes cannot start a run', async () => {

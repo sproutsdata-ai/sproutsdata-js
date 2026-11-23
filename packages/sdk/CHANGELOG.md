@@ -55,6 +55,10 @@ every changed call with its replacement.
   and sent as the new ones.
 - **`RelationshipInstitution`** is now the answer type; a request's institutions are
   `RelationshipInstitutionInput` (**breaking** for code that typed them).
+- **Errors**: every code the backend sends an API key is mapped. Two answers are never
+  retried whatever their status: a third agent run on a key that has two going
+  (`ConcurrencyLimitError`, which used to sleep its 30-second Retry-After twice before
+  failing) and a refused credit hold (`CreditsRefusedError`).
 - **`credits.quote()`** takes `operation: 'enrichment'` (rows x fields, up to 30,000);
   a `lookup` quote over 1,000 records is refused locally.
 
@@ -72,6 +76,9 @@ every changed call with its replacement.
   holds nothing). `meta.credits_balance` is the balance after each billed call.
 - `APIError.nextStep`: the server's one sentence on what to do now, after
   `detail` in the message; tool errors carry it after the detail too.
+- `ResultsExpiredError` (410, a `NotFoundError`: a run's or an enrichment job's rows are no
+  longer kept), `ConcurrencyLimitError` (a `RateLimitError`) and `CreditsRefusedError` (a
+  `ServiceUnavailableError`).
 - The types of the API at dsp-backend `d0ef156`: the new document and trend filters,
   `lock_filters` and `fields` on the search bodies, `resolved_search.read_as` and
   `anchor_matches`, and the enrichment, org chart people and credit purchase types.

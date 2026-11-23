@@ -25,6 +25,30 @@ every file here against the others and the error table against the backend.
 
 ---
 
+## 2026-11-24 — every error code mapped; retry policy version 3
+
+- **error-codes.json**: every code dsp-backend `d0ef156` sends an API key is mapped
+  (44 codes). New concepts `results_expired` (status fallback for 410),
+  `concurrency_limit` and `credits_refused`. New codes: `agents.results_expired`,
+  `enrichment.results_expired`, `enrichment.job_not_found`,
+  `enrichment.idempotency_key_reused`, `enrichment.job_finished`,
+  `quota.concurrency_exceeded`, `credits.refused` (it reaches API-key callers on run
+  and enrichment starts, so it is no longer treated as internal),
+  `credits.purchase_not_allowed`, `credits.no_card_on_file`,
+  `credits.idempotency_key_reused`, `relationship.filter_value_unknown`. The Tools
+  API's `tools.*` codes are left out: `/tools/v1` is outside the published paths.
+- **retry-policy.json** (version 3): a row may match on `codes`, the problem
+  document's `code`, ahead of the rows for those codes' statuses. The new row
+  `never_retried_code` raises `quota.concurrency_exceeded` (429) and
+  `credits.refused` (503) at once in every class; 410 joins `never_retried`.
+  `check_spec` now takes each code's `retry` flag from the policy instead of a
+  fixed list of statuses, and checks the policy's rows.
+- **conformance**: `retry/concurrency-exceeded-is-never-retried.json`,
+  `retry/credits-refused-is-never-retried.json`, `errors/results-expired.json`,
+  `errors/unknown-410-is-results-expired.json`.
+
+---
+
 ## 2026-11-24 — enrichment exported, deep search removed, effort renamed
 
 Re-exported from dsp-backend `sd-qa` at d0ef156 (108 commits after 8c06583) and

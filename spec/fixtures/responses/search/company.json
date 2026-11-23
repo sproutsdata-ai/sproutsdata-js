@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-16T23:02:25.588072Z",
+        "as_of": "2026-11-23T19:37:38.028214Z",
         "domain": null,
         "quote": null,
         "source_corpus": "gtm_index",
@@ -10,19 +10,19 @@
       }
     ],
     "columns": null,
-    "coverage": null,
     "degradation": [],
     "has_more": true,
     "meta": {
-      "as_of": "2026-11-16T23:02:25.588072Z",
+      "as_of": "2026-11-23T19:37:38.028214Z",
       "credential": "api_key",
       "credits_balance": 999.5,
       "credits_charged": 0.5,
       "environment": "live",
-      "request_id": "5500a7f707fe427b8a41e4bf3eaa53ad"
+      "request_id": "9eb3dee0c8dc43959a13a59a30976dda"
     },
-    "next_cursor": "eyJmIjoiOTJkYTRlZDMzYjVhZDdkZTUwMzg4NmU2YjAyMWFmZGYiLCJvIjoyLCJzIjoiY2ExNzhjNTVlYzdkNDU1NGFiNzI0ZWNkMTNiMzMxOTciLCJ0IjoxNzk0ODcwMTQ1LCJ1IjoicHJpc218Y29tcGFueXwxIn0.2bf0fa10172304c4d40e497f54400775",
+    "next_cursor": "eyJmIjoiOTJkYWY5MDBmMTljNDg3Nzg3MGI1N2FiYjNlOTI4NGIiLCJvIjoyLCJzIjoiNmJjNmJiZTBkMDJiNGIyMmI0OTNjODdlYTg0NDg1MzYiLCJ0IjoxNzk1NDYyNjU4LCJ1IjoicHJpc218Y29tcGFueXwxIn0.6ca8393e24832f9a36163cdb422aaa80",
     "resolved_search": {
+      "anchor_matches": [],
       "category": "company",
       "conflicts": [],
       "filters": {
@@ -38,6 +38,7 @@
       "overrides": [],
       "parser_version": "none",
       "query": "robotics",
+      "read_as": [],
       "semantic_query": "industrial automation",
       "semantic_scope": null,
       "sort": [],
@@ -68,7 +69,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-0.de",
+        "id": "d1_ILpoywK9mJjZOx2_mpoIRntkfLjvUdSENzuQwg",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -141,7 +142,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-1.de",
+        "id": "d1_EPVgW5uWBVhcMCfHBfOE_qlSJMosQbMB1rsghg",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -199,8 +200,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "35",
-    "x-request-id": "5500a7f707fe427b8a41e4bf3eaa53ad"
+    "ratelimit-reset": "22",
+    "x-request-id": "9eb3dee0c8dc43959a13a59a30976dda"
   },
   "operation": "search",
   "request": {

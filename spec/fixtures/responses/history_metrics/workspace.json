@@ -4,7 +4,7 @@
       {
         "action_type": "dsp.agents",
         "credits": "8.500",
-        "day": "2026-11-17",
+        "day": "2026-11-24",
         "failed": 0,
         "ok": 1,
         "pending": 0,
@@ -13,7 +13,7 @@
       {
         "action_type": "dsp.entities",
         "credits": "9.000",
-        "day": "2026-11-17",
+        "day": "2026-11-24",
         "failed": 0,
         "ok": 9,
         "pending": 0,
@@ -22,7 +22,7 @@
       {
         "action_type": "dsp.org_chart",
         "credits": "3.000",
-        "day": "2026-11-17",
+        "day": "2026-11-24",
         "failed": 1,
         "ok": 3,
         "pending": 0,
@@ -31,7 +31,7 @@
       {
         "action_type": "dsp.relationships",
         "credits": "8.000",
-        "day": "2026-11-17",
+        "day": "2026-11-24",
         "failed": 0,
         "ok": 4,
         "pending": 0,
@@ -40,7 +40,7 @@
       {
         "action_type": "dsp.search",
         "credits": "3.095",
-        "day": "2026-11-17",
+        "day": "2026-11-24",
         "failed": 0,
         "ok": 7,
         "pending": 0,
@@ -49,15 +49,15 @@
       {
         "action_type": "dsp.similar",
         "credits": "2.000",
-        "day": "2026-11-17",
+        "day": "2026-11-24",
         "failed": 0,
         "ok": 1,
         "pending": 0,
         "requests": 1
       }
     ],
-    "period_from": "2026-10-17T23:02:26.700989Z",
-    "period_to": "2026-11-16T23:02:26.700989Z",
+    "period_from": "2026-10-24T19:37:39.437601Z",
+    "period_to": "2026-11-23T19:37:39.437601Z",
     "total_credits": "33.595",
     "total_failed": 1,
     "total_ok": 25,
@@ -68,8 +68,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "34",
-    "x-request-id": "bcd8013ebe34481794ed0fd0bf11210b"
+    "ratelimit-reset": "21",
+    "x-request-id": "35fd53f3cc3a46f3b4f7a05d3a711ce6"
   },
   "operation": "history_metrics",
   "request": {

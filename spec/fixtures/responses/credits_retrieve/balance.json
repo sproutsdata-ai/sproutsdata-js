@@ -13,8 +13,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1998",
-    "ratelimit-reset": "34",
-    "x-request-id": "f3c33a2739244a2db33bff70076a75de"
+    "ratelimit-reset": "21",
+    "x-request-id": "cff7988cc8974c2b99afb73fc0ca8f2d"
   },
   "operation": "credits_retrieve",
   "request": {

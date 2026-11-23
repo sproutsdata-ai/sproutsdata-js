@@ -32,6 +32,11 @@ export interface AcademicReference {
 
 export interface AcademicReportFilters {
   /**
+   * Authors of the paper, as people's names in either order. Set `match_all` to
+   * require every one.
+   */
+  readonly authors?: TermsFilter | null;
+  /**
    * How many times the paper has been cited.
    */
   readonly citation_count?: RangeFilter | null;
@@ -49,6 +54,12 @@ export interface AcademicReportFilters {
    * How many references the paper cites.
    */
   readonly reference_count?: RangeFilter | null;
+  /**
+   * What the records must be about, matched in their own text: a keyword or
+   * phrase, or {"and": [...]}, {"or": [...]}, {"not": ...} nested. Filled from
+   * `query` when not sent.
+   */
+  readonly topic?: string | Readonly<Record<string, unknown>> | null;
 }
 
 export interface AcademicReportRecord {
@@ -81,8 +92,23 @@ export interface AcademicReportSearchRequest {
    * `next_cursor` from the previous page. Send the same body with it.
    */
   readonly cursor?: string | null;
+  /**
+   * Return only these fields of each row, plus `id`, `category` and `score`.
+   * Omit for every field. A name a row does not carry is left out, never added
+   * as null. It changes neither which rows come back nor what they cost, and a
+   * later page may ask for other fields with the same cursor.
+   */
+  readonly fields?: readonly string[] | null;
   readonly filters?: AcademicReportFilters | null;
   readonly limit?: number;
+  /**
+   * True: `query` is never read into filters. It is searched as a description,
+   * by meaning (by its words where a category has no meaning search), and
+   * `filters` (with the domain lists) is the whole filter set, so text inside a
+   * query cannot add, change or remove a filter. Takes `mode: fast` or `auto`
+   * (both run it the same way, billed as `fast`).
+   */
+  readonly lock_filters?: boolean;
   readonly mode?: SearchModeInput;
   readonly query?: string | null;
   readonly sort?: readonly AcademicReportSort[] | null;
@@ -123,10 +149,44 @@ export interface Anchor {
   readonly weight?: number;
 }
 
+export interface AnchorAlternative {
+  /**
+   * Send it as a domain anchor to pick it.
+   */
+  readonly domain: string | null;
+  readonly name: string;
+}
+
 export type AnchorBy =
   | "domain"
   | "li_url"
   | "name";
+
+/**
+ * What a company name sent as an anchor became.
+ */
+export interface AnchorMatch {
+  /**
+   * Other companies holding the name, when not exact.
+   */
+  readonly alternatives: readonly AnchorAlternative[];
+  /**
+   * That company's domain.
+   */
+  readonly domain: string | null;
+  /**
+   * False when the name is not that company's own: it is the closest one held.
+   */
+  readonly exact: boolean;
+  /**
+   * The company the name became.
+   */
+  readonly name: string | null;
+  /**
+   * The name as sent.
+   */
+  readonly value: string;
+}
 
 /**
  * Exactly one of the answers is set, named by ``route``.
@@ -188,6 +248,13 @@ export interface AutoSearchRequest {
    * `next_cursor` from the previous page. Send the same body with it.
    */
   readonly cursor?: string | null;
+  /**
+   * Return only these fields of each row, plus `id`, `category` and `score`.
+   * Omit for every field. A name a row does not carry is left out, never added
+   * as null. It changes neither which rows come back nor what they cost, and a
+   * later page may ask for other fields with the same cursor.
+   */
+  readonly fields?: readonly string[] | null;
   readonly limit?: number;
   readonly mode?: SearchModeInput;
   readonly query: string;
@@ -288,6 +355,9 @@ export interface CompanyKeywordsFilter {
   readonly target_fields: readonly ("name" | "keywords" | "description")[];
 }
 
+/**
+ * A record's ``technology`` list is cut to the 25 a search row shows.
+ */
 export interface CompanyLookup {
   /**
    * Omit for prism ids; `domain`, `li_url` or `name`, or `auto` to classify
@@ -330,6 +400,7 @@ export interface CompanyRecord {
    * The public id: the one search gives this record, and a lookup key.
    */
   readonly id: string;
+  readonly industries_served: readonly string[];
   readonly industry?: string | null;
   readonly investors: readonly string[];
   readonly ipo_status?: string | null;
@@ -512,6 +583,101 @@ export type CoverageSegmentNameInput =
   | "fundings"
   | "job-openings";
 
+export interface CreditAutoTopup {
+  readonly amount_cents: number | null;
+  /**
+   * A card saved by a paid purchase.
+   */
+  readonly card_on_file: boolean;
+  readonly consecutive_declines: number;
+  readonly daily_cap_cents: number | null;
+  /**
+   * Why it turned itself off: `declined` (three in a row) or `no_card`.
+   */
+  readonly disabled_reason: string | null;
+  readonly enabled: boolean;
+  readonly threshold_credits: number | null;
+}
+
+export interface CreditAutoTopupRequest {
+  /**
+   * What each top-up buys, in US cents.
+   */
+  readonly amount_cents: number;
+  /**
+   * At most this a UTC day.
+   */
+  readonly daily_cap_cents?: number | null;
+  readonly enabled: boolean;
+  /**
+   * Buy when available credits fall below this.
+   */
+  readonly threshold_credits: number;
+}
+
+export interface CreditPricing {
+  readonly credits_per_usd: number;
+  readonly currency: string;
+  /**
+   * The largest purchase.
+   */
+  readonly max_cents: number;
+  /**
+   * The smallest purchase.
+   */
+  readonly min_cents: number;
+  readonly pricing_version: string;
+  /**
+   * For `amount_cents`, when it was asked.
+   */
+  readonly quote: CreditPricingQuote | null;
+}
+
+export interface CreditPricingQuote {
+  readonly amount_cents: number;
+  readonly bonus_credits: number;
+  /**
+   * The credits that amount buys today.
+   */
+  readonly credits: number;
+}
+
+export interface CreditPurchase {
+  readonly amount_cents: number;
+  readonly bonus_credits: number;
+  readonly checkout_expires_at: string | null;
+  /**
+   * Stripe's payment page, while it can be paid.
+   */
+  readonly checkout_url: string | null;
+  readonly created_at: string;
+  /**
+   * The credits the amount buys.
+   */
+  readonly credits: number;
+  readonly currency: string;
+  readonly dispute_status: string | null;
+  readonly id: string;
+  readonly paid_at: string | null;
+  readonly refunded_cents: number;
+  /**
+   * `pending` until paid; then `paid`, `expired` or `failed`.
+   */
+  readonly status: string;
+}
+
+export interface CreditPurchaseList {
+  readonly next_cursor: string | null;
+  readonly results: readonly CreditPurchase[];
+}
+
+export interface CreditPurchaseRequest {
+  /**
+   * What the buyer pays, in US cents.
+   */
+  readonly amount_cents: number;
+}
+
 export interface CreditsOut {
   /**
    * What can be spent now.
@@ -616,6 +782,7 @@ export type DegradationReason =
   | "no_match"
   | "topic_not_required"
   | "sparse_filter"
+  | "anchor_not_exact"
   | (string & {});
 
 /**
@@ -636,7 +803,10 @@ export interface DepartmentHeadcountFilter {
 
 export interface DepartmentsRequest {
   /**
-   * A `company_ref` from an `org_chart.company_ambiguous` answer.
+   * One company by the `company_ref` this API gave it: an org chart answer's
+   * `company`, a candidate's in an `org_chart.company_ambiguous` answer, or a
+   * company search hit's `id`, which is the same ref. Opaque; a ref this API
+   * did not give is refused.
    */
   readonly company_ref?: string | null;
   readonly domain?: string | null;
@@ -794,12 +964,16 @@ export interface EducationEntry {
   readonly [key: string]: unknown;
 }
 
+/**
+ * How hard a run works. The names the tiers had before (`minimal`, `low`,
+ * `medium`, `high`, `xhigh`) are read as the tier they named.
+ */
 export type Effort =
-  | "minimal"
-  | "low"
-  | "medium"
-  | "high"
-  | "xhigh"
+  | "quick"
+  | "basic"
+  | "standard"
+  | "detailed"
+  | "maximum"
   | "auto";
 
 /**
@@ -847,6 +1021,284 @@ export interface EmploymentHistoryGroup {
   readonly tenure_gte?: number | null;
   readonly tenure_lte?: number | null;
   readonly title?: TermsFilter | null;
+}
+
+/**
+ * A person (contacts) or a company (accounts). Send what you know.
+ */
+export interface EnrichmentItem {
+  readonly company_domain?: string | null;
+  /**
+   * Our id for a company.
+   */
+  readonly company_id?: string | null;
+  readonly company_name?: string | null;
+  readonly email_hint?: string | null;
+  /**
+   * Legacy name of person_id.
+   */
+  readonly es_id?: string | null;
+  /**
+   * Your id, echoed.
+   */
+  readonly external_id?: string | null;
+  /**
+   * This row's own fields, a subset of the request's. Unset: all of them.
+   */
+  readonly fields?: readonly ("EMAIL" | "PHONE" | "DOMAIN" | "LINKEDIN_URL")[] | null;
+  readonly first_name?: string | null;
+  readonly full_name?: string | null;
+  readonly last_name?: string | null;
+  readonly linkedin_url?: string | null;
+  /**
+   * Our id for a person.
+   */
+  readonly person_id?: string | null;
+  /**
+   * Legacy: external_id.
+   */
+  readonly reference?: string | null;
+}
+
+export interface EnrichmentJob {
+  readonly counts: EnrichmentJobCounts;
+  readonly created_at: string;
+  /**
+   * What the job cost, in credits, once it has ended. Null while it runs, never
+   * 0 (which reads as free). A value already known is free.
+   */
+  readonly credits_charged: number | null;
+  /**
+   * Usage units so far: 1 per value newly found.
+   */
+  readonly credits_used: number;
+  readonly entity: "contacts" | "accounts" | (string & {});
+  readonly error: string | null;
+  readonly eta_seconds: number | null;
+  readonly fields: readonly string[];
+  readonly finished_at: string | null;
+  readonly job_id: string;
+  readonly meta: ResponseMeta;
+  readonly name: string | null;
+  readonly rows_per_second: number | null;
+  /**
+   * As of the last time the job was read.
+   */
+  readonly status: EnrichmentJobStatus;
+  /**
+   * Why DSP cancelled the job, when it did: `time_limit` (still running 6 h
+   * after it started) or `no_credits` (the workspace could no longer cover it).
+   * What it found until then is charged.
+   */
+  readonly stop_reason: "time_limit" | "no_credits" | (string & {}) | null;
+  /**
+   * Positions in `items` left out because they are on the Do-Not-Contact list:
+   * never looked up, never charged.
+   */
+  readonly suppressed_rows: readonly number[];
+  readonly total_rows: number;
+}
+
+export interface EnrichmentJobCounts {
+  readonly done_rows: number;
+  /**
+   * Each field's rows by their status, e.g. `{"EMAIL": {"found": 3}}`.
+   */
+  readonly field_counts: Readonly<Record<string, Readonly<Record<string, number>>>>;
+  /**
+   * Rows by their status.
+   */
+  readonly rows: Readonly<Record<string, number>>;
+  readonly total_rows: number;
+}
+
+export interface EnrichmentJobHandle {
+  readonly entity: "contacts" | "accounts" | (string & {});
+  readonly job_id: string;
+  readonly meta: ResponseMeta;
+  /**
+   * True when this `Idempotency-Key` had started this job.
+   */
+  readonly reused: boolean;
+  readonly status: EnrichmentJobStatus;
+  /**
+   * Positions in `items` left out because they are on the Do-Not-Contact list:
+   * never looked up, never charged.
+   */
+  readonly suppressed_rows: readonly number[];
+  readonly total_rows: number;
+}
+
+export interface EnrichmentJobList {
+  readonly has_more: boolean;
+  readonly meta: ResponseMeta;
+  readonly next_cursor: string | null;
+  readonly results: readonly EnrichmentJobSummary[];
+}
+
+export interface EnrichmentJobRequest {
+  readonly entity?: "contacts" | "accounts";
+  /**
+   * What to find. No default: nothing is looked up, or charged, that you did
+   * not ask for.
+   */
+  readonly fields: readonly ("EMAIL" | "PHONE" | "DOMAIN" | "LINKEDIN_URL")[];
+  readonly items: readonly EnrichmentItem[];
+  /**
+   * A label for your list.
+   */
+  readonly name?: string | null;
+  /**
+   * Look up values that are already known.
+   */
+  readonly re_enrich?: boolean;
+  /**
+   * Contacts only. How emails are verified: `skip` (not at all), `moderate`
+   * (syntax, domain and the source's own signal) or `strict` (every email
+   * checked by a verifier). Unset: the workspace's setting.
+   */
+  readonly verify_mode?: "skip" | "moderate" | "strict" | null;
+}
+
+export interface EnrichmentJobResults {
+  readonly has_more: boolean;
+  readonly meta: ResponseMeta;
+  readonly next_cursor: string | null;
+  /**
+   * Rows; each carries its `credits`.
+   */
+  readonly results: readonly EnrichmentRow[];
+}
+
+export type EnrichmentJobStatus =
+  | "queued"
+  | "running"
+  | "cancelling"
+  | "completed"
+  | "failed"
+  | "cancelled"
+  | (string & {});
+
+export type EnrichmentJobStatusInput =
+  | "queued"
+  | "running"
+  | "cancelling"
+  | "completed"
+  | "failed"
+  | "cancelled";
+
+export interface EnrichmentJobSummary {
+  readonly created_at: string;
+  /**
+   * What the job cost, in credits, once it has ended. Null while it runs, never
+   * 0 (which reads as free). A value already known is free.
+   */
+  readonly credits_charged: number | null;
+  readonly entity: "contacts" | "accounts" | (string & {});
+  readonly fields: readonly string[];
+  readonly finished_at: string | null;
+  readonly job_id: string;
+  readonly name: string | null;
+  /**
+   * As of the last time the job was read.
+   */
+  readonly status: EnrichmentJobStatus;
+  /**
+   * Why DSP cancelled the job, when it did: `time_limit` (still running 6 h
+   * after it started) or `no_credits` (the workspace could no longer cover it).
+   * What it found until then is charged.
+   */
+  readonly stop_reason: "time_limit" | "no_credits" | (string & {}) | null;
+  /**
+   * Positions in `items` left out because they are on the Do-Not-Contact list:
+   * never looked up, never charged.
+   */
+  readonly suppressed_rows: readonly number[];
+  readonly total_rows: number;
+}
+
+/**
+ * A few rows (at most 20) answered in the call.
+ */
+export interface EnrichmentLookupRequest {
+  readonly entity?: "contacts" | "accounts";
+  /**
+   * What to find. No default: nothing is looked up, or charged, that you did
+   * not ask for.
+   */
+  readonly fields: readonly ("EMAIL" | "PHONE" | "DOMAIN" | "LINKEDIN_URL")[];
+  readonly items: readonly EnrichmentItem[];
+  /**
+   * Look up values that are already known.
+   */
+  readonly re_enrich?: boolean;
+  /**
+   * Contacts only. How emails are verified: `skip` (not at all), `moderate`
+   * (syntax, domain and the source's own signal) or `strict` (every email
+   * checked by a verifier). Unset: the workspace's setting.
+   */
+  readonly verify_mode?: "skip" | "moderate" | "strict" | null;
+  readonly wait_seconds?: number | null;
+}
+
+export interface EnrichmentLookupResult {
+  /**
+   * False when the lookup did not finish in the call: it became the job
+   * `job_id`, which settles its credits when it ends; read it for the rest.
+   */
+  readonly complete: boolean;
+  readonly credits_used: number;
+  readonly job_id: string;
+  readonly meta: ResponseMeta;
+  readonly reason: string | null;
+  readonly results: readonly EnrichmentRow[];
+  readonly status: EnrichmentJobStatus;
+  /**
+   * Positions in `items` left out because they are on the Do-Not-Contact list:
+   * never looked up, never charged.
+   */
+  readonly suppressed_rows: readonly number[];
+}
+
+export interface EnrichmentRow {
+  /**
+   * Usage units this row used: 1 per value newly found.
+   */
+  readonly credits: number;
+  readonly fields: Readonly<Record<string, EnrichmentRowField>>;
+  /**
+   * The row's position in the job, from 0.
+   */
+  readonly idx: number;
+  /**
+   * Fields a lookup's deadline cut: still being looked up.
+   */
+  readonly incomplete: readonly string[] | null;
+  /**
+   * The row as you sent it.
+   */
+  readonly input: Readonly<Record<string, unknown>>;
+  /**
+   * `found`, `partial`, `not_found`, `error`, `cancelled`, `skipped` or
+   * `suppressed` (on the Do-Not-Contact list: never looked up, or blanked
+   * since).
+   */
+  readonly outcome: string;
+}
+
+/**
+ * One field of a row as a customer sees it. Built from an allow-list: where a
+ * value came from (a vendor, the cache) and what was spent finding it never
+ * leave DSP.
+ */
+export interface EnrichmentRowField {
+  /**
+   * `found`, `not_found`, `error`, `cancelled`, `skipped` or `suppressed` (on
+   * the Do-Not-Contact list: blanked).
+   */
+  readonly status: string;
+  readonly value: unknown;
+  readonly verified: boolean;
 }
 
 /**
@@ -922,6 +1374,13 @@ export interface EntitySearchRequest {
    * Never these companies; on a person search, never people employed by them.
    */
   readonly exclude_domains?: readonly string[];
+  /**
+   * Return only these fields of each row, plus `id`, `category` and `score`.
+   * Omit for every field. A name a row does not carry is left out, never added
+   * as null. It changes neither which rows come back nor what they cost, and a
+   * later page may ask for other fields with the same cursor.
+   */
+  readonly fields?: readonly string[] | null;
   readonly filters?: DiscoverFilters | null;
   /**
    * Only these companies; on a person search, people employed by them.
@@ -935,6 +1394,14 @@ export interface EntitySearchRequest {
    */
   readonly keyword_query?: string | Readonly<Record<string, unknown>> | null;
   readonly limit?: number;
+  /**
+   * True: `query` is never read into filters. It is searched as a description,
+   * by meaning (by its words where a category has no meaning search), and
+   * `filters` (with the domain lists) is the whole filter set, so text inside a
+   * query cannot add, change or remove a filter. Takes `mode: fast` or `auto`
+   * (both run it the same way, billed as `fast`).
+   */
+  readonly lock_filters?: boolean;
   readonly mode?: SearchModeInput;
   readonly query?: string | null;
   /**
@@ -1121,6 +1588,10 @@ export interface FundingFilters {
    */
   readonly companies?: EntityFilter | null;
   /**
+   * City of the company that raised, matched ignoring case.
+   */
+  readonly company_city?: TermsFilter | null;
+  /**
    * Country of the company that raised.
    */
   readonly company_country?: TermsFilter | null;
@@ -1129,7 +1600,9 @@ export interface FundingFilters {
    */
   readonly company_size?: RangeFilter | null;
   /**
-   * The amount raised, in US dollars.
+   * The amount raised, in US dollars. In `auto` mode an amount the question
+   * writes in another currency is converted to US dollars, and a warning gives
+   * the rate.
    */
   readonly funding_size?: RangeFilter | null;
   /**
@@ -1137,9 +1610,11 @@ export interface FundingFilters {
    */
   readonly investor_country?: TermsFilter | null;
   /**
-   * Any of these investors took part.
+   * Investors that took part: any of them, or with `match_all` every one of
+   * them in the same round ("rounds where both A and B took part"). In `auto`
+   * mode a question naming both sets it.
    */
-  readonly investors?: EntityFilter | null;
+  readonly investors?: MatchAllEntityFilter | null;
   /**
    * Keyword sets over the raising company's profile.
    */
@@ -1148,6 +1623,12 @@ export interface FundingFilters {
    * Round type: Series A, Seed, Angel, Debt, M&A, Accelerator, ...
    */
   readonly stages?: TermsFilter | null;
+  /**
+   * What the records must be about, matched in their own text: a keyword or
+   * phrase, or {"and": [...]}, {"or": [...]}, {"not": ...} nested. Filled from
+   * `query` when not sent.
+   */
+  readonly topic?: string | Readonly<Record<string, unknown>> | null;
 }
 
 export interface FundingInvestor {
@@ -1190,8 +1671,23 @@ export interface FundingSearchRequest {
    * `next_cursor` from the previous page. Send the same body with it.
    */
   readonly cursor?: string | null;
+  /**
+   * Return only these fields of each row, plus `id`, `category` and `score`.
+   * Omit for every field. A name a row does not carry is left out, never added
+   * as null. It changes neither which rows come back nor what they cost, and a
+   * later page may ask for other fields with the same cursor.
+   */
+  readonly fields?: readonly string[] | null;
   readonly filters?: FundingFilters | null;
   readonly limit?: number;
+  /**
+   * True: `query` is never read into filters. It is searched as a description,
+   * by meaning (by its words where a category has no meaning search), and
+   * `filters` (with the domain lists) is the whole filter set, so text inside a
+   * query cannot add, change or remove a filter. Takes `mode: fast` or `auto`
+   * (both run it the same way, billed as `fast`).
+   */
+  readonly lock_filters?: boolean;
   readonly mode?: SearchModeInput;
   readonly query?: string | null;
   readonly sort?: readonly FundingSort[] | null;
@@ -1291,6 +1787,55 @@ export interface GlobalPresenceFilter {
 export interface HistoryPage {
   readonly next_cursor: string | null;
   readonly results: readonly RunSummary[];
+}
+
+/**
+ * Suggestions for a typed employer or school name, most people first. Free.
+ */
+export interface InstitutionLookupEnvelope {
+  /**
+   * No stored name starts with the text, so these are spelling corrections.
+   */
+  readonly corrected: boolean;
+  readonly meta: ResponseMeta;
+  readonly results: readonly InstitutionSuggestion[];
+}
+
+/**
+ * Employers and schools whose name starts with what was typed: the picker
+ * behind `institutions`.
+ */
+export interface InstitutionLookupRequest {
+  /**
+   * `company` keeps employers, `school` schools, `any` both.
+   */
+  readonly kind?: "any" | "company" | "school";
+  readonly limit?: number;
+  /**
+   * What has been typed; a partial word is enough.
+   */
+  readonly query: string;
+}
+
+export interface InstitutionSuggestion {
+  /**
+   * The institution key: a LinkedIn page, `edu:<slug>` or `name:<name>`.
+   */
+  readonly id: string;
+  /**
+   * Send this as one of `institutions` in `POST /v1/relationships` to run on
+   * exactly this institution.
+   */
+  readonly institution: RelationshipInstitution;
+  readonly kind: "company" | "school" | (string & {});
+  /**
+   * The name as the index stores it (lower case).
+   */
+  readonly name: string;
+  /**
+   * People with an affiliation there, current or past.
+   */
+  readonly people: number;
 }
 
 /**
@@ -1409,12 +1954,27 @@ export interface JobOpeningSearchRequest {
    * Never postings by these companies.
    */
   readonly exclude_domains?: readonly string[];
+  /**
+   * Return only these fields of each row, plus `id`, `category` and `score`.
+   * Omit for every field. A name a row does not carry is left out, never added
+   * as null. It changes neither which rows come back nor what they cost, and a
+   * later page may ask for other fields with the same cursor.
+   */
+  readonly fields?: readonly string[] | null;
   readonly filters?: JobOpeningFilters | null;
   /**
    * Only postings by these companies.
    */
   readonly include_domains?: readonly string[];
   readonly limit?: number;
+  /**
+   * True: `query` is never read into filters. It is searched as a description,
+   * by meaning (by its words where a category has no meaning search), and
+   * `filters` (with the domain lists) is the whole filter set, so text inside a
+   * query cannot add, change or remove a filter. Takes `mode: fast` or `auto`
+   * (both run it the same way, billed as `fast`).
+   */
+  readonly lock_filters?: boolean;
   readonly mode?: SearchModeInput;
   readonly query?: string | null;
   readonly sort?: readonly JobOpeningSort[] | null;
@@ -1514,7 +2074,10 @@ export interface LocationFilter {
 
 export interface LocationsRequest {
   /**
-   * A `company_ref` from an `org_chart.company_ambiguous` answer.
+   * One company by the `company_ref` this API gave it: an org chart answer's
+   * `company`, a candidate's in an `org_chart.company_ambiguous` answer, or a
+   * company search hit's `id`, which is the same ref. Opaque; a ref this API
+   * did not give is refused.
    */
   readonly company_ref?: string | null;
   readonly domain?: string | null;
@@ -1559,6 +2122,18 @@ export interface MarketReportFilters {
    * ...
    */
   readonly publisher?: TermsFilter | null;
+  /**
+   * What the records must be about, matched in their own text: a keyword or
+   * phrase, or {"and": [...]}, {"or": [...]}, {"not": ...} nested. Filled from
+   * `query` when not sent.
+   */
+  readonly topic?: string | Readonly<Record<string, unknown>> | null;
+  /**
+   * A short description of what the records are about; records close to it in
+   * meaning are found beside those holding `topic`. Filled from `query` when
+   * not sent.
+   */
+  readonly topic_description?: string | null;
 }
 
 export interface MarketReportRecord {
@@ -1585,8 +2160,23 @@ export interface MarketReportSearchRequest {
    * `next_cursor` from the previous page. Send the same body with it.
    */
   readonly cursor?: string | null;
+  /**
+   * Return only these fields of each row, plus `id`, `category` and `score`.
+   * Omit for every field. A name a row does not carry is left out, never added
+   * as null. It changes neither which rows come back nor what they cost, and a
+   * later page may ask for other fields with the same cursor.
+   */
+  readonly fields?: readonly string[] | null;
   readonly filters?: MarketReportFilters | null;
   readonly limit?: number;
+  /**
+   * True: `query` is never read into filters. It is searched as a description,
+   * by meaning (by its words where a category has no meaning search), and
+   * `filters` (with the domain lists) is the whole filter set, so text inside a
+   * query cannot add, change or remove a filter. Takes `mode: fast` or `auto`
+   * (both run it the same way, billed as `fast`).
+   */
+  readonly lock_filters?: boolean;
   readonly mode?: SearchModeInput;
   readonly query?: string | null;
   readonly sort?: readonly MarketReportSort[] | null;
@@ -1600,6 +2190,20 @@ export interface MarketReportSort {
 export type MarketReportSortField =
   | "published_date"
   | "obtained_at";
+
+/**
+ * An `EntityFilter` on a field one record holds several entities in (a round's
+ * investors), which can require every included one.
+ */
+export interface MatchAllEntityFilter {
+  readonly exclude?: readonly EntityRef[];
+  readonly include?: readonly EntityRef[];
+  /**
+   * True requires every `include` entity on the same record (AND). False
+   * (default) is any of them (OR).
+   */
+  readonly match_all?: boolean;
+}
 
 /**
  * What `filters.query` matched; null when there was no query, or it matched
@@ -1695,6 +2299,10 @@ export interface NewsFilters {
    */
   readonly keywords?: KeywordQuery | null;
   /**
+   * Language the article is written in, by its English name (German, Spanish).
+   */
+  readonly languages?: TermsFilter | null;
+  /**
    * The outlet: "TechCrunch" or "techcrunch.com".
    */
   readonly publications?: EntityFilter | null;
@@ -1703,6 +2311,12 @@ export interface NewsFilters {
    * Companies the article is about or mentions.
    */
   readonly startups?: EntityFilter | null;
+  /**
+   * What the records must be about, matched in their own text: a keyword or
+   * phrase, or {"and": [...]}, {"or": [...]}, {"not": ...} nested. Filled from
+   * `query` when not sent.
+   */
+  readonly topic?: string | Readonly<Record<string, unknown>> | null;
 }
 
 export interface NewsHeadings {
@@ -1763,8 +2377,23 @@ export interface NewsSearchRequest {
    * `next_cursor` from the previous page. Send the same body with it.
    */
   readonly cursor?: string | null;
+  /**
+   * Return only these fields of each row, plus `id`, `category` and `score`.
+   * Omit for every field. A name a row does not carry is left out, never added
+   * as null. It changes neither which rows come back nor what they cost, and a
+   * later page may ask for other fields with the same cursor.
+   */
+  readonly fields?: readonly string[] | null;
   readonly filters?: NewsFilters | null;
   readonly limit?: number;
+  /**
+   * True: `query` is never read into filters. It is searched as a description,
+   * by meaning (by its words where a category has no meaning search), and
+   * `filters` (with the domain lists) is the whole filter set, so text inside a
+   * query cannot add, change or remove a filter. Takes `mode: fast` or `auto`
+   * (both run it the same way, billed as `fast`).
+   */
+  readonly lock_filters?: boolean;
   readonly mode?: SearchModeInput;
   readonly query?: string | null;
   readonly sort?: readonly NewsSort[] | null;
@@ -1803,6 +2432,7 @@ export type Operation =
   | "lookup"
   | "org_chart"
   | "agent_run"
+  | "enrichment"
   | (string & {});
 
 /**
@@ -1816,9 +2446,47 @@ export type OperationInput =
   | "institutions"
   | "lookup"
   | "org_chart"
-  | "agent_run";
+  | "agent_run"
+  | "enrichment";
+
+/**
+ * One person a cell counts. `id` is the id `POST /v1/search` gives the same
+ * person, and each other key a search person row also has (`contact_name` to
+ * `company_linkedin_url`) holds the same thing, as a string or null. Where the
+ * chart counts them is `placement`, in the chart's codes rather than the
+ * spellings search returns. The employer is the charted company, named as the
+ * answer's `company` is; its firmographics are the company's own record.
+ */
+export interface OrgChartCellPerson {
+  /**
+   * The charted company's name.
+   */
+  readonly account_name: string | null;
+  readonly avatar: string | null;
+  readonly category: "person";
+  readonly city: string | null;
+  /**
+   * The charted company's LinkedIn page.
+   */
+  readonly company_linkedin_url: string | null;
+  readonly contact_name: string | null;
+  readonly country: string | null;
+  readonly id: string;
+  readonly linkedin_url: string | null;
+  /**
+   * `city, state, country`, the parts held.
+   */
+  readonly location: string | null;
+  readonly placement: OrgChartPlacement;
+  readonly state: string | null;
+  readonly title: string | null;
+}
 
 export interface OrgChartCompany {
+  /**
+   * Names this company in a follow-up call (its people, another chart) without
+   * resolving it again.
+   */
   readonly company_ref: string | null;
   readonly domain: string | null;
   readonly linkedin_url: string | null;
@@ -1859,9 +2527,92 @@ export interface OrgChartFilters {
   readonly seniorities?: readonly string[];
 }
 
+/**
+ * One count on the chart, by code: a department, a seniority or both, and a
+ * sub-department inside its department. `unknown` names the people with no
+ * value on that axis, as the chart counted them.
+ */
+export interface OrgChartPeopleCell {
+  readonly department?: string | null;
+  readonly seniority?: string | null;
+  readonly subdepartment?: string | null;
+}
+
+/**
+ * The people one cell counted. Send the chart's own `filters` and
+ * `include_suspects`: they narrow the list as they narrowed the count.
+ */
+export interface OrgChartPeopleRequest {
+  readonly cell: OrgChartPeopleCell;
+  /**
+   * One company by the `company_ref` this API gave it: an org chart answer's
+   * `company`, a candidate's in an `org_chart.company_ambiguous` answer, or a
+   * company search hit's `id`, which is the same ref. Opaque; a ref this API
+   * did not give is refused.
+   */
+  readonly company_ref?: string | null;
+  /**
+   * `next_cursor` from the previous page. Send the same body with it.
+   */
+  readonly cursor?: string | null;
+  readonly domain?: string | null;
+  readonly filters?: OrgChartFilters;
+  readonly include_suspects?: boolean;
+  readonly limit?: number;
+  readonly linkedin_url?: string | null;
+}
+
+/**
+ * The people one cell counted, a page at a time, most senior first. `total` is
+ * the cell's count: the list and the chart are one query.
+ */
+export interface OrgChartPeopleResponse {
+  readonly attribution: readonly Attribution[];
+  readonly company: OrgChartCompany;
+  /**
+   * The people index the counts were read from.
+   */
+  readonly data_version: string;
+  readonly degradation: readonly Degradation[];
+  readonly has_more: boolean;
+  readonly matched: Matched | null;
+  readonly meta: ResponseMeta;
+  /**
+   * Opaque and signed. `has_more` is true exactly when it is set.
+   */
+  readonly next_cursor: string | null;
+  readonly results: readonly OrgChartCellPerson[];
+  /**
+   * People left out as likely fake profiles.
+   */
+  readonly suspect_count: number;
+  readonly taxonomy_version: string;
+  /**
+   * The cell's count, as the chart counts it. A person on the Do-Not-Contact
+   * list is counted but never listed, so the pages can hold fewer people than
+   * this.
+   */
+  readonly total: number;
+}
+
+/**
+ * Where the chart counts a person, in `taxonomy_version`'s codes: at their
+ * highest seniority, in each department they hold and in each of their
+ * sub-departments. A person with no seniority, or no department, is counted
+ * under `unknown` ("Unknown").
+ */
+export interface OrgChartPlacement {
+  readonly departments: readonly CodeLabel[];
+  readonly seniority: CodeLabel;
+  readonly subdepartments: readonly CodeLabel[];
+}
+
 export interface OrgChartRequest {
   /**
-   * A `company_ref` from an `org_chart.company_ambiguous` answer.
+   * One company by the `company_ref` this API gave it: an org chart answer's
+   * `company`, a candidate's in an `org_chart.company_ambiguous` answer, or a
+   * company search hit's `id`, which is the same ref. Opaque; a ref this API
+   * did not give is refused.
    */
   readonly company_ref?: string | null;
   readonly domain?: string | null;
@@ -1980,6 +2731,11 @@ export interface PatentFilters {
   readonly classification_codes?: TermsFilter | null;
   readonly family_numbers?: TermsFilter | null;
   /**
+   * Inventors named on the patent, as people's names in either order (`Jane
+   * Doe` matches `DOE JANE`). Set `match_all` to require every one.
+   */
+  readonly inventors?: TermsFilter | null;
+  /**
    * Keyword sets: positive sets must match, negative sets demote.
    */
   readonly keywords?: KeywordQuery | null;
@@ -1993,6 +2749,12 @@ export interface PatentFilters {
    * Grant status.
    */
   readonly status?: PatentStatus;
+  /**
+   * What the records must be about, matched in their own text: a keyword or
+   * phrase, or {"and": [...]}, {"or": [...]}, {"not": ...} nested. Filled from
+   * `query` when not sent.
+   */
+  readonly topic?: string | Readonly<Record<string, unknown>> | null;
 }
 
 export interface PatentInventor {
@@ -2044,8 +2806,23 @@ export interface PatentSearchRequest {
    * `next_cursor` from the previous page. Send the same body with it.
    */
   readonly cursor?: string | null;
+  /**
+   * Return only these fields of each row, plus `id`, `category` and `score`.
+   * Omit for every field. A name a row does not carry is left out, never added
+   * as null. It changes neither which rows come back nor what they cost, and a
+   * later page may ask for other fields with the same cursor.
+   */
+  readonly fields?: readonly string[] | null;
   readonly filters?: PatentFilters | null;
   readonly limit?: number;
+  /**
+   * True: `query` is never read into filters. It is searched as a description,
+   * by meaning (by its words where a category has no meaning search), and
+   * `filters` (with the domain lists) is the whole filter set, so text inside a
+   * query cannot add, change or remove a filter. Takes `mode: fast` or `auto`
+   * (both run it the same way, billed as `fast`).
+   */
+  readonly lock_filters?: boolean;
   readonly mode?: SearchModeInput;
   readonly query?: string | null;
   readonly sort?: readonly PatentSort[] | null;
@@ -2222,13 +2999,15 @@ export interface Product {
 
 export interface QuoteIn {
   /**
-   * `agent_run` only, and required for it.
+   * `agent_run` only, and required for it. The earlier names (`minimal`, `low`,
+   * `medium`, `high`, `xhigh`) are still accepted.
    */
-  readonly effort?: "minimal" | "low" | "medium" | "high" | "xhigh" | "auto" | null;
+  readonly effort?: "quick" | "basic" | "standard" | "detailed" | "maximum" | "auto" | "minimal" | "low" | "medium" | "high" | "xhigh" | null;
   readonly operation: OperationInput;
   /**
-   * Rows on the page (paged operations, up to 100), or records found (`lookup`,
-   * up to 1,000). Ignored by flat operations and agent runs.
+   * Rows on the page (paged operations, up to 100), records found (`lookup`, up
+   * to 1,000), or values asked for (`enrichment`: rows x fields, up to 30,000).
+   * Ignored by flat operations and agent runs.
    */
   readonly rows?: number;
   /**
@@ -2246,9 +3025,11 @@ export interface QuoteOut {
   /**
    * `page`: these rows of a search; `records`: per record found; `call`: flat,
    * whatever it returns; `run`: an agent run at that effort; `run_up_to`:
-   * `auto` holds this much and is charged at the effort it chooses.
+   * `auto` holds this much and is charged at the effort it chooses;
+   * `values_up_to`: enrichment holds this much (every value asked for) and is
+   * charged only for the values newly found.
    */
-  readonly basis: "page" | "records" | "call" | "run" | "run_up_to" | (string & {});
+  readonly basis: "page" | "records" | "call" | "run" | "run_up_to" | "values_up_to" | (string & {});
   /**
    * Whether `available` covers this quote; `null` when not known.
    */
@@ -2351,6 +3132,25 @@ export interface ReachTarget {
   readonly value: string;
 }
 
+/**
+ * Words in the query that the reading turned into filters the query does not
+ * state.
+ */
+export interface ReadAs {
+  /**
+   * The filters they set, as `filters` names them.
+   */
+  readonly filters: readonly string[];
+  /**
+   * What the words were read as, in one sentence.
+   */
+  readonly note: string;
+  /**
+   * The query's words, as written.
+   */
+  readonly words: string;
+}
+
 export interface RelationshipCompany {
   /**
    * How `value` names the company; `auto` reads it from its shape.
@@ -2401,6 +3201,12 @@ export interface RelationshipHit {
 }
 
 export interface RelationshipInstitution {
+  readonly by: "auto" | "name" | "li_url" | "inst_key" | (string & {});
+  readonly kind: "company" | "school" | "unknown" | (string & {});
+  readonly value: string;
+}
+
+export interface RelationshipInstitutionInput {
   readonly by?: "auto" | "name" | "li_url" | "inst_key";
   readonly kind?: "company" | "school" | "unknown";
   readonly value: string;
@@ -2428,7 +3234,7 @@ export interface RelationshipRequest {
   readonly exclude_current?: boolean;
   readonly include_company_context?: boolean;
   readonly institution_type?: "employment" | "education" | null;
-  readonly institutions?: readonly RelationshipInstitution[];
+  readonly institutions?: readonly RelationshipInstitutionInput[];
   readonly institutions_combine?: "any" | "all";
   readonly limit?: number;
   readonly query?: string | null;
@@ -2500,6 +3306,11 @@ export type ResolveBy =
  * ``keyword_query`` back to re-run exactly the search that ran.
  */
 export interface ResolvedSearch {
+  /**
+   * Similar companies only: what each company name sent as an anchor became.
+   * One that is not `exact` also adds an `anchor_not_exact` degradation.
+   */
+  readonly anchor_matches: readonly AnchorMatch[];
   readonly category: ResultCategory;
   readonly conflicts: readonly Readonly<Record<string, unknown>>[];
   readonly filters: Readonly<Record<string, unknown>>;
@@ -2509,6 +3320,12 @@ export interface ResolvedSearch {
   readonly overrides: readonly Readonly<Record<string, unknown>>[];
   readonly parser_version: string;
   readonly query: string | null;
+  /**
+   * Words in `query` the reading took to mean filters the query does not state,
+   * each with the filters it set: "startups" sets `founded_year` from 2011 and
+   * `listing_status` not public. Empty when no such rule applied.
+   */
+  readonly read_as: readonly ReadAs[];
   readonly semantic_query: string | null;
   readonly semantic_scope: "company" | "person" | (string & {}) | null;
   readonly sort: readonly Readonly<Record<string, string>>[];
@@ -2634,21 +3451,27 @@ export interface RunListItem {
 
 export interface RunRequest {
   /**
-   * What the run looks for: companies or people.
+   * Optional. Companies or people. The run reads this from the question and
+   * takes it only as a hint.
    */
   readonly category?: "company" | "person";
   /**
-   * Extra requirements a row must meet, in plain words. The engine decides
-   * which it can prove with filters and which it judges.
+   * Optional. Requirements a row must meet that the question does not state, in
+   * plain words. The run already checks the question's own requirements; one
+   * sent here in the same words is checked once. The run proves what filters
+   * can and judges the rest.
    */
   readonly criteria?: readonly string[];
   /**
-   * How hard the run works: `minimal` to `xhigh`, or `auto` to let it choose.
+   * How hard the run works: `quick`, `basic`, `standard`, `detailed` or
+   * `maximum`, or `auto` to let it choose. The earlier names (`minimal`, `low`,
+   * `medium`, `high`, `xhigh`) are still accepted.
    */
   readonly effort?: Effort;
   /**
-   * Columns to fill, by name. A column no source supports comes back null with
-   * a reason, never invented.
+   * Optional. Columns to fill beside those the question asks for, by name. Each
+   * is read from Sprouts data first and the web last; a column no source
+   * supports comes back null with a reason, never invented.
    */
   readonly enrichments?: readonly string[];
   /**
@@ -2656,6 +3479,11 @@ export interface RunRequest {
    * against everything that matches.
    */
   readonly exclusion?: readonly string[];
+  /**
+   * The question, in plain words. It is the only field a run needs: the run
+   * reads from it whether to find companies or people, the requirements to
+   * check on every row and the columns to fill.
+   */
   readonly query: string;
 }
 
@@ -2800,10 +3628,9 @@ export type SearchCategory =
   | "job_opening";
 
 /**
- * How much of the matching set a `deep` answer represents. Null for `fast` and
- * `auto`. The universe is counted, not sampled, so ``enumeration_recall`` is a
- * real fraction and ``universe_exhausted`` means every match was returned and
- * the count agrees.
+ * How much of the matching set an agent run's answer represents. The universe
+ * is counted, not sampled, so ``enumeration_recall`` is a real fraction and
+ * ``universe_exhausted`` means every match was returned and the count agrees.
  */
 export interface SearchCoverage {
   /**
@@ -2857,7 +3684,6 @@ export interface SearchCoverage {
 export interface SearchEnvelope {
   readonly attribution: readonly Attribution[];
   readonly columns: readonly Readonly<Record<string, unknown>>[] | null;
-  readonly coverage: SearchCoverage | null;
   readonly degradation: readonly Degradation[];
   readonly has_more: boolean;
   readonly meta: ResponseMeta;
@@ -2891,33 +3717,25 @@ export interface SearchHit {
 }
 
 /**
- * How the words in ``query`` are read. - ``fast``: matched by meaning (vector
- * search, keywords as fallback). No AI reading, so nothing is extracted into
- * filters. - ``auto``: an AI reading extracts filters from the words. -
- * ``deep``: an agent works the whole question out of ``query`` and enumerates
- * every match it can reach in the request's time, then reports how much of the
- * matching set that was (``coverage``). Companies and people only; one page, no
- * cursor.
+ * How a search with words is billed. Both modes read ``query`` the same way: an
+ * AI reading turns what the words ask into filters (the filters sent win), and
+ * the description left over is matched by meaning. - ``fast``: billed as a
+ * basic search. - ``auto``: billed as an AI search.
  */
 export type SearchMode =
   | "fast"
   | "auto"
-  | "deep"
   | (string & {});
 
 /**
- * How the words in ``query`` are read. - ``fast``: matched by meaning (vector
- * search, keywords as fallback). No AI reading, so nothing is extracted into
- * filters. - ``auto``: an AI reading extracts filters from the words. -
- * ``deep``: an agent works the whole question out of ``query`` and enumerates
- * every match it can reach in the request's time, then reports how much of the
- * matching set that was (``coverage``). Companies and people only; one page, no
- * cursor.
+ * How a search with words is billed. Both modes read ``query`` the same way: an
+ * AI reading turns what the words ask into filters (the filters sent win), and
+ * the description left over is matched by meaning. - ``fast``: billed as a
+ * basic search. - ``auto``: billed as an AI search.
  */
 export type SearchModeInput =
   | "fast"
-  | "auto"
-  | "deep";
+  | "auto";
 
 /**
  * Advisory, never an error. - ``kind: "search"``: a different ``category``
@@ -2991,6 +3809,13 @@ export interface SimilarRequest {
    * `next_cursor` from the previous page. Send the same body with it.
    */
   readonly cursor?: string | null;
+  /**
+   * Return only these fields of each row, plus `id`, `category` and `score`.
+   * Omit for every field. A name a row does not carry is left out, never added
+   * as null. It changes neither which rows come back nor what they cost, and a
+   * later page may ask for other fields with the same cursor.
+   */
+  readonly fields?: readonly string[] | null;
   readonly filters?: DiscoverFilters | null;
   readonly limit?: number;
 }
@@ -3221,6 +4046,71 @@ export interface TransactionsOut {
   readonly results: readonly TransactionOut[];
 }
 
+export type TrendAdoption =
+  | "Early"
+  | "Accelerating"
+  | "Rapid"
+  | "Wide"
+  | "Mainstream";
+
+export type TrendBadgeMetric =
+  | "Annual Growth"
+  | "Authors"
+  | "Cities"
+  | "Companies"
+  | "Company Age"
+  | "Company Magnitude"
+  | "Company Maturity"
+  | "Company Signal Strength"
+  | "Countries"
+  | "Employee Growth"
+  | "Funding"
+  | "Funding Rounds"
+  | "Grants"
+  | "Industries"
+  | "Investors"
+  | "Languages"
+  | "Magnitude"
+  | "Manpower"
+  | "Maturity"
+  | "News Age"
+  | "News Coverage"
+  | "News Magnitude"
+  | "Patents"
+  | "Publication Propagation"
+  | "Revenue"
+  | "Trend Age"
+  | "Trend Hype"
+  | "Trend Signal Strength"
+  | "Yearly Companies Growth"
+  | "Yearly Funding Growth"
+  | "Yearly News Growth"
+  | "Yearly Publication Propagation Growth";
+
+/**
+ * Best first. A tier also takes the better ones: top 15% includes top 10% and
+ * top 5%.
+ */
+export type TrendBadgeTier =
+  | "top_5_percent"
+  | "top_10_percent"
+  | "top_15_percent";
+
+/**
+ * Trends holding a badge for any of these metrics, in this tier or a better
+ * one.
+ */
+export interface TrendBadges {
+  /**
+   * Badge metrics, any of them.
+   */
+  readonly include: readonly TrendBadgeMetric[];
+  /**
+   * The tier or better: top 15% also takes top 10% and top 5%.
+   */
+  readonly tier?: TrendBadgeTier;
+}
+
 export interface TrendConnection {
   readonly overlap?: number | null;
   readonly shared_companies?: number | null;
@@ -3246,11 +4136,94 @@ export interface TrendDescription {
 
 export interface TrendFilters {
   /**
+   * Top-percentile badges the trend holds.
+   */
+  readonly badges?: TrendBadges | null;
+  /**
+   * Number of companies in the trend.
+   */
+  readonly companies?: RangeFilter | null;
+  /**
+   * Countries the trend's companies are in (a region names its countries).
+   */
+  readonly countries?: TermsFilter | null;
+  /**
+   * Total employees of its companies.
+   */
+  readonly employees?: RangeFilter | null;
+  /**
+   * Number of funding rounds its companies raised.
+   */
+  readonly funding_rounds?: RangeFilter | null;
+  /**
+   * Total its companies raised, in US dollars.
+   */
+  readonly funding_total?: RangeFilter | null;
+  /**
+   * The trend's yearly growth category, any of them.
+   */
+  readonly growth?: readonly TrendGrowth[] | null;
+  /**
+   * Industries the trend's companies work in.
+   */
+  readonly industries?: TermsFilter | null;
+  /**
    * Keyword sets over the trend's own text: positive sets match, negative
    * demote.
    */
   readonly keywords?: KeywordQuery | null;
+  /**
+   * The trend's magnitude category, any of them.
+   */
+  readonly magnitude?: readonly TrendMagnitude[] | null;
+  /**
+   * Market growth rate from a market report, in percent (15 = 15%).
+   */
+  readonly market_cagr?: RangeFilter | null;
+  /**
+   * Market size, in US dollars.
+   */
+  readonly market_size?: RangeFilter | null;
+  /**
+   * The trend's maturity category, any of them.
+   */
+  readonly maturity?: readonly TrendMaturity[] | null;
+  /**
+   * Total patents of its companies.
+   */
+  readonly patents?: RangeFilter | null;
+  /**
+   * The trend's signal strength, any of them.
+   */
+  readonly signal_strength?: readonly TrendSignalStrength[] | null;
+  /**
+   * The trend's technology adoption, any of them.
+   */
+  readonly technology_adoption?: readonly TrendAdoption[] | null;
+  /**
+   * What the records must be about, matched in their own text: a keyword or
+   * phrase, or {"and": [...]}, {"or": [...]}, {"not": ...} nested. Filled from
+   * `query` when not sent.
+   */
+  readonly topic?: string | Readonly<Record<string, unknown>> | null;
+  /**
+   * A short description of what the records are about; records close to it in
+   * meaning are found beside those holding `topic`. Filled from `query` when
+   * not sent.
+   */
+  readonly topic_description?: string | null;
+  /**
+   * `topic_cluster` for an umbrella trend grouping narrower ones.
+   */
+  readonly topic_type?: TrendTopicType | null;
 }
+
+export type TrendGrowth =
+  | "Declining"
+  | "Stagnant"
+  | "Incremental"
+  | "Strong"
+  | "Exponential";
 
 export interface TrendKeywordSet {
   readonly keywords: readonly string[];
@@ -3258,6 +4231,20 @@ export interface TrendKeywordSet {
   readonly word_distance?: number | null;
   readonly [key: string]: unknown;
 }
+
+export type TrendMagnitude =
+  | "Niche"
+  | "Emergent"
+  | "Established"
+  | "Expansive"
+  | "Widespread";
+
+export type TrendMaturity =
+  | "Inceptive"
+  | "Developing"
+  | "Average"
+  | "Maturing"
+  | "Mature";
 
 export interface TrendRecord {
   readonly connections: readonly TrendConnection[];
@@ -3282,12 +4269,35 @@ export interface TrendSearchRequest {
    * `next_cursor` from the previous page. Send the same body with it.
    */
   readonly cursor?: string | null;
+  /**
+   * Return only these fields of each row, plus `id`, `category` and `score`.
+   * Omit for every field. A name a row does not carry is left out, never added
+   * as null. It changes neither which rows come back nor what they cost, and a
+   * later page may ask for other fields with the same cursor.
+   */
+  readonly fields?: readonly string[] | null;
   readonly filters?: TrendFilters | null;
   readonly limit?: number;
+  /**
+   * True: `query` is never read into filters. It is searched as a description,
+   * by meaning (by its words where a category has no meaning search), and
+   * `filters` (with the domain lists) is the whole filter set, so text inside a
+   * query cannot add, change or remove a filter. Takes `mode: fast` or `auto`
+   * (both run it the same way, billed as `fast`).
+   */
+  readonly lock_filters?: boolean;
   readonly mode?: SearchModeInput;
   readonly query?: string | null;
   readonly sort?: readonly TrendSort[] | null;
 }
+
+export type TrendSignalStrength =
+  | "Very weak"
+  | "Weak"
+  | "Medium"
+  | "Medium strong"
+  | "Strong"
+  | "Very strong";
 
 export interface TrendSort {
   readonly direction?: SortDirection;
@@ -3321,6 +4331,10 @@ export interface TrendSummary {
   readonly topic_analysis?: string | null;
   readonly [key: string]: unknown;
 }
+
+export type TrendTopicType =
+  | "regular_topic"
+  | "topic_cluster";
 
 export interface ViaInstitution {
   readonly ended: string | null;

@@ -46,7 +46,6 @@ The SDK refuses these before sending:
 - More than three clauses, an empty list, or the same field twice.
 - A direction other than `asc` or `desc`.
 - `sort` with `category: 'auto'`: the sortable fields differ per category.
-- `sort` on a `deep` search, which works the whole question out of `query`.
 
 ## Check what was applied
 

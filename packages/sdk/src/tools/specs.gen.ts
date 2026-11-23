@@ -837,8 +837,6 @@ export const MESSAGES: MessagesSpec = {
   "caveats": {
     "degradation": "{reason}: {detail} (impact: {impact})",
     "parser_not_run": "parser_not_run: `fast` mode did not parse the query, so a constraint stated only in words (a country, a headcount, an industry) was not applied. Use `mode: \"auto\"` or put it in `filters`.",
-    "coverage_truncated": "coverage_truncated: {enumerated} of {universe} matching records were enumerated before {truncated_by} stopped it.",
-    "constraint_unmet": "constraint_unmet: {constraint}",
     "application_filter": "application_filter: `filters.{path}` is fixed by this application to {value}; your {requested} was not applied.",
     "limit_capped": "limit_capped: you asked for {requested} rows; this application returns at most {limit} per call.",
     "rows_without_lookup": "rows_without_lookup: {count} of {shown} rows carry no domain or LinkedIn URL, so they have no `lookup` value and cannot be looked up.",

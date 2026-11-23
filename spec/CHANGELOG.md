@@ -25,6 +25,67 @@ every file here against the others and the error table against the backend.
 
 ---
 
+## 2026-11-24 — enrichment exported, deep search removed, effort renamed
+
+Re-exported from dsp-backend `sd-qa` at d0ef156 (108 commits after 8c06583) and
+prism `qa` at d264860c.
+
+- **openapi.json**: 14 new operations, none removed.
+  - Enrichment (#170): `POST /v1/enrichment/jobs` (202, `Idempotency-Key`
+    required), `GET /v1/enrichment/jobs`, `GET /v1/enrichment/jobs/{job_id}`,
+    `POST /v1/enrichment/jobs/{job_id}/cancel`,
+    `GET /v1/enrichment/jobs/{job_id}/results` and `POST /v1/enrichment/lookups`;
+    scopes `dsp.enrichment.read` / `.write`.
+  - `POST /v1/org-chart/people` (#186): the people one org chart cell counts.
+  - `POST /v1/relationships/institutions/lookup`: employer and school
+    type-ahead for the dashboard.
+  - Credits (346c8f8): `GET /v1/credits/pricing`, `GET` and `POST
+    /v1/credits/purchases`, `GET /v1/credits/purchases/{purchase_id}`, `GET` and
+    `PUT /v1/credits/auto-topup`. Writes refuse API keys.
+  - `SearchMode` is `fast | auto`: `deep` is refused (83c27ac) and
+    `SearchEnvelope.coverage` is gone. Both modes read the words into filters
+    (943254c).
+  - `Effort` is `quick | basic | standard | detailed | maximum | auto`; the
+    server still reads the earlier names, which only `QuoteIn.effort` lists.
+    `RunRequest` needs only `query` (7372bbc).
+  - `lock_filters` and `fields` on every search body; `ResolvedSearch.read_as`
+    and `anchor_matches`; `DegradationReason` gains `anchor_not_exact`.
+  - Document filters (DSP-331): `topic` on six document categories,
+    `topic_description`, `languages`, `inventors`, `authors`,
+    `company_city`, 18 trend fields; `FundingFilters.investors` is a
+    `MatchAllEntityFilter`.
+  - `QuoteIn`: `operation` gains `enrichment`, `rows` goes up to 30,000;
+    `QuoteOut.basis` gains `values_up_to`.
+  - `POST /v1/agents/runs` documents 429 (two runs per credential) and a
+    tighter `Idempotency-Key`; run results document 410.
+  - `GET /v1/usage/history/{run_id}` also takes `run_<32 hex>` ids.
+- **records.schema.json**: `CompanyRecord.industries_served`.
+- **routes.json**: `not_wrapped` lists all 14 new operations, each with its
+  `reason`. Enrichment and `org_chart_people` move into `routes` once the SDKs
+  wrap them; the institution lookup and the credit purchase routes stay out
+  (dashboard only). `check_spec` now checks each entry exists, is not routed as
+  well, and says why.
+- **schema-names.json** (version 2): names too generic for a public type get
+  their feature: `Job*` → `EnrichmentJob*`, `LookupRequest` / `LookupResult` →
+  `EnrichmentLookup*`, `ResultRow` / `ResultField` → `EnrichmentRow` /
+  `EnrichmentRowField`, `PeopleRequest` / `PeopleResponse` / `PeopleCell` /
+  `CellPerson` / `Placement` → `OrgChart*`, the purchase models → `Credit*`,
+  `BadgeMetric` / `BadgeTier` → `TrendBadge*`. A rename may now name any
+  schema, not only one with an underscore.
+- **Generated forms**: `RelationshipInstitution` is reached from an answer too,
+  so the request form is `RelationshipInstitutionInput`.
+- **tools/messages.json** (version 3): `coverage_truncated` and
+  `constraint_unmet` are removed with search coverage;
+  `fixtures/search_constraints_unmet.json` is deleted and the search and
+  look-alike fixtures drop `coverage`.
+- **conformance**: `errors/not-implemented.json` sent `mode: deep`; it is
+  replaced by `errors/not-implemented-is-never-retried.json`, a 501 on a free
+  read.
+- **scripts/export_openapi.py**: sets the enrichment upstream, without which
+  the backend does not mount `/v1/enrichment/*`.
+
+---
+
 ## 2026-11-17 — test keys removed, empty answers explained, balance and quote
 
 Re-exported from dsp-backend `sd-qa` at 8c06583 (#176, #179, #180, #181,

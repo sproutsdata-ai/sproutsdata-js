@@ -6,8 +6,8 @@
     "environment": "live",
     "error_code": "org_chart.company_ambiguous",
     "id": "26",
-    "latency_ms": 1,
-    "occurred_at": "2026-11-16T23:02:26.023379Z",
+    "latency_ms": 2,
+    "occurred_at": "2026-11-23T19:37:38.701025Z",
     "query": null,
     "request": {
       "domain": "twin.example"
@@ -22,8 +22,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "34",
-    "x-request-id": "16a7aca135e746c48b6d43d372893328"
+    "ratelimit-reset": "21",
+    "x-request-id": "d754fab372334a0596cd66b19d746672"
   },
   "operation": "history_retrieve",
   "request": {

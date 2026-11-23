@@ -1,12 +1,12 @@
 {
   "body": {
     "meta": {
-      "as_of": "2026-11-16T23:02:25.862634Z",
+      "as_of": "2026-11-23T19:37:38.421468Z",
       "credential": "api_key",
       "credits_balance": null,
       "credits_charged": null,
       "environment": "live",
-      "request_id": "1b2dc45bdc4d4a3baf0848a4b8965ed6"
+      "request_id": "226b0b1206114d639c813977f54b8919"
     },
     "run_id": "run-perf",
     "status": "running"
@@ -15,8 +15,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "35",
-    "x-request-id": "1b2dc45bdc4d4a3baf0848a4b8965ed6"
+    "ratelimit-reset": "22",
+    "x-request-id": "226b0b1206114d639c813977f54b8919"
   },
   "operation": "runs_create",
   "request": {

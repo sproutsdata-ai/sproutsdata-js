@@ -138,8 +138,7 @@ Search and look-alike:
   it is added as is under `sparse_filters` (`{filter, record_type, populated,
   of, share}`, thinnest first); otherwise the key is absent.
 - **`caveats`**, in order: each degradation as `"<reason>: <detail> (impact:
-  <impact>)"`; `coverage_truncated` and `constraint_unmet` from `coverage`;
-  `parser_not_run` when the call sent a `query` and `resolved_search` has
+  <impact>)"`; `parser_not_run` when the call sent a `query` and `resolved_search` has
   `parser_version` `"none"` (or empty) and no filters; then the call's own, in
   this order — `application_filter` (one per replaced key), `anchors_unreported`
   (more than one anchor), `anchors_by_name`, `anchors_zero_weight`,

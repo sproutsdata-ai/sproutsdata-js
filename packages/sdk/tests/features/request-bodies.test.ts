@@ -13,7 +13,7 @@ import { assertValidRequest } from '../support/answers.js';
 
 const SEARCHES: readonly SearchParams[] = [
   { category: 'auto', query: 'robotics in Germany', mode: 'auto', limit: 5 },
-  { category: 'company', query: 'x', mode: 'deep' },
+  { category: 'company', query: 'x', mode: 'fast' },
   { category: 'company', keyword_query: { or: ['a', 'b'] }, sort: [{ field: 'revenue' }] },
   { category: 'person', filters: { seniority: { include: ['VP'] } }, exclude_domains: ['a.de'] },
   { category: 'patent', filters: { offices: { include: ['EP'] }, status: 'granted' } },

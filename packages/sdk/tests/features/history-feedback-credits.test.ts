@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { ClientValidationError, InsufficientCreditsError, WalletFrozenError } from '../../src/core/errors.js';
 import { Credits } from '../../src/resources/credits.js';
 import { Feedback } from '../../src/resources/feedback.js';
+import { EFFORT_NAMES } from '../../src/requests/effort.js';
 import { canAfford } from '../../src/resources/helpers.js';
 import { History } from '../../src/resources/history.js';
 import { Search } from '../../src/resources/search.js';
@@ -148,19 +149,32 @@ describe('credits', () => {
     const r = rig([recorded('credits_quote', 'search_page'), recorded('credits_quote', 'agent_run')]);
     const credits = new Credits(r.transport);
     const page = await credits.quote({ operation: 'search', rows: 25, start: 10 });
-    const run = await credits.quote({ operation: 'agent_run', effort: 'high' });
+    const run = await credits.quote({ operation: 'agent_run', effort: 'detailed' });
     expect(r.body(0)).toEqual({ operation: 'search', rows: 25, start: 10 });
-    expect(r.body(1)).toEqual({ operation: 'agent_run', effort: 'high' });
+    expect(r.body(1)).toEqual({ operation: 'agent_run', effort: 'detailed' });
     expect([page.basis, run.basis]).toEqual(['page', 'run']);
     expect(page.credits).toBeGreaterThan(0);
     expect(run.covered).not.toBeNull();
+  });
+
+  it.each(Object.entries(EFFORT_NAMES))('K4: an earlier effort name is quoted by its new one: %s', async (earlier, current) => {
+    const r = rig([recorded('credits_quote', 'agent_run')]);
+    await new Credits(r.transport).quote({ operation: 'agent_run', effort: earlier as NonNullable<QuoteIn['effort']> });
+    expect(r.body()).toEqual({ operation: 'agent_run', effort: current });
+  });
+
+  it('K4: an enrichment quote takes up to thirty thousand values', async () => {
+    const r = rig([recorded('credits_quote', 'search_page')]);
+    await new Credits(r.transport).quote({ operation: 'enrichment', rows: 30_000 });
+    expect(r.body()).toEqual({ operation: 'enrichment', rows: 30_000 });
   });
 
   it.each([
     [{ operation: 'agent_run' }, /`effort` is required for agent_run/],
     [{ operation: 'search', effort: 'high' }, /`effort` is required for agent_run/],
     [{ operation: 'similar', rows: 101 }, /a page holds at most 100 rows/],
-    [{ operation: 'lookup', rows: 1001 }, /rows/],
+    [{ operation: 'lookup', rows: 1001 }, /a lookup takes at most 1,000 records/],
+    [{ operation: 'enrichment', rows: 30_001 }, /rows/],
     [{ operation: 'refund' }, /operation/],
   ])('K4: a quote the server would refuse is refused locally: %j', async (params, message) => {
     const r = rig([]);

@@ -34,6 +34,8 @@ const COMPANY_ONLY_SORTS = new Set(['domain', 'revenue', 'employee_count', 'empl
 const PERSON_ONLY_SORTS = new Set(['contact_name', 'job_title', 'title', 'department', 'division', 'sub_department', 'employment_type', 'linkedin_connections', 'tenure', 'seniority']);
 // be search/schemas/documents/patents.py:32: a patent's `status` defaults to every patent.
 const NOT_NARROWING: Readonly<Record<string, readonly string[]>> = { patent: ['status'] };
+// be search/schemas/request.py:80 (NO_DEEP): `deep` gets its own reason, not a list of modes.
+const NO_DEEP = '`deep` search is no longer offered: start an agent run (`runs.create`) to have an agent work a question out, or search with `mode` `fast` or `auto`';
 
 /** The search body for `params` (`category` defaults to `company`), checked locally. */
 export function searchBody(params: SearchParams): W.SearchBody {
@@ -41,6 +43,8 @@ export function searchBody(params: SearchParams): W.SearchBody {
   const category = body.category ?? 'auto';
   const type = TYPES[category];
   if (type === undefined) refuse(WHAT, `category must be one of ${Object.keys(TYPES).join(', ')} (got ${JSON.stringify(category)})`);
+  const mode: unknown = body.mode; // a caller without types may still send the retired mode
+  if (mode === 'deep') refuse(WHAT, NO_DEEP);
   const given = new Set(Object.entries(body).flatMap(([name, value]) => (value === undefined ? [] : [name])));
   if (category === 'auto') checkAutoFields(given, body.mode);
   else checkDocumentFields(category, given);
@@ -72,7 +76,7 @@ function checkAutoFields(given: ReadonlySet<string>, mode: string | undefined): 
     refuse(WHAT, `category 'auto' takes only query, mode, limit and cursor (got ${extra.join(', ')}): prism picks the category from the question, and filters, sort and domains belong to one category; name it to send them`);
   }
   if (mode !== undefined && mode !== 'auto') {
-    refuse(WHAT, 'a search with no category is read by prism, so it runs in `auto` mode only; send a `category` to search in `fast` or `deep` mode'); // be search/schemas/auto.py:39
+    refuse(WHAT, 'a search with no category is read by prism, so it runs in `auto` mode only; send a `category` to search in `fast` mode'); // be search/schemas/auto.py:39
   }
 }
 
@@ -89,10 +93,9 @@ function isDocument(body: W.SearchBody): body is DocumentSearchParams {
   return body.category !== undefined && body.category !== 'auto' && body.category !== 'company' && body.category !== 'person';
 }
 
-/** The company and person rules (be search/schemas/request.py:160-234). */
+/** The company and person rules (be search/schemas/request.py:222-266). */
 function checkEntitySearch(body: W.EntitySearchRequest): void {
   checkIntent(body);
-  if (body.mode === 'deep') checkDeep(body);
   if (present(body.keyword_query)) checkKeywords(body);
   checkSortFits(body);
   checkDomains(body.include_domains, body.exclude_domains, body.filters?.company);
@@ -102,7 +105,6 @@ function checkEntitySearch(body: W.EntitySearchRequest): void {
 function checkIntent(body: W.EntitySearchRequest): void {
   const query = present(body.query);
   const keywords = present(body.keyword_query);
-  if (body.mode === 'deep' && !query) refuse(WHAT, '`deep` reads the question from `query`; send one');
   if (!query && !keywords && !present(body.filters)) refuse(WHAT, 'provide `query`, `keyword_query` or `filters`');
   if (query && keywords) refuse(WHAT, 'send `query` or `keyword_query`, not both');
 }
@@ -122,18 +124,8 @@ function checkSortFits(body: W.EntitySearchRequest): void {
   if (misplaced.length > 0) refuse(WHAT, `sort: ${misplaced.join(', ')} cannot order a ${body.category} search`);
 }
 
-function checkDeep(body: W.EntitySearchRequest): void {
-  const beside = (['keyword_query', 'filters', 'include_domains', 'exclude_domains', 'sort'] as const).filter((name) => {
-    const value = body[name];
-    return Array.isArray(value) ? value.length > 0 : present(value);
-  });
-  if (beside.length > 0) refuse(WHAT, `\`deep\` works the whole question out of \`query\`; put ${beside.join(', ')} into the question, or use \`fast\` or \`auto\``);
-  if (present(body.cursor)) refuse(WHAT, '`deep` returns one page and has no next page; drop `cursor`');
-}
-
 /** A document category's rules (be search/schemas/documents/base.py:64-85). */
 function checkDocumentSearch(body: DocumentSearchParams): void {
-  if (body.mode === 'deep') refuse(WHAT, `\`deep\` searches companies and people only; search ${body.category} with \`fast\` or \`auto\``);
   if (body.category === 'job_opening') checkDomains(body.include_domains, body.exclude_domains, body.filters?.company);
   if (!present(body.query) && !narrowed(body)) refuse(WHAT, 'provide `query`, or `filters` that narrow the search');
   checkDuplicates((body.sort ?? []).map((clause) => clause.field));

@@ -16,7 +16,7 @@
       "universe_is_exact": true
     },
     "credits_charged": 8.5,
-    "effort_ran": "medium",
+    "effort_ran": "standard",
     "error": null,
     "exclusions": [],
     "insight_sources": [
@@ -34,12 +34,12 @@
       }
     ],
     "meta": {
-      "as_of": "2026-11-16T23:02:25.871655Z",
+      "as_of": "2026-11-23T19:37:38.432395Z",
       "credential": "api_key",
       "credits_balance": null,
       "credits_charged": null,
       "environment": "live",
-      "request_id": "b97cc4d63d654cf2a55bf9ca15ba7500"
+      "request_id": "23e05775335349c0a5e1f90d3195fd2f"
     },
     "run_id": "run-perf",
     "status": "completed",
@@ -50,8 +50,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "600",
     "ratelimit-remaining": "599",
-    "ratelimit-reset": "35",
-    "x-request-id": "b97cc4d63d654cf2a55bf9ca15ba7500"
+    "ratelimit-reset": "22",
+    "x-request-id": "23e05775335349c0a5e1f90d3195fd2f"
   },
   "operation": "runs_retrieve",
   "request": {

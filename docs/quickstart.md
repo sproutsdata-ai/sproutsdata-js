@@ -80,26 +80,12 @@ for (const hit of page.results) {
 
 | Mode | What it does |
 |---|---|
-| `fast` (the default with a category) | Matches the query by meaning. Nothing in the words is turned into filters. |
-| `auto` | An AI reading turns the words into filters, and `resolved_search` reports what it inferred. |
-| `deep` | An agent works the whole question out of `query` and enumerates every match it can reach in the request's time, then reports how much of the matching set that was in `coverage`. Companies and people only; one page, no cursor. |
+| `fast` (the default with a category) | What the words ask becomes filters (the filters you send win), and the description left over is matched by meaning. Billed as a basic search. |
+| `auto` | The same reading, billed as an AI search. The only mode of `category: 'auto'`. |
 
-Use `fast` when the query is already keywords, and `auto` when it is a sentence
-that states constraints (a country, a headcount). In `fast` mode, a constraint
-stated only in words is not applied.
-
-A `deep` search reads the question from `query` alone. The SDK refuses
-`filters`, `keyword_query`, `sort`, `include_domains`, `exclude_domains` and
-`cursor` on it before sending anything, and refuses `deep` on a document
-category.
-
-```ts
-const deep = await client.search({
-  query: 'European payment processors that hold an e-money licence',
-  mode: 'deep',
-});
-console.log(deep.coverage?.universe, deep.coverage?.universe_exhausted);
-```
+`resolved_search` reports what the reading inferred. `deep` is no longer offered:
+`mode: 'deep'` throws `ClientValidationError` before anything is sent. To have an agent
+work a question out and check every row against it, start an [agent run](runs.md).
 
 ### Choosing a category
 
@@ -274,7 +260,6 @@ The answer carries fields that say how far to trust it:
 | `degradation` | What the server could not do for this request, each with a `reason`, a `detail` and an `impact` (`recall`, `precision`, `freshness`, `fields`). Empty means checked and nothing degraded. |
 | `resolved_search` | What the server decided the request meant: the filters an `auto` reading inferred (`filters_source`), the sort applied, any conflicts. |
 | `suggestion` | Advisory, or `null`: a different `category` would probably have answered better (`kind: 'search'`; the rows still come from the search you asked for), or, on an empty first page, filters to leave out (`kind: 'relax'`, with `without`). |
-| `coverage` | For `deep`: how much of the matching set the answer represents. `null` for `fast` and `auto`. |
 | `attribution` | Which corpora the content came from, and how fresh each is. |
 | `meta` | `request_id` (quote it to support), `as_of`, `credential`, `credits_charged`. |
 
@@ -312,22 +297,6 @@ listed. Two more reasons qualify an answer that has rows:
   `populated`, `of`, `share`).
 - `topic_not_required`: none of the records the filters match mention the
   query's topic, so they are ranked by how close they come to it.
-
-### The coverage block
-
-On a `deep` search, `total` says how many rows matched and `coverage` says
-whether those are all of them:
-
-```ts
-const deep = await client.search({ query: 'European neobanks with a banking licence', mode: 'deep' });
-const c = deep.coverage;
-if (c !== null) {
-  console.log(c.universe, c.universe_is_exact); // records matching the resolved question, counted
-  console.log(c.enumerated, c.enumeration_recall); // how many this answer carries, as a fraction
-  console.log(c.universe_exhausted); // every match returned, and the count agrees
-  console.log(c.constraints_unmet, c.truncated_by); // what could not be asked, and what stopped it short
-}
-```
 
 ### What the index holds
 

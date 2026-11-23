@@ -51,27 +51,29 @@ charge that follows matches the quote while the price list is unchanged.
 const page = await client.credits.quote({ operation: 'search', rows: 25, start: 10 });
 console.log(page.credits, page.basis); // the next 25 rows of a search, past the first 10
 
-const run = await client.credits.quote({ operation: 'agent_run', effort: 'high' });
-if (run.covered === false) console.warn(`An agent run at high effort costs ${String(run.credits)}; top up first`);
+const run = await client.credits.quote({ operation: 'agent_run', effort: 'detailed' });
+if (run.covered === false) console.warn(`An agent run at detailed effort costs ${String(run.credits)}; top up first`);
 ```
 
 | Field | Meaning |
 |---|---|
-| `operation` | `search`, `search_auto` (an `auto` search), `similar`, `relationships`, `institutions`, `lookup`, `org_chart` or `agent_run`. |
-| `rows` | Rows on the page (up to 100), or records found for `lookup` (up to 1,000). Default 10; flat operations and agent runs ignore it. |
+| `operation` | `search`, `search_auto` (an `auto` search), `similar`, `relationships`, `institutions`, `lookup`, `org_chart`, `agent_run` or `enrichment`. |
+| `rows` | Rows on the page (up to 100), records found for `lookup` (up to 1,000), or values asked for with `enrichment` (rows x fields, up to 30,000). Default 10; flat operations and agent runs ignore it. |
 | `start` | Rows of the same search already paid for (the next page's offset): only the rows beyond them are charged. |
-| `effort` | Required for `agent_run`, and refused for any other operation. |
+| `effort` | Required for `agent_run`, and refused for any other operation. The earlier tier names are still accepted and sent as the new ones. |
 
-The answer has `credits`, its `basis` (`page`, `records`, `call`, `run`, or
+The answer has `credits`, its `basis` (`page`, `records`, `call`, `run`,
 `run_up_to` for an `auto` agent run, which holds that much and is charged at the
-effort it chooses), the `rate_card` it was priced from, and `available` and
+effort it chooses, or `values_up_to` for enrichment, which holds every value asked for
+and is charged only for the values newly found), the `rate_card` it was priced from, and `available` and
 `covered` from a balance read moments ago; both are `null` when there was none.
 
 ## The ledger
 
 `credits.transactions` is the ledger, newest first. Each row has a `kind`
 (`charge`, `grant`, ...), signed `credits` (negative for a charge),
-`balance_after`, and the `action` or `source` behind it.
+`balance_after`, and the `action` or `source` behind it. An agent run's charge keeps the
+tier's earlier name in its action (`dsp.agent.run.medium` for a `standard` run).
 
 ```ts
 const page = await client.credits.transactions({ limit: 20 });

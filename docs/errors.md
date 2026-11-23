@@ -88,8 +88,8 @@ only.
 Most invalid requests never leave your process. The SDK checks each request
 body against the server's own request models before sending it: unknown fields,
 missing required fields, values outside the server's limits, closed values, and
-the cross-field rules (such as `query` with `keyword_query`, or filters on a
-`deep` search). A refusal is a `ClientValidationError` whose message names the
+the cross-field rules (such as `query` with `keyword_query`, or a removed
+option such as `mode: 'deep'`). A refusal is a `ClientValidationError` whose message names the
 call and the field:
 
 ```

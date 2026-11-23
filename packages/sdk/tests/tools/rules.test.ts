@@ -151,22 +151,11 @@ describe('tool rules', () => {
 
 describe('shaping', () => {
   const resolved = (changes: Record<string, unknown>) => ({ ...recordedBody<{ resolved_search: object }>('search', 'company').resolved_search, ...changes });
-  const coverage = (changes: Record<string, unknown>) => ({
-    universe: 40, universe_is_exact: false, enumerated: 25, enumeration_recall: null, universe_exhausted: false, truncated_by: null,
-    constraints_unmet: [], audited: true, criteria: [], similarity: [], linkage: [], linkage_coverage: null, linkage_coverage_is_lower_bound: false, ...changes,
-  });
 
   it('say when fast mode parsed nothing, but not for a filters-only search', async () => {
     const { tools } = toolset([searchOk([], { resolved_search: resolved({ filters: {} }) })]);
     expect(caveatsOf(await tools.run('sprouts_search', { query: 'payments companies in Germany' }))[0]).toMatch(/^parser_not_run:/);
     expect(caveatsOf(await tools.run('sprouts_search', { filters: { industry: { include: ['Software & Technology'] } } }))).toEqual([]);
-  });
-
-  it('turn coverage into caveats: truncation, then each unmet constraint', async () => {
-    const { tools } = toolset([searchOk([], { coverage: coverage({ truncated_by: 'time_budget', constraints_unmet: ['hiring a CFO'] }) })]);
-    const caveats = caveatsOf(await tools.run('sprouts_search', { query: 'fintechs hiring a CFO', mode: 'auto' }));
-    expect(caveats[0]).toMatch(/^coverage_truncated: 25 of 40 matching records/);
-    expect(caveats[1]).toBe('constraint_unmet: hiring a CFO');
   });
 
   it('pass the suggestion through, and degradation as caveats', async () => {

@@ -47,11 +47,8 @@ describe('search', () => {
     await refused({ category: 'company', query: 'x', limit: 101 }, 'limit: must be at most 100');
   });
 
-  it('S2: deep requires a query and refuses everything beside it', async () => {
-    await refused({ mode: 'deep', filters: { industry: { include: ['x'] } } }, '`deep` reads the question');
-    await refused({ mode: 'deep', query: 'x', filters: { industry: { include: ['x'] } } }, 'put filters into the question');
-    await refused({ mode: 'deep', query: 'x', sort: [{ field: 'revenue' }] }, 'put sort into');
-    await refused({ mode: 'deep', query: 'x', cursor: 'c' }, 'drop `cursor`');
+  it.each(['company', 'person', 'patent', 'auto'])('S2: deep is refused and says where its work went (%s)', async (category) => {
+    await refused({ category, query: 'x', mode: 'deep' }, '`deep` search is no longer offered: start an agent run (`runs.create`)');
   });
 
   it('S3: query and keyword_query are exclusive, and keywords are company-only', async () => {
@@ -76,8 +73,7 @@ describe('search', () => {
     await refused({ query: 'x', exclude_domains: [' '] }, 'cannot be blank');
   });
 
-  it('S6: documents refuse deep, company filters and an empty intent', async () => {
-    await refused({ category: 'patent', query: 'x', mode: 'deep' }, '`deep` searches companies and people only');
+  it('S6: documents refuse company filters and an empty intent', async () => {
     await refused({ category: 'patent', filters: { industry: { include: ['x'] } } }, 'filters.industry: not a field');
     await refused({ category: 'patent', filters: { status: 'granted' } }, 'or `filters` that narrow the search');
     await refused({ category: 'patent', query: 'x', filters: {} }, 'must contain at least one filter');
@@ -143,7 +139,8 @@ describe('search', () => {
     const person = recordedBody<SearchEnvelope>('search', 'person').results[0];
     const patent = recordedBody<SearchEnvelope>('search', 'patent').results[0];
     if (company === undefined || person === undefined || patent === undefined) throw new Error('fixtures have rows');
-    expect(lookupRef(company)).toEqual({ category: 'company', by: 'domain', value: company.id });
+    // A company row's id is its sealed index id (dsp-backend 5e60c47); the lookup uses its domain.
+    expect(lookupRef(company)).toEqual({ category: 'company', by: 'domain', value: company['domain'] });
     expect(lookupRef(person)).toEqual({ category: 'person', by: 'li_url', value: 'https://www.linkedin.com/in/alex-example-0' });
     expect(lookupRef(patent)).toEqual({ category: 'patent', by: undefined, value: patent.id });
     expect(lookupRef({ id: 'd1_abc', category: 'news_article', score: null })).toEqual({ category: 'news_article', by: 'id', value: 'd1_abc' });

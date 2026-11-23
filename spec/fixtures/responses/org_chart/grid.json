@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-16T23:02:26.004564Z",
+        "as_of": "2026-11-23T19:37:38.671022Z",
         "domain": null,
         "quote": null,
         "source_corpus": "gtm_index",
@@ -38,7 +38,7 @@
       }
     ],
     "company": {
-      "company_ref": null,
+      "company_ref": "d1_cxClVTpId3XUN3Qkbk7Dx1jQddd-NYikABazRw",
       "domain": "acme.com",
       "linkedin_url": null,
       "name": "acme.com Inc"
@@ -69,12 +69,12 @@
     "joiner_basis": "company_stint",
     "matched": null,
     "meta": {
-      "as_of": "2026-11-16T23:02:26.004564Z",
+      "as_of": "2026-11-23T19:37:38.671022Z",
       "credential": "api_key",
       "credits_balance": null,
       "credits_charged": 1.0,
       "environment": "live",
-      "request_id": "97c5e3b9735d4496a7244e0b7d64b974"
+      "request_id": "a9804ceea804491dbb81c906734e738e"
     },
     "new_joiners_total": 2,
     "seniority_totals": [
@@ -114,8 +114,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "34",
-    "x-request-id": "97c5e3b9735d4496a7244e0b7d64b974"
+    "ratelimit-reset": "22",
+    "x-request-id": "a9804ceea804491dbb81c906734e738e"
   },
   "operation": "org_chart",
   "request": {

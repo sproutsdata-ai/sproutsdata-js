@@ -18,11 +18,17 @@ every changed call with its replacement.
   `sk_dsp_test_…` key throws `ClientValidationError` saying so. Tool results no
   longer carry `environment`, and `meta.environment` is a deprecated constant
   (`'live'`).
+- `mode: 'deep'`, which the backend no longer offers: it throws
+  `ClientValidationError` pointing to `runs.create()`, the agent run that does that
+  work now. `SearchEnvelope.coverage` is gone with it (an agent run still carries
+  `coverage`), and so are the search tool's `coverage_truncated` and
+  `constraint_unmet` caveats.
 
 ### Changed
 
 - **Search** covers every category (or `auto`, which lets the question choose)
-  and the `fast`, `auto` and `deep` modes; document categories take their own
+  and the `fast` and `auto` modes (both read the words into filters; `auto` is
+  billed as an AI search); document categories take their own
   filters and refuse company ones. Billing is per search session, and
   `meta.credits_charged` is what each page cost. `iterSearch()` walks the pages.
 - **Lookups** default to `by: 'auto'`; company and person lookups apply `fields`
@@ -43,6 +49,14 @@ every changed call with its replacement.
   specs; `resolveClient`, `ConnectionOptions` and `isApplicationError` are
   exported for adapters, and a client from a second copy of the package is
   recognised.
+- **Agent run effort** is named `quick`, `basic`, `standard` (the default),
+  `detailed` and `maximum` (plus `auto`), as the API names it. The earlier names
+  (typed `LegacyEffort`) are still accepted by `runs.create()` and `credits.quote()`
+  and sent as the new ones.
+- **`RelationshipInstitution`** is now the answer type; a request's institutions are
+  `RelationshipInstitutionInput` (**breaking** for code that typed them).
+- **`credits.quote()`** takes `operation: 'enrichment'` (rows x fields, up to 30,000);
+  a `lookup` quote over 1,000 records is refused locally.
 
 ### Added
 
@@ -58,6 +72,11 @@ every changed call with its replacement.
   holds nothing). `meta.credits_balance` is the balance after each billed call.
 - `APIError.nextStep`: the server's one sentence on what to do now, after
   `detail` in the message; tool errors carry it after the detail too.
+- The types of the API at dsp-backend `d0ef156`: the new document and trend filters,
+  `lock_filters` and `fields` on the search bodies, `resolved_search.read_as` and
+  `anchor_matches`, and the enrichment, org chart people and credit purchase types.
+  Generic backend names carry their feature (`EnrichmentJob`, `OrgChartPlacement`,
+  `CreditPurchase`, ...).
 
 ## 0.0.1
 

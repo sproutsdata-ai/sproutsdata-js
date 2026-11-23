@@ -52,7 +52,7 @@ export default {
     for (const [family, call] of Object.entries(families)) answered[family] = typeof (await call());
     let refused = '';
     try {
-      await client.search({ category: 'patent', mode: 'deep', query: 'x' });
+      await client.search({ category: 'patent', query: 'x', include_domains: ['a.de'] });
     } catch (err) {
       refused = err.name;
     }

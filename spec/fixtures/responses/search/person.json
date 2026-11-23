@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-16T23:02:25.608868Z",
+        "as_of": "2026-11-23T19:37:38.061907Z",
         "domain": null,
         "quote": null,
         "source_corpus": "gtm_index",
@@ -10,19 +10,19 @@
       }
     ],
     "columns": null,
-    "coverage": null,
     "degradation": [],
     "has_more": true,
     "meta": {
-      "as_of": "2026-11-16T23:02:25.608868Z",
+      "as_of": "2026-11-23T19:37:38.061907Z",
       "credential": "api_key",
       "credits_balance": 999.0,
       "credits_charged": 0.5,
       "environment": "live",
-      "request_id": "53e0e592ddda403a957750e3df9abb8b"
+      "request_id": "ec28e0c31ea548209e6310ec29350e25"
     },
-    "next_cursor": "eyJmIjoiZjQ4YjFlZDQ2YzcyZDNjMWU5ZjE0YjBhZjgwNWM4NGUiLCJvIjoyLCJzIjoiMmYwZjA1YTc1NWJiNDA3YmFmNTAxOTdlZTBhYWJmNzIiLCJ0IjoxNzk0ODcwMTQ1LCJ1IjoicHJpc218cGVyc29ufDEifQ.506c51bbfa7c8fa9998e3d22d9eaa022",
+    "next_cursor": "eyJmIjoiMTgyNjU4ODMxNWQ5NDZlYTI3MmYyMmJiYzU3N2FiNDIiLCJvIjoyLCJzIjoiMDE5MDIyODMyOWM3NDdlMGFmMDA2YWVmNTEwZWY3MDkiLCJ0IjoxNzk1NDYyNjU4LCJ1IjoicHJpc218cGVyc29ufDEifQ.65b3e6e81f4b4f99f0db891b699efce4",
     "resolved_search": {
+      "anchor_matches": [],
       "category": "person",
       "conflicts": [],
       "filters": {
@@ -38,6 +38,7 @@
       "overrides": [],
       "parser_version": "none",
       "query": "security leaders",
+      "read_as": [],
       "semantic_query": "industrial automation",
       "semantic_scope": null,
       "sort": [],
@@ -143,8 +144,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1998",
-    "ratelimit-reset": "35",
-    "x-request-id": "53e0e592ddda403a957750e3df9abb8b"
+    "ratelimit-reset": "22",
+    "x-request-id": "ec28e0c31ea548209e6310ec29350e25"
   },
   "operation": "search",
   "request": {

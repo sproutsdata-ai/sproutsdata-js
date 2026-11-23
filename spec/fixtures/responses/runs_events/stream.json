@@ -4,8 +4,8 @@
     "content-type": "text/event-stream; charset=utf-8",
     "ratelimit-limit": "600",
     "ratelimit-remaining": "599",
-    "ratelimit-reset": "35",
-    "x-request-id": "30f372d5a87c44c8a9863ab76dccebae"
+    "ratelimit-reset": "22",
+    "x-request-id": "77584d8bd57d47ff8f78aaf4309ce565"
   },
   "operation": "runs_events",
   "request": {

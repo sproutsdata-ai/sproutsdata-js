@@ -100,7 +100,7 @@ await client.search({
 On a person search, the lists apply to the person's employer. They apply to
 `company`, `person` and `job_opening` only, and the SDK refuses them on any
 other category, beside a `company` filter (two ways of saying the same thing),
-on a `deep` search, and when a domain is blank.
+and when a domain is blank.
 
 ## What a filter accepts
 

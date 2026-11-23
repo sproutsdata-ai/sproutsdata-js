@@ -4,7 +4,8 @@ import { describe, expect, it } from 'vitest';
 
 import { ClientValidationError, FeatureNotAvailableError, WaitTimeoutError } from '../../src/core/errors.js';
 import { Runs } from '../../src/resources/runs.js';
-import type { RunResult } from '../../src/types/index.js';
+import { EFFORT_NAMES } from '../../src/requests/effort.js';
+import type { RunCreateParams, RunResult } from '../../src/types/index.js';
 import { assertValidRequest, recorded, recordedBody, respond } from '../support/answers.js';
 import { collect, rig } from '../support/rig.js';
 
@@ -19,7 +20,7 @@ describe('runs', () => {
     const runs = new Runs(r.transport);
     const page = await runs.list({ limit: 25 });
     const rows = await collect(runs.iterList({ limit: 25 }));
-    expect([page.results[0]?.effort, page.results[0]?.stop_reason]).toEqual(['low', null]);
+    expect([page.results[0]?.effort, page.results[0]?.stop_reason]).toEqual(['basic', null]);
     expect(rows).toHaveLength(first.results.length + 1);
     expect(r.query(2)).toEqual({ limit: '25', cursor: first.next_cursor });
     await expect(runs.list({ limit: 101 })).rejects.toThrow('limit must be an integer between 1 and 100');
@@ -37,7 +38,7 @@ describe('runs', () => {
     const runs = new Runs(r.transport);
     const run = await runs.retrieve('run-perf');
     const cancelled = await runs.cancel('run-perf');
-    expect([run.effort_ran, run.credits_charged]).toEqual(['medium', 8.5]);
+    expect([run.effort_ran, run.credits_charged]).toEqual(['standard', 8.5]);
     expect(run).not.toHaveProperty('degradation');
     expect(r.sent[1]?.method).toBe('POST');
     expect(cancelled.run_id).toBe('run-perf');
@@ -61,6 +62,22 @@ describe('runs', () => {
     expect(r.sent[0]?.headers.get('idempotency-key')).toBe('nightly-2026-11-11');
     await expect(runs.create({ query: 'x' }, { idempotencyKey: 'k'.repeat(256) })).rejects.toBeInstanceOf(ClientValidationError);
     await expect(runs.create({ query: '' })).rejects.toThrow('query: must be at least 1 characters');
+    expect(r.sent).toHaveLength(1);
+  });
+
+  it.each(Object.entries(EFFORT_NAMES))('U3: an earlier effort name is sent as its new one: %s', async (earlier, current) => {
+    const r = rig([recorded('runs_create', 'company')]);
+    await new Runs(r.transport).create({ query: 'x', effort: earlier as NonNullable<RunCreateParams['effort']> });
+    expect(r.body()).toEqual({ query: 'x', effort: current });
+    assertValidRequest('runs_create', r.body());
+  });
+
+  it('U3: a current effort name is sent as is, and an unknown one is refused', async () => {
+    const r = rig([recorded('runs_create', 'company')]);
+    const runs = new Runs(r.transport);
+    await runs.create({ query: 'x', effort: 'standard' });
+    expect(r.body()).toEqual({ query: 'x', effort: 'standard' });
+    await expect(runs.create({ query: 'x', effort: 'turbo' as NonNullable<RunCreateParams['effort']> })).rejects.toThrow('effort');
     expect(r.sent).toHaveLength(1);
   });
 

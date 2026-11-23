@@ -85,8 +85,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "34",
-    "x-request-id": "57156c0b18fe4cbc9e41c6f4a43bb805"
+    "ratelimit-reset": "21",
+    "x-request-id": "b180da7886b74184b32c0566419692fa"
   },
   "operation": "feedback_tags",
   "request": {

@@ -46,12 +46,6 @@ describe.skipIf(STACK === undefined)('phase 5, live', () => {
     expect(spent).toBeGreaterThanOrEqual(costs.reduce((a, b) => a + b, 0) - 1e-9);
   });
 
-  it('a deep search answers one page', async () => {
-    const page = await client().search({ query: 'fintechs in Berlin', mode: 'deep', limit: 5 });
-    expect(page.results.length).toBeGreaterThan(0);
-    expect(page.next_cursor).toBeNull();
-  });
-
   it('similar reads its anchors back', async () => {
     const page = await client().similar({ anchors: ['stripe.com'], limit: 2 });
     expect((page.resolved_search?.filters['anchors'] as { value: string }[])[0]?.value).toBe('stripe.com');
@@ -113,10 +107,10 @@ describe.skipIf(STACK === undefined)('phase 5, live', () => {
 
   it.each([
     ['S1 auto takes no filters', '/v1/search', { query: 'x', filters: { industry: { include: ['x'] } } }],
-    ['S2 deep takes no filters', '/v1/search', { category: 'company', query: 'x', mode: 'deep', filters: { industry: { include: ['x'] } } }],
+    ['S2 deep is no longer offered', '/v1/search', { category: 'company', query: 'x', mode: 'deep' }],
     ['S3 query or keyword_query', '/v1/search', { category: 'company', query: 'x', keyword_query: 'y' }],
     ['S4 sort fits the category', '/v1/search', { category: 'person', query: 'x', sort: [{ field: 'revenue' }] }],
-    ['S6 documents are not deep', '/v1/search', { category: 'patent', query: 'x', mode: 'deep' }],
+    ['S6 nor on documents', '/v1/search', { category: 'patent', query: 'x', mode: 'deep' }],
     ['S7 a range needs a bound', '/v1/search', { category: 'company', query: 'x', filters: { revenue: {} } }],
     ['N3 fifty values resolved', '/v1/entities/companies', { ids: Array.from({ length: 51 }, (_, i) => `n${String(i)}.de`), by: 'auto' }],
     ['M1 look-alikes are companies', '/v1/similar', { anchors: [{ value: 'stripe.com' }], category: 'person' }],
@@ -141,6 +135,13 @@ describe.skipIf(STACK === undefined)('phase 5, live', () => {
     expect(run.status).toBe('completed');
     expect(rows.results.length).toBeGreaterThan(0);
     expect(events.length).toBeGreaterThan(0);
+  });
+
+  it('a run started with an earlier effort name is accepted', async () => {
+    const sdk = client();
+    const handle = await sdk.runs.create({ query: 'fintech companies', effort: 'minimal' });
+    const cancelled = await sdk.runs.cancel(handle.run_id);
+    expect(cancelled.run_id).toBe(handle.run_id);
   });
 
   it('a key with the default scopes cannot start a run', async () => {

@@ -82,8 +82,11 @@ export type CompanyLookupParams = Omit<W.CompanyLookup, 'by'> & ProjectionParams
 /** A person lookup. `by` defaults to `auto`; `null` sends none (prism ids). */
 export type PersonLookupParams = Omit<W.PersonLookup, 'by'> & ProjectionParams & { readonly by?: W.PersonBy | null };
 
-/** What `runs.create` takes: the body of `POST /v1/agents/runs`. */
-export type RunCreateParams = W.RunRequest;
+/** An effort tier by the name it had before: still accepted, sent as its new name. */
+export type LegacyEffort = 'minimal' | 'low' | 'medium' | 'high' | 'xhigh';
+
+/** What `runs.create` takes: the body of `POST /v1/agents/runs`, with an earlier effort name accepted. */
+export type RunCreateParams = Omit<W.RunRequest, 'effort'> & { readonly effort?: W.Effort | LegacyEffort };
 
 /** A page of a cursor-paged list. */
 export interface PageParams {

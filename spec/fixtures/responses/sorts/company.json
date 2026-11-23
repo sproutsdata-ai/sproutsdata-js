@@ -6,12 +6,12 @@
       "desc"
     ],
     "meta": {
-      "as_of": "2026-11-16T23:02:25.713540Z",
+      "as_of": "2026-11-23T19:37:38.185379Z",
       "credential": "api_key",
       "credits_balance": null,
       "credits_charged": null,
       "environment": "live",
-      "request_id": "3de307c14a2c45e3aca455b25a02d781"
+      "request_id": "3cd50d4387a447bd9de52343c2ab7655"
     },
     "sorts": [
       {
@@ -213,8 +213,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "35",
-    "x-request-id": "3de307c14a2c45e3aca455b25a02d781"
+    "ratelimit-reset": "22",
+    "x-request-id": "3cd50d4387a447bd9de52343c2ab7655"
   },
   "operation": "sorts",
   "request": {

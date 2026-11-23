@@ -57,7 +57,7 @@ else its LinkedIn page; a person by their LinkedIn URL; a document by its
 
 | | |
 |---|---|
-| `search`, `iterSearch` | Companies, people and seven document corpora; `fast`, `auto` or `deep`. [Quickstart](docs/quickstart.md), [Filters](docs/filters.md), [Pagination](docs/pagination.md) |
+| `search`, `iterSearch` | Companies, people and seven document corpora; `fast` or `auto`. [Quickstart](docs/quickstart.md), [Filters](docs/filters.md), [Pagination](docs/pagination.md) |
 | `similar`, `iterSimilar` | Look-alike companies from one or more anchors |
 | `filterValues`, `documentFilterValues`, `sorts`, `coverage` | The filter vocabularies, the sort catalogue and what the index holds; free. [Sorting](docs/sorting.md) |
 | `entities.*` | Full records, one method per category; values that matched nothing are reported, not dropped |

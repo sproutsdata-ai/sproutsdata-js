@@ -54,7 +54,7 @@ else its LinkedIn page; a person by their LinkedIn URL; a document by its
 
 | Call | What it does | Guide |
 |---|---|---|
-| `search`, `iterSearch` | Companies, people and seven document corpora; `fast`, `auto` or `deep` | [Quickstart](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/quickstart.md), [Pagination](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/pagination.md) |
+| `search`, `iterSearch` | Companies, people and seven document corpora; `fast` or `auto` | [Quickstart](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/quickstart.md), [Pagination](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/pagination.md) |
 | `similar`, `iterSimilar` | Look-alike companies from one or more anchors | [Quickstart](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/quickstart.md#look-alikes) |
 | `filterValues`, `documentFilterValues`, `sorts`, `coverage` | The filter vocabularies, the sort catalogue, what the index holds; free | [Filters](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/filters.md), [Sorting](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/sorting.md) |
 | `entities.*` | Full records, one method per category | [Quickstart](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/quickstart.md#full-records) |
@@ -78,10 +78,9 @@ const page = await client.search({
 console.log(page.resolved_search?.filters);
 ```
 
-- `fast` matches by meaning; `auto` also turns the words into filters and
-  reports them in `resolved_search`; `deep` works the whole question out of
-  `query` and reports how much of the matching set it reached in `coverage`
-  (companies and people only, one page, query alone).
+- `fast` and `auto` both read the words into filters (the filters you send win)
+  and report them in `resolved_search`; `auto` is billed as an AI search. `deep`
+  is no longer offered: start an agent run (`runs.create`) instead.
 - `category: 'auto'` lets the question pick the category; it takes only
   `query`, `mode`, `limit` and `cursor`.
 - Company and person searches take the typed `DiscoverFilters`; each document

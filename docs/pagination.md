@@ -26,6 +26,8 @@ for await (const hit of client.iterSimilar({ anchors: ['acme.com'], maxResults: 
 | `relationships.find` | `relationships.iterFind` |
 | `relationships.reach` | `relationships.iterReach` |
 | `orgChart.people` | `orgChart.iterPeople` |
+| `enrichment.list` | `enrichment.iterList` |
+| `enrichment.results` | `enrichment.iterResults` |
 | `lists.items` | `lists.iterItems` |
 | `history.list` | `history.iterList` |
 | `credits.transactions` | `credits.iterTransactions` |

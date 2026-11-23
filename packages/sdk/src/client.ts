@@ -8,6 +8,7 @@ import { resolveOptions, type ClientOptions } from './core/options.js';
 import { Transport } from './core/transport.js';
 import { Coverage } from './resources/coverage.js';
 import { Credits } from './resources/credits.js';
+import { Enrichment } from './resources/enrichment.js';
 import { Entities } from './resources/entities.js';
 import { Exports, SearchExport } from './resources/exports.js';
 import { Feedback } from './resources/feedback.js';
@@ -48,6 +49,7 @@ export class SproutsData {
   #runs: Runs | undefined;
   #relationships: Relationships | undefined;
   #orgChart: OrgChart | undefined;
+  #enrichment: Enrichment | undefined;
   #lists: Lists | undefined;
   #exports: Exports | undefined;
   #history: History | undefined;
@@ -99,9 +101,14 @@ export class SproutsData {
     return (this.#relationships ??= new Relationships(this.#transport));
   }
 
-  /** A company's people, counted by department, seniority and place. */
+  /** A company's people, counted by department, seniority and place, and the people one count holds. */
   get orgChart(): OrgChart {
     return (this.#orgChart ??= new OrgChart(this.#transport));
+  }
+
+  /** Emails and phones for people; domains, phones and LinkedIn pages for companies. */
+  get enrichment(): Enrichment {
+    return (this.#enrichment ??= new Enrichment(this.#transport));
   }
 
   /** Saved lists of records. */

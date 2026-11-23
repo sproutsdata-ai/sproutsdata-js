@@ -1,0 +1,50 @@
+{
+  "body": {
+    "entity": "contacts",
+    "job_id": "44c188f9-41d4-48ea-a01b-58e652d60ae4",
+    "meta": {
+      "as_of": "2026-11-23T20:03:42.299795Z",
+      "credential": "api_key",
+      "credits_balance": 964.405,
+      "credits_charged": null,
+      "environment": "live",
+      "request_id": "22080543b6684d68b67f953eb0b90bbf"
+    },
+    "reused": false,
+    "status": "queued",
+    "suppressed_rows": [],
+    "total_rows": 2
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "18",
+    "x-request-id": "22080543b6684d68b67f953eb0b90bbf"
+  },
+  "operation": "enrichment_create",
+  "request": {
+    "body": {
+      "entity": "contacts",
+      "fields": [
+        "EMAIL"
+      ],
+      "items": [
+        {
+          "company_domain": "example-1.de",
+          "external_id": "row-1",
+          "full_name": "Ada Example"
+        },
+        {
+          "external_id": "CACHED-3",
+          "linkedin_url": "https://www.linkedin.com/in/e2e-cached"
+        }
+      ],
+      "name": "E2E b75ec4bb"
+    },
+    "method": "POST",
+    "path": "/v1/enrichment/jobs",
+    "query": {}
+  },
+  "status": 202
+}

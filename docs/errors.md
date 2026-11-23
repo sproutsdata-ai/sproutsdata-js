@@ -163,9 +163,9 @@ belongs to one class:
 
 | Class | Operations | Repeating it |
 |---|---|---|
-| `safe` | every read, `runs.cancel`, `feedback.votes.cast`, `lists.rename`, `lists.addItems`, `lists.removeItems`, `lists.export`, `searchExport` | costs nothing and changes nothing the first call did not |
+| `safe` | every read, `runs.cancel`, `enrichment.cancel`, `feedback.votes.cast`, `lists.rename`, `lists.addItems`, `lists.removeItems`, `lists.export`, `searchExport` | costs nothing and changes nothing the first call did not |
 | `billed` | `search`, `similar`, `entities.*`, `relationships.find` / `reach` / `institutions` / `ask`, `orgChart.retrieve` / `departments` / `locations` / `people` | may charge again |
-| `keyed` | `runs.create`, `feedback.create` | is recognised by its `Idempotency-Key` |
+| `keyed` | `runs.create`, `enrichment.create`, `enrichment.lookup`, `feedback.create` | is recognised by its `Idempotency-Key` |
 | `once` | `lists.create`, `lists.delete` | makes a second list (409), or answers 404 for the list the first call deleted |
 
 | Failure | `safe` | `billed` | `keyed` | `once` |

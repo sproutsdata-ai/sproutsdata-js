@@ -121,6 +121,20 @@ export type OrgChartParams = W.OrgChartRequest;
 /** What `searchExport` takes: the rows, and the request id of the search they came from. */
 export type SearchExportParams = W.SearchExportRequest;
 
+/** A page of the workspace's enrichment jobs. */
+export interface EnrichmentListParams extends PageParams {
+  /** Only jobs in this state. */
+  readonly status?: W.EnrichmentJobStatusInput;
+}
+
+/** A page of an enrichment job's rows. */
+export interface EnrichmentResultsParams {
+  /** Rows per page, 1 to 500. */
+  readonly limit?: number;
+  /** `next_cursor` of the previous page. */
+  readonly cursor?: string;
+}
+
 /** A time window: each bound a `Date` or an ISO 8601 string. */
 export interface TimeWindow {
   readonly from?: Date | string;

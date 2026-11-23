@@ -1,6 +1,6 @@
 {
   "$comment": "Configuration defaults every SDK applies. Durations are in seconds here; the JS SDK takes milliseconds at its API surface and converts. Resolution order for a setting is always: the argument, then the environment variable, then the deprecated environment variable (with a warning naming its replacement), then the default below. The key rules mirror dsp-auth (keys are issued as sk_dsp_live_<secret>; it refuses the retired sk_dsp_test_ keys at exchange) and dsp-backend (it accepts the sk_dsp_ prefix, at most 200 characters, printable ASCII): a key that breaks them is refused locally, before any request, because the server would only answer a bare 401.",
-  "version": 2,
+  "version": 3,
   "base_url": "https://api.sproutsdata.ai",
   "base_url_rule": "https:// is required. Plain http:// is accepted only when the host is one of plain_http_hosts.",
   "plain_http_hosts": [
@@ -54,5 +54,11 @@
     "poll_initial_seconds": 2,
     "poll_multiplier": 1.5,
     "poll_max_seconds": 10
+  },
+  "enrichment_wait": {
+    "deadline_seconds": 1800,
+    "poll_initial_seconds": 2,
+    "poll_multiplier": 1.5,
+    "poll_max_seconds": 30
   }
 }

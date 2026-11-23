@@ -6,18 +6,18 @@
       "entity_id": "example-1.de",
       "level": "result",
       "reason_code": null,
-      "request_id": "ce06b5764ba747a0a62a03066dcad736",
+      "request_id": "78eeddac8651452aa3ec756835de3edc",
       "text": null,
       "vote": "flag",
-      "vote_id": "77ee73eb-6c7e-4aa0-8c92-24dbc58f213a"
+      "vote_id": "bd71955f-b7ca-4ab8-bc83-a929e3bbe521"
     }
   },
   "headers": {
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1998",
-    "ratelimit-reset": "22",
-    "x-request-id": "14d885d56a9d406abcc0b34da7497abe"
+    "ratelimit-reset": "17",
+    "x-request-id": "8881fb9368ee45a1a947555a8d742661"
   },
   "operation": "feedback_vote",
   "request": {
@@ -25,7 +25,7 @@
       "entity_category": "company",
       "entity_id": "example-1.de",
       "level": "result",
-      "request_id": "ce06b5764ba747a0a62a03066dcad736",
+      "request_id": "78eeddac8651452aa3ec756835de3edc",
       "vote": "flag"
     },
     "method": "PUT",

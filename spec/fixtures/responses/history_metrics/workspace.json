@@ -11,6 +11,15 @@
         "requests": 1
       },
       {
+        "action_type": "dsp.enrichment",
+        "credits": "4.000",
+        "day": "2026-11-24",
+        "failed": 1,
+        "ok": 3,
+        "pending": 1,
+        "requests": 5
+      },
+      {
         "action_type": "dsp.entities",
         "credits": "9.000",
         "day": "2026-11-24",
@@ -56,20 +65,20 @@
         "requests": 1
       }
     ],
-    "period_from": "2026-10-24T19:51:37.925059Z",
-    "period_to": "2026-11-23T19:51:37.925059Z",
-    "total_credits": "35.595",
-    "total_failed": 2,
-    "total_ok": 27,
-    "total_pending": 0,
-    "total_requests": 29
+    "period_from": "2026-10-24T20:03:43.740171Z",
+    "period_to": "2026-11-23T20:03:43.740171Z",
+    "total_credits": "39.595",
+    "total_failed": 3,
+    "total_ok": 30,
+    "total_pending": 1,
+    "total_requests": 34
   },
   "headers": {
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "23",
-    "x-request-id": "204783befdc34142a5455e4351f75443"
+    "ratelimit-reset": "17",
+    "x-request-id": "23136b3839554197a16489d712b021b3"
   },
   "operation": "history_metrics",
   "request": {

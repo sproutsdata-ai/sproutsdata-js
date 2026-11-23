@@ -143,6 +143,154 @@
         }
       }
     },
+    "enrichment_cancel": {
+      "body": null,
+      "path_params": [
+        {
+          "name": "job_id",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        }
+      ],
+      "query": [],
+      "responses": {
+        "200": {
+          "ref": "EnrichmentJob"
+        }
+      }
+    },
+    "enrichment_create": {
+      "body": {
+        "ref": "EnrichmentJobRequest"
+      },
+      "path_params": [],
+      "query": [],
+      "responses": {
+        "202": {
+          "ref": "EnrichmentJobHandle"
+        }
+      }
+    },
+    "enrichment_list": {
+      "body": null,
+      "path_params": [],
+      "query": [
+        {
+          "name": "status",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "ref": "EnrichmentJobStatusInput"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "cursor",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "default": 20,
+          "name": "limit",
+          "required": false,
+          "type": {
+            "prim": "integer"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "ref": "EnrichmentJobList"
+        }
+      }
+    },
+    "enrichment_lookup": {
+      "body": {
+        "ref": "EnrichmentLookupRequest"
+      },
+      "path_params": [],
+      "query": [],
+      "responses": {
+        "200": {
+          "ref": "EnrichmentLookupResult"
+        }
+      }
+    },
+    "enrichment_results": {
+      "body": null,
+      "path_params": [
+        {
+          "name": "job_id",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        }
+      ],
+      "query": [
+        {
+          "name": "cursor",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "default": 100,
+          "name": "limit",
+          "required": false,
+          "type": {
+            "prim": "integer"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "ref": "EnrichmentJobResults"
+        }
+      }
+    },
+    "enrichment_retrieve": {
+      "body": null,
+      "path_params": [
+        {
+          "name": "job_id",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        }
+      ],
+      "query": [],
+      "responses": {
+        "200": {
+          "ref": "EnrichmentJob"
+        }
+      }
+    },
     "entities_academic_reports": {
       "body": {
         "ref": "DocumentLookup"

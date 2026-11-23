@@ -1,0 +1,43 @@
+{
+  "body": {
+    "entity": "accounts",
+    "job_id": "863f7085-8400-4578-a497-e3169bf838ca",
+    "meta": {
+      "as_of": "2026-11-23T20:03:42.915226Z",
+      "credential": "api_key",
+      "credits_balance": 964.405,
+      "credits_charged": null,
+      "environment": "live",
+      "request_id": "137b9861221c49e5b60d9ba5c5a755ec"
+    },
+    "reused": false,
+    "status": "queued",
+    "suppressed_rows": [],
+    "total_rows": 1
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1997",
+    "ratelimit-reset": "18",
+    "x-request-id": "137b9861221c49e5b60d9ba5c5a755ec"
+  },
+  "operation": "enrichment_create",
+  "request": {
+    "body": {
+      "entity": "accounts",
+      "fields": [
+        "DOMAIN"
+      ],
+      "items": [
+        {
+          "company_name": "Example 4"
+        }
+      ]
+    },
+    "method": "POST",
+    "path": "/v1/enrichment/jobs",
+    "query": {}
+  },
+  "status": 202
+}

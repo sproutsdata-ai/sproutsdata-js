@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-23T19:51:37.012690Z",
+        "as_of": "2026-11-23T20:03:42.099650Z",
         "domain": null,
         "quote": null,
         "source_corpus": "affiliations",
@@ -98,14 +98,14 @@
       }
     ],
     "meta": {
-      "as_of": "2026-11-23T19:51:37.012690Z",
+      "as_of": "2026-11-23T20:03:42.099650Z",
       "credential": "api_key",
       "credits_balance": 975.405,
       "credits_charged": 2.0,
       "environment": "live",
-      "request_id": "633d16122afd4302b356fef58acbcfc5"
+      "request_id": "0d8275924c764f4dbdaab1b284e50b7e"
     },
-    "next_cursor": "eyJmIjoiNGVhOWRiZTBjMDMwM2Y3NWZkNDBjMDAyY2MwZTI1N2IiLCJvIjoxMCwicyI6ImRiMzViODRlYjI5NjRkOTFhMGQ3MDc4ZDBhODYxZDg1IiwidCI6MTc5NTQ2MzQ5NywidSI6IntcImNvbXBhbmllc1wiOlt7XCJ2YWx1ZVwiOlwic3RyaXBlLmNvbVwiLFwiYnlcIjpcImRvbWFpblwifSx7XCJ2YWx1ZVwiOlwiYWR5ZW4uY29tXCIsXCJieVwiOlwiZG9tYWluXCJ9XSxcInBhZ2VcIjoyLFwicGFnZV9zaXplXCI6MTAsXCJvdXRwdXRcIjp7XCJ0b3BfaW5zdGl0dXRpb25zXCI6MTAwMH19In0.4654d49fc4e3239f98c5ad8f746e5f8a",
+    "next_cursor": "eyJmIjoiNGVhOWRiZTBjMDMwM2Y3NWZkNDBjMDAyY2MwZTI1N2IiLCJvIjoxMCwicyI6IjUzOTcwODc0MzUyYjRjYzdiZjE3MmFkOTVhZjNmZDM2IiwidCI6MTc5NTQ2NDIyMiwidSI6IntcImNvbXBhbmllc1wiOlt7XCJ2YWx1ZVwiOlwic3RyaXBlLmNvbVwiLFwiYnlcIjpcImRvbWFpblwifSx7XCJ2YWx1ZVwiOlwiYWR5ZW4uY29tXCIsXCJieVwiOlwiZG9tYWluXCJ9XSxcInBhZ2VcIjoyLFwicGFnZV9zaXplXCI6MTAsXCJvdXRwdXRcIjp7XCJ0b3BfaW5zdGl0dXRpb25zXCI6MTAwMH19In0.0cf96ea856b500ab7bffd59edc34bed0",
     "resolved_search": {
       "anchor_matches": [],
       "category": "person",
@@ -570,8 +570,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "24",
-    "x-request-id": "633d16122afd4302b356fef58acbcfc5"
+    "ratelimit-reset": "18",
+    "x-request-id": "0d8275924c764f4dbdaab1b284e50b7e"
   },
   "operation": "relationships",
   "request": {

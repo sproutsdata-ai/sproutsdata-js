@@ -25,6 +25,28 @@ every file here against the others and the error table against the backend.
 
 ---
 
+## 2026-11-24 — enrichment wrapped
+
+- **routes.json**: the six `/v1/enrichment/*` operations leave `not_wrapped`:
+  `enrichment_create` (keyed, key required, 202), `enrichment_list` and
+  `enrichment_results` (cursor in the query), `enrichment_retrieve`, `enrichment_cancel`
+  (safe) and `enrichment_lookup` (keyed, key optional). **surface-map.json**: an
+  `enrichment` group (`create`, `list`, `retrieve`, `cancel`, `wait`, `results`, `lookup`).
+- **defaults.json** (version 3): `enrichment_wait`, polled from 2 s, half again longer each
+  time, up to 30 s, for up to 30 minutes.
+- **error-codes.json**: `request.too_large` also answers an enrichment lookup with more rows
+  than the workspace's lookups take.
+- **tools**: `sprouts_entity_lookup` no longer calls itself "the enrichment tool": an
+  enrichment API exists now, and a lookup reads records, it does not find new values.
+- **fixtures**: twelve enrichment answers and an enrichment quote, recorded through the
+  stack's fake dsp-enrichment (`e2e/fake_enrichment.py`), which speaks dsp-enrichment's own
+  shapes. A job that misses a value ends `completed_with_errors`, which dsp-backend d0ef156
+  cannot store (`enrichment_jobs.status` is `varchar(16)`, so reading the job answers 500);
+  the recorded jobs keep to found rows until dsp-backend fixes it, and misses are recorded
+  through a lookup.
+
+---
+
 ## 2026-11-24 — org chart people wrapped
 
 - **routes.json**: `POST /v1/org-chart/people` (`org_chart_people`) leaves

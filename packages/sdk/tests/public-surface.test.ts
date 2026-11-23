@@ -64,7 +64,7 @@ describe('the edge smoke', () => {
     const smoke = readFileSync(new URL('../../../scripts/smoke-edge.mjs', import.meta.url), 'utf8');
     const client = new SproutsData({ apiKey: FIXTURE_KEY, baseUrl: BASE_URL });
     const resources = Object.entries(Object.getOwnPropertyDescriptors(SproutsData.prototype)).filter(([, d]) => d.get !== undefined).map(([name]) => name);
-    expect(resources).toHaveLength(9);
+    expect(resources).toHaveLength(10);
     for (const name of resources) expect(smoke).toContain(`client.${name}.`);
     for (const method of ['search', 'filterValues', 'coverage']) expect(smoke).toContain(`client.${method}(`);
     expect(typeof client.runs).toBe('object');

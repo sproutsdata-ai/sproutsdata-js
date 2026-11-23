@@ -36,7 +36,7 @@ describe('the surface map', () => {
   it('Z4: every public method of every resource is in the map', () => {
     const mapped = new Set(NAMES);
     const names = (target: object): string[] => Object.getOwnPropertyNames(Object.getPrototypeOf(target)).filter((n) => n !== 'constructor' && !n.startsWith('iter'));
-    for (const resource of ['entities', 'runs', 'relationships', 'orgChart', 'lists', 'exports', 'history', 'feedback', 'credits']) {
+    for (const resource of ['entities', 'runs', 'relationships', 'orgChart', 'enrichment', 'lists', 'exports', 'history', 'feedback', 'credits']) {
       const target = resolve(client, resource) as object;
       for (const method of names(target)) expect(mapped.has(`${resource}.${method}`) || resource === 'feedback').toBe(true);
     }

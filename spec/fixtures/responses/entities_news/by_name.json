@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-23T19:51:36.765439Z",
+        "as_of": "2026-11-23T20:03:41.850652Z",
         "domain": null,
         "quote": null,
         "source_corpus": "news",
@@ -14,12 +14,12 @@
     "degradation": [],
     "has_more": false,
     "meta": {
-      "as_of": "2026-11-23T19:51:36.765439Z",
+      "as_of": "2026-11-23T20:03:41.850652Z",
       "credential": "api_key",
       "credits_balance": 988.905,
       "credits_charged": 1.0,
       "environment": "live",
-      "request_id": "f916814391284c85b9a32c262d767af2"
+      "request_id": "7619bd93607c426f9cde1c11e47de76f"
     },
     "next_cursor": null,
     "resolved_search": null,
@@ -71,8 +71,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "24",
-    "x-request-id": "f916814391284c85b9a32c262d767af2"
+    "ratelimit-reset": "19",
+    "x-request-id": "7619bd93607c426f9cde1c11e47de76f"
   },
   "operation": "entities_news",
   "request": {

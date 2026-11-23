@@ -36,6 +36,12 @@ export interface Operations {
   readonly creditsRetrieve: { readonly method: 'GET'; readonly path: '/v1/credits'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
   readonly creditsTransactions: { readonly method: 'GET'; readonly path: '/v1/credits/transactions'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'query' } };
   readonly documentFilterValues: { readonly method: 'GET'; readonly path: '/v1/search/filters/{category}/{name}'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none'; readonly paging: { readonly style: 'page_number'; readonly items: 'values' } };
+  readonly enrichmentCancel: { readonly method: 'POST'; readonly path: '/v1/enrichment/jobs/{job_id}/cancel'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
+  readonly enrichmentCreate: { readonly method: 'POST'; readonly path: '/v1/enrichment/jobs'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'required' };
+  readonly enrichmentList: { readonly method: 'GET'; readonly path: '/v1/enrichment/jobs'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'query' } };
+  readonly enrichmentLookup: { readonly method: 'POST'; readonly path: '/v1/enrichment/lookups'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional' };
+  readonly enrichmentResults: { readonly method: 'GET'; readonly path: '/v1/enrichment/jobs/{job_id}/results'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'query' } };
+  readonly enrichmentRetrieve: { readonly method: 'GET'; readonly path: '/v1/enrichment/jobs/{job_id}'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
   readonly entitiesAcademicReports: { readonly method: 'POST'; readonly path: '/v1/entities/academic-reports'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none' };
   readonly entitiesCompanies: { readonly method: 'POST'; readonly path: '/v1/entities/companies'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none' };
   readonly entitiesFundings: { readonly method: 'POST'; readonly path: '/v1/entities/fundings'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none' };
@@ -92,6 +98,12 @@ export const OPERATIONS: Operations = {
   creditsRetrieve: { method: 'GET', path: '/v1/credits', routeClass: 'safe', response: 'json', idempotency: 'none' },
   creditsTransactions: { method: 'GET', path: '/v1/credits/transactions', routeClass: 'safe', response: 'json', idempotency: 'none', paging: { style: 'cursor', items: 'results', cursorIn: 'query' } },
   documentFilterValues: { method: 'GET', path: '/v1/search/filters/{category}/{name}', routeClass: 'safe', response: 'json', idempotency: 'none', paging: { style: 'page_number', items: 'values' } },
+  enrichmentCancel: { method: 'POST', path: '/v1/enrichment/jobs/{job_id}/cancel', routeClass: 'safe', response: 'json', idempotency: 'none' },
+  enrichmentCreate: { method: 'POST', path: '/v1/enrichment/jobs', routeClass: 'keyed', response: 'json', idempotency: 'required' },
+  enrichmentList: { method: 'GET', path: '/v1/enrichment/jobs', routeClass: 'safe', response: 'json', idempotency: 'none', paging: { style: 'cursor', items: 'results', cursorIn: 'query' } },
+  enrichmentLookup: { method: 'POST', path: '/v1/enrichment/lookups', routeClass: 'keyed', response: 'json', idempotency: 'optional' },
+  enrichmentResults: { method: 'GET', path: '/v1/enrichment/jobs/{job_id}/results', routeClass: 'safe', response: 'json', idempotency: 'none', paging: { style: 'cursor', items: 'results', cursorIn: 'query' } },
+  enrichmentRetrieve: { method: 'GET', path: '/v1/enrichment/jobs/{job_id}', routeClass: 'safe', response: 'json', idempotency: 'none' },
   entitiesAcademicReports: { method: 'POST', path: '/v1/entities/academic-reports', routeClass: 'billed', response: 'json', idempotency: 'none' },
   entitiesCompanies: { method: 'POST', path: '/v1/entities/companies', routeClass: 'billed', response: 'json', idempotency: 'none' },
   entitiesFundings: { method: 'POST', path: '/v1/entities/fundings', routeClass: 'billed', response: 'json', idempotency: 'none' },
@@ -174,6 +186,42 @@ export interface OperationMap {
     query: { readonly search?: string | null; readonly page?: number; };
     body: undefined;
     responses: { 200: W.DocumentFilterValues };
+  };
+  enrichmentCancel: {
+    path: { readonly job_id: string; };
+    query: Readonly<Record<string, never>>;
+    body: undefined;
+    responses: { 200: W.EnrichmentJob };
+  };
+  enrichmentCreate: {
+    path: Readonly<Record<string, never>>;
+    query: Readonly<Record<string, never>>;
+    body: W.EnrichmentJobRequest;
+    responses: { 202: W.EnrichmentJobHandle };
+  };
+  enrichmentList: {
+    path: Readonly<Record<string, never>>;
+    query: { readonly status?: W.EnrichmentJobStatusInput | null; readonly cursor?: string | null; readonly limit?: number; };
+    body: undefined;
+    responses: { 200: W.EnrichmentJobList };
+  };
+  enrichmentLookup: {
+    path: Readonly<Record<string, never>>;
+    query: Readonly<Record<string, never>>;
+    body: W.EnrichmentLookupRequest;
+    responses: { 200: W.EnrichmentLookupResult };
+  };
+  enrichmentResults: {
+    path: { readonly job_id: string; };
+    query: { readonly cursor?: string | null; readonly limit?: number; };
+    body: undefined;
+    responses: { 200: W.EnrichmentJobResults };
+  };
+  enrichmentRetrieve: {
+    path: { readonly job_id: string; };
+    query: Readonly<Record<string, never>>;
+    body: undefined;
+    responses: { 200: W.EnrichmentJob };
   };
   entitiesAcademicReports: {
     path: Readonly<Record<string, never>>;

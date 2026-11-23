@@ -1,0 +1,66 @@
+{
+  "body": {
+    "complete": false,
+    "credits_used": 0.0,
+    "job_id": "2dd8e955-88d2-41d9-8fe4-78bf64efe7e6",
+    "meta": {
+      "as_of": "2026-11-23T20:03:42.990373Z",
+      "credential": "api_key",
+      "credits_balance": 964.405,
+      "credits_charged": null,
+      "environment": "live",
+      "request_id": "1765b4c5b245491fac0c7bc803214f39"
+    },
+    "reason": "deadline",
+    "results": [
+      {
+        "credits": 0.0,
+        "fields": {
+          "EMAIL": {
+            "status": "pending",
+            "value": null,
+            "verified": false
+          }
+        },
+        "idx": 0,
+        "incomplete": [
+          "EMAIL"
+        ],
+        "input": {
+          "company_domain": "example-5.de",
+          "external_id": "SLOW-5",
+          "full_name": "Grace Example"
+        },
+        "outcome": "not_found"
+      }
+    ],
+    "status": "running",
+    "suppressed_rows": []
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1998",
+    "ratelimit-reset": "18",
+    "x-request-id": "1765b4c5b245491fac0c7bc803214f39"
+  },
+  "operation": "enrichment_lookup",
+  "request": {
+    "body": {
+      "fields": [
+        "EMAIL"
+      ],
+      "items": [
+        {
+          "company_domain": "example-5.de",
+          "external_id": "SLOW-5",
+          "full_name": "Grace Example"
+        }
+      ]
+    },
+    "method": "POST",
+    "path": "/v1/enrichment/lookups",
+    "query": {}
+  },
+  "status": 200
+}

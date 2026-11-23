@@ -92,6 +92,7 @@ export function renderDefaults(spec) {
     '  readonly streamIdleTimeoutMs: number;',
     '  readonly runWait: WaitDefaults;',
     '  readonly exportWait: WaitDefaults;',
+    '  readonly enrichmentWait: WaitDefaults;',
     '}',
     '',
     'export const DEFAULTS: Defaults = {',
@@ -110,6 +111,7 @@ export function renderDefaults(spec) {
     `  streamIdleTimeoutMs: ${seconds(spec.stream_idle_timeout_seconds)},`,
     `  runWait: ${wait(spec.run_wait)},`,
     `  exportWait: ${wait(spec.export_wait)},`,
+    `  enrichmentWait: ${wait(spec.enrichment_wait)},`,
     '};',
     '',
   ].join('\n');

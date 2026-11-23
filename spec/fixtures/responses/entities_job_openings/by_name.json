@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-23T19:51:36.826217Z",
+        "as_of": "2026-11-23T20:03:41.909014Z",
         "domain": null,
         "quote": null,
         "source_corpus": "job_openings",
@@ -14,12 +14,12 @@
     "degradation": [],
     "has_more": false,
     "meta": {
-      "as_of": "2026-11-23T19:51:36.826217Z",
+      "as_of": "2026-11-23T20:03:41.909014Z",
       "credential": "api_key",
       "credits_balance": 985.905,
       "credits_charged": 1.0,
       "environment": "live",
-      "request_id": "922d76ddec8a4273a0a8b6ef5e73b5a7"
+      "request_id": "f49f7284eea1423e98fa38b77e51d980"
     },
     "next_cursor": null,
     "resolved_search": null,
@@ -71,8 +71,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "24",
-    "x-request-id": "922d76ddec8a4273a0a8b6ef5e73b5a7"
+    "ratelimit-reset": "19",
+    "x-request-id": "f49f7284eea1423e98fa38b77e51d980"
   },
   "operation": "entities_job_openings",
   "request": {

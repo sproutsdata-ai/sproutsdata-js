@@ -80,6 +80,13 @@ every changed call with its replacement.
   holds nothing). `meta.credits_balance` is the balance after each billed call.
 - `APIError.nextStep`: the server's one sentence on what to do now, after
   `detail` in the message; tool errors carry it after the detail too.
+- `client.enrichment`: emails and phones for people (`contacts`), domains, phones and
+  LinkedIn pages for companies (`accounts`). `lookup()` answers up to 20 items in the call
+  (one that does not finish becomes a job); `create()` starts a job, followed with
+  `retrieve()`, `wait()` (on the spec's `enrichmentWait` rhythm), `results()` /
+  `iterResults()`, `list()` / `iterList()` and `cancel()`. Requests the server would refuse
+  are refused locally in its words; both keyed calls send an `Idempotency-Key`. Needs the
+  `dsp.enrichment.*` scopes (`examples/enrichment.ts`, `docs/enrichment.md`).
 - `orgChart.people()` and `iterPeople()`: the people one cell of a company's chart
   counts, a page at a time, named by the chart's `company_ref` (every chart answer
   carries one, and a company search row's `id` is one). Billed per page that lists

@@ -1,0 +1,44 @@
+{
+  "body": {
+    "code": "enrichment.idempotency_key_reused",
+    "detail": "This `Idempotency-Key` was already used with another body. Send a new key for a new request; reuse a key only to retry the same request.",
+    "instance": "/v1/enrichment/jobs",
+    "next_step": "Send a new `Idempotency-Key` for a new job; reuse a key only to retry the same request.",
+    "request_id": "39855eeee4bc4c4289e363788e0d2578",
+    "status": 409,
+    "title": "Idempotency-Key already used",
+    "type": "https://dashboard.sproutsdata.ai/errors/enrichment-idempotency-key-reused"
+  },
+  "headers": {
+    "content-type": "application/problem+json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1998",
+    "ratelimit-reset": "18",
+    "x-request-id": "39855eeee4bc4c4289e363788e0d2578"
+  },
+  "operation": "enrichment_create",
+  "request": {
+    "body": {
+      "entity": "contacts",
+      "fields": [
+        "PHONE"
+      ],
+      "items": [
+        {
+          "company_domain": "example-1.de",
+          "external_id": "row-1",
+          "full_name": "Ada Example"
+        },
+        {
+          "external_id": "CACHED-3",
+          "linkedin_url": "https://www.linkedin.com/in/e2e-cached"
+        }
+      ],
+      "name": "E2E b75ec4bb"
+    },
+    "method": "POST",
+    "path": "/v1/enrichment/jobs",
+    "query": {}
+  },
+  "status": 409
+}

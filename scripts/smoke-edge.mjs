@@ -41,6 +41,7 @@ export default {
       runs: () => client.runs.retrieve('run-1'),
       relationships: () => client.relationships.ask({ query: 'who at Stripe knows Adyen' }),
       orgChart: () => client.orgChart.taxonomy(),
+      enrichment: () => client.enrichment.list(),
       lists: () => client.lists.list(),
       exportFile: () => client.lists.export('l1'),
       exports: () => client.exports.retrieve('j1'),
@@ -78,7 +79,7 @@ try {
   const response = await mf.dispatchFetch('http://localhost/');
   const body = await response.json();
   const families = Object.keys(body.answered);
-  if (body.version !== manifest.version || body.calls !== families.length || body.refused !== 'ClientValidationError' || families.length !== 13) {
+  if (body.version !== manifest.version || body.calls !== families.length || body.refused !== 'ClientValidationError' || families.length !== 14) {
     throw new Error(`unexpected answer ${JSON.stringify(body)}`);
   }
   console.log(`ok   sproutsdata ${body.version} runs in workerd: ${String(families.length)} resource families answered, a refusal refused`);

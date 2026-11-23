@@ -322,8 +322,9 @@ export const ERROR_CODES: Readonly<Record<ErrorCode, CodeInfo>> = {
    */
   "request.invalid": { status: 422, concept: "invalid_request", retry: false },
   /**
-   * The request body is larger than the route accepts (the Tools routes cap
-   * it). Send a smaller body: fewer items, or a shorter query.
+   * The request is larger than the route accepts: a Tools body over its cap, or
+   * an enrichment lookup with more rows than the workspace's lookups take
+   * (start a job instead). Send a smaller request.
    */
   "request.too_large": { status: 413, concept: "invalid_request", retry: false },
   /**

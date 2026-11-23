@@ -1,0 +1,62 @@
+{
+  "body": {
+    "counts": {
+      "done_rows": 1,
+      "field_counts": {
+        "DOMAIN": {
+          "found": 1
+        }
+      },
+      "rows": {
+        "cancelled": 0,
+        "error": 0,
+        "found": 1,
+        "not_found": 0,
+        "partial": 0,
+        "pending": 0,
+        "skipped": 0
+      },
+      "total_rows": 1
+    },
+    "created_at": "2026-11-23T20:03:42.908466Z",
+    "credits_charged": 1.0,
+    "credits_used": 1.0,
+    "entity": "accounts",
+    "error": null,
+    "eta_seconds": null,
+    "fields": [
+      "DOMAIN"
+    ],
+    "finished_at": "2026-11-23T20:03:42.922015Z",
+    "job_id": "863f7085-8400-4578-a497-e3169bf838ca",
+    "meta": {
+      "as_of": "2026-11-23T20:03:42.937624Z",
+      "credential": "api_key",
+      "credits_balance": 964.405,
+      "credits_charged": 1.0,
+      "environment": "live",
+      "request_id": "07b6d88884b84d80a6ceb47fddf94a26"
+    },
+    "name": null,
+    "rows_per_second": 1.0,
+    "status": "cancelled",
+    "stop_reason": null,
+    "suppressed_rows": [],
+    "total_rows": 1
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "18",
+    "x-request-id": "07b6d88884b84d80a6ceb47fddf94a26"
+  },
+  "operation": "enrichment_cancel",
+  "request": {
+    "body": null,
+    "method": "POST",
+    "path": "/v1/enrichment/jobs/863f7085-8400-4578-a497-e3169bf838ca/cancel",
+    "query": {}
+  },
+  "status": 200
+}

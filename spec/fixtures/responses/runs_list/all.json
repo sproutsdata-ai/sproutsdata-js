@@ -2,14 +2,14 @@
   "body": {
     "has_more": true,
     "meta": {
-      "as_of": "2026-11-23T19:51:36.978566Z",
+      "as_of": "2026-11-23T20:03:42.062712Z",
       "credential": "api_key",
       "credits_balance": null,
       "credits_charged": null,
       "environment": "live",
-      "request_id": "41c529c2ed414af7b25d72ad33685777"
+      "request_id": "328545d974464e5b9fcc22e6f5ff4e21"
     },
-    "next_cursor": "eyJmIjoiYmYwNzRiZTJjOWRmMmUzZjE3ZDVlN2Y4MTdjM2Q5MzQiLCJvIjoyNSwicyI6IjFiYmZmNjAzOWJiMjQ0N2NiNmEwZTI2MDQ3ZjU4OGU3IiwidCI6MTc5NTQ2MzQ5NiwidSI6InBlcmYtYzIifQ.a0535edafa52c88a9bf604252d73d3da",
+    "next_cursor": "eyJmIjoiYmYwNzRiZTJjOWRmMmUzZjE3ZDVlN2Y4MTdjM2Q5MzQiLCJvIjoyNSwicyI6ImZhMmUxYjgyNjIwMjRlNTk4MWM0YTE2MWZlZGQ2ZDIyIiwidCI6MTc5NTQ2NDIyMiwidSI6InBlcmYtYzIifQ.edf0e0a0a2db202530ba9707f50b031c",
     "results": [
       {
         "created_at": "2026-11-10T09:00:00Z",
@@ -242,8 +242,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "600",
     "ratelimit-remaining": "599",
-    "ratelimit-reset": "24",
-    "x-request-id": "41c529c2ed414af7b25d72ad33685777"
+    "ratelimit-reset": "18",
+    "x-request-id": "328545d974464e5b9fcc22e6f5ff4e21"
   },
   "operation": "runs_list",
   "request": {

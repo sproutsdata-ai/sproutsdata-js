@@ -1,0 +1,98 @@
+{
+  "body": {
+    "complete": true,
+    "credits_used": 2.0,
+    "job_id": "59de0503-a307-4c6b-b827-8bfe107c2cea",
+    "meta": {
+      "as_of": "2026-11-23T20:03:42.970618Z",
+      "credential": "api_key",
+      "credits_balance": 964.405,
+      "credits_charged": 2.0,
+      "environment": "live",
+      "request_id": "968fa9e36ff04e3b8b7bc6751ed6fc3a"
+    },
+    "reason": null,
+    "results": [
+      {
+        "credits": 2.0,
+        "fields": {
+          "EMAIL": {
+            "status": "found",
+            "value": "ada@example-1.de",
+            "verified": true
+          },
+          "PHONE": {
+            "status": "found",
+            "value": "+49 30 5550 0000",
+            "verified": false
+          }
+        },
+        "idx": 0,
+        "incomplete": null,
+        "input": {
+          "company_domain": "example-1.de",
+          "external_id": "row-1",
+          "full_name": "Ada Example"
+        },
+        "outcome": "found"
+      },
+      {
+        "credits": 0.0,
+        "fields": {
+          "EMAIL": {
+            "status": "not_found",
+            "value": null,
+            "verified": false
+          },
+          "PHONE": {
+            "status": "not_found",
+            "value": null,
+            "verified": false
+          }
+        },
+        "idx": 1,
+        "incomplete": null,
+        "input": {
+          "company_domain": "example-2.de",
+          "external_id": "row-2",
+          "full_name": "MISSING Person"
+        },
+        "outcome": "not_found"
+      }
+    ],
+    "status": "completed",
+    "suppressed_rows": []
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "18",
+    "x-request-id": "968fa9e36ff04e3b8b7bc6751ed6fc3a"
+  },
+  "operation": "enrichment_lookup",
+  "request": {
+    "body": {
+      "fields": [
+        "EMAIL",
+        "PHONE"
+      ],
+      "items": [
+        {
+          "company_domain": "example-1.de",
+          "external_id": "row-1",
+          "full_name": "Ada Example"
+        },
+        {
+          "company_domain": "example-2.de",
+          "external_id": "row-2",
+          "full_name": "MISSING Person"
+        }
+      ]
+    },
+    "method": "POST",
+    "path": "/v1/enrichment/lookups",
+    "query": {}
+  },
+  "status": 200
+}

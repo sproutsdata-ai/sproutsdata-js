@@ -60,6 +60,7 @@ else its LinkedIn page; a person by their LinkedIn URL; a document by its
 | `entities.*` | Full records, one method per category | [Quickstart](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/quickstart.md#full-records) |
 | `relationships.find`, `reach`, `institutions`, `ask` | Who knows whom, and why | [Relationships](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/relationships.md) |
 | `orgChart.retrieve`, `departments`, `locations`, `people`, `taxonomy` | A company's people, counted, and the people one count holds | [Org charts](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/org-chart.md) |
+| `enrichment.lookup`, `create`, `wait`, `results`, ... | Emails and phones for people, domains, phones and pages for companies | [Enrichment](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/enrichment.md) |
 | `runs.*` | Agents: start an agent run, follow it, read it | [Agent runs](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/runs.md) |
 | `lists.*`, `searchExport`, `exports.*` | Saved lists, and CSV export as a file or a job | [Saved lists](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/lists.md) |
 | `credits.retrieve`, `credits.transactions` | The balance and the ledger; free | [Credits and usage](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/usage.md) |

@@ -25,6 +25,17 @@ every file here against the others and the error table against the backend.
 
 ---
 
+## 2026-11-24 — org chart people wrapped
+
+- **routes.json**: `POST /v1/org-chart/people` (`org_chart_people`) leaves
+  `not_wrapped`: billed, cursor paging in the body over `results`, the cursor not
+  bound to `limit`. **surface-map.json**: `org_chart.people` / `orgChart.people`.
+- **fixtures**: `org_chart_people/first_page`, `next_page` and `cursor_invalid`
+  (422 `pagination.cursor_invalid`), recorded through the stack's fake prism, which now
+  answers `POST /v1/people/search` from the population its chart counts.
+
+---
+
 ## 2026-11-24 — every error code mapped; retry policy version 3
 
 - **error-codes.json**: every code dsp-backend `d0ef156` sends an API key is mapped

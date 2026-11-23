@@ -1,11 +1,11 @@
 {
   "body": {
-    "created_at": "2026-11-23T19:37:38.840479Z",
+    "created_at": "2026-11-23T19:51:37.308734Z",
     "error": null,
-    "expires_at": "2026-11-24T19:37:39.000261Z",
-    "file_url": "/v1/exports/37fe5340-7c4b-4ec5-8dde-95af9b2e9015/file",
-    "finished_at": "2026-11-23T19:37:39.000261Z",
-    "job_id": "37fe5340-7c4b-4ec5-8dde-95af9b2e9015",
+    "expires_at": "2026-11-24T19:51:37.650471Z",
+    "file_url": "/v1/exports/e8343bbc-800f-4014-bea5-f27ad2dae670/file",
+    "finished_at": "2026-11-23T19:51:37.650471Z",
+    "job_id": "e8343bbc-800f-4014-bea5-f27ad2dae670",
     "rows": 50,
     "skipped": 0,
     "status": "done"
@@ -14,14 +14,14 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1998",
-    "ratelimit-reset": "21",
-    "x-request-id": "44cca4214c834d9fa07252d78655407b"
+    "ratelimit-reset": "23",
+    "x-request-id": "6483b81af87b4bd8aa1023976ba10f24"
   },
   "operation": "exports_retrieve",
   "request": {
     "body": null,
     "method": "GET",
-    "path": "/v1/exports/37fe5340-7c4b-4ec5-8dde-95af9b2e9015",
+    "path": "/v1/exports/e8343bbc-800f-4014-bea5-f27ad2dae670",
     "query": {}
   },
   "status": 200

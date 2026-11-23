@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-23T19:37:38.671022Z",
+        "as_of": "2026-11-23T19:51:37.081165Z",
         "domain": null,
         "quote": null,
         "source_corpus": "gtm_index",
@@ -69,12 +69,12 @@
     "joiner_basis": "company_stint",
     "matched": null,
     "meta": {
-      "as_of": "2026-11-23T19:37:38.671022Z",
+      "as_of": "2026-11-23T19:51:37.081165Z",
       "credential": "api_key",
       "credits_balance": null,
       "credits_charged": 1.0,
       "environment": "live",
-      "request_id": "a9804ceea804491dbb81c906734e738e"
+      "request_id": "53a3fe5fd59b40449b2ba2be5e566e7c"
     },
     "new_joiners_total": 2,
     "seniority_totals": [
@@ -114,8 +114,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "22",
-    "x-request-id": "a9804ceea804491dbb81c906734e738e"
+    "ratelimit-reset": "23",
+    "x-request-id": "53a3fe5fd59b40449b2ba2be5e566e7c"
   },
   "operation": "org_chart",
   "request": {

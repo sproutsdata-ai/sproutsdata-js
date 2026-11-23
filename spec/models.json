@@ -786,6 +786,18 @@
         }
       }
     },
+    "org_chart_people": {
+      "body": {
+        "ref": "OrgChartPeopleRequest"
+      },
+      "path_params": [],
+      "query": [],
+      "responses": {
+        "200": {
+          "ref": "OrgChartPeopleResponse"
+        }
+      }
+    },
     "org_chart_taxonomy": {
       "body": null,
       "path_params": [],

@@ -384,6 +384,20 @@
     },
     {
       "method": "POST",
+      "path": "/v1/org-chart/people",
+      "operation_id": "org_chart_people",
+      "name": "org_chart_people",
+      "class": "billed",
+      "response": "json",
+      "idempotency": "none",
+      "paging": {
+        "style": "cursor",
+        "cursor_in": "body",
+        "items": "results"
+      }
+    },
+    {
+      "method": "POST",
       "path": "/v1/relationships",
       "operation_id": "relationships",
       "name": "relationships",
@@ -535,11 +549,6 @@
     }
   ],
   "not_wrapped": [
-    {
-      "method": "POST",
-      "path": "/v1/org-chart/people",
-      "reason": "New in dsp-backend #186 (org chart cell people); org_chart.people wraps it next."
-    },
     {
       "method": "POST",
       "path": "/v1/enrichment/jobs",

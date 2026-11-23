@@ -83,6 +83,27 @@ await client.search({
 
 A patent's `status` defaults to every patent, so `status` alone does not count
 as narrowing the search: a patent search with no `query` needs another filter.
+Nor does a filter of empty lists or objects (`{ growth: [] }`): a document
+search then needs a `query`, or a filter with a value.
+
+Every document category takes `topic`, what the records must be about, matched
+in their own text: a keyword, or `{ and: [...] }`, `{ or: [...] }` and
+`{ not: ... }` nested, with the limits of `keyword_query` (six levels, 100
+keywords, 100 characters each). When it is not sent, it is filled from `query`.
+
+```ts
+await client.search({
+  category: 'funding_round',
+  filters: {
+    topic: { and: ['payments', { not: 'crypto' }] },
+    investors: { include: [{ value: 'sequoia.com' }, { value: 'a16z.com' }], match_all: true },
+  },
+});
+```
+
+`investors` on a funding round matches any of its `include` investors, or with
+`match_all: true` every one of them in the same round; it needs at least one
+entry.
 List a document filter's values with `client.documentFilterValues` (below)
 rather than guessing them.
 

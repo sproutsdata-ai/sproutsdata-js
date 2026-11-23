@@ -6,6 +6,7 @@
 import { describe, it } from 'vitest';
 
 import { companyBody, documentBody, namedDocumentBody, personBody } from '../../src/requests/entities.js';
+import { peopleBody } from '../../src/requests/org-chart.js';
 import { runBody } from '../../src/requests/runs.js';
 import { searchBody, similarBody } from '../../src/requests/search.js';
 import type { SearchParams } from '../../src/types/index.js';
@@ -21,6 +22,8 @@ const SEARCHES: readonly SearchParams[] = [
   { category: 'news_article', query: 'x' },
   { category: 'market_report', filters: { keywords: { positive: { sets: [{ keywords: ['ai'] }] } } } },
   { category: 'trend', query: 'x' },
+  { category: 'trend', filters: { topic: { or: ['ai', 'ml'] }, growth: ['Strong'] } },
+  { category: 'funding_round', filters: { investors: { include: [{ value: 'a16z.com' }], match_all: true } } },
   { category: 'funding_round', query: 'x', cursor: 'c' },
   { category: 'job_opening', include_domains: ['stripe.com'], filters: { salary: { gte: 1 } } },
 ];
@@ -35,6 +38,10 @@ describe('request bodies', () => {
     assertValidRequest('entities_persons', personBody('p', { ids: ['https://linkedin.com/in/x'], by: 'li_url' }));
     for (const op of ['entities_patents', 'entities_trends', 'entities_academic_reports']) assertValidRequest(op, documentBody(op, { ids: ['d1_x'], fields: ['title'] }));
     for (const op of ['entities_news', 'entities_market_reports', 'entities_fundings', 'entities_job_openings']) assertValidRequest(op, namedDocumentBody(op, { ids: ['d1_x'], by: 'id' }));
+  });
+
+  it('a people body is valid', () => {
+    assertValidRequest('org_chart_people', peopleBody('orgChart.people', { company_ref: 'd1_x', cell: { department: 'sales' }, limit: 5, cursor: 'c' }));
   });
 
   it('similar and runs build valid bodies', () => {

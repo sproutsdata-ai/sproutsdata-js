@@ -9,7 +9,7 @@
 
 import { REQUEST_SHAPES, type RequestField, type RequestShape } from '../generated/request-shapes.js';
 import { isObject, present, refuse } from './build.js';
-import { checkKeywordTree, RULES } from './filters.js';
+import { checkKeywordTree, KEYWORD_TREES, RULES } from './filters.js';
 
 /** Refuse `body` unless the server would accept it as a `type`. */
 export function checkShape(what: string, body: unknown, type: string, path = ''): void {
@@ -25,7 +25,8 @@ export function checkShape(what: string, body: unknown, type: string, path = '')
 function checkRules(what: string, body: Readonly<Record<string, unknown>>, type: string, path: string): void {
   const reason = RULES[type]?.(body);
   if (reason !== undefined) refuse(what, path ? `${path}: ${reason}` : reason);
-  if (type === 'CompanyKeywordsFilter' && present(body['keyword_tree'])) checkKeywordTree(what, body['keyword_tree'], at(path, 'keyword_tree'));
+  const tree = KEYWORD_TREES[type];
+  if (tree !== undefined && present(body[tree])) checkKeywordTree(what, body[tree], at(path, tree));
 }
 
 function checkMember(what: string, shape: RequestShape, name: string, value: unknown, path: string): void {

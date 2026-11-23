@@ -1,0 +1,124 @@
+{
+  "body": {
+    "attribution": [
+      {
+        "as_of": "2026-11-23T19:51:37.137425Z",
+        "domain": null,
+        "quote": null,
+        "source_corpus": "gtm_index",
+        "url": null
+      }
+    ],
+    "company": {
+      "company_ref": "d1_cxClVTpId3XUN3Qkbk7Dx1jQddd-NYikABazRw",
+      "domain": "acme.com",
+      "linkedin_url": null,
+      "name": "acme.com Inc"
+    },
+    "data_version": "people-e2e",
+    "degradation": [],
+    "has_more": true,
+    "matched": null,
+    "meta": {
+      "as_of": "2026-11-23T19:51:37.137425Z",
+      "credential": "api_key",
+      "credits_balance": null,
+      "credits_charged": 1.0,
+      "environment": "live",
+      "request_id": "1be114f1d0ea4946a00c829341f7577b"
+    },
+    "next_cursor": "eyJmIjoiYzk3YWE2NjM2NzQ2Mzk4YjAxOGRhZDM3ZTkwMzhlYTQiLCJvIjo0LCJzIjoiZDQyZjIzZmQwYTYyNDAyM2E5ZWMzOWEwMzJhY2VjMTQiLCJ0IjoxNzk1NDYzNDk3LCJ1IjoiNCJ9.68372ac88f0bf4b54357cd29aff9497b",
+    "results": [
+      {
+        "account_name": "acme.com Inc",
+        "avatar": null,
+        "category": "person",
+        "city": "berlin",
+        "company_linkedin_url": null,
+        "contact_name": "person2 example",
+        "country": "germany",
+        "id": "fc2af0741961b8f1",
+        "linkedin_url": "https://www.linkedin.com/in/person2-example",
+        "location": "berlin, berlin, germany",
+        "placement": {
+          "departments": [
+            {
+              "code": "engineering",
+              "label": "Engineering"
+            }
+          ],
+          "seniority": {
+            "code": "senior",
+            "label": "Senior"
+          },
+          "subdepartments": [
+            {
+              "code": "backend",
+              "label": "Backend"
+            }
+          ]
+        },
+        "state": "berlin",
+        "title": "Senior Engineer"
+      },
+      {
+        "account_name": "acme.com Inc",
+        "avatar": null,
+        "category": "person",
+        "city": "berlin",
+        "company_linkedin_url": null,
+        "contact_name": "person3 example",
+        "country": "germany",
+        "id": "6b2ce234f73d6e64",
+        "linkedin_url": "https://www.linkedin.com/in/person3-example",
+        "location": "berlin, berlin, germany",
+        "placement": {
+          "departments": [
+            {
+              "code": "engineering",
+              "label": "Engineering"
+            }
+          ],
+          "seniority": {
+            "code": "senior",
+            "label": "Senior"
+          },
+          "subdepartments": [
+            {
+              "code": "backend",
+              "label": "Backend"
+            }
+          ]
+        },
+        "state": "berlin",
+        "title": "Senior Engineer"
+      }
+    ],
+    "suspect_count": 0,
+    "taxonomy_version": "e2e-1",
+    "total": 7
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1998",
+    "ratelimit-reset": "23",
+    "x-request-id": "1be114f1d0ea4946a00c829341f7577b"
+  },
+  "operation": "org_chart_people",
+  "request": {
+    "body": {
+      "cell": {
+        "department": "engineering",
+        "seniority": "senior"
+      },
+      "company_ref": "d1_cxClVTpId3XUN3Qkbk7Dx1jQddd-NYikABazRw",
+      "cursor": "eyJmIjoiYzk3YWE2NjM2NzQ2Mzk4YjAxOGRhZDM3ZTkwMzhlYTQiLCJvIjoyLCJzIjoiZDQyZjIzZmQwYTYyNDAyM2E5ZWMzOWEwMzJhY2VjMTQiLCJ0IjoxNzk1NDYzNDk3LCJ1IjoiMiJ9.0d892313e84b4fb9b333dccc8bdb71cf",
+      "limit": 2
+    },
+    "method": "POST",
+    "path": "/v1/org-chart/people",
+    "query": {}
+  },
+  "status": 200
+}

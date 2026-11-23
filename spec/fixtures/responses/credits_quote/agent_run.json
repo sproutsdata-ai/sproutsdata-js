@@ -1,6 +1,6 @@
 {
   "body": {
-    "available": 966.405,
+    "available": 964.405,
     "basis": "run",
     "covered": true,
     "credits": 42.5,
@@ -11,8 +11,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1998",
-    "ratelimit-reset": "21",
-    "x-request-id": "5b4c0719ba374a6a93ee5dcfb60f3aee"
+    "ratelimit-reset": "23",
+    "x-request-id": "48b59fd270854483a1afa9a4c1e52219"
   },
   "operation": "credits_quote",
   "request": {

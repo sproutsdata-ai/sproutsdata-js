@@ -8,7 +8,7 @@
 
 import type * as W from '../generated/wire.js';
 import type { AnchorParam, DocumentSearchParams, SearchParams, SimilarParams } from '../types/index.js';
-import { present, refuse } from './build.js';
+import { isObject, present, refuse } from './build.js';
 import { checkKeywordTree } from './filters.js';
 import { checkShape } from './shape.js';
 
@@ -124,7 +124,7 @@ function checkSortFits(body: W.EntitySearchRequest): void {
   if (misplaced.length > 0) refuse(WHAT, `sort: ${misplaced.join(', ')} cannot order a ${body.category} search`);
 }
 
-/** A document category's rules (be search/schemas/documents/base.py:64-85). */
+/** A document category's rules (be search/schemas/documents/base.py:35-39, 64-85). */
 function checkDocumentSearch(body: DocumentSearchParams): void {
   if (body.category === 'job_opening') checkDomains(body.include_domains, body.exclude_domains, body.filters?.company);
   if (!present(body.query) && !narrowed(body)) refuse(WHAT, 'provide `query`, or `filters` that narrow the search');
@@ -134,10 +134,19 @@ function checkDocumentSearch(body: DocumentSearchParams): void {
 /** Whether something besides words narrows a document search. */
 function narrowed(body: DocumentSearchParams): boolean {
   const ignored = NOT_NARROWING[body.category] ?? [];
-  const filters = Object.entries(body.filters ?? {}).some(([name, value]) => present(value) && !ignored.includes(name));
+  const filters = Object.entries(body.filters ?? {}).some(([name, value]) => intent(value) && !ignored.includes(name));
   // be documents/job_openings.py:108: a domain list narrows a job search on its own.
   const domains = body.category === 'job_opening' && [...(body.include_domains ?? []), ...(body.exclude_domains ?? [])].length > 0;
   return filters || domains;
+}
+
+/**
+ * Whether a filter's value is search intent (be documents/base.py `DocumentFilters.narrows`): an
+ * empty list or object is none, as prism's `require_intent` reads it.
+ */
+function intent(value: unknown): boolean {
+  if (Array.isArray(value)) return value.length > 0;
+  return isObject(value) ? Object.values(value).some((entry) => entry !== undefined) : present(value);
 }
 
 function checkDuplicates(fields: readonly string[]): void {

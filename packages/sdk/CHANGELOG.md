@@ -59,6 +59,10 @@ every changed call with its replacement.
   retried whatever their status: a third agent run on a key that has two going
   (`ConcurrencyLimitError`, which used to sleep its 30-second Retry-After twice before
   failing) and a refused credit hold (`CreditsRefusedError`).
+- **Document filters** are checked as the server checks them: a `topic` tree has
+  `keyword_query`'s limits on every document category, `investors` on a funding round
+  (a `MatchAllEntityFilter`) needs an entry, and filters of empty lists or objects
+  alone narrow nothing, so a document search then needs a `query`.
 - **`credits.quote()`** takes `operation: 'enrichment'` (rows x fields, up to 30,000);
   a `lookup` quote over 1,000 records is refused locally.
 
@@ -76,6 +80,10 @@ every changed call with its replacement.
   holds nothing). `meta.credits_balance` is the balance after each billed call.
 - `APIError.nextStep`: the server's one sentence on what to do now, after
   `detail` in the message; tool errors carry it after the detail too.
+- `orgChart.people()` and `iterPeople()`: the people one cell of a company's chart
+  counts, a page at a time, named by the chart's `company_ref` (every chart answer
+  carries one, and a company search row's `id` is one). Billed per page that lists
+  anyone.
 - `ResultsExpiredError` (410, a `NotFoundError`: a run's or an enrichment job's rows are no
   longer kept), `ConcurrencyLimitError` (a `RateLimitError`) and `CreditsRefusedError` (a
   `ServiceUnavailableError`).

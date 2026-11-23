@@ -1,13 +1,16 @@
-/** The org chart (O1-O7): one company, nested filters, retired fields, the ambiguous company. */
+/**
+ * The org chart (O1-O8): one company, nested filters, retired fields, the ambiguous company, and
+ * the people one cell counts.
+ */
 
 import { describe, expect, it } from 'vitest';
 
-import { OrgChartCompanyAmbiguousError } from '../../src/core/errors.js';
+import { ClientValidationError, CursorInvalidError, OrgChartCompanyAmbiguousError } from '../../src/core/errors.js';
 import { RETIRED } from '../../src/requests/org-chart.js';
 import { OrgChart } from '../../src/resources/org-chart.js';
-import type { OrgChartFilters, OrgChartRequest } from '../../src/types/index.js';
-import { assertValidRequest, recorded } from '../support/answers.js';
-import { rig } from '../support/rig.js';
+import type { OrgChartFilters, OrgChartPeopleCell, OrgChartPeopleResponse, OrgChartRequest } from '../../src/types/index.js';
+import { assertValidRequest, recorded, recordedBody, respond } from '../support/answers.js';
+import { collect, rig } from '../support/rig.js';
 
 const FILTERS: OrgChartFilters = {
   query: { text: 'platform', field: 'title' },
@@ -19,6 +22,9 @@ const FILTERS: OrgChartFilters = {
   departments: ['engineering'],
   seniorities: ['senior'],
 };
+
+const CELL: OrgChartPeopleCell = { department: 'engineering', seniority: 'senior' };
+const REF = recordedBody<{ company: { company_ref: string } }>('org_chart', 'grid').company.company_ref;
 
 describe('org chart', () => {
   it.each([
@@ -89,5 +95,55 @@ describe('org chart', () => {
     expect([candidate?.company_ref, candidate?.name, candidate?.linkedin_url].every((value) => typeof value === 'string')).toBe(true);
     await chart.retrieve({ company_ref: candidate?.company_ref ?? '' });
     expect(r.body(1)).toEqual({ company_ref: candidate?.company_ref });
+  });
+
+  it("O8: a cell is listed by the chart's company_ref", async () => {
+    const r = rig([recorded('org_chart_people', 'first_page')]);
+    const page = await new OrgChart(r.transport).people({ company_ref: REF, cell: CELL, limit: 2 });
+    expect(r.body()).toEqual({ company_ref: REF, cell: CELL, limit: 2 });
+    assertValidRequest('org_chart_people', r.body());
+    expect([page.total, page.has_more, page.results.length]).toEqual([7, true, 2]);
+    expect(page.results[0]?.placement.seniority.code).toBe('senior');
+    expect(page.company.company_ref).toBe(REF);
+  });
+
+  it.each([
+    [{}, 'a cell names a `department`, a `seniority` or both'],
+    [{ subdepartment: 'backend', seniority: 'senior' }, '`subdepartment` needs its `department`'],
+    [{ department: 'engineering', team: 'x' }, 'cell.team: not a field this request takes'],
+  ])('O8: a cell is checked as the server checks it (%#)', async (cell, reason) => {
+    const r = rig([]);
+    await expect(new OrgChart(r.transport).people({ company_ref: REF, cell })).rejects.toThrow(reason);
+    expect(r.sent).toHaveLength(0);
+  });
+
+  it('O8: a page holds 1 to 100 people, of exactly one company', async () => {
+    const r = rig([]);
+    const chart = new OrgChart(r.transport);
+    for (const limit of [0, 101]) await expect(chart.people({ company_ref: REF, cell: CELL, limit })).rejects.toThrow(ClientValidationError);
+    await expect(chart.people({ domain: 'a.de', company_ref: REF, cell: CELL })).rejects.toThrow('provide one of');
+    expect(r.sent).toHaveLength(0);
+  });
+
+  it('O8: iterPeople resends the body with only the cursor changed', async () => {
+    const first = recordedBody<OrgChartPeopleResponse>('org_chart_people', 'first_page');
+    const last = { ...recordedBody<OrgChartPeopleResponse>('org_chart_people', 'next_page'), has_more: false, next_cursor: null };
+    const r = rig([recorded('org_chart_people', 'first_page'), respond('org_chart_people', 200, last)]);
+    const people = await collect(new OrgChart(r.transport).iterPeople({ company_ref: REF, cell: CELL, limit: 2 }));
+    expect(people).toHaveLength(4);
+    const { cursor, ...second } = r.body(1) as { cursor: string };
+    expect(cursor).toBe(first.next_cursor);
+    expect(second).toEqual(r.body(0));
+  });
+
+  it('O8: a cursor sent for another cell is refused', async () => {
+    const r = rig([recorded('org_chart_people', 'cursor_invalid')]);
+    await expect(new OrgChart(r.transport).people({ company_ref: REF, cell: { department: 'sales' }, cursor: 'c' })).rejects.toThrow(CursorInvalidError);
+  });
+
+  it('O8: every chart answer names its company by ref', () => {
+    for (const [operation, which] of [['org_chart', 'grid'], ['org_chart_departments', 'departments'], ['org_chart_locations', 'locations']] as const) {
+      expect(recordedBody<{ company: { company_ref: string } }>(operation, which).company.company_ref).toBeTruthy();
+    }
   });
 });

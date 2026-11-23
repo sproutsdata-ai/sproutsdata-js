@@ -3,6 +3,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { ClientValidationError, CursorExpiredError, PaginationDepthExceededError } from '../../src/core/errors.js';
+import { searchBody } from '../../src/requests/search.js';
 import { lookupRef } from '../../src/resources/helpers.js';
 import { Search } from '../../src/resources/search.js';
 import type { SearchEnvelope, SearchParams } from '../../src/types/index.js';
@@ -77,6 +78,14 @@ describe('search', () => {
     await refused({ category: 'patent', filters: { industry: { include: ['x'] } } }, 'filters.industry: not a field');
     await refused({ category: 'patent', filters: { status: 'granted' } }, 'or `filters` that narrow the search');
     await refused({ category: 'patent', query: 'x', filters: {} }, 'must contain at least one filter');
+    await refused({ category: 'trend', filters: { growth: [] } }, 'or `filters` that narrow the search');
+  });
+
+  it('S6: an empty filter beside a value or a query is sent', () => {
+    const narrowed = { category: 'trend', filters: { growth: [], topic: 'ai' } } as const;
+    const worded = { category: 'trend', query: 'x', filters: { growth: [] } } as const;
+    expect(searchBody(narrowed)).toEqual(narrowed);
+    expect(searchBody(worded)).toEqual(worded);
   });
 
   it('S6: job openings take domains, which narrow on their own', async () => {

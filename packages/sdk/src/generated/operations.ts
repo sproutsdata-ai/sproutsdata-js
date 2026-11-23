@@ -67,6 +67,7 @@ export interface Operations {
   readonly orgChart: { readonly method: 'POST'; readonly path: '/v1/org-chart'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none' };
   readonly orgChartDepartments: { readonly method: 'POST'; readonly path: '/v1/org-chart/departments'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none' };
   readonly orgChartLocations: { readonly method: 'POST'; readonly path: '/v1/org-chart/locations'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none' };
+  readonly orgChartPeople: { readonly method: 'POST'; readonly path: '/v1/org-chart/people'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'body' } };
   readonly orgChartTaxonomy: { readonly method: 'GET'; readonly path: '/v1/org-chart/taxonomy'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
   readonly relationships: { readonly method: 'POST'; readonly path: '/v1/relationships'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'body' } };
   readonly relationshipsAsk: { readonly method: 'POST'; readonly path: '/v1/relationships/ask'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none' };
@@ -122,6 +123,7 @@ export const OPERATIONS: Operations = {
   orgChart: { method: 'POST', path: '/v1/org-chart', routeClass: 'billed', response: 'json', idempotency: 'none' },
   orgChartDepartments: { method: 'POST', path: '/v1/org-chart/departments', routeClass: 'billed', response: 'json', idempotency: 'none' },
   orgChartLocations: { method: 'POST', path: '/v1/org-chart/locations', routeClass: 'billed', response: 'json', idempotency: 'none' },
+  orgChartPeople: { method: 'POST', path: '/v1/org-chart/people', routeClass: 'billed', response: 'json', idempotency: 'none', paging: { style: 'cursor', items: 'results', cursorIn: 'body' } },
   orgChartTaxonomy: { method: 'GET', path: '/v1/org-chart/taxonomy', routeClass: 'safe', response: 'json', idempotency: 'none' },
   relationships: { method: 'POST', path: '/v1/relationships', routeClass: 'billed', response: 'json', idempotency: 'none', paging: { style: 'cursor', items: 'results', cursorIn: 'body' } },
   relationshipsAsk: { method: 'POST', path: '/v1/relationships/ask', routeClass: 'billed', response: 'json', idempotency: 'none' },
@@ -358,6 +360,12 @@ export interface OperationMap {
     query: Readonly<Record<string, never>>;
     body: W.LocationsRequest;
     responses: { 200: W.LocationsResponse };
+  };
+  orgChartPeople: {
+    path: Readonly<Record<string, never>>;
+    query: Readonly<Record<string, never>>;
+    body: W.OrgChartPeopleRequest;
+    responses: { 200: W.OrgChartPeopleResponse };
   };
   orgChartTaxonomy: {
     path: Readonly<Record<string, never>>;

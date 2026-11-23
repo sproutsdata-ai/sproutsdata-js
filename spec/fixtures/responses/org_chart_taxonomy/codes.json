@@ -41,8 +41,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "22",
-    "x-request-id": "38c09b7d47494187b9704ed52940cd52"
+    "ratelimit-reset": "23",
+    "x-request-id": "0183fe691bd8470097507e1e8bfd49a4"
   },
   "operation": "org_chart_taxonomy",
   "request": {

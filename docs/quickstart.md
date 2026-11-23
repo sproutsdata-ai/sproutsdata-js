@@ -141,7 +141,9 @@ The filter vocabulary and how to list the values a filter accepts are in
 ### Keyword search
 
 `keyword_query` searches company text, sent instead of `query`: a keyword, or
-`{ and: [...] }`, `{ or: [...] }` and `{ not: ... }` nested. Companies only.
+`{ and: [...] }`, `{ or: [...] }` and `{ not: ... }` nested. Companies only; the
+document categories take the same tree as their `topic` filter
+([Filters](filters.md#document-categories)).
 
 ```ts
 const page = await client.search({

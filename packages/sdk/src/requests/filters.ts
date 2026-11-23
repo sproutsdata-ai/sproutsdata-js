@@ -85,6 +85,7 @@ export const RULES: Readonly<Record<string, Rule>> = {
   TermsFilter: either(['include', 'exclude', 'include_groups'], VALUES), // be filter_values.py:53
   TextFilter: either(['include', 'exclude'], VALUES), // be filter_values.py:168
   EntityFilter: either(['include', 'exclude'], 'requires at least one entry in include or exclude'), // be filter_values.py:147
+  MatchAllEntityFilter: either(['include', 'exclude'], 'requires at least one entry in include or exclude'), // be filter_values.py:154, an EntityFilter
   RangeFilter: range,
   DateBound: dateBound,
   DepartmentHeadcountBound: headcount,
@@ -98,6 +99,12 @@ export const RULES: Readonly<Record<string, Rule>> = {
   SingleSetKeywordQuery: singleSet,
   DiscoverFilters: anyField,
   ...Object.fromEntries(DOCUMENT_FILTERS.map((name) => [name, anyField])),
+};
+
+/** The field of a request type that holds a keyword tree, by the type's name. */
+export const KEYWORD_TREES: Readonly<Record<string, string>> = {
+  CompanyKeywordsFilter: 'keyword_tree',
+  ...Object.fromEntries(DOCUMENT_FILTERS.map((name) => [name, 'topic'])), // be search/schemas/keyword_query.py:70
 };
 
 /**

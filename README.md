@@ -62,7 +62,7 @@ else its LinkedIn page; a person by their LinkedIn URL; a document by its
 | `filterValues`, `documentFilterValues`, `sorts`, `coverage` | The filter vocabularies, the sort catalogue and what the index holds; free. [Sorting](docs/sorting.md) |
 | `entities.*` | Full records, one method per category; values that matched nothing are reported, not dropped |
 | `relationships.*` | Who is connected to whom, and why. [Relationships](docs/relationships.md) |
-| `orgChart.*` | A company's people counted by department, seniority and place. [Org charts](docs/org-chart.md) |
+| `orgChart.*` | A company's people counted by department, seniority and place, and the people one count holds. [Org charts](docs/org-chart.md) |
 | `runs.*` | Agents: start an agent run, follow it, read it. [Agent runs](docs/runs.md) |
 | `lists.*`, `searchExport`, `exports.*` | Saved lists, and CSV export as a file or a job. [Saved lists](docs/lists.md) |
 | `credits.*`, `history.*` | The balance, the ledger, the call history and daily totals; free. [Credits and usage](docs/usage.md) |

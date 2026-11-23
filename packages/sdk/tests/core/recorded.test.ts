@@ -12,7 +12,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import { readAnswer } from '../../src/core/answer.js';
-import { type APIError, ListNameTakenError, OrgChartCompanyAmbiguousError } from '../../src/core/errors.js';
+import { type APIError, CursorInvalidError, ListNameTakenError, OrgChartCompanyAmbiguousError } from '../../src/core/errors.js';
 import { errorFromAnswer, decodeErrorBody } from '../../src/core/problem.js';
 import { SSEDecoder } from '../../src/core/sse.js';
 import { OPERATIONS, type OperationName } from '../../src/generated/operations.js';
@@ -22,6 +22,7 @@ const NOW = Date.UTC(2026, 10, 11, 12);
 const ERROR_CLASSES: Readonly<Record<string, abstract new (...args: never[]) => APIError>> = {
   'lists_create/name_taken': ListNameTakenError,
   'org_chart/ambiguous': OrgChartCompanyAmbiguousError,
+  'org_chart_people/cursor_invalid': CursorInvalidError,
 };
 
 interface Fixture {

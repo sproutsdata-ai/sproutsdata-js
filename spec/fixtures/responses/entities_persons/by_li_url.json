@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-23T19:37:38.222820Z",
+        "as_of": "2026-11-23T19:51:36.689781Z",
         "domain": null,
         "quote": null,
         "source_corpus": "gtm_index",
@@ -14,12 +14,12 @@
     "degradation": [],
     "has_more": false,
     "meta": {
-      "as_of": "2026-11-23T19:37:38.222820Z",
+      "as_of": "2026-11-23T19:51:36.689781Z",
       "credential": "api_key",
       "credits_balance": 992.905,
       "credits_charged": 1.0,
       "environment": "live",
-      "request_id": "23bdeae4b03a4510b4b963e093720925"
+      "request_id": "bbebb2594f2144ed8fc3021477771213"
     },
     "next_cursor": null,
     "resolved_search": null,
@@ -83,8 +83,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "22",
-    "x-request-id": "23bdeae4b03a4510b4b963e093720925"
+    "ratelimit-reset": "24",
+    "x-request-id": "bbebb2594f2144ed8fc3021477771213"
   },
   "operation": "entities_persons",
   "request": {

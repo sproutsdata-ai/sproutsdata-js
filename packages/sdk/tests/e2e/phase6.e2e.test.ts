@@ -52,6 +52,22 @@ describe.skipIf(STACK === undefined)('phase 6, live', () => {
     expect(taxonomy.departments.length).toBeGreaterThan(0);
   });
 
+  it("a cell's people are listed page by page by the chart's company_ref", async () => {
+    const sdk = client();
+    const grid = await sdk.orgChart.retrieve({ domain: 'example-1.de' });
+    const ref = grid.company.company_ref;
+    const cell = { department: 'engineering', seniority: 'senior' };
+    const counted = grid.cells.find((c) => c.department.code === 'engineering')?.count;
+    const people = await collect(sdk.orgChart.iterPeople({ company_ref: ref, cell, limit: 2 }));
+    const first = await sdk.orgChart.people({ company_ref: ref, cell, limit: 2 });
+    const moved = { company_ref: ref, cell: { department: 'sales' }, cursor: first.next_cursor };
+    expect(ref).toBeTruthy();
+    expect(people).toHaveLength(first.total);
+    expect(first.total).toBe(counted);
+    expect(people.every((p) => p.placement.seniority.code === 'senior')).toBe(true);
+    expect((await raw('POST', '/v1/org-chart/people', moved)).status).toBe(422);
+  });
+
   it('a retired org chart field is refused locally and by the server', async () => {
     await expect(client().orgChart.retrieve({ domain: 'example-1.de', country: 'germany' } as OrgChartRequest)).rejects.toBeInstanceOf(ClientValidationError);
     expect((await raw('POST', '/v1/org-chart', { domain: 'example-1.de', country: 'germany' })).status).toBe(422);

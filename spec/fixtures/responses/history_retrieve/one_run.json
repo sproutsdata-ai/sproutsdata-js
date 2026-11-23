@@ -5,9 +5,9 @@
     "credits_charged": null,
     "environment": "live",
     "error_code": "org_chart.company_ambiguous",
-    "id": "26",
-    "latency_ms": 2,
-    "occurred_at": "2026-11-23T19:37:38.701025Z",
+    "id": "29",
+    "latency_ms": 3,
+    "occurred_at": "2026-11-23T19:51:37.150675Z",
     "query": null,
     "request": {
       "domain": "twin.example"
@@ -22,14 +22,14 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "21",
-    "x-request-id": "d754fab372334a0596cd66b19d746672"
+    "ratelimit-reset": "23",
+    "x-request-id": "8e82ce29ca85482bb25dcea209de016d"
   },
   "operation": "history_retrieve",
   "request": {
     "body": null,
     "method": "GET",
-    "path": "/v1/usage/history/26",
+    "path": "/v1/usage/history/29",
     "query": {}
   },
   "status": 200

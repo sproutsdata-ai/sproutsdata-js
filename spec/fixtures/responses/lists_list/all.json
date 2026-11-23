@@ -3,13 +3,13 @@
     "field_tier": "free",
     "lists": [
       {
-        "created_at": "2026-11-23T19:37:38.704390Z",
+        "created_at": "2026-11-23T19:51:37.154829Z",
         "created_by": "user:1",
         "entity_category": "company",
-        "id": "2dfcd562-a8d8-49c2-bfea-0e60c79c80a3",
+        "id": "4794ea84-82f0-4854-90e6-25c8f59a5995",
         "item_count": 0,
-        "name": "E2E prospects 263e0292",
-        "updated_at": "2026-11-23T19:37:38.704390Z"
+        "name": "E2E prospects 903f23c0",
+        "updated_at": "2026-11-23T19:51:37.154829Z"
       }
     ],
     "saved_items": 0,
@@ -19,8 +19,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "22",
-    "x-request-id": "e80d0a1516da4ae687b22fb72bd7dfa8"
+    "ratelimit-reset": "23",
+    "x-request-id": "b249f66171b740479ffcd10e20078283"
   },
   "operation": "lists_list",
   "request": {

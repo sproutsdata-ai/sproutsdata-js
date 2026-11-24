@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-24T06:39:11.730901Z",
+        "as_of": "2026-11-24T09:06:08.017732Z",
         "domain": null,
         "quote": null,
         "source_corpus": "gtm_index",
@@ -20,14 +20,14 @@
     "has_more": true,
     "matched": null,
     "meta": {
-      "as_of": "2026-11-24T06:39:11.730901Z",
+      "as_of": "2026-11-24T09:06:08.017732Z",
       "credential": "api_key",
       "credits_balance": null,
       "credits_charged": 1.0,
       "environment": "live",
-      "request_id": "7d84fff904a54ab682f10f635be900b1"
+      "request_id": "0f3d34066d694578bc4510cf5885bda2"
     },
-    "next_cursor": "eyJmIjoiYzk3YWE2NjM2NzQ2Mzk4YjAxOGRhZDM3ZTkwMzhlYTQiLCJvIjo0LCJzIjoiNTdjMTIzMmMwOGRmNGI3YWEzYjZkOTJiMzUwODEyNTAiLCJ0IjoxNzk1NTAyMzUxLCJ1IjoiNCJ9.0b223eb3e12214f95e9409ae7c08c114",
+    "next_cursor": "eyJmIjoiYzk3YWE2NjM2NzQ2Mzk4YjAxOGRhZDM3ZTkwMzhlYTQiLCJvIjo0LCJzIjoiZGJlNzI2M2FkNjYyNDRiOGJjZTA4NWE0YmZiMjNkMDMiLCJ0IjoxNzk1NTExMTY4LCJ1IjoiNCJ9.e1e1cd0710cf5d769e1f0afe2d88cfd8",
     "results": [
       {
         "account_name": "acme.com Inc",
@@ -102,8 +102,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1998",
-    "ratelimit-reset": "49",
-    "x-request-id": "7d84fff904a54ab682f10f635be900b1"
+    "ratelimit-reset": "52",
+    "x-request-id": "0f3d34066d694578bc4510cf5885bda2"
   },
   "operation": "org_chart_people",
   "request": {
@@ -113,7 +113,7 @@
         "seniority": "senior"
       },
       "company_ref": "d1_cxClVTpId3XUN3Qkbk7Dx1jQddd-NYikABazRw",
-      "cursor": "eyJmIjoiYzk3YWE2NjM2NzQ2Mzk4YjAxOGRhZDM3ZTkwMzhlYTQiLCJvIjoyLCJzIjoiNTdjMTIzMmMwOGRmNGI3YWEzYjZkOTJiMzUwODEyNTAiLCJ0IjoxNzk1NTAyMzUxLCJ1IjoiMiJ9.7a93de98919f6c342aacc69c89225f5a",
+      "cursor": "eyJmIjoiYzk3YWE2NjM2NzQ2Mzk4YjAxOGRhZDM3ZTkwMzhlYTQiLCJvIjoyLCJzIjoiZGJlNzI2M2FkNjYyNDRiOGJjZTA4NWE0YmZiMjNkMDMiLCJ0IjoxNzk1NTExMTY4LCJ1IjoiMiJ9.67509b0eb10b671daef5999c84bf2350",
       "limit": 2
     },
     "method": "POST",

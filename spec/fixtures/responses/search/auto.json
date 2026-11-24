@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-24T06:39:10.782252Z",
+        "as_of": "2026-11-24T09:06:07.496544Z",
         "domain": null,
         "quote": null,
         "source_corpus": "gtm_index",
@@ -13,14 +13,14 @@
     "degradation": [],
     "has_more": true,
     "meta": {
-      "as_of": "2026-11-24T06:39:10.782252Z",
+      "as_of": "2026-11-24T09:06:07.496544Z",
       "credential": "api_key",
       "credits_balance": 997.905,
       "credits_charged": 0.595,
       "environment": "live",
-      "request_id": "845248f2d5d8433c8e948044e700e8cb"
+      "request_id": "42001368a8d64a12b403002dda27e241"
     },
-    "next_cursor": "eyJmIjoiODQ4YzFlMjZiMDVkNThhNGIxMzY2NzFiMmMzZmE2NzMiLCJvIjoyLCJzIjoiOTM5NmQ4ZmEwNzllNGM4Yzk5YjljNjAwMGU0NTE4ZTciLCJ0IjoxNzk1NTAyMzUwLCJ1IjoicHJpc218Y29tcGFueXwxIn0.891513e9c27bf96527eabd7807f3edf0",
+    "next_cursor": "eyJmIjoiODQ4YzFlMjZiMDVkNThhNGIxMzY2NzFiMmMzZmE2NzMiLCJvIjoyLCJzIjoiYjIxMzZmODUzNzMzNDAxZThhN2RkZWUxZjg2MjU2NmQiLCJ0IjoxNzk1NTExMTY3LCJ1IjoicHJpc218Y29tcGFueXwxIn0.6340428537e987afddae5c20713144d1",
     "resolved_search": {
       "anchor_matches": [],
       "category": "company",
@@ -200,8 +200,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1996",
-    "ratelimit-reset": "50",
-    "x-request-id": "845248f2d5d8433c8e948044e700e8cb"
+    "ratelimit-reset": "53",
+    "x-request-id": "42001368a8d64a12b403002dda27e241"
   },
   "operation": "search",
   "request": {

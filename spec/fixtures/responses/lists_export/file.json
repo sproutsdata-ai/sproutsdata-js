@@ -4,8 +4,8 @@
     "content-type": "text/csv; charset=utf-8",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "47",
-    "x-request-id": "22ac583b6b314aafac67e3d0b32ca134"
+    "ratelimit-reset": "52",
+    "x-request-id": "5c2e9177bd3145cc9a449b620d3fc35f"
   },
   "operation": "lists_export",
   "request": {
@@ -13,7 +13,7 @@
       "limit": 5
     },
     "method": "POST",
-    "path": "/v1/lists/87455abe-3913-4cdd-96e3-8f7152eaa6c9/export",
+    "path": "/v1/lists/7ac1c766-f61f-494d-a4c9-2b959bd26ee4/export",
     "query": {}
   },
   "status": 200

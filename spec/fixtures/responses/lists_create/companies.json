@@ -1,25 +1,25 @@
 {
   "body": {
-    "created_at": "2026-11-24T06:39:12.702567Z",
+    "created_at": "2026-11-24T09:06:08.763695Z",
     "created_by": "user:1",
     "entity_category": "company",
-    "id": "87455abe-3913-4cdd-96e3-8f7152eaa6c9",
+    "id": "7ac1c766-f61f-494d-a4c9-2b959bd26ee4",
     "item_count": 0,
-    "name": "E2E prospects 6eee8ea1",
-    "updated_at": "2026-11-24T06:39:12.702567Z"
+    "name": "E2E prospects 433c0afd",
+    "updated_at": "2026-11-24T09:06:08.763695Z"
   },
   "headers": {
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "48",
-    "x-request-id": "d82630f8c9b049848e9c35bab68631e2"
+    "ratelimit-reset": "52",
+    "x-request-id": "369be742eddb4e8b977192a42faf6975"
   },
   "operation": "lists_create",
   "request": {
     "body": {
       "entity_category": "company",
-      "name": "E2E prospects 6eee8ea1"
+      "name": "E2E prospects 433c0afd"
     },
     "method": "POST",
     "path": "/v1/lists",

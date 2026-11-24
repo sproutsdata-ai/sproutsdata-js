@@ -2,14 +2,14 @@
   "body": {
     "complete": true,
     "credits_used": 10.0,
-    "job_id": "e4737e79-2583-45a8-ab4e-19135343a904",
+    "job_id": "025a70b9-d852-4b7f-9acf-f043dc4bd865",
     "meta": {
-      "as_of": "2026-11-24T06:39:12.672053Z",
+      "as_of": "2026-11-24T09:06:08.739224Z",
       "credential": "api_key",
       "credits_balance": 964.405,
       "credits_charged": 10.0,
       "environment": "live",
-      "request_id": "768637605eab437e977390e04116fa0a"
+      "request_id": "2215df887ef344b7a40f1da1ec828608"
     },
     "reason": null,
     "results": [
@@ -36,7 +36,8 @@
           "external_id": "row-1",
           "full_name": "Ada Example"
         },
-        "outcome": "found"
+        "outcome": "found",
+        "values_found": 2
       },
       {
         "credits": 0.0,
@@ -61,18 +62,20 @@
           "external_id": "row-2",
           "full_name": "MISSING Person"
         },
-        "outcome": "not_found"
+        "outcome": "not_found",
+        "values_found": 0
       }
     ],
     "status": "completed",
-    "suppressed_rows": []
+    "suppressed_rows": [],
+    "values_found": 2
   },
   "headers": {
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "48",
-    "x-request-id": "768637605eab437e977390e04116fa0a"
+    "ratelimit-reset": "52",
+    "x-request-id": "2215df887ef344b7a40f1da1ec828608"
   },
   "operation": "enrichment_lookup",
   "request": {

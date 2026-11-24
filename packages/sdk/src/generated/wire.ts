@@ -1098,6 +1098,13 @@ export interface EnrichmentJob {
    */
   readonly suppressed_rows: readonly number[];
   readonly total_rows: number;
+  /**
+   * How many values were newly found and charged for, one each whatever the
+   * field (a phone number and an email are 2), once the job has ended; rows on
+   * the Do-Not-Contact list are left out. Null while it runs. `credits_used`
+   * prices the same values, each at its field's price.
+   */
+  readonly values_found: number | null;
 }
 
 export interface EnrichmentJobCounts {
@@ -1216,6 +1223,13 @@ export interface EnrichmentJobSummary {
    */
   readonly suppressed_rows: readonly number[];
   readonly total_rows: number;
+  /**
+   * How many values were newly found and charged for, one each whatever the
+   * field (a phone number and an email are 2), once the job has ended; rows on
+   * the Do-Not-Contact list are left out. Null while it runs. `credits_used`
+   * prices the same values, each at its field's price.
+   */
+  readonly values_found: number | null;
 }
 
 /**
@@ -1259,6 +1273,12 @@ export interface EnrichmentLookupResult {
    * never looked up, never charged.
    */
   readonly suppressed_rows: readonly number[];
+  /**
+   * Values newly found and charged for, one each whatever the field; rows on
+   * the Do-Not-Contact list are left out. For a lookup cut by its deadline:
+   * those found in the call.
+   */
+  readonly values_found: number;
 }
 
 export interface EnrichmentRow {
@@ -1286,6 +1306,11 @@ export interface EnrichmentRow {
    * since).
    */
   readonly outcome: string;
+  /**
+   * Values newly found for this row (what `credits` prices): 0 for a miss, a
+   * value already known, or a row on the Do-Not-Contact list.
+   */
+  readonly values_found: number;
 }
 
 /**

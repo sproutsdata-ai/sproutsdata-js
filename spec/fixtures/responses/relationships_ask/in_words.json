@@ -5,12 +5,12 @@
     "fan_out": null,
     "institutions": null,
     "meta": {
-      "as_of": "2026-11-24T06:39:11.683046Z",
+      "as_of": "2026-11-24T09:06:07.975158Z",
       "credential": "api_key",
       "credits_balance": 969.405,
       "credits_charged": 2.0,
       "environment": "live",
-      "request_id": "089efd38517941bbab9ac64455d8ef41"
+      "request_id": "55039e555b5b441985b8221430eac24c"
     },
     "reach": null,
     "reading": {
@@ -21,7 +21,7 @@
     "relationships": {
       "attribution": [
         {
-          "as_of": "2026-11-24T06:39:11.683046Z",
+          "as_of": "2026-11-24T09:06:07.975158Z",
           "domain": null,
           "quote": null,
           "source_corpus": "affiliations",
@@ -117,14 +117,14 @@
         }
       ],
       "meta": {
-        "as_of": "2026-11-24T06:39:11.683046Z",
+        "as_of": "2026-11-24T09:06:07.975158Z",
         "credential": "api_key",
         "credits_balance": 969.405,
         "credits_charged": 2.0,
         "environment": "live",
-        "request_id": "089efd38517941bbab9ac64455d8ef41"
+        "request_id": "55039e555b5b441985b8221430eac24c"
       },
-      "next_cursor": "eyJmIjoiMTZlNzlkNmQzMWQ4Y2FlYWMzOThmYjA2Y2UyYzBiNzUiLCJvIjoxMCwicyI6IjlhYzg3ODQyY2Q1YzQzMzZiYThlNjRlYjZiYTZlN2M3IiwidCI6MTc5NTUwMjM1MSwidSI6IntcInJvdXRlXCI6XCJyZWxhdGlvbnNoaXBzXCIsXCJwbGFuXCI6e1wiY29tcGFuaWVzXCI6W3tcInZhbHVlXCI6XCJzdHJpcGUuY29tXCIsXCJieVwiOlwiZG9tYWluXCJ9LHtcInZhbHVlXCI6XCJhZHllbi5jb21cIixcImJ5XCI6XCJkb21haW5cIn1dLFwicGFnZVwiOjIsXCJwYWdlX3NpemVcIjoxMCxcIm91dHB1dFwiOntcInRvcF9pbnN0aXR1dGlvbnNcIjoxMDAwfX0sXCJwYWdlXCI6MixcInBhZ2Vfc2l6ZVwiOjEwfSJ9.99beec30fceea7e3c80d2f560066bc78",
+      "next_cursor": "eyJmIjoiMTZlNzlkNmQzMWQ4Y2FlYWMzOThmYjA2Y2UyYzBiNzUiLCJvIjoxMCwicyI6IjRmNGIyZTA3ZDFlMjQxNGI5ZTYwNTIxYjNhMzNlZWY1IiwidCI6MTc5NTUxMTE2NywidSI6IntcInJvdXRlXCI6XCJyZWxhdGlvbnNoaXBzXCIsXCJwbGFuXCI6e1wiY29tcGFuaWVzXCI6W3tcInZhbHVlXCI6XCJzdHJpcGUuY29tXCIsXCJieVwiOlwiZG9tYWluXCJ9LHtcInZhbHVlXCI6XCJhZHllbi5jb21cIixcImJ5XCI6XCJkb21haW5cIn1dLFwicGFnZVwiOjIsXCJwYWdlX3NpemVcIjoxMCxcIm91dHB1dFwiOntcInRvcF9pbnN0aXR1dGlvbnNcIjoxMDAwfX0sXCJwYWdlXCI6MixcInBhZ2Vfc2l6ZVwiOjEwfSJ9.2f31bf01a0ba84c81e85d9dd8634522f",
       "resolved_search": {
         "anchor_matches": [],
         "category": "person",
@@ -591,8 +591,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "49",
-    "x-request-id": "089efd38517941bbab9ac64455d8ef41"
+    "ratelimit-reset": "53",
+    "x-request-id": "55039e555b5b441985b8221430eac24c"
   },
   "operation": "relationships_ask",
   "request": {

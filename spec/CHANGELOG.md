@@ -25,6 +25,18 @@ every file here against the others and the error table against the backend.
 
 ---
 
+## 2026-11-24 — re-pinned to dsp-backend `364ec98`
+
+From `fix/enrichment-status-width-values-found` (on top of `c580236`), which merges to sd-qa
+before these SDKs do: until it has, sd-qa's enrichment answers lack `values_found`.
+
+- **openapi.json**: `values_found` on `EnrichmentJob` and `EnrichmentJobSummary` (null until
+  the job ends, and for jobs that ended before the change), and required on `EnrichmentRow`
+  and `EnrichmentLookupResult`: the values newly found, one each whatever the field, that
+  `credits_used` and a row's `credits` price. A job with a miss reads `completed` instead of
+  answering 500 (migration 0017 widens `enrichment_jobs.status`).
+- **fixtures**: re-recorded; the recorded job now holds a miss and ends `completed`.
+
 ## 2026-11-24 — re-pinned to dsp-backend sd-qa `c580236`
 
 - **openapi.json** (from `d0ef156`):

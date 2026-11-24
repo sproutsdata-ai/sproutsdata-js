@@ -1,6 +1,6 @@
 {
   "body": {
-    "next_cursor": "MjAyNi0xMS0yNFQwNjozOToxMC45NDQxMDMrMDA6MDB8MTA",
+    "next_cursor": "MjAyNi0xMS0yNFQwOTowNjowNy42Mjc0MjIrMDA6MDB8MTA",
     "results": [
       {
         "action_type": "dsp.enrichment",
@@ -10,7 +10,7 @@
         "error_code": null,
         "id": "34",
         "latency_ms": 15,
-        "occurred_at": "2026-11-24T06:39:12.689422Z",
+        "occurred_at": "2026-11-24T09:06:08.755396Z",
         "query": null,
         "result_count": 1,
         "status": "pending"
@@ -22,8 +22,8 @@
         "environment": "live",
         "error_code": null,
         "id": "33",
-        "latency_ms": 29,
-        "occurred_at": "2026-11-24T06:39:12.672329Z",
+        "latency_ms": 33,
+        "occurred_at": "2026-11-24T09:06:08.739397Z",
         "query": null,
         "result_count": 2,
         "status": "ok"
@@ -35,8 +35,8 @@
         "environment": "live",
         "error_code": null,
         "id": "32",
-        "latency_ms": 14,
-        "occurred_at": "2026-11-24T06:39:12.620568Z",
+        "latency_ms": 18,
+        "occurred_at": "2026-11-24T09:06:08.685913Z",
         "query": null,
         "result_count": null,
         "status": "ok"
@@ -48,8 +48,8 @@
         "environment": "live",
         "error_code": "enrichment.idempotency_key_reused",
         "id": "31",
-        "latency_ms": 6,
-        "occurred_at": "2026-11-24T06:39:11.998354Z",
+        "latency_ms": 7,
+        "occurred_at": "2026-11-24T09:06:08.094001Z",
         "query": null,
         "result_count": null,
         "status": "failed"
@@ -61,8 +61,8 @@
         "environment": "live",
         "error_code": null,
         "id": "30",
-        "latency_ms": 248,
-        "occurred_at": "2026-11-24T06:39:11.990696Z",
+        "latency_ms": 53,
+        "occurred_at": "2026-11-24T09:06:08.085728Z",
         "query": null,
         "result_count": null,
         "status": "ok"
@@ -74,8 +74,8 @@
         "environment": "live",
         "error_code": "org_chart.company_ambiguous",
         "id": "29",
-        "latency_ms": 2,
-        "occurred_at": "2026-11-24T06:39:11.741659Z",
+        "latency_ms": 4,
+        "occurred_at": "2026-11-24T09:06:08.031004Z",
         "query": null,
         "result_count": null,
         "status": "failed"
@@ -88,7 +88,7 @@
         "error_code": "pagination.cursor_invalid",
         "id": "28",
         "latency_ms": 2,
-        "occurred_at": "2026-11-24T06:39:11.737889Z",
+        "occurred_at": "2026-11-24T09:06:08.025767Z",
         "query": null,
         "result_count": null,
         "status": "failed"
@@ -100,8 +100,8 @@
         "environment": "live",
         "error_code": null,
         "id": "27",
-        "latency_ms": 5,
-        "occurred_at": "2026-11-24T06:39:11.734494Z",
+        "latency_ms": 7,
+        "occurred_at": "2026-11-24T09:06:08.022622Z",
         "query": null,
         "result_count": 2,
         "status": "ok"
@@ -113,8 +113,8 @@
         "environment": "live",
         "error_code": null,
         "id": "26",
-        "latency_ms": 10,
-        "occurred_at": "2026-11-24T06:39:11.727478Z",
+        "latency_ms": 12,
+        "occurred_at": "2026-11-24T09:06:08.014692Z",
         "query": null,
         "result_count": 2,
         "status": "ok"
@@ -126,8 +126,8 @@
         "environment": "live",
         "error_code": null,
         "id": "25",
-        "latency_ms": 7,
-        "occurred_at": "2026-11-24T06:39:11.712730Z",
+        "latency_ms": 6,
+        "occurred_at": "2026-11-24T09:06:07.998484Z",
         "query": null,
         "result_count": null,
         "status": "ok"
@@ -139,8 +139,8 @@
         "environment": "live",
         "error_code": null,
         "id": "24",
-        "latency_ms": 6,
-        "occurred_at": "2026-11-24T06:39:11.703887Z",
+        "latency_ms": 7,
+        "occurred_at": "2026-11-24T09:06:07.990964Z",
         "query": null,
         "result_count": null,
         "status": "ok"
@@ -152,8 +152,8 @@
         "environment": "live",
         "error_code": null,
         "id": "23",
-        "latency_ms": 11,
-        "occurred_at": "2026-11-24T06:39:11.696777Z",
+        "latency_ms": 6,
+        "occurred_at": "2026-11-24T09:06:07.983149Z",
         "query": null,
         "result_count": null,
         "status": "ok"
@@ -165,8 +165,8 @@
         "environment": "live",
         "error_code": null,
         "id": "22",
-        "latency_ms": 23,
-        "occurred_at": "2026-11-24T06:39:11.683571Z",
+        "latency_ms": 25,
+        "occurred_at": "2026-11-24T09:06:07.975530Z",
         "query": "who at Stripe used to work at Adyen",
         "result_count": null,
         "status": "ok"
@@ -179,7 +179,7 @@
         "error_code": null,
         "id": "21",
         "latency_ms": 14,
-        "occurred_at": "2026-11-24T06:39:11.659059Z",
+        "occurred_at": "2026-11-24T09:06:07.948988Z",
         "query": null,
         "result_count": 10,
         "status": "ok"
@@ -191,8 +191,8 @@
         "environment": "live",
         "error_code": null,
         "id": "20",
-        "latency_ms": 19,
-        "occurred_at": "2026-11-24T06:39:11.641694Z",
+        "latency_ms": 12,
+        "occurred_at": "2026-11-24T09:06:07.932497Z",
         "query": null,
         "result_count": 10,
         "status": "ok"
@@ -204,8 +204,8 @@
         "environment": "live",
         "error_code": null,
         "id": "19",
-        "latency_ms": 14,
-        "occurred_at": "2026-11-24T06:39:11.617861Z",
+        "latency_ms": 13,
+        "occurred_at": "2026-11-24T09:06:07.918632Z",
         "query": null,
         "result_count": 10,
         "status": "ok"
@@ -217,8 +217,8 @@
         "environment": "live",
         "error_code": null,
         "id": "18",
-        "latency_ms": 257,
-        "occurred_at": "2026-11-24T06:39:11.351892Z",
+        "latency_ms": 49,
+        "occurred_at": "2026-11-24T09:06:07.782090Z",
         "query": "fintech companies hiring engineers",
         "result_count": null,
         "status": "ok"
@@ -230,8 +230,8 @@
         "environment": "live",
         "error_code": null,
         "id": "17",
-        "latency_ms": 24,
-        "occurred_at": "2026-11-24T06:39:11.093707Z",
+        "latency_ms": 15,
+        "occurred_at": "2026-11-24T09:06:07.731245Z",
         "query": null,
         "result_count": 1,
         "status": "ok"
@@ -243,8 +243,8 @@
         "environment": "live",
         "error_code": null,
         "id": "16",
-        "latency_ms": 22,
-        "occurred_at": "2026-11-24T06:39:11.068168Z",
+        "latency_ms": 13,
+        "occurred_at": "2026-11-24T09:06:07.715057Z",
         "query": null,
         "result_count": 1,
         "status": "ok"
@@ -256,8 +256,8 @@
         "environment": "live",
         "error_code": null,
         "id": "15",
-        "latency_ms": 20,
-        "occurred_at": "2026-11-24T06:39:11.044062Z",
+        "latency_ms": 12,
+        "occurred_at": "2026-11-24T09:06:07.700043Z",
         "query": null,
         "result_count": 1,
         "status": "ok"
@@ -269,8 +269,8 @@
         "environment": "live",
         "error_code": null,
         "id": "14",
-        "latency_ms": 18,
-        "occurred_at": "2026-11-24T06:39:11.019725Z",
+        "latency_ms": 13,
+        "occurred_at": "2026-11-24T09:06:07.686052Z",
         "query": null,
         "result_count": 1,
         "status": "ok"
@@ -282,8 +282,8 @@
         "environment": "live",
         "error_code": null,
         "id": "13",
-        "latency_ms": 18,
-        "occurred_at": "2026-11-24T06:39:10.999131Z",
+        "latency_ms": 13,
+        "occurred_at": "2026-11-24T09:06:07.671788Z",
         "query": null,
         "result_count": 1,
         "status": "ok"
@@ -295,8 +295,8 @@
         "environment": "live",
         "error_code": null,
         "id": "12",
-        "latency_ms": 16,
-        "occurred_at": "2026-11-24T06:39:10.978515Z",
+        "latency_ms": 12,
+        "occurred_at": "2026-11-24T09:06:07.657250Z",
         "query": null,
         "result_count": 1,
         "status": "ok"
@@ -309,7 +309,7 @@
         "error_code": null,
         "id": "11",
         "latency_ms": 15,
-        "occurred_at": "2026-11-24T06:39:10.960951Z",
+        "occurred_at": "2026-11-24T09:06:07.644186Z",
         "query": null,
         "result_count": 1,
         "status": "ok"
@@ -322,7 +322,7 @@
         "error_code": null,
         "id": "10",
         "latency_ms": 13,
-        "occurred_at": "2026-11-24T06:39:10.944103Z",
+        "occurred_at": "2026-11-24T09:06:07.627422Z",
         "query": null,
         "result_count": 1,
         "status": "ok"
@@ -333,8 +333,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "46",
-    "x-request-id": "70554ed23ede466ea13c97d859809eea"
+    "ratelimit-reset": "51",
+    "x-request-id": "f5311c4934bf4b85a29b68d615526d7a"
   },
   "operation": "history_list",
   "request": {

@@ -2,14 +2,14 @@
   "body": {
     "complete": false,
     "credits_used": 0.0,
-    "job_id": "26112616-8ea5-4137-b7fd-92460e24cf41",
+    "job_id": "7c38bf33-b213-468c-92ce-f5f7ba1ad1ce",
     "meta": {
-      "as_of": "2026-11-24T06:39:12.689229Z",
+      "as_of": "2026-11-24T09:06:08.755227Z",
       "credential": "api_key",
       "credits_balance": 964.405,
       "credits_charged": null,
       "environment": "live",
-      "request_id": "d77acdd57c45450890e468b36aabb5c5"
+      "request_id": "5fdabe86aa874e9b9bc0d85db78e2d9b"
     },
     "reason": "deadline",
     "results": [
@@ -32,18 +32,20 @@
           "external_id": "SLOW-5",
           "full_name": "Grace Example"
         },
-        "outcome": "not_found"
+        "outcome": "not_found",
+        "values_found": 0
       }
     ],
     "status": "running",
-    "suppressed_rows": []
+    "suppressed_rows": [],
+    "values_found": 0
   },
   "headers": {
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1998",
-    "ratelimit-reset": "48",
-    "x-request-id": "d77acdd57c45450890e468b36aabb5c5"
+    "ratelimit-reset": "52",
+    "x-request-id": "5fdabe86aa874e9b9bc0d85db78e2d9b"
   },
   "operation": "enrichment_lookup",
   "request": {

@@ -50,8 +50,8 @@ export class Enrichment extends Resource {
 
   /**
    * A job as it stands: `status` (`queued`, `running`, `cancelling`, `completed`, `failed`,
-   * `cancelled`), `counts`, `credits_used` and `credits_charged`, set once it has ended. Free;
-   * reading a job that has ended settles its credits.
+   * `cancelled`), `counts`, `credits_used`, and `credits_charged` and `values_found`, set once
+   * it has ended. Free; reading a job that has ended settles its credits.
    */
   async retrieve(jobId: string, options?: RequestOptions): Promise<W.EnrichmentJob> {
     return this.json('enrichmentRetrieve', { path: { job_id: jobId } }, options);

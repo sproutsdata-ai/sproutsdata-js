@@ -27,11 +27,11 @@ try {
   const found = await client.enrichment.lookup({ items: people, fields: ['EMAIL'] });
   // A miss says why (`reason`).
   for (const row of found.results) console.log(`  ${String(row.input['external_id'])}: ${JSON.stringify(row.fields['EMAIL']?.value ?? row.fields['EMAIL']?.reason ?? null)}`);
-  console.log(`lookup charged ${String(found.meta.credits_charged)} credits`);
+  console.log(`lookup found ${String(found.values_found)} values, charged ${String(found.meta.credits_charged)} credits`);
 
   const handle = await client.enrichment.create({ items: people, fields: ['EMAIL'], name: 'Prospects' });
   const job = await client.enrichment.wait(handle.job_id, { maxWaitMs: 300_000 });
-  console.log(`job ${job.job_id}: ${job.status}, ${String(job.credits_charged)} credits`);
+  console.log(`job ${job.job_id}: ${job.status}, ${String(job.values_found)} values found, ${String(job.credits_charged)} credits`);
   for await (const row of client.enrichment.iterResults(job.job_id)) console.log(`  ${String(row.idx)}: ${row.outcome}`);
 } catch (error) {
   if (error instanceof PermissionDeniedError) console.log('this key cannot enrich: create one with the dsp.enrichment scopes');

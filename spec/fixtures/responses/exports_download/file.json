@@ -4,14 +4,14 @@
     "content-type": "text/csv; charset=utf-8",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "47",
-    "x-request-id": "a1530502df2941f7ac3e9e164aef90c9"
+    "ratelimit-reset": "51",
+    "x-request-id": "c50f3d7d777249febcc328a2c85405da"
   },
   "operation": "exports_download",
   "request": {
     "body": null,
     "method": "GET",
-    "path": "/v1/exports/892663d3-d928-44be-92d5-31cac4796918/file",
+    "path": "/v1/exports/8569bdaf-6c92-476c-82c3-16cca14bb4b8/file",
     "query": {}
   },
   "status": 200

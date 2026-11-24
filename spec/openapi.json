@@ -5025,6 +5025,18 @@
           "total_rows": {
             "title": "Total Rows",
             "type": "integer"
+          },
+          "values_found": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How many values were newly found and charged for, one each whatever the field (a phone number and an email are 2), once the job has ended; rows on the Do-Not-Contact list are left out. Null while it runs. `credits_used` prices the same values, each at its field's price.",
+            "title": "Values Found"
           }
         },
         "required": [
@@ -5670,6 +5682,18 @@
           "total_rows": {
             "title": "Total Rows",
             "type": "integer"
+          },
+          "values_found": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How many values were newly found and charged for, one each whatever the field (a phone number and an email are 2), once the job has ended; rows on the Do-Not-Contact list are left out. Null while it runs. `credits_used` prices the same values, each at its field's price.",
+            "title": "Values Found"
           }
         },
         "required": [
@@ -6162,6 +6186,11 @@
             },
             "title": "Suppressed Rows",
             "type": "array"
+          },
+          "values_found": {
+            "description": "Values newly found and charged for, one each whatever the field; rows on the Do-Not-Contact list are left out. For a lookup cut by its deadline: those found in the call.",
+            "title": "Values Found",
+            "type": "integer"
           }
         },
         "required": [
@@ -6170,6 +6199,7 @@
           "status",
           "results",
           "credits_used",
+          "values_found",
           "meta"
         ],
         "title": "LookupResult",
@@ -10050,6 +10080,11 @@
             "description": "`found`, `partial`, `not_found`, `error`, `cancelled`, `skipped` or `suppressed` (on the Do-Not-Contact list: never looked up, or blanked since).",
             "title": "Outcome",
             "type": "string"
+          },
+          "values_found": {
+            "description": "Values newly found for this row (what `credits` prices): 0 for a miss, a value already known, or a row on the Do-Not-Contact list.",
+            "title": "Values Found",
+            "type": "integer"
           }
         },
         "required": [
@@ -10057,7 +10092,8 @@
           "input",
           "outcome",
           "fields",
-          "credits"
+          "credits",
+          "values_found"
         ],
         "title": "ResultRow",
         "type": "object"
@@ -19923,8 +19959,8 @@
     }
   },
   "x-source": {
-    "commit": "c580236b59e44e8352031454b43116813a6fc57e",
-    "ref": "c580236",
+    "commit": "364ec98ffc17dbd71306f8c13bb23e5ea335c04b",
+    "ref": "364ec98",
     "repo": "dsp-backend"
   }
 }

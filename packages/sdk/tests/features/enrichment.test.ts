@@ -77,7 +77,7 @@ describe('enrichment', () => {
 
   it('E3: rows page by cursor, and an expired page says so', async () => {
     const page = recordedBody<EnrichmentJobResults>('enrichment_results', 'first_page');
-    const r = rig([respond('enrichment_results', 200, { ...page, has_more: true, next_cursor: 'c2' }), respond('enrichment_results', 200, page), recorded('enrichment_results', 'expired')]);
+    const r = rig([respond('enrichment_results', 200, { ...page, has_more: true, next_cursor: 'c2' }), respond('enrichment_results', 200, { ...page, has_more: false, next_cursor: null }), recorded('enrichment_results', 'expired')]);
     const enrichment = new Enrichment(r.transport);
     const rows = await collect(enrichment.iterResults(JOB.job_id, { limit: 500 }));
     expect(rows).toHaveLength(page.results.length * 2);

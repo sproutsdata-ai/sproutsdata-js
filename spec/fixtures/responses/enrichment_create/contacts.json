@@ -1,26 +1,26 @@
 {
   "body": {
     "entity": "contacts",
-    "job_id": "b4de41f4-5a5f-429a-b2af-1969afea7869",
+    "job_id": "95d0e24f-fab5-4c72-b7c8-1ab0f9e97222",
     "meta": {
-      "as_of": "2026-11-24T06:39:11.990521Z",
+      "as_of": "2026-11-24T09:06:08.085595Z",
       "credential": "api_key",
       "credits_balance": 964.405,
       "credits_charged": null,
       "environment": "live",
-      "request_id": "73bc4084dc344641a93eff3c9e92b36a"
+      "request_id": "8bf9862ccc7b42b491e7ebec0e0a4726"
     },
     "reused": false,
     "status": "queued",
     "suppressed_rows": [],
-    "total_rows": 2
+    "total_rows": 3
   },
   "headers": {
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "49",
-    "x-request-id": "73bc4084dc344641a93eff3c9e92b36a"
+    "ratelimit-reset": "52",
+    "x-request-id": "8bf9862ccc7b42b491e7ebec0e0a4726"
   },
   "operation": "enrichment_create",
   "request": {
@@ -38,9 +38,14 @@
         {
           "external_id": "CACHED-3",
           "linkedin_url": "https://www.linkedin.com/in/e2e-cached"
+        },
+        {
+          "company_domain": "example-2.de",
+          "external_id": "row-2",
+          "full_name": "MISSING Person"
         }
       ],
-      "name": "E2E 6eee8ea1"
+      "name": "E2E 433c0afd"
     },
     "method": "POST",
     "path": "/v1/enrichment/jobs",

@@ -34,12 +34,12 @@
       }
     ],
     "meta": {
-      "as_of": "2026-11-24T06:39:11.588678Z",
+      "as_of": "2026-11-24T09:06:07.898621Z",
       "credential": "api_key",
       "credits_balance": null,
       "credits_charged": null,
       "environment": "live",
-      "request_id": "9ab2957f8c03416c9d9ca6cc2fc12472"
+      "request_id": "d88efbbc15ee49c388f65a5ceefb3cc8"
     },
     "run_id": "run-perf",
     "status": "completed",
@@ -50,8 +50,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "49",
-    "x-request-id": "9ab2957f8c03416c9d9ca6cc2fc12472"
+    "ratelimit-reset": "53",
+    "x-request-id": "d88efbbc15ee49c388f65a5ceefb3cc8"
   },
   "operation": "runs_cancel",
   "request": {

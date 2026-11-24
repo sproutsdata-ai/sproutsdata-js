@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-24T06:39:10.767521Z",
+        "as_of": "2026-11-24T09:06:07.483051Z",
         "domain": null,
         "quote": null,
         "source_corpus": "patents",
@@ -13,14 +13,14 @@
     "degradation": [],
     "has_more": true,
     "meta": {
-      "as_of": "2026-11-24T06:39:10.767521Z",
+      "as_of": "2026-11-24T09:06:07.483051Z",
       "credential": "api_key",
       "credits_balance": 998.5,
       "credits_charged": 0.5,
       "environment": "live",
-      "request_id": "fa075c95c2a24daa86bd846305b6c6b5"
+      "request_id": "15cf2cc861354219b7a59ee9c7e2e25b"
     },
-    "next_cursor": "eyJmIjoiMGMyMTkxZjhlMTUzMjNlNzBkOWY0MTA4MTU0YmY0YmUiLCJvIjoyLCJzIjoiMTg4MDNjNzVlNzZiNDFjZWE1YjNmOWFiMmJkZjA2MDMiLCJ0IjoxNzk1NTAyMzUwLCJ1IjoicHJpc218cGF0ZW50fDEifQ.fb8484a9e947e568a286e563fb67e4da",
+    "next_cursor": "eyJmIjoiMGMyMTkxZjhlMTUzMjNlNzBkOWY0MTA4MTU0YmY0YmUiLCJvIjoyLCJzIjoiMTE4ZGIzOGM3MDk4NGQzY2JkYzg5YTEzYjcwMjdlOTYiLCJ0IjoxNzk1NTExMTY3LCJ1IjoicHJpc218cGF0ZW50fDEifQ.331a56cf3c27a1ef6bff91dbadffc9b3",
     "resolved_search": {
       "anchor_matches": [],
       "category": "patent",
@@ -120,8 +120,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1997",
-    "ratelimit-reset": "50",
-    "x-request-id": "fa075c95c2a24daa86bd846305b6c6b5"
+    "ratelimit-reset": "53",
+    "x-request-id": "15cf2cc861354219b7a59ee9c7e2e25b"
   },
   "operation": "search",
   "request": {

@@ -92,7 +92,8 @@ every changed call with its replacement.
   `iterResults()`, `list()` / `iterList()` and `cancel()`. Requests the server would refuse
   are refused locally in its words; both keyed calls send an `Idempotency-Key`. Each field
   has its price (by default 1 credit, a phone number 9); a request holds at most 30,000
-  credits; a field with no value says why (`reason`). Needs the `dsp.enrichment.*` scopes
+  credits; only values newly found are charged, and `values_found` counts them (on a lookup,
+  a row, and a job once it has ended); a field with no value says why (`reason`). Needs the `dsp.enrichment.*` scopes
   (`examples/enrichment.ts`, `docs/enrichment.md`).
 - `orgChart.people()` and `iterPeople()`: the people one cell of a company's chart
   counts, a page at a time, named by the chart's `company_ref` (every chart answer
@@ -101,7 +102,7 @@ every changed call with its replacement.
 - `ResultsExpiredError` (410, a `NotFoundError`: a run's or an enrichment job's rows are no
   longer kept), `ConcurrencyLimitError` (a `RateLimitError`) and `CreditsRefusedError` (a
   `ServiceUnavailableError`).
-- The types of the API at dsp-backend `c580236`: the new document and trend filters,
+- The types of the API at dsp-backend `364ec98`: the new document and trend filters,
   `lock_filters` and `fields` on the search bodies, `resolved_search.read_as` and
   `anchor_matches`, and the enrichment, org chart people and credit purchase types.
   Generic backend names carry their feature (`EnrichmentJob`, `OrgChartPlacement`,

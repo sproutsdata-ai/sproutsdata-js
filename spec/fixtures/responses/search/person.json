@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-24T06:39:10.749697Z",
+        "as_of": "2026-11-24T09:06:07.470487Z",
         "domain": null,
         "quote": null,
         "source_corpus": "gtm_index",
@@ -13,14 +13,14 @@
     "degradation": [],
     "has_more": true,
     "meta": {
-      "as_of": "2026-11-24T06:39:10.749697Z",
+      "as_of": "2026-11-24T09:06:07.470487Z",
       "credential": "api_key",
       "credits_balance": 999.0,
       "credits_charged": 0.5,
       "environment": "live",
-      "request_id": "fb27865a4b0d48daa9bda26f4e2dcbac"
+      "request_id": "cf4fb5dc84f3449fa67aa521de0a6c64"
     },
-    "next_cursor": "eyJmIjoiMTgyNjU4ODMxNWQ5NDZlYTI3MmYyMmJiYzU3N2FiNDIiLCJvIjoyLCJzIjoiNGJjZDMwZWEzZmZkNGI3MGE5ZTk1ZmIxZGQ3OTg4NmYiLCJ0IjoxNzk1NTAyMzUwLCJ1IjoicHJpc218cGVyc29ufDEifQ.39e581e8563834315aa2538189bb4c5c",
+    "next_cursor": "eyJmIjoiMTgyNjU4ODMxNWQ5NDZlYTI3MmYyMmJiYzU3N2FiNDIiLCJvIjoyLCJzIjoiYzY1ODQ0MzBjNjg2NDMxZDljOTMwOTIxOGFlYmU0OWMiLCJ0IjoxNzk1NTExMTY3LCJ1IjoicHJpc218cGVyc29ufDEifQ.84987144411a49d012ea81e981088cbe",
     "resolved_search": {
       "anchor_matches": [],
       "category": "person",
@@ -144,8 +144,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1998",
-    "ratelimit-reset": "50",
-    "x-request-id": "fb27865a4b0d48daa9bda26f4e2dcbac"
+    "ratelimit-reset": "53",
+    "x-request-id": "cf4fb5dc84f3449fa67aa521de0a6c64"
   },
   "operation": "search",
   "request": {

@@ -38,7 +38,7 @@ const found = await client.enrichment.lookup({ items: people, fields: ['EMAIL', 
 for (const row of found.results) {
   console.log(row.input['external_id'], row.outcome, row.fields['EMAIL']?.value ?? null);
 }
-console.log(found.meta.credits_charged, 'credits');
+console.log(found.values_found, 'values found,', found.meta.credits_charged, 'credits');
 ```
 
 A lookup that does not finish in the call answers `complete: false`: it became
@@ -54,9 +54,9 @@ job instead.
 const people = [{ full_name: 'Ada Lovelace', company_domain: 'example.com', external_id: 'crm-1' }];
 const handle = await client.enrichment.create({ items: people, fields: ['EMAIL'], name: 'Q4 prospects' });
 const job = await client.enrichment.wait(handle.job_id);
-console.log(job.status, job.credits_charged);
+console.log(job.status, job.values_found, job.credits_charged);
 for await (const row of client.enrichment.iterResults(handle.job_id)) {
-  console.log(row.idx, row.outcome, row.credits);
+  console.log(row.idx, row.outcome, row.values_found, row.credits);
 }
 ```
 
@@ -105,8 +105,11 @@ When the work ends, only the values newly found are charged:
 
 A job's `credits_used` and a row's `credits` are what the values newly found
 cost, each at its field's price; `credits_charged` is what the job cost, set
-once it has ended. Reading a job
-that has ended settles it.
+once it has ended. `values_found` counts those same values, one each whatever
+the field (an email and a phone number found are 2 values and 10 credits): on
+a lookup, on each row, and on a job once it has ended (`null` while it runs,
+and for jobs that ended before it was added). Rows on the Do-Not-Contact list
+are left out of both. Reading a job that has ended settles it.
 
 ## Rows
 

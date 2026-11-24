@@ -65,8 +65,8 @@
         "requests": 1
       }
     ],
-    "period_from": "2026-10-25T06:39:14.050076Z",
-    "period_to": "2026-11-24T06:39:14.050076Z",
+    "period_from": "2026-10-25T09:06:09.481145Z",
+    "period_to": "2026-11-24T09:06:09.481145Z",
     "total_credits": "47.595",
     "total_failed": 3,
     "total_ok": 30,
@@ -77,8 +77,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "46",
-    "x-request-id": "db6cedbd4b21491f9e3ee9e3d5e3e811"
+    "ratelimit-reset": "51",
+    "x-request-id": "8448f3a1d7a04ff7b49319cc40e625b2"
   },
   "operation": "history_metrics",
   "request": {

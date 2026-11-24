@@ -31,14 +31,14 @@ export function client(options: { readonly key?: string; readonly baseUrl?: stri
 }
 
 /** The same request with no SDK in between: what the server itself answers. */
-export async function raw(method: string, path: string, body?: unknown): Promise<Response> {
-  const init: RequestInit = { method, headers: { 'X-API-Key': setting('SPROUTSDATA_E2E_KEY'), 'Content-Type': 'application/json' } };
+export async function raw(method: string, path: string, body?: unknown, headers: Readonly<Record<string, string>> = {}): Promise<Response> {
+  const init: RequestInit = { method, headers: { 'X-API-Key': setting('SPROUTSDATA_E2E_KEY'), 'Content-Type': 'application/json', ...headers } };
   return fetch(`${setting('SPROUTSDATA_E2E_BASE_URL')}${path}`, body === undefined ? init : { ...init, body: JSON.stringify(body) });
 }
 
-/** Make the fault proxy answer `path` with `status`, once. */
-export async function arm(path: string, status: number): Promise<void> {
-  const answer = await fetch(`${setting('SPROUTSDATA_E2E_FAULT_URL')}/__fake/arm`, { method: 'POST', body: JSON.stringify({ path, status, times: 1 }) });
+/** Make the fault proxy answer `path` with `status`, `times` times. */
+export async function arm(path: string, status: number, times = 1): Promise<void> {
+  const answer = await fetch(`${setting('SPROUTSDATA_E2E_FAULT_URL')}/__fake/arm`, { method: 'POST', body: JSON.stringify({ path, status, times }) });
   if (!answer.ok) throw new Error(`the fault proxy answered ${String(answer.status)}`);
 }
 

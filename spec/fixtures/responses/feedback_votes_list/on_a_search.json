@@ -1,26 +1,26 @@
 {
   "body": {
-    "request_id": "5500a7f707fe427b8a41e4bf3eaa53ad",
+    "request_id": "c0eb7701c7c54fbd905225fa1e52c00e",
     "votes": [
       {
         "entity_category": "company",
         "entity_id": null,
         "level": "result_set",
         "reason_code": null,
-        "request_id": "5500a7f707fe427b8a41e4bf3eaa53ad",
+        "request_id": "c0eb7701c7c54fbd905225fa1e52c00e",
         "text": null,
         "vote": "like",
-        "vote_id": "dd2cb72d-6aee-4338-b3c5-778dedfb7f73"
+        "vote_id": "80eb56b4-5a66-4514-a3f8-cc0628bb0c79"
       },
       {
         "entity_category": "company",
         "entity_id": "example-1.de",
         "level": "result",
         "reason_code": null,
-        "request_id": "5500a7f707fe427b8a41e4bf3eaa53ad",
+        "request_id": "c0eb7701c7c54fbd905225fa1e52c00e",
         "text": null,
         "vote": "flag",
-        "vote_id": "3aa96c8b-2b7b-402a-8623-f9e13b459a95"
+        "vote_id": "3449040d-855a-4ea3-a17f-97e8294d4c67"
       }
     ]
   },
@@ -28,8 +28,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "34",
-    "x-request-id": "ec27314e0ae940729c937e3151e7605c"
+    "ratelimit-reset": "51",
+    "x-request-id": "ba71258aeb294fa89b1463844be72fc9"
   },
   "operation": "feedback_votes_list",
   "request": {
@@ -37,7 +37,7 @@
     "method": "GET",
     "path": "/v1/feedback/votes",
     "query": {
-      "request_id": "5500a7f707fe427b8a41e4bf3eaa53ad"
+      "request_id": "c0eb7701c7c54fbd905225fa1e52c00e"
     }
   },
   "status": 200

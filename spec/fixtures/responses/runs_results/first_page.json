@@ -20,14 +20,14 @@
     "degradation": [],
     "has_more": true,
     "meta": {
-      "as_of": "2026-11-16T23:02:25.887762Z",
+      "as_of": "2026-11-24T09:06:07.825897Z",
       "credential": "api_key",
       "credits_balance": null,
       "credits_charged": null,
       "environment": "live",
-      "request_id": "080e463a883e4ba7b00384b22fb5f1ec"
+      "request_id": "4f98609b72724b409233d92f6fa679f9"
     },
-    "next_cursor": "eyJmIjoiOTYzNDc3NjY1NGJjNzU3MjYyOGU2YTMwYmJhYmE2ZmMiLCJvIjoyNSwicyI6IjVhYTIxOGEwYjhmNTQ1ZmM4NjI4YWY3NTUyOGVlMGYyIiwidCI6MTc5NDg3MDE0NSwidSI6IjI1In0.9eab4619e0e8e0060048607a12ff0733",
+    "next_cursor": "eyJmIjoiOTYzNDc3NjY1NGJjNzU3MjYyOGU2YTMwYmJhYmE2ZmMiLCJvIjoyNSwicyI6IjZhZDY0NjA2OWI3MTQwMTA4NjlkNzBhYjBlZjdlZmRkIiwidCI6MTc5NTUxMTE2NywidSI6IjI1In0.fb90cc792f7b593737a897bbdafcac15",
     "resolved_search": null,
     "results": [
       {
@@ -53,7 +53,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-0.de",
+        "id": "2269a9b411fa59ff",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -124,7 +124,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-1.de",
+        "id": "feafbf9d61b7003a",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -195,7 +195,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-2.de",
+        "id": "0acd269de785ebf8",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -266,7 +266,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-3.de",
+        "id": "e6eb65e1a2931e06",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -337,7 +337,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-4.de",
+        "id": "9dd93fba9481b66e",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -408,7 +408,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-5.de",
+        "id": "4139bce881c1e2e6",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -479,7 +479,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-6.de",
+        "id": "ac39d2dc56ecc68a",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -550,7 +550,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-7.de",
+        "id": "e66d193b27204fb7",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -621,7 +621,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-8.de",
+        "id": "841fc39f3da57fff",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -692,7 +692,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-9.de",
+        "id": "f79f17ca4909851c",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -763,7 +763,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-10.de",
+        "id": "06f622c907aabb73",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -834,7 +834,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-11.de",
+        "id": "3b54d52c2019a56d",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -905,7 +905,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-12.de",
+        "id": "3ebd2f4d0e3d295f",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -976,7 +976,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-13.de",
+        "id": "40dc295f27ad224e",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -1047,7 +1047,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-14.de",
+        "id": "1562993fda27b19f",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -1118,7 +1118,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-15.de",
+        "id": "cdbfdb62afdc8fc9",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -1189,7 +1189,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-16.de",
+        "id": "22bcbd113fc7ad4b",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -1260,7 +1260,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-17.de",
+        "id": "bb93643fb4a89de6",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -1331,7 +1331,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-18.de",
+        "id": "32038c9a03fb3f8f",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -1402,7 +1402,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-19.de",
+        "id": "c067b6a52175a374",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -1473,7 +1473,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-20.de",
+        "id": "4ee101338c38678b",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -1544,7 +1544,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-21.de",
+        "id": "0517c68649481a28",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -1615,7 +1615,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-22.de",
+        "id": "626256ca9ff28f77",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -1686,7 +1686,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-23.de",
+        "id": "5bcb6ec9f81e16f9",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -1757,7 +1757,7 @@
           "USA"
         ],
         "hiring_count": 37,
-        "id": "example-24.de",
+        "id": "c156c276f18fd00f",
         "industry": "Industrial Machinery & Equipment",
         "investors": [
           "Example Capital",
@@ -1814,8 +1814,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "600",
     "ratelimit-remaining": "599",
-    "ratelimit-reset": "35",
-    "x-request-id": "080e463a883e4ba7b00384b22fb5f1ec"
+    "ratelimit-reset": "53",
+    "x-request-id": "4f98609b72724b409233d92f6fa679f9"
   },
   "operation": "runs_results",
   "request": {

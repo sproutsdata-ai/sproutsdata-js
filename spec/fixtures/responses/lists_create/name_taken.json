@@ -1,10 +1,10 @@
 {
   "body": {
     "code": "lists.name_taken",
-    "detail": "A list named 'e2e PROSPECTS 61d395bb' already exists.",
+    "detail": "A list named 'e2e PROSPECTS 433c0afd' already exists.",
     "instance": "/v1/lists",
     "next_step": "Choose another name, or add to the list that has it.",
-    "request_id": "6a5988a085764e038a6a1084b1bd7ca1",
+    "request_id": "a11e333781f34eed9fe85e494cdd670b",
     "status": 409,
     "title": "List name already in use",
     "type": "https://dashboard.sproutsdata.ai/errors/lists-name-taken"
@@ -13,13 +13,13 @@
     "content-type": "application/problem+json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1998",
-    "ratelimit-reset": "34",
-    "x-request-id": "6a5988a085764e038a6a1084b1bd7ca1"
+    "ratelimit-reset": "52",
+    "x-request-id": "a11e333781f34eed9fe85e494cdd670b"
   },
   "operation": "lists_create",
   "request": {
     "body": {
-      "name": "e2e PROSPECTS 61d395bb"
+      "name": "e2e PROSPECTS 433c0afd"
     },
     "method": "POST",
     "path": "/v1/lists",

@@ -143,6 +143,154 @@
         }
       }
     },
+    "enrichment_cancel": {
+      "body": null,
+      "path_params": [
+        {
+          "name": "job_id",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        }
+      ],
+      "query": [],
+      "responses": {
+        "200": {
+          "ref": "EnrichmentJob"
+        }
+      }
+    },
+    "enrichment_create": {
+      "body": {
+        "ref": "EnrichmentJobRequest"
+      },
+      "path_params": [],
+      "query": [],
+      "responses": {
+        "202": {
+          "ref": "EnrichmentJobHandle"
+        }
+      }
+    },
+    "enrichment_list": {
+      "body": null,
+      "path_params": [],
+      "query": [
+        {
+          "name": "status",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "ref": "EnrichmentJobStatusInput"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "cursor",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "default": 20,
+          "name": "limit",
+          "required": false,
+          "type": {
+            "prim": "integer"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "ref": "EnrichmentJobList"
+        }
+      }
+    },
+    "enrichment_lookup": {
+      "body": {
+        "ref": "EnrichmentLookupRequest"
+      },
+      "path_params": [],
+      "query": [],
+      "responses": {
+        "200": {
+          "ref": "EnrichmentLookupResult"
+        }
+      }
+    },
+    "enrichment_results": {
+      "body": null,
+      "path_params": [
+        {
+          "name": "job_id",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        }
+      ],
+      "query": [
+        {
+          "name": "cursor",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "default": 100,
+          "name": "limit",
+          "required": false,
+          "type": {
+            "prim": "integer"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "ref": "EnrichmentJobResults"
+        }
+      }
+    },
+    "enrichment_retrieve": {
+      "body": null,
+      "path_params": [
+        {
+          "name": "job_id",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        }
+      ],
+      "query": [],
+      "responses": {
+        "200": {
+          "ref": "EnrichmentJob"
+        }
+      }
+    },
     "entities_academic_reports": {
       "body": {
         "ref": "DocumentLookup"
@@ -786,6 +934,18 @@
         }
       }
     },
+    "org_chart_people": {
+      "body": {
+        "ref": "OrgChartPeopleRequest"
+      },
+      "path_params": [],
+      "query": [],
+      "responses": {
+        "200": {
+          "ref": "OrgChartPeopleResponse"
+        }
+      }
+    },
     "org_chart_taxonomy": {
       "body": null,
       "path_params": [],
@@ -1233,6 +1393,21 @@
       "direction": "input",
       "fields": [
         {
+          "description": "Authors of the paper, as people's names in either order. Set `match_all` to require every one.",
+          "name": "authors",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "ref": "TermsFilter"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
           "description": "How many times the paper has been cited.",
           "name": "citation_count",
           "required": false,
@@ -1313,6 +1488,26 @@
             "union": [
               {
                 "ref": "RangeFilter"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "What the records must be about, matched in their own text: a keyword or phrase, or {\"and\": [...]}, {\"or\": [...]}, {\"not\": ...} nested. Filled from `query` when not sent.",
+          "name": "topic",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "map": {
+                  "prim": "any"
+                }
               },
               {
                 "prim": "null"
@@ -1616,6 +1811,27 @@
           }
         },
         {
+          "constraints": {
+            "maxItems": 200,
+            "minItems": 1
+          },
+          "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+          "name": "fields",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "array": {
+                  "prim": "string"
+                }
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
           "name": "filters",
           "required": false,
           "type": {
@@ -1639,6 +1855,15 @@
           "required": false,
           "type": {
             "prim": "integer"
+          }
+        },
+        {
+          "default": false,
+          "description": "True: `query` is never read into filters. It is searched as a description, by meaning (by its words where a category has no meaning search), and `filters` (with the domain lists) is the whole filter set, so text inside a query cannot add, change or remove a filter. Takes `mode: fast` or `auto` (both run it the same way, billed as `fast`).",
+          "name": "lock_filters",
+          "required": false,
+          "type": {
+            "prim": "boolean"
           }
         },
         {
@@ -1815,6 +2040,37 @@
       "origin": "api",
       "schema": "Anchor"
     },
+    "AnchorAlternative": {
+      "additional": false,
+      "direction": "output",
+      "fields": [
+        {
+          "description": "Send it as a domain anchor to pick it.",
+          "name": "domain",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "name",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "AnchorAlternative"
+    },
     "AnchorBy": {
       "direction": "input",
       "kind": "enum",
@@ -1825,6 +2081,72 @@
         "li_url",
         "name"
       ]
+    },
+    "AnchorMatch": {
+      "additional": false,
+      "description": "What a company name sent as an anchor became.",
+      "direction": "output",
+      "fields": [
+        {
+          "description": "Other companies holding the name, when not exact.",
+          "name": "alternatives",
+          "required": false,
+          "type": {
+            "array": {
+              "ref": "AnchorAlternative"
+            }
+          }
+        },
+        {
+          "description": "That company's domain.",
+          "name": "domain",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "False when the name is not that company's own: it is the closest one held.",
+          "name": "exact",
+          "required": true,
+          "type": {
+            "prim": "boolean"
+          }
+        },
+        {
+          "description": "The company the name became.",
+          "name": "name",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "The name as sent.",
+          "name": "value",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "AnchorMatch"
     },
     "AskEnvelope": {
       "additional": false,
@@ -2141,6 +2463,27 @@
             "union": [
               {
                 "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maxItems": 200,
+            "minItems": 1
+          },
+          "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+          "name": "fields",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "array": {
+                  "prim": "string"
+                }
               },
               {
                 "prim": "null"
@@ -2631,6 +2974,7 @@
     },
     "CompanyLookup": {
       "additional": false,
+      "description": "A record's ``technology`` list is cut to the 25 a search row shows.",
       "direction": "input",
       "fields": [
         {
@@ -3038,6 +3382,23 @@
           "required": true,
           "type": {
             "prim": "string"
+          }
+        },
+        {
+          "flex_list": true,
+          "name": "industries_served",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "array": {
+                  "prim": "string"
+                }
+              },
+              {
+                "prim": "null"
+              }
+            ]
           }
         },
         {
@@ -4293,6 +4654,425 @@
         "job-openings"
       ]
     },
+    "CreditAutoTopup": {
+      "additional": false,
+      "direction": "output",
+      "fields": [
+        {
+          "name": "amount_cents",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "integer"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "A card saved by a paid purchase.",
+          "name": "card_on_file",
+          "required": true,
+          "type": {
+            "prim": "boolean"
+          }
+        },
+        {
+          "name": "consecutive_declines",
+          "required": true,
+          "type": {
+            "prim": "integer"
+          }
+        },
+        {
+          "name": "daily_cap_cents",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "integer"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "Why it turned itself off: `declined` (three in a row) or `no_card`.",
+          "name": "disabled_reason",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "enabled",
+          "required": true,
+          "type": {
+            "prim": "boolean"
+          }
+        },
+        {
+          "name": "threshold_credits",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "number"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "AutoTopup"
+    },
+    "CreditAutoTopupRequest": {
+      "additional": false,
+      "direction": "input",
+      "fields": [
+        {
+          "constraints": {
+            "maximum": 1000000000.0,
+            "minimum": 1.0
+          },
+          "description": "What each top-up buys, in US cents.",
+          "name": "amount_cents",
+          "required": true,
+          "type": {
+            "prim": "integer"
+          }
+        },
+        {
+          "constraints": {
+            "maximum": 1000000000.0,
+            "minimum": 1.0
+          },
+          "description": "At most this a UTC day.",
+          "name": "daily_cap_cents",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "integer"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "enabled",
+          "required": true,
+          "type": {
+            "prim": "boolean"
+          }
+        },
+        {
+          "constraints": {
+            "maximum": 1000000000.0,
+            "minimum": 0.001
+          },
+          "description": "Buy when available credits fall below this.",
+          "name": "threshold_credits",
+          "required": true,
+          "type": {
+            "prim": "number"
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "AutoTopupIn"
+    },
+    "CreditPricing": {
+      "additional": false,
+      "direction": "output",
+      "fields": [
+        {
+          "name": "credits_per_usd",
+          "required": true,
+          "type": {
+            "prim": "integer"
+          }
+        },
+        {
+          "name": "currency",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        },
+        {
+          "description": "The largest purchase.",
+          "name": "max_cents",
+          "required": true,
+          "type": {
+            "prim": "integer"
+          }
+        },
+        {
+          "description": "The smallest purchase.",
+          "name": "min_cents",
+          "required": true,
+          "type": {
+            "prim": "integer"
+          }
+        },
+        {
+          "name": "pricing_version",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        },
+        {
+          "description": "For `amount_cents`, when it was asked.",
+          "name": "quote",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "ref": "CreditPricingQuote"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "PricingOut"
+    },
+    "CreditPricingQuote": {
+      "additional": false,
+      "direction": "output",
+      "fields": [
+        {
+          "name": "amount_cents",
+          "required": true,
+          "type": {
+            "prim": "integer"
+          }
+        },
+        {
+          "name": "bonus_credits",
+          "required": true,
+          "type": {
+            "prim": "number"
+          }
+        },
+        {
+          "description": "The credits that amount buys today.",
+          "name": "credits",
+          "required": true,
+          "type": {
+            "prim": "number"
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "PricingQuote"
+    },
+    "CreditPurchase": {
+      "additional": false,
+      "direction": "output",
+      "fields": [
+        {
+          "name": "amount_cents",
+          "required": true,
+          "type": {
+            "prim": "integer"
+          }
+        },
+        {
+          "name": "bonus_credits",
+          "required": true,
+          "type": {
+            "prim": "number"
+          }
+        },
+        {
+          "name": "checkout_expires_at",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "format": "date-time",
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "Stripe's payment page, while it can be paid.",
+          "name": "checkout_url",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "created_at",
+          "required": true,
+          "type": {
+            "format": "date-time",
+            "prim": "string"
+          }
+        },
+        {
+          "description": "The credits the amount buys.",
+          "name": "credits",
+          "required": true,
+          "type": {
+            "prim": "number"
+          }
+        },
+        {
+          "name": "currency",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        },
+        {
+          "name": "dispute_status",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "id",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        },
+        {
+          "name": "paid_at",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "format": "date-time",
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "refunded_cents",
+          "required": true,
+          "type": {
+            "prim": "integer"
+          }
+        },
+        {
+          "description": "`pending` until paid; then `paid`, `expired` or `failed`.",
+          "name": "status",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "Purchase"
+    },
+    "CreditPurchaseList": {
+      "additional": false,
+      "direction": "output",
+      "fields": [
+        {
+          "name": "next_cursor",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "results",
+          "required": true,
+          "type": {
+            "array": {
+              "ref": "CreditPurchase"
+            }
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "PurchasesOut"
+    },
+    "CreditPurchaseRequest": {
+      "additional": false,
+      "direction": "input",
+      "fields": [
+        {
+          "constraints": {
+            "maximum": 1000000000.0,
+            "minimum": 1.0
+          },
+          "description": "What the buyer pays, in US cents.",
+          "name": "amount_cents",
+          "required": true,
+          "type": {
+            "prim": "integer"
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "PurchaseIn"
+    },
     "CreditsOut": {
       "additional": false,
       "direction": "output",
@@ -4599,7 +5379,8 @@
         "upstream_advisory",
         "no_match",
         "topic_not_required",
-        "sparse_filter"
+        "sparse_filter",
+        "anchor_not_exact"
       ]
     },
     "DepartmentHeadcountBound": {
@@ -4687,7 +5468,7 @@
           "constraints": {
             "maxLength": 255
           },
-          "description": "A `company_ref` from an `org_chart.company_ambiguous` answer.",
+          "description": "One company by the `company_ref` this API gave it: an org chart answer's `company`, a candidate's in an `org_chart.company_ambiguous` answer, or a company search hit's `id`, which is the same ref. Opaque; a ref this API did not give is refused.",
           "name": "company_ref",
           "required": false,
           "type": {
@@ -6008,16 +6789,17 @@
       "origin": "records"
     },
     "Effort": {
+      "description": "How hard a run works. The names the tiers had before (`minimal`, `low`, `medium`, `high`,\n`xhigh`) are read as the tier they named.",
       "direction": "input",
       "kind": "enum",
       "origin": "api",
       "schema": "Effort",
       "values": [
-        "minimal",
-        "low",
-        "medium",
-        "high",
-        "xhigh",
+        "quick",
+        "basic",
+        "standard",
+        "detailed",
+        "maximum",
         "auto"
       ]
     },
@@ -6302,6 +7084,1290 @@
       "origin": "api",
       "schema": "EmploymentHistoryGroup"
     },
+    "EnrichmentItem": {
+      "additional": false,
+      "description": "A person (contacts) or a company (accounts). Send what you know.",
+      "direction": "input",
+      "fields": [
+        {
+          "constraints": {
+            "maxLength": 512
+          },
+          "name": "company_domain",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maxLength": 512
+          },
+          "description": "Our id for a company.",
+          "name": "company_id",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maxLength": 512
+          },
+          "name": "company_name",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maxLength": 512
+          },
+          "name": "email_hint",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maxLength": 512
+          },
+          "description": "Legacy name of person_id.",
+          "name": "es_id",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maxLength": 512
+          },
+          "description": "Your id, echoed.",
+          "name": "external_id",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "minItems": 1
+          },
+          "description": "This row's own fields, a subset of the request's. Unset: all of them.",
+          "name": "fields",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "array": {
+                  "union": [
+                    {
+                      "literal": "EMAIL"
+                    },
+                    {
+                      "literal": "PHONE"
+                    },
+                    {
+                      "literal": "DOMAIN"
+                    },
+                    {
+                      "literal": "LINKEDIN_URL"
+                    }
+                  ]
+                }
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maxLength": 512
+          },
+          "name": "first_name",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maxLength": 512
+          },
+          "name": "full_name",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maxLength": 512
+          },
+          "name": "last_name",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maxLength": 2048
+          },
+          "name": "linkedin_url",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maxLength": 512
+          },
+          "description": "Our id for a person.",
+          "name": "person_id",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maxLength": 512
+          },
+          "description": "Legacy: external_id.",
+          "name": "reference",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "EnrichmentItem"
+    },
+    "EnrichmentJob": {
+      "additional": false,
+      "direction": "output",
+      "fields": [
+        {
+          "name": "counts",
+          "required": true,
+          "type": {
+            "ref": "EnrichmentJobCounts"
+          }
+        },
+        {
+          "name": "created_at",
+          "required": true,
+          "type": {
+            "format": "date-time",
+            "prim": "string"
+          }
+        },
+        {
+          "description": "What the job cost, in credits, once it has ended. Null while it runs, never 0 (which reads as free). A value already known is free.",
+          "name": "credits_charged",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "number"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "Credits the values newly found so far cost, each at its field's price (a phone number costs more than an email).",
+          "name": "credits_used",
+          "required": true,
+          "type": {
+            "prim": "number"
+          }
+        },
+        {
+          "name": "entity",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "literal": "contacts"
+              },
+              {
+                "literal": "accounts"
+              }
+            ]
+          }
+        },
+        {
+          "name": "error",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "eta_seconds",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "number"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "fields",
+          "required": true,
+          "type": {
+            "array": {
+              "prim": "string"
+            }
+          }
+        },
+        {
+          "name": "finished_at",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "format": "date-time",
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "job_id",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        },
+        {
+          "name": "meta",
+          "required": true,
+          "type": {
+            "ref": "ResponseMeta"
+          }
+        },
+        {
+          "name": "name",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "rows_per_second",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "number"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "As of the last time the job was read.",
+          "name": "status",
+          "required": true,
+          "type": {
+            "ref": "EnrichmentJobStatus"
+          }
+        },
+        {
+          "description": "Why DSP cancelled the job, when it did: `time_limit` (still running 6 h after it started) or `no_credits` (the workspace could no longer cover it). What it found until then is charged.",
+          "name": "stop_reason",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "literal": "time_limit"
+              },
+              {
+                "literal": "no_credits"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "Positions in `items` left out because they are on the Do-Not-Contact list: never looked up, never charged.",
+          "name": "suppressed_rows",
+          "required": false,
+          "type": {
+            "array": {
+              "prim": "integer"
+            }
+          }
+        },
+        {
+          "name": "total_rows",
+          "required": true,
+          "type": {
+            "prim": "integer"
+          }
+        },
+        {
+          "description": "How many values were newly found and charged for, one each whatever the field (a phone number and an email are 2), once the job has ended; rows on the Do-Not-Contact list are left out. Null while it runs. `credits_used` prices the same values, each at its field's price.",
+          "name": "values_found",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "integer"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "Job"
+    },
+    "EnrichmentJobCounts": {
+      "additional": false,
+      "direction": "output",
+      "fields": [
+        {
+          "name": "done_rows",
+          "required": true,
+          "type": {
+            "prim": "integer"
+          }
+        },
+        {
+          "description": "Each field's rows by their status, e.g. `{\"EMAIL\": {\"found\": 3}}`.",
+          "name": "field_counts",
+          "required": true,
+          "type": {
+            "map": {
+              "map": {
+                "prim": "integer"
+              }
+            }
+          }
+        },
+        {
+          "description": "Rows by their status.",
+          "name": "rows",
+          "required": true,
+          "type": {
+            "map": {
+              "prim": "integer"
+            }
+          }
+        },
+        {
+          "name": "total_rows",
+          "required": true,
+          "type": {
+            "prim": "integer"
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "JobCounts"
+    },
+    "EnrichmentJobHandle": {
+      "additional": false,
+      "direction": "output",
+      "fields": [
+        {
+          "name": "entity",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "literal": "contacts"
+              },
+              {
+                "literal": "accounts"
+              }
+            ]
+          }
+        },
+        {
+          "name": "job_id",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        },
+        {
+          "name": "meta",
+          "required": true,
+          "type": {
+            "ref": "ResponseMeta"
+          }
+        },
+        {
+          "description": "True when this `Idempotency-Key` had started this job.",
+          "name": "reused",
+          "required": true,
+          "type": {
+            "prim": "boolean"
+          }
+        },
+        {
+          "name": "status",
+          "required": true,
+          "type": {
+            "ref": "EnrichmentJobStatus"
+          }
+        },
+        {
+          "description": "Positions in `items` left out because they are on the Do-Not-Contact list: never looked up, never charged.",
+          "name": "suppressed_rows",
+          "required": false,
+          "type": {
+            "array": {
+              "prim": "integer"
+            }
+          }
+        },
+        {
+          "name": "total_rows",
+          "required": true,
+          "type": {
+            "prim": "integer"
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "JobHandle"
+    },
+    "EnrichmentJobList": {
+      "additional": false,
+      "direction": "output",
+      "fields": [
+        {
+          "name": "has_more",
+          "required": true,
+          "type": {
+            "prim": "boolean"
+          }
+        },
+        {
+          "name": "meta",
+          "required": true,
+          "type": {
+            "ref": "ResponseMeta"
+          }
+        },
+        {
+          "name": "next_cursor",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "results",
+          "required": true,
+          "type": {
+            "array": {
+              "ref": "EnrichmentJobSummary"
+            }
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "JobList"
+    },
+    "EnrichmentJobRequest": {
+      "additional": false,
+      "direction": "input",
+      "fields": [
+        {
+          "default": "contacts",
+          "name": "entity",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "literal": "contacts"
+              },
+              {
+                "literal": "accounts"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maxItems": 3,
+            "minItems": 1
+          },
+          "description": "What to find. No default: nothing is looked up, or charged, that you did not ask for.",
+          "name": "fields",
+          "required": true,
+          "type": {
+            "array": {
+              "union": [
+                {
+                  "literal": "EMAIL"
+                },
+                {
+                  "literal": "PHONE"
+                },
+                {
+                  "literal": "DOMAIN"
+                },
+                {
+                  "literal": "LINKEDIN_URL"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "constraints": {
+            "minItems": 1
+          },
+          "name": "items",
+          "required": true,
+          "type": {
+            "array": {
+              "ref": "EnrichmentItem"
+            }
+          }
+        },
+        {
+          "constraints": {
+            "maxLength": 120
+          },
+          "description": "A label for your list.",
+          "name": "name",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "default": false,
+          "description": "Look up values that are already known.",
+          "name": "re_enrich",
+          "required": false,
+          "type": {
+            "prim": "boolean"
+          }
+        },
+        {
+          "description": "Contacts only. How emails are verified: `skip` (not at all), `moderate` (syntax, domain and the source's own signal) or `strict` (every email checked by a verifier). Unset: the workspace's setting.",
+          "name": "verify_mode",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "literal": "skip"
+              },
+              {
+                "literal": "moderate"
+              },
+              {
+                "literal": "strict"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "JobRequest"
+    },
+    "EnrichmentJobResults": {
+      "additional": false,
+      "direction": "output",
+      "fields": [
+        {
+          "name": "has_more",
+          "required": true,
+          "type": {
+            "prim": "boolean"
+          }
+        },
+        {
+          "name": "meta",
+          "required": true,
+          "type": {
+            "ref": "ResponseMeta"
+          }
+        },
+        {
+          "name": "next_cursor",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "Rows; each carries its `credits`.",
+          "name": "results",
+          "required": true,
+          "type": {
+            "array": {
+              "ref": "EnrichmentRow"
+            }
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "JobResults"
+    },
+    "EnrichmentJobStatus": {
+      "direction": "output",
+      "kind": "enum",
+      "origin": "api",
+      "schema": "JobStatus",
+      "values": [
+        "queued",
+        "running",
+        "cancelling",
+        "completed",
+        "failed",
+        "cancelled"
+      ]
+    },
+    "EnrichmentJobStatusInput": {
+      "direction": "input",
+      "kind": "enum",
+      "origin": "api",
+      "schema": "JobStatus",
+      "values": [
+        "queued",
+        "running",
+        "cancelling",
+        "completed",
+        "failed",
+        "cancelled"
+      ]
+    },
+    "EnrichmentJobSummary": {
+      "additional": false,
+      "direction": "output",
+      "fields": [
+        {
+          "name": "created_at",
+          "required": true,
+          "type": {
+            "format": "date-time",
+            "prim": "string"
+          }
+        },
+        {
+          "description": "What the job cost, in credits, once it has ended. Null while it runs, never 0 (which reads as free). A value already known is free.",
+          "name": "credits_charged",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "number"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "entity",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "literal": "contacts"
+              },
+              {
+                "literal": "accounts"
+              }
+            ]
+          }
+        },
+        {
+          "name": "fields",
+          "required": true,
+          "type": {
+            "array": {
+              "prim": "string"
+            }
+          }
+        },
+        {
+          "name": "finished_at",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "format": "date-time",
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "job_id",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        },
+        {
+          "name": "name",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "As of the last time the job was read.",
+          "name": "status",
+          "required": true,
+          "type": {
+            "ref": "EnrichmentJobStatus"
+          }
+        },
+        {
+          "description": "Why DSP cancelled the job, when it did: `time_limit` (still running 6 h after it started) or `no_credits` (the workspace could no longer cover it). What it found until then is charged.",
+          "name": "stop_reason",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "literal": "time_limit"
+              },
+              {
+                "literal": "no_credits"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "Positions in `items` left out because they are on the Do-Not-Contact list: never looked up, never charged.",
+          "name": "suppressed_rows",
+          "required": false,
+          "type": {
+            "array": {
+              "prim": "integer"
+            }
+          }
+        },
+        {
+          "name": "total_rows",
+          "required": true,
+          "type": {
+            "prim": "integer"
+          }
+        },
+        {
+          "description": "How many values were newly found and charged for, one each whatever the field (a phone number and an email are 2), once the job has ended; rows on the Do-Not-Contact list are left out. Null while it runs. `credits_used` prices the same values, each at its field's price.",
+          "name": "values_found",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "integer"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "JobSummary"
+    },
+    "EnrichmentLookupRequest": {
+      "additional": false,
+      "description": "A few rows (at most 20) answered in the call.",
+      "direction": "input",
+      "fields": [
+        {
+          "default": "contacts",
+          "name": "entity",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "literal": "contacts"
+              },
+              {
+                "literal": "accounts"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maxItems": 3,
+            "minItems": 1
+          },
+          "description": "What to find. No default: nothing is looked up, or charged, that you did not ask for.",
+          "name": "fields",
+          "required": true,
+          "type": {
+            "array": {
+              "union": [
+                {
+                  "literal": "EMAIL"
+                },
+                {
+                  "literal": "PHONE"
+                },
+                {
+                  "literal": "DOMAIN"
+                },
+                {
+                  "literal": "LINKEDIN_URL"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "constraints": {
+            "maxItems": 20,
+            "minItems": 1
+          },
+          "name": "items",
+          "required": true,
+          "type": {
+            "array": {
+              "ref": "EnrichmentItem"
+            }
+          }
+        },
+        {
+          "default": false,
+          "description": "Look up values that are already known.",
+          "name": "re_enrich",
+          "required": false,
+          "type": {
+            "prim": "boolean"
+          }
+        },
+        {
+          "description": "Contacts only. How emails are verified: `skip` (not at all), `moderate` (syntax, domain and the source's own signal) or `strict` (every email checked by a verifier). Unset: the workspace's setting.",
+          "name": "verify_mode",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "literal": "skip"
+              },
+              {
+                "literal": "moderate"
+              },
+              {
+                "literal": "strict"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maximum": 20.0,
+            "minimum": 0.0
+          },
+          "name": "wait_seconds",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "number"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "LookupRequest"
+    },
+    "EnrichmentLookupResult": {
+      "additional": false,
+      "direction": "output",
+      "fields": [
+        {
+          "description": "False when the lookup did not finish in the call: it became the job `job_id`, which settles its credits when it ends; read it for the rest.",
+          "name": "complete",
+          "required": true,
+          "type": {
+            "prim": "boolean"
+          }
+        },
+        {
+          "name": "credits_used",
+          "required": true,
+          "type": {
+            "prim": "number"
+          }
+        },
+        {
+          "name": "job_id",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        },
+        {
+          "name": "meta",
+          "required": true,
+          "type": {
+            "ref": "ResponseMeta"
+          }
+        },
+        {
+          "name": "reason",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "results",
+          "required": true,
+          "type": {
+            "array": {
+              "ref": "EnrichmentRow"
+            }
+          }
+        },
+        {
+          "name": "status",
+          "required": true,
+          "type": {
+            "ref": "EnrichmentJobStatus"
+          }
+        },
+        {
+          "description": "Positions in `items` left out because they are on the Do-Not-Contact list: never looked up, never charged.",
+          "name": "suppressed_rows",
+          "required": false,
+          "type": {
+            "array": {
+              "prim": "integer"
+            }
+          }
+        },
+        {
+          "description": "Values newly found and charged for, one each whatever the field; rows on the Do-Not-Contact list are left out. For a lookup cut by its deadline: those found in the call.",
+          "name": "values_found",
+          "required": true,
+          "type": {
+            "prim": "integer"
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "LookupResult"
+    },
+    "EnrichmentRow": {
+      "additional": false,
+      "direction": "output",
+      "fields": [
+        {
+          "description": "Credits this row used: each value newly found at its field's price (a phone number costs more than an email).",
+          "name": "credits",
+          "required": true,
+          "type": {
+            "prim": "number"
+          }
+        },
+        {
+          "name": "fields",
+          "required": true,
+          "type": {
+            "map": {
+              "ref": "EnrichmentRowField"
+            }
+          }
+        },
+        {
+          "description": "The row's position in the job, from 0.",
+          "name": "idx",
+          "required": true,
+          "type": {
+            "prim": "integer"
+          }
+        },
+        {
+          "description": "Fields a lookup's deadline cut: still being looked up.",
+          "name": "incomplete",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "array": {
+                  "prim": "string"
+                }
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "The row as you sent it.",
+          "name": "input",
+          "required": true,
+          "type": {
+            "map": {
+              "prim": "any"
+            }
+          }
+        },
+        {
+          "description": "`found`, `partial`, `not_found`, `error`, `cancelled`, `skipped` or `suppressed` (on the Do-Not-Contact list: never looked up, or blanked since).",
+          "name": "outcome",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        },
+        {
+          "description": "Values newly found for this row (what `credits` prices): 0 for a miss, a value already known, or a row on the Do-Not-Contact list.",
+          "name": "values_found",
+          "required": true,
+          "type": {
+            "prim": "integer"
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "ResultRow"
+    },
+    "EnrichmentRowField": {
+      "additional": false,
+      "description": "One field of a row as a customer sees it. Built from an allow-list: where a value came\nfrom (a vendor, the cache) and what was spent finding it never leave DSP.",
+      "direction": "output",
+      "fields": [
+        {
+          "description": "Why there is no value, when known: `no_source` (no data source covers this field yet), `sources_unavailable` (try again later), `not_found`, `not_enough_input` (the row does not identify the record well enough) or `error`.",
+          "name": "reason",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "`found`, `not_found`, `error`, `cancelled`, `skipped` or `suppressed` (on the Do-Not-Contact list: blanked).",
+          "name": "status",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        },
+        {
+          "name": "value",
+          "required": false,
+          "type": {
+            "prim": "any"
+          }
+        },
+        {
+          "default": false,
+          "name": "verified",
+          "required": false,
+          "type": {
+            "prim": "boolean"
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "ResultField"
+    },
     "EntitiesEnvelope": {
       "additional": false,
       "description": "The search envelope's shape, with one row per value looked up: found ones first.",
@@ -6572,6 +8638,27 @@
           }
         },
         {
+          "constraints": {
+            "maxItems": 200,
+            "minItems": 1
+          },
+          "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+          "name": "fields",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "array": {
+                  "prim": "string"
+                }
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
           "name": "filters",
           "required": false,
           "type": {
@@ -6628,6 +8715,15 @@
           "required": false,
           "type": {
             "prim": "integer"
+          }
+        },
+        {
+          "default": false,
+          "description": "True: `query` is never read into filters. It is searched as a description, by meaning (by its words where a category has no meaning search), and `filters` (with the domain lists) is the whole filter set, so text inside a query cannot add, change or remove a filter. Takes `mode: fast` or `auto` (both run it the same way, billed as `fast`).",
+          "name": "lock_filters",
+          "required": false,
+          "type": {
+            "prim": "boolean"
           }
         },
         {
@@ -7659,6 +9755,21 @@
           }
         },
         {
+          "description": "City of the company that raised, matched ignoring case.",
+          "name": "company_city",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "ref": "TermsFilter"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
           "description": "Country of the company that raised.",
           "name": "company_country",
           "required": false,
@@ -7689,7 +9800,7 @@
           }
         },
         {
-          "description": "The amount raised, in US dollars.",
+          "description": "The amount raised, in US dollars. In `auto` mode an amount the question writes in another currency is converted to US dollars, and a warning gives the rate.",
           "name": "funding_size",
           "required": false,
           "type": {
@@ -7719,13 +9830,13 @@
           }
         },
         {
-          "description": "Any of these investors took part.",
+          "description": "Investors that took part: any of them, or with `match_all` every one of them in the same round (\"rounds where both A and B took part\"). In `auto` mode a question naming both sets it.",
           "name": "investors",
           "required": false,
           "type": {
             "union": [
               {
-                "ref": "EntityFilter"
+                "ref": "MatchAllEntityFilter"
               },
               {
                 "prim": "null"
@@ -7756,6 +9867,26 @@
             "union": [
               {
                 "ref": "TermsFilter"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "What the records must be about, matched in their own text: a keyword or phrase, or {\"and\": [...]}, {\"or\": [...]}, {\"not\": ...} nested. Filled from `query` when not sent.",
+          "name": "topic",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "map": {
+                  "prim": "any"
+                }
               },
               {
                 "prim": "null"
@@ -8096,6 +10227,27 @@
           }
         },
         {
+          "constraints": {
+            "maxItems": 200,
+            "minItems": 1
+          },
+          "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+          "name": "fields",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "array": {
+                  "prim": "string"
+                }
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
           "name": "filters",
           "required": false,
           "type": {
@@ -8119,6 +10271,15 @@
           "required": false,
           "type": {
             "prim": "integer"
+          }
+        },
+        {
+          "default": false,
+          "description": "True: `query` is never read into filters. It is searched as a description, by meaning (by its words where a category has no meaning search), and `filters` (with the domain lists) is the whole filter set, so text inside a query cannot add, change or remove a filter. Takes `mode: fast` or `auto` (both run it the same way, billed as `fast`).",
+          "name": "lock_filters",
+          "required": false,
+          "type": {
+            "prim": "boolean"
           }
         },
         {
@@ -8468,6 +10629,152 @@
       "kind": "object",
       "origin": "api",
       "schema": "HistoryPage"
+    },
+    "InstitutionLookupEnvelope": {
+      "additional": false,
+      "description": "Suggestions for a typed employer or school name, most people first. Free.",
+      "direction": "output",
+      "fields": [
+        {
+          "default": false,
+          "description": "No stored name starts with the text, so these are spelling corrections.",
+          "name": "corrected",
+          "required": false,
+          "type": {
+            "prim": "boolean"
+          }
+        },
+        {
+          "name": "meta",
+          "required": true,
+          "type": {
+            "ref": "ResponseMeta"
+          }
+        },
+        {
+          "name": "results",
+          "required": true,
+          "type": {
+            "array": {
+              "ref": "InstitutionSuggestion"
+            }
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "InstitutionLookupEnvelope"
+    },
+    "InstitutionLookupRequest": {
+      "additional": false,
+      "description": "Employers and schools whose name starts with what was typed: the picker behind\n`institutions`.",
+      "direction": "input",
+      "fields": [
+        {
+          "default": "any",
+          "description": "`company` keeps employers, `school` schools, `any` both.",
+          "name": "kind",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "literal": "any"
+              },
+              {
+                "literal": "company"
+              },
+              {
+                "literal": "school"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maximum": 20.0,
+            "minimum": 1.0
+          },
+          "default": 10,
+          "name": "limit",
+          "required": false,
+          "type": {
+            "prim": "integer"
+          }
+        },
+        {
+          "constraints": {
+            "maxLength": 200,
+            "minLength": 1
+          },
+          "description": "What has been typed; a partial word is enough.",
+          "name": "query",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "InstitutionLookupRequest"
+    },
+    "InstitutionSuggestion": {
+      "additional": false,
+      "direction": "output",
+      "fields": [
+        {
+          "description": "The institution key: a LinkedIn page, `edu:<slug>` or `name:<name>`.",
+          "name": "id",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        },
+        {
+          "description": "Send this as one of `institutions` in `POST /v1/relationships` to run on exactly this institution.",
+          "name": "institution",
+          "required": true,
+          "type": {
+            "ref": "RelationshipInstitution"
+          }
+        },
+        {
+          "name": "kind",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "literal": "company"
+              },
+              {
+                "literal": "school"
+              }
+            ]
+          }
+        },
+        {
+          "description": "The name as the index stores it (lower case).",
+          "name": "name",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        },
+        {
+          "constraints": {
+            "minimum": 0.0
+          },
+          "description": "People with an affiliation there, current or past.",
+          "name": "people",
+          "required": true,
+          "type": {
+            "prim": "integer"
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "InstitutionSuggestion"
     },
     "InstitutionsRequest": {
       "additional": false,
@@ -9169,6 +11476,27 @@
           }
         },
         {
+          "constraints": {
+            "maxItems": 200,
+            "minItems": 1
+          },
+          "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+          "name": "fields",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "array": {
+                  "prim": "string"
+                }
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
           "name": "filters",
           "required": false,
           "type": {
@@ -9205,6 +11533,15 @@
           "required": false,
           "type": {
             "prim": "integer"
+          }
+        },
+        {
+          "default": false,
+          "description": "True: `query` is never read into filters. It is searched as a description, by meaning (by its words where a category has no meaning search), and `filters` (with the domain lists) is the whole filter set, so text inside a query cannot add, change or remove a filter. Takes `mode: fast` or `auto` (both run it the same way, billed as `fast`).",
+          "name": "lock_filters",
+          "required": false,
+          "type": {
+            "prim": "boolean"
           }
         },
         {
@@ -9712,7 +12049,7 @@
           "constraints": {
             "maxLength": 255
           },
-          "description": "A `company_ref` from an `org_chart.company_ambiguous` answer.",
+          "description": "One company by the `company_ref` this API gave it: an org chart answer's `company`, a candidate's in an `org_chart.company_ambiguous` answer, or a company search hit's `id`, which is the same ref. Opaque; a ref this API did not give is refused.",
           "name": "company_ref",
           "required": false,
           "type": {
@@ -9926,6 +12263,44 @@
               }
             ]
           }
+        },
+        {
+          "description": "What the records must be about, matched in their own text: a keyword or phrase, or {\"and\": [...]}, {\"or\": [...]}, {\"not\": ...} nested. Filled from `query` when not sent.",
+          "name": "topic",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "map": {
+                  "prim": "any"
+                }
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maxLength": 2000
+          },
+          "description": "A short description of what the records are about; records close to it in meaning are found beside those holding `topic`. Filled from `query` when not sent.",
+          "name": "topic_description",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
         }
       ],
       "kind": "object",
@@ -10121,6 +12496,27 @@
           }
         },
         {
+          "constraints": {
+            "maxItems": 200,
+            "minItems": 1
+          },
+          "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+          "name": "fields",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "array": {
+                  "prim": "string"
+                }
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
           "name": "filters",
           "required": false,
           "type": {
@@ -10144,6 +12540,15 @@
           "required": false,
           "type": {
             "prim": "integer"
+          }
+        },
+        {
+          "default": false,
+          "description": "True: `query` is never read into filters. It is searched as a description, by meaning (by its words where a category has no meaning search), and `filters` (with the domain lists) is the whole filter set, so text inside a query cannot add, change or remove a filter. Takes `mode: fast` or `auto` (both run it the same way, billed as `fast`).",
+          "name": "lock_filters",
+          "required": false,
+          "type": {
+            "prim": "boolean"
           }
         },
         {
@@ -10230,6 +12635,49 @@
         "published_date",
         "obtained_at"
       ]
+    },
+    "MatchAllEntityFilter": {
+      "additional": false,
+      "description": "An `EntityFilter` on a field one record holds several entities in (a round's investors),\nwhich can require every included one.",
+      "direction": "input",
+      "fields": [
+        {
+          "constraints": {
+            "maxItems": 1000
+          },
+          "name": "exclude",
+          "required": false,
+          "type": {
+            "array": {
+              "ref": "EntityRef"
+            }
+          }
+        },
+        {
+          "constraints": {
+            "maxItems": 1000
+          },
+          "name": "include",
+          "required": false,
+          "type": {
+            "array": {
+              "ref": "EntityRef"
+            }
+          }
+        },
+        {
+          "default": false,
+          "description": "True requires every `include` entity on the same record (AND). False (default) is any of them (OR).",
+          "name": "match_all",
+          "required": false,
+          "type": {
+            "prim": "boolean"
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "MatchAllEntityFilter"
     },
     "Matched": {
       "additional": false,
@@ -10682,6 +13130,21 @@
           }
         },
         {
+          "description": "Language the article is written in, by its English name (German, Spanish).",
+          "name": "languages",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "ref": "TermsFilter"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
           "description": "The outlet: \"TechCrunch\" or \"techcrunch.com\".",
           "name": "publications",
           "required": false,
@@ -10718,6 +13181,26 @@
             "union": [
               {
                 "ref": "EntityFilter"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "What the records must be about, matched in their own text: a keyword or phrase, or {\"and\": [...]}, {\"or\": [...]}, {\"not\": ...} nested. Filled from `query` when not sent.",
+          "name": "topic",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "map": {
+                  "prim": "any"
+                }
               },
               {
                 "prim": "null"
@@ -11224,6 +13707,27 @@
           }
         },
         {
+          "constraints": {
+            "maxItems": 200,
+            "minItems": 1
+          },
+          "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+          "name": "fields",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "array": {
+                  "prim": "string"
+                }
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
           "name": "filters",
           "required": false,
           "type": {
@@ -11247,6 +13751,15 @@
           "required": false,
           "type": {
             "prim": "integer"
+          }
+        },
+        {
+          "default": false,
+          "description": "True: `query` is never read into filters. It is searched as a description, by meaning (by its words where a category has no meaning search), and `filters` (with the domain lists) is the whole filter set, so text inside a query cannot add, change or remove a filter. Takes `mode: fast` or `auto` (both run it the same way, billed as `fast`).",
+          "name": "lock_filters",
+          "required": false,
+          "type": {
+            "prim": "boolean"
           }
         },
         {
@@ -11420,7 +13933,8 @@
         "institutions",
         "lookup",
         "org_chart",
-        "agent_run"
+        "agent_run",
+        "enrichment"
       ]
     },
     "OperationInput": {
@@ -11437,14 +13951,191 @@
         "institutions",
         "lookup",
         "org_chart",
-        "agent_run"
+        "agent_run",
+        "enrichment"
       ]
+    },
+    "OrgChartCellPerson": {
+      "additional": false,
+      "description": "One person a cell counts. `id` is the id `POST /v1/search` gives the same person, and each\nother key a search person row also has (`contact_name` to `company_linkedin_url`) holds the\nsame thing, as a string or null. Where the chart counts them is `placement`, in the chart's\ncodes rather than the spellings search returns. The employer is the charted company, named\nas the answer's `company` is; its firmographics are the company's own record.",
+      "direction": "output",
+      "fields": [
+        {
+          "description": "The charted company's name.",
+          "name": "account_name",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "avatar",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "default": "person",
+          "name": "category",
+          "required": false,
+          "type": {
+            "literal": "person"
+          }
+        },
+        {
+          "name": "city",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "The charted company's LinkedIn page.",
+          "name": "company_linkedin_url",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "contact_name",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "country",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "id",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        },
+        {
+          "name": "linkedin_url",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "`city, state, country`, the parts held.",
+          "name": "location",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "placement",
+          "required": true,
+          "type": {
+            "ref": "OrgChartPlacement"
+          }
+        },
+        {
+          "name": "state",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "title",
+          "required": true,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "CellPerson"
     },
     "OrgChartCompany": {
       "additional": false,
       "direction": "output",
       "fields": [
         {
+          "description": "Names this company in a follow-up call (its people, another chart) without resolving it again.",
           "name": "company_ref",
           "required": false,
           "type": {
@@ -11662,6 +14353,343 @@
       "origin": "api",
       "schema": "OrgChartFilters"
     },
+    "OrgChartPeopleCell": {
+      "additional": false,
+      "description": "One count on the chart, by code: a department, a seniority or both, and a sub-department\ninside its department. `unknown` names the people with no value on that axis, as the chart\ncounted them.",
+      "direction": "input",
+      "fields": [
+        {
+          "constraints": {
+            "maxLength": 256,
+            "minLength": 1
+          },
+          "name": "department",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maxLength": 256,
+            "minLength": 1
+          },
+          "name": "seniority",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maxLength": 256,
+            "minLength": 1
+          },
+          "name": "subdepartment",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "PeopleCell"
+    },
+    "OrgChartPeopleRequest": {
+      "additional": false,
+      "description": "The people one cell counted. Send the chart's own `filters` and `include_suspects`: they\nnarrow the list as they narrowed the count.",
+      "direction": "input",
+      "fields": [
+        {
+          "name": "cell",
+          "required": true,
+          "type": {
+            "ref": "OrgChartPeopleCell"
+          }
+        },
+        {
+          "constraints": {
+            "maxLength": 255
+          },
+          "description": "One company by the `company_ref` this API gave it: an org chart answer's `company`, a candidate's in an `org_chart.company_ambiguous` answer, or a company search hit's `id`, which is the same ref. Opaque; a ref this API did not give is refused.",
+          "name": "company_ref",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maxLength": 8192
+          },
+          "description": "`next_cursor` from the previous page. Send the same body with it.",
+          "name": "cursor",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maxLength": 300
+          },
+          "name": "domain",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "filters",
+          "required": false,
+          "type": {
+            "ref": "OrgChartFilters"
+          }
+        },
+        {
+          "default": false,
+          "name": "include_suspects",
+          "required": false,
+          "type": {
+            "prim": "boolean"
+          }
+        },
+        {
+          "constraints": {
+            "maximum": 100.0,
+            "minimum": 1.0
+          },
+          "default": 10,
+          "name": "limit",
+          "required": false,
+          "type": {
+            "prim": "integer"
+          }
+        },
+        {
+          "constraints": {
+            "maxLength": 300
+          },
+          "name": "linkedin_url",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "PeopleRequest"
+    },
+    "OrgChartPeopleResponse": {
+      "additional": false,
+      "description": "The people one cell counted, a page at a time, most senior first. `total` is the cell's\ncount: the list and the chart are one query.",
+      "direction": "output",
+      "fields": [
+        {
+          "name": "attribution",
+          "required": false,
+          "type": {
+            "array": {
+              "ref": "Attribution"
+            }
+          }
+        },
+        {
+          "name": "company",
+          "required": true,
+          "type": {
+            "ref": "OrgChartCompany"
+          }
+        },
+        {
+          "description": "The people index the counts were read from.",
+          "name": "data_version",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        },
+        {
+          "name": "degradation",
+          "required": false,
+          "type": {
+            "array": {
+              "ref": "Degradation"
+            }
+          }
+        },
+        {
+          "name": "has_more",
+          "required": true,
+          "type": {
+            "prim": "boolean"
+          }
+        },
+        {
+          "name": "matched",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "ref": "Matched"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "meta",
+          "required": true,
+          "type": {
+            "ref": "ResponseMeta"
+          }
+        },
+        {
+          "description": "Opaque and signed. `has_more` is true exactly when it is set.",
+          "name": "next_cursor",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "name": "results",
+          "required": true,
+          "type": {
+            "array": {
+              "ref": "OrgChartCellPerson"
+            }
+          }
+        },
+        {
+          "constraints": {
+            "minimum": 0.0
+          },
+          "description": "People left out as likely fake profiles.",
+          "name": "suspect_count",
+          "required": true,
+          "type": {
+            "prim": "integer"
+          }
+        },
+        {
+          "name": "taxonomy_version",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        },
+        {
+          "constraints": {
+            "minimum": 0.0
+          },
+          "description": "The cell's count, as the chart counts it. A person on the Do-Not-Contact list is counted but never listed, so the pages can hold fewer people than this.",
+          "name": "total",
+          "required": true,
+          "type": {
+            "prim": "integer"
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "PeopleResponse"
+    },
+    "OrgChartPlacement": {
+      "additional": false,
+      "description": "Where the chart counts a person, in `taxonomy_version`'s codes: at their highest\nseniority, in each department they hold and in each of their sub-departments. A person with\nno seniority, or no department, is counted under `unknown` (\"Unknown\").",
+      "direction": "output",
+      "fields": [
+        {
+          "name": "departments",
+          "required": true,
+          "type": {
+            "array": {
+              "ref": "CodeLabel"
+            }
+          }
+        },
+        {
+          "name": "seniority",
+          "required": true,
+          "type": {
+            "ref": "CodeLabel"
+          }
+        },
+        {
+          "name": "subdepartments",
+          "required": true,
+          "type": {
+            "array": {
+              "ref": "CodeLabel"
+            }
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "Placement"
+    },
     "OrgChartRequest": {
       "additional": false,
       "direction": "input",
@@ -11670,7 +14698,7 @@
           "constraints": {
             "maxLength": 255
           },
-          "description": "A `company_ref` from an `org_chart.company_ambiguous` answer.",
+          "description": "One company by the `company_ref` this API gave it: an org chart answer's `company`, a candidate's in an `org_chart.company_ambiguous` answer, or a company search hit's `id`, which is the same ref. Opaque; a ref this API did not give is refused.",
           "name": "company_ref",
           "required": false,
           "type": {
@@ -12349,6 +15377,21 @@
           }
         },
         {
+          "description": "Inventors named on the patent, as people's names in either order (`Jane Doe` matches `DOE JANE`). Set `match_all` to require every one.",
+          "name": "inventors",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "ref": "TermsFilter"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
           "description": "Keyword sets: positive sets must match, negative sets demote.",
           "name": "keywords",
           "required": false,
@@ -12413,6 +15456,26 @@
           "required": false,
           "type": {
             "ref": "PatentStatus"
+          }
+        },
+        {
+          "description": "What the records must be about, matched in their own text: a keyword or phrase, or {\"and\": [...]}, {\"or\": [...]}, {\"not\": ...} nested. Filled from `query` when not sent.",
+          "name": "topic",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "map": {
+                  "prim": "any"
+                }
+              },
+              {
+                "prim": "null"
+              }
+            ]
           }
         }
       ],
@@ -12839,6 +15902,27 @@
           }
         },
         {
+          "constraints": {
+            "maxItems": 200,
+            "minItems": 1
+          },
+          "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+          "name": "fields",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "array": {
+                  "prim": "string"
+                }
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
           "name": "filters",
           "required": false,
           "type": {
@@ -12862,6 +15946,15 @@
           "required": false,
           "type": {
             "prim": "integer"
+          }
+        },
+        {
+          "default": false,
+          "description": "True: `query` is never read into filters. It is searched as a description, by meaning (by its words where a category has no meaning search), and `filters` (with the domain lists) is the whole filter set, so text inside a query cannot add, change or remove a filter. Takes `mode: fast` or `auto` (both run it the same way, billed as `fast`).",
+          "name": "lock_filters",
+          "required": false,
+          "type": {
+            "prim": "boolean"
           }
         },
         {
@@ -14360,11 +17453,29 @@
       "direction": "input",
       "fields": [
         {
-          "description": "`agent_run` only, and required for it.",
+          "description": "`agent_run` only, and required for it. The earlier names (`minimal`, `low`, `medium`, `high`, `xhigh`) are still accepted.",
           "name": "effort",
           "required": false,
           "type": {
             "union": [
+              {
+                "literal": "quick"
+              },
+              {
+                "literal": "basic"
+              },
+              {
+                "literal": "standard"
+              },
+              {
+                "literal": "detailed"
+              },
+              {
+                "literal": "maximum"
+              },
+              {
+                "literal": "auto"
+              },
               {
                 "literal": "minimal"
               },
@@ -14381,7 +17492,38 @@
                 "literal": "xhigh"
               },
               {
-                "literal": "auto"
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maxItems": 4,
+            "minItems": 1
+          },
+          "description": "`enrichment` only: the fields asked for each of `rows` records. The quote is then every one of them found, each field at its own price (a phone number costs more than an email).",
+          "name": "fields",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "array": {
+                  "union": [
+                    {
+                      "literal": "EMAIL"
+                    },
+                    {
+                      "literal": "PHONE"
+                    },
+                    {
+                      "literal": "DOMAIN"
+                    },
+                    {
+                      "literal": "LINKEDIN_URL"
+                    }
+                  ]
+                }
               },
               {
                 "prim": "null"
@@ -14398,11 +17540,11 @@
         },
         {
           "constraints": {
-            "maximum": 1000.0,
+            "maximum": 30000.0,
             "minimum": 0.0
           },
           "default": 10,
-          "description": "Rows on the page (paged operations, up to 100), or records found (`lookup`, up to 1,000). Ignored by flat operations and agent runs.",
+          "description": "Rows on the page (paged operations, up to 100), records found (`lookup`, up to 1,000), or for `enrichment`: records when `fields` is given (up to 10,000, a job's most), else values at one price (up to 30,000). Ignored by flat operations and agent runs. An enrichment quote over 30,000 credits is refused, as the job would be.",
           "name": "rows",
           "required": false,
           "type": {
@@ -14447,7 +17589,7 @@
           }
         },
         {
-          "description": "`page`: these rows of a search; `records`: per record found; `call`: flat, whatever it returns; `run`: an agent run at that effort; `run_up_to`: `auto` holds this much and is charged at the effort it chooses.",
+          "description": "`page`: these rows of a search; `records`: per record found; `call`: flat, whatever it returns; `run`: an agent run at that effort; `run_up_to`: `auto` holds this much and is charged at the effort it chooses; `values_up_to`: enrichment holds this much (every value asked for) and is charged only for the values newly found.",
           "name": "basis",
           "required": true,
           "type": {
@@ -14466,6 +17608,9 @@
               },
               {
                 "literal": "run_up_to"
+              },
+              {
+                "literal": "values_up_to"
               }
             ]
           }
@@ -15148,6 +18293,42 @@
       "origin": "api",
       "schema": "ReachTarget"
     },
+    "ReadAs": {
+      "additional": false,
+      "description": "Words in the query that the reading turned into filters the query does not state.",
+      "direction": "output",
+      "fields": [
+        {
+          "description": "The filters they set, as `filters` names them.",
+          "name": "filters",
+          "required": true,
+          "type": {
+            "array": {
+              "prim": "string"
+            }
+          }
+        },
+        {
+          "description": "What the words were read as, in one sentence.",
+          "name": "note",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        },
+        {
+          "description": "The query's words, as written.",
+          "name": "words",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "ReadAs"
+    },
     "RelationshipCompany": {
       "additional": false,
       "direction": "input",
@@ -15579,6 +18760,65 @@
     },
     "RelationshipInstitution": {
       "additional": false,
+      "direction": "output",
+      "fields": [
+        {
+          "default": "auto",
+          "name": "by",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "literal": "auto"
+              },
+              {
+                "literal": "name"
+              },
+              {
+                "literal": "li_url"
+              },
+              {
+                "literal": "inst_key"
+              }
+            ]
+          }
+        },
+        {
+          "default": "unknown",
+          "name": "kind",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "literal": "company"
+              },
+              {
+                "literal": "school"
+              },
+              {
+                "literal": "unknown"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maxLength": 300,
+            "minLength": 1
+          },
+          "name": "value",
+          "required": true,
+          "type": {
+            "prim": "string"
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "RelationshipInstitution"
+    },
+    "RelationshipInstitutionInput": {
+      "additional": false,
       "direction": "input",
       "fields": [
         {
@@ -15750,7 +18990,7 @@
           "required": false,
           "type": {
             "array": {
-              "ref": "RelationshipInstitution"
+              "ref": "RelationshipInstitutionInput"
             }
           }
         },
@@ -16127,6 +19367,16 @@
       "direction": "output",
       "fields": [
         {
+          "description": "Similar companies only: what each company name sent as an anchor became. One that is not `exact` also adds an `anchor_not_exact` degradation.",
+          "name": "anchor_matches",
+          "required": false,
+          "type": {
+            "array": {
+              "ref": "AnchorMatch"
+            }
+          }
+        },
+        {
           "name": "category",
           "required": true,
           "type": {
@@ -16230,6 +19480,16 @@
                 "prim": "null"
               }
             ]
+          }
+        },
+        {
+          "description": "Words in `query` the reading took to mean filters the query does not state, each with the filters it set: \"startups\" sets `founded_year` from 2011 and `listing_status` not public. Empty when no such rule applied.",
+          "name": "read_as",
+          "required": false,
+          "type": {
+            "array": {
+              "ref": "ReadAs"
+            }
           }
         },
         {
@@ -16812,7 +20072,7 @@
       "fields": [
         {
           "default": "company",
-          "description": "What the run looks for: companies or people.",
+          "description": "Optional. Companies or people. The run reads this from the question and takes it only as a hint.",
           "name": "category",
           "required": false,
           "type": {
@@ -16830,7 +20090,7 @@
           "constraints": {
             "maxItems": 10
           },
-          "description": "Extra requirements a row must meet, in plain words. The engine decides which it can prove with filters and which it judges.",
+          "description": "Optional. Requirements a row must meet that the question does not state, in plain words. The run already checks the question's own requirements; one sent here in the same words is checked once. The run proves what filters can and judges the rest.",
           "name": "criteria",
           "required": false,
           "type": {
@@ -16840,8 +20100,8 @@
           }
         },
         {
-          "default": "medium",
-          "description": "How hard the run works: `minimal` to `xhigh`, or `auto` to let it choose.",
+          "default": "standard",
+          "description": "How hard the run works: `quick`, `basic`, `standard`, `detailed` or `maximum`, or `auto` to let it choose. The earlier names (`minimal`, `low`, `medium`, `high`, `xhigh`) are still accepted.",
           "name": "effort",
           "required": false,
           "type": {
@@ -16852,7 +20112,7 @@
           "constraints": {
             "maxItems": 20
           },
-          "description": "Columns to fill, by name. A column no source supports comes back null with a reason, never invented.",
+          "description": "Optional. Columns to fill beside those the question asks for, by name. Each is read from Sprouts data first and the web last; a column no source supports comes back null with a reason, never invented.",
           "name": "enrichments",
           "required": false,
           "type": {
@@ -16879,6 +20139,7 @@
             "maxLength": 4000,
             "minLength": 1
           },
+          "description": "The question, in plain words. It is the only field a run needs: the run reads from it whether to find companies or people, the requirements to check on every row and the columns to fill.",
           "name": "query",
           "required": true,
           "type": {
@@ -17149,7 +20410,7 @@
           "constraints": {
             "minimum": 0.0
           },
-          "description": "The answer's size: the run's exact universe when it counted one past the rows it stored, else the rows stored.",
+          "description": "The rows the run kept, the ones a reader can page. How many records the question matches is `coverage.universe`.",
           "name": "total",
           "required": true,
           "type": {
@@ -17546,7 +20807,7 @@
     },
     "SearchCoverage": {
       "additional": false,
-      "description": "How much of the matching set a `deep` answer represents. Null for `fast` and `auto`.\n\nThe universe is counted, not sampled, so ``enumeration_recall`` is a real fraction and\n``universe_exhausted`` means every match was returned and the count agrees.",
+      "description": "How much of the matching set an agent run's answer represents.\n\nThe universe is counted, not sampled, so ``enumeration_recall`` is a real fraction and\n``universe_exhausted`` means every match was returned and the count agrees.",
       "direction": "output",
       "fields": [
         {
@@ -17736,20 +20997,6 @@
           }
         },
         {
-          "name": "coverage",
-          "required": false,
-          "type": {
-            "union": [
-              {
-                "ref": "SearchCoverage"
-              },
-              {
-                "prim": "null"
-              }
-            ]
-          }
-        },
-        {
           "name": "degradation",
           "required": false,
           "type": {
@@ -17924,27 +21171,25 @@
       "schema": "SearchHit"
     },
     "SearchMode": {
-      "description": "How the words in ``query`` are read.\n\n- ``fast``: matched by meaning (vector search, keywords as fallback). No AI reading, so\n  nothing is extracted into filters.\n- ``auto``: an AI reading extracts filters from the words.\n- ``deep``: an agent works the whole question out of ``query`` and enumerates every match it\n  can reach in the request's time, then reports how much of the matching set that was\n  (``coverage``). Companies and people only; one page, no cursor.",
+      "description": "How a search with words is billed. Both modes read ``query`` the same way: an AI\nreading turns what the words ask into filters (the filters sent win), and the description\nleft over is matched by meaning.\n\n- ``fast``: billed as a basic search.\n- ``auto``: billed as an AI search.",
       "direction": "output",
       "kind": "enum",
       "origin": "api",
       "schema": "SearchMode",
       "values": [
         "fast",
-        "auto",
-        "deep"
+        "auto"
       ]
     },
     "SearchModeInput": {
-      "description": "How the words in ``query`` are read.\n\n- ``fast``: matched by meaning (vector search, keywords as fallback). No AI reading, so\n  nothing is extracted into filters.\n- ``auto``: an AI reading extracts filters from the words.\n- ``deep``: an agent works the whole question out of ``query`` and enumerates every match it\n  can reach in the request's time, then reports how much of the matching set that was\n  (``coverage``). Companies and people only; one page, no cursor.",
+      "description": "How a search with words is billed. Both modes read ``query`` the same way: an AI\nreading turns what the words ask into filters (the filters sent win), and the description\nleft over is matched by meaning.\n\n- ``fast``: billed as a basic search.\n- ``auto``: billed as an AI search.",
       "direction": "input",
       "kind": "enum",
       "origin": "api",
       "schema": "SearchMode",
       "values": [
         "fast",
-        "auto",
-        "deep"
+        "auto"
       ]
     },
     "SearchSuggestion": {
@@ -18336,6 +21581,27 @@
             "union": [
               {
                 "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maxItems": 200,
+            "minItems": 1
+          },
+          "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+          "name": "fields",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "array": {
+                  "prim": "string"
+                }
               },
               {
                 "prim": "null"
@@ -19254,6 +22520,103 @@
       "origin": "api",
       "schema": "TransactionsOut"
     },
+    "TrendAdoption": {
+      "direction": "input",
+      "kind": "enum",
+      "origin": "api",
+      "schema": "TrendAdoption",
+      "values": [
+        "Early",
+        "Accelerating",
+        "Rapid",
+        "Wide",
+        "Mainstream"
+      ]
+    },
+    "TrendBadgeMetric": {
+      "direction": "input",
+      "kind": "enum",
+      "origin": "api",
+      "schema": "BadgeMetric",
+      "values": [
+        "Annual Growth",
+        "Authors",
+        "Cities",
+        "Companies",
+        "Company Age",
+        "Company Magnitude",
+        "Company Maturity",
+        "Company Signal Strength",
+        "Countries",
+        "Employee Growth",
+        "Funding",
+        "Funding Rounds",
+        "Grants",
+        "Industries",
+        "Investors",
+        "Languages",
+        "Magnitude",
+        "Manpower",
+        "Maturity",
+        "News Age",
+        "News Coverage",
+        "News Magnitude",
+        "Patents",
+        "Publication Propagation",
+        "Revenue",
+        "Trend Age",
+        "Trend Hype",
+        "Trend Signal Strength",
+        "Yearly Companies Growth",
+        "Yearly Funding Growth",
+        "Yearly News Growth",
+        "Yearly Publication Propagation Growth"
+      ]
+    },
+    "TrendBadgeTier": {
+      "description": "Best first. A tier also takes the better ones: top 15% includes top 10% and top 5%.",
+      "direction": "input",
+      "kind": "enum",
+      "origin": "api",
+      "schema": "BadgeTier",
+      "values": [
+        "top_5_percent",
+        "top_10_percent",
+        "top_15_percent"
+      ]
+    },
+    "TrendBadges": {
+      "additional": false,
+      "description": "Trends holding a badge for any of these metrics, in this tier or a better one.",
+      "direction": "input",
+      "fields": [
+        {
+          "constraints": {
+            "minItems": 1
+          },
+          "description": "Badge metrics, any of them.",
+          "name": "include",
+          "required": true,
+          "type": {
+            "array": {
+              "ref": "TrendBadgeMetric"
+            }
+          }
+        },
+        {
+          "default": "top_15_percent",
+          "description": "The tier or better: top 15% also takes top 10% and top 5%.",
+          "name": "tier",
+          "required": false,
+          "type": {
+            "ref": "TrendBadgeTier"
+          }
+        }
+      ],
+      "kind": "object",
+      "origin": "api",
+      "schema": "TrendBadges"
+    },
     "TrendConnection": {
       "additional": true,
       "direction": "output",
@@ -19402,6 +22765,128 @@
       "direction": "input",
       "fields": [
         {
+          "description": "Top-percentile badges the trend holds.",
+          "name": "badges",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "ref": "TrendBadges"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "Number of companies in the trend.",
+          "name": "companies",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "ref": "RangeFilter"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "Countries the trend's companies are in (a region names its countries).",
+          "name": "countries",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "ref": "TermsFilter"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "Total employees of its companies.",
+          "name": "employees",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "ref": "RangeFilter"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "Number of funding rounds its companies raised.",
+          "name": "funding_rounds",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "ref": "RangeFilter"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "Total its companies raised, in US dollars.",
+          "name": "funding_total",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "ref": "RangeFilter"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "The trend's yearly growth category, any of them.",
+          "name": "growth",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "array": {
+                  "ref": "TrendGrowth"
+                }
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "Industries the trend's companies work in.",
+          "name": "industries",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "ref": "TermsFilter"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
           "description": "Keyword sets over the trend's own text: positive sets match, negative demote.",
           "name": "keywords",
           "required": false,
@@ -19415,11 +22900,190 @@
               }
             ]
           }
+        },
+        {
+          "description": "The trend's magnitude category, any of them.",
+          "name": "magnitude",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "array": {
+                  "ref": "TrendMagnitude"
+                }
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "Market growth rate from a market report, in percent (15 = 15%).",
+          "name": "market_cagr",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "ref": "RangeFilter"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "Market size, in US dollars.",
+          "name": "market_size",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "ref": "RangeFilter"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "The trend's maturity category, any of them.",
+          "name": "maturity",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "array": {
+                  "ref": "TrendMaturity"
+                }
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "Total patents of its companies.",
+          "name": "patents",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "ref": "RangeFilter"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "The trend's signal strength, any of them.",
+          "name": "signal_strength",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "array": {
+                  "ref": "TrendSignalStrength"
+                }
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "The trend's technology adoption, any of them.",
+          "name": "technology_adoption",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "array": {
+                  "ref": "TrendAdoption"
+                }
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "What the records must be about, matched in their own text: a keyword or phrase, or {\"and\": [...]}, {\"or\": [...]}, {\"not\": ...} nested. Filled from `query` when not sent.",
+          "name": "topic",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "map": {
+                  "prim": "any"
+                }
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "constraints": {
+            "maxLength": 2000
+          },
+          "description": "A short description of what the records are about; records close to it in meaning are found beside those holding `topic`. Filled from `query` when not sent.",
+          "name": "topic_description",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
+          "description": "`topic_cluster` for an umbrella trend grouping narrower ones.",
+          "name": "topic_type",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "ref": "TrendTopicType"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
         }
       ],
       "kind": "object",
       "origin": "api",
       "schema": "TrendFilters"
+    },
+    "TrendGrowth": {
+      "direction": "input",
+      "kind": "enum",
+      "origin": "api",
+      "schema": "TrendGrowth",
+      "values": [
+        "Declining",
+        "Stagnant",
+        "Incremental",
+        "Strong",
+        "Exponential"
+      ]
     },
     "TrendKeywordSet": {
       "additional": true,
@@ -19476,6 +23140,32 @@
       ],
       "kind": "object",
       "origin": "records"
+    },
+    "TrendMagnitude": {
+      "direction": "input",
+      "kind": "enum",
+      "origin": "api",
+      "schema": "TrendMagnitude",
+      "values": [
+        "Niche",
+        "Emergent",
+        "Established",
+        "Expansive",
+        "Widespread"
+      ]
+    },
+    "TrendMaturity": {
+      "direction": "input",
+      "kind": "enum",
+      "origin": "api",
+      "schema": "TrendMaturity",
+      "values": [
+        "Inceptive",
+        "Developing",
+        "Average",
+        "Maturing",
+        "Mature"
+      ]
     },
     "TrendRecord": {
       "additional": true,
@@ -19660,6 +23350,27 @@
           }
         },
         {
+          "constraints": {
+            "maxItems": 200,
+            "minItems": 1
+          },
+          "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+          "name": "fields",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "array": {
+                  "prim": "string"
+                }
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
           "name": "filters",
           "required": false,
           "type": {
@@ -19683,6 +23394,15 @@
           "required": false,
           "type": {
             "prim": "integer"
+          }
+        },
+        {
+          "default": false,
+          "description": "True: `query` is never read into filters. It is searched as a description, by meaning (by its words where a category has no meaning search), and `filters` (with the domain lists) is the whole filter set, so text inside a query cannot add, change or remove a filter. Takes `mode: fast` or `auto` (both run it the same way, billed as `fast`).",
+          "name": "lock_filters",
+          "required": false,
+          "type": {
+            "prim": "boolean"
           }
         },
         {
@@ -19735,6 +23455,20 @@
       "kind": "object",
       "origin": "api",
       "schema": "TrendSearchRequest"
+    },
+    "TrendSignalStrength": {
+      "direction": "input",
+      "kind": "enum",
+      "origin": "api",
+      "schema": "TrendSignalStrength",
+      "values": [
+        "Very weak",
+        "Weak",
+        "Medium",
+        "Medium strong",
+        "Strong",
+        "Very strong"
+      ]
     },
     "TrendSort": {
       "additional": false,
@@ -19968,6 +23702,16 @@
       ],
       "kind": "object",
       "origin": "records"
+    },
+    "TrendTopicType": {
+      "direction": "input",
+      "kind": "enum",
+      "origin": "api",
+      "schema": "TrendTopicType",
+      "values": [
+        "regular_topic",
+        "topic_cluster"
+      ]
     },
     "ViaInstitution": {
       "additional": false,
@@ -20327,8 +24071,8 @@
   },
   "version": 1,
   "x-source": {
-    "commit": "8c06583ea53e56e492b160c627f209b3e5856652",
-    "ref": "origin/sd-qa",
+    "commit": "ec23ad95c867281565be2d1558752564513fe079",
+    "ref": "ec23ad9",
     "repo": "dsp-backend"
   }
 }

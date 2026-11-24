@@ -27,7 +27,6 @@
         }
       ],
       "columns": null,
-      "coverage": null,
       "degradation": [
         {
           "detail": "`last_funding_date` is held by only 2.0% of companies (246 of 12,345), so this search can reach at most that share. A small answer may reflect missing data rather than a narrow ask.",

@@ -59,11 +59,14 @@ that capability.
 | `dsp.usage.read` | `credits.*`, `history.*` |
 | `dsp.agents.write` | `runs.create`, `runs.cancel` |
 | `dsp.agents.read` or `dsp.agents.write` | `runs.retrieve`, `runs.wait`, `runs.list`, `runs.results`, `runs.events` |
+| `dsp.enrichment.write` | `enrichment.create`, `enrichment.cancel`, `enrichment.lookup` |
+| `dsp.enrichment.read` or `dsp.enrichment.write` | `enrichment.retrieve`, `enrichment.wait`, `enrichment.list`, `enrichment.results` |
 | `dsp.search.read` or `dsp.entities.read` | `lists.*`, `exports.*`, `searchExport` |
 | `dsp.search.read` or `dsp.usage.read` | `feedback.*`, including `feedback.tags` and `feedback.votes.*` |
 
-A key made with the default scopes has no `dsp.agents.*` scope. [Agent
-runs](runs.md) need a key created with them.
+A key made with the default scopes has no `dsp.agents.*` or
+`dsp.enrichment.*` scope. [Agent runs](runs.md) and
+[enrichment](enrichment.md) need a key created with them.
 
 A call that needs a workspace throws `WorkspaceRequiredError`, a subclass of
 `PermissionDeniedError`.

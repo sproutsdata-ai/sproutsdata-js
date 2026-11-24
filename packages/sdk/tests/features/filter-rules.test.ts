@@ -12,7 +12,9 @@ import { rig } from '../support/rig.js';
 const COMPANY = { category: 'company', query: 'x' } as const;
 const PATENT = { category: 'patent', query: 'x' } as const;
 
-const REFUSED: readonly [string, object, object, string][] = [
+const TREE_7 = { not: { not: { not: { not: { not: { not: 'deep' } } } } } };
+
+const REFUSED: readonly [string, object, object, string | RegExp][] = [
   ['range', COMPANY, { revenue: {} }, 'filters.revenue: requires at least one of gte or lte'],
   ['order', COMPANY, { revenue: { gte: 9, lte: 1 } }, 'gte (9) must not exceed lte (1)'],
   ['preset', COMPANY, { last_funding_date: { preset: 'last_30_days', gte: '2024-01-01' } }, 'preset cannot be combined'],
@@ -32,6 +34,10 @@ const REFUSED: readonly [string, object, object, string][] = [
   ['period', PATENT, { publication_date: {} }, 'at least one of period or last_updated'],
   ['groups', PATENT, { keywords: {} }, 'at least one of positive or negative'],
   ['applicants', PATENT, { applicants: {} }, 'requires at least one entry in include or exclude'],
+  ['topic depth', PATENT, { topic: TREE_7 }, /filters\.topic\.not.*: the tree is nested deeper than 6/],
+  ['topic size', { category: 'news_article', query: 'x' }, { topic: { or: Array.from({ length: 101 }, (_, i) => `k${String(i)}`) } }, 'filters.topic: at most 100 keywords'],
+  ['topic blank', { category: 'trend', query: 'x' }, { topic: '  ' }, 'filters.topic: a keyword cannot be blank'],
+  ['match_all', { category: 'funding_round', query: 'x' }, { investors: {} }, 'filters.investors: requires at least one entry in include or exclude'],
 ];
 
 describe('filter rules', () => {
@@ -40,7 +46,7 @@ describe('filter rules', () => {
   });
 
   it.each([
-    [{ not: { not: { not: { not: { not: { not: 'deep' } } } } } }, 'nested deeper than 6'],
+    [TREE_7, 'nested deeper than 6'],
     ['x'.repeat(101), 'at most 100 characters'],
     [{ and: ['a'], or: ['b'] }, 'a node is a keyword or one of'],
     [{ xor: ['a'] }, 'a node is a keyword or one of'],
@@ -63,6 +69,17 @@ describe('filter rules', () => {
     };
     expect(searchBody({ ...COMPANY, filters } as SearchParams)).toMatchObject({ filters });
     checkKeywordTree('search', '  a  keyword ');
+  });
+
+  it('S7: document topics and match_all that hold are sent', () => {
+    const funding = searchBody({
+      category: 'funding_round',
+      query: 'x',
+      filters: { topic: { and: ['payments', { not: 'crypto' }] }, investors: { include: [{ value: 'sequoia.com' }], match_all: true } },
+    });
+    const trend = searchBody({ category: 'trend', filters: { topic: 'ai agents', badges: { include: ['Annual Growth'] } } });
+    assertValidRequest('search', funding);
+    assertValidRequest('search', trend);
   });
 
   it('S7: new filters, keyword fields and sort fields are sent as the server reads them', async () => {

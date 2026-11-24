@@ -54,12 +54,13 @@ else its LinkedIn page; a person by their LinkedIn URL; a document by its
 
 | Call | What it does | Guide |
 |---|---|---|
-| `search`, `iterSearch` | Companies, people and seven document corpora; `fast`, `auto` or `deep` | [Quickstart](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/quickstart.md), [Pagination](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/pagination.md) |
+| `search`, `iterSearch` | Companies, people and seven document corpora; `fast` or `auto` | [Quickstart](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/quickstart.md), [Pagination](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/pagination.md) |
 | `similar`, `iterSimilar` | Look-alike companies from one or more anchors | [Quickstart](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/quickstart.md#look-alikes) |
 | `filterValues`, `documentFilterValues`, `sorts`, `coverage` | The filter vocabularies, the sort catalogue, what the index holds; free | [Filters](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/filters.md), [Sorting](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/sorting.md) |
 | `entities.*` | Full records, one method per category | [Quickstart](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/quickstart.md#full-records) |
 | `relationships.find`, `reach`, `institutions`, `ask` | Who knows whom, and why | [Relationships](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/relationships.md) |
-| `orgChart.retrieve`, `departments`, `locations`, `taxonomy` | A company's people, counted | [Org charts](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/org-chart.md) |
+| `orgChart.retrieve`, `departments`, `locations`, `people`, `taxonomy` | A company's people, counted, and the people one count holds | [Org charts](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/org-chart.md) |
+| `enrichment.lookup`, `create`, `wait`, `results`, ... | Emails and phones for people, domains, phones and pages for companies | [Enrichment](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/enrichment.md) |
 | `runs.*` | Agents: start an agent run, follow it, read it | [Agent runs](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/runs.md) |
 | `lists.*`, `searchExport`, `exports.*` | Saved lists, and CSV export as a file or a job | [Saved lists](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/lists.md) |
 | `credits.retrieve`, `credits.transactions` | The balance and the ledger; free | [Credits and usage](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/usage.md) |
@@ -78,10 +79,9 @@ const page = await client.search({
 console.log(page.resolved_search?.filters);
 ```
 
-- `fast` matches by meaning; `auto` also turns the words into filters and
-  reports them in `resolved_search`; `deep` works the whole question out of
-  `query` and reports how much of the matching set it reached in `coverage`
-  (companies and people only, one page, query alone).
+- `fast` and `auto` both read the words into filters (the filters you send win)
+  and report them in `resolved_search`; `auto` is billed as an AI search. `deep`
+  is no longer offered: start an agent run (`runs.create`) instead.
 - `category: 'auto'` lets the question pick the category; it takes only
   `query`, `mode`, `limit` and `cursor`.
 - Company and person searches take the typed `DiscoverFilters`; each document
@@ -189,10 +189,10 @@ Everything the SDK throws is a `SproutsDataError`. Branch on the class or on
 Up to `maxRetries` (default 2), with full-jitter backoff, and a `Retry-After` of
 up to 60 seconds waited out in full. What is retried depends on what repeating
 the call costs: a billed call (search, look-alikes, lookups, relationships, org
-charts) that may have reached the server without an answer is raised with
-`reachedServer: true`, never repeated, because it may already have been
-charged. `runs.create` and `feedback.create` are retried under their
-`Idempotency-Key`. Redirects are never followed. The default rate limit is 60
+charts), `runs.create`, the enrichment calls and `feedback.create` are retried
+under their `Idempotency-Key`, so the server charges a repeat once and starts
+nothing twice. `lists.create` and `lists.delete` that may have reached the
+server without an answer are raised with `reachedServer: true`, never repeated. Redirects are never followed. The default rate limit is 60
 requests a minute per endpoint.
 
 ## Configuration

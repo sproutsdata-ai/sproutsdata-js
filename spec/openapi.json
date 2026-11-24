@@ -4,6 +4,17 @@
       "AcademicReportFilters": {
         "additionalProperties": false,
         "properties": {
+          "authors": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TermsFilter"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Authors of the paper, as people's names in either order. Set `match_all` to require every one."
+          },
           "citation_count": {
             "anyOf": [
               {
@@ -67,6 +78,52 @@
               }
             ],
             "description": "How many references the paper cites."
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object"
+                  }
+                ],
+                "description": "a keyword or one of {\"and\": [...]}, {\"or\": [...]}, {\"not\": ...}, nested to any shape (at most 6 levels, 100 keywords, 100 characters each).",
+                "examples": [
+                  {
+                    "and": [
+                      {
+                        "or": [
+                          "medical billing",
+                          "revenue cycle management"
+                        ]
+                      },
+                      {
+                        "or": [
+                          "hospitals",
+                          "physician practices"
+                        ]
+                      },
+                      {
+                        "not": {
+                          "or": [
+                            "staffing",
+                            "recruitment"
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What the records must be about, matched in their own text: a keyword or phrase, or {\"and\": [...]}, {\"or\": [...]}, {\"not\": ...} nested. Filled from `query` when not sent.",
+            "title": "Topic"
           }
         },
         "title": "AcademicReportFilters",
@@ -110,6 +167,25 @@
             "description": "`next_cursor` from the previous page. Send the same body with it.",
             "title": "Cursor"
           },
+          "fields": {
+            "anyOf": [
+              {
+                "items": {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "maxItems": 200,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "title": "Fields"
+          },
           "filters": {
             "anyOf": [
               {
@@ -126,6 +202,12 @@
             "minimum": 1.0,
             "title": "Limit",
             "type": "integer"
+          },
+          "lock_filters": {
+            "default": false,
+            "description": "True: `query` is never read into filters. It is searched as a description, by meaning (by its words where a category has no meaning search), and `filters` (with the domain lists) is the whole filter set, so text inside a query cannot add, change or remove a filter. Takes `mode: fast` or `auto` (both run it the same way, billed as `fast`).",
+            "title": "Lock Filters",
+            "type": "boolean"
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
@@ -238,6 +320,31 @@
         "title": "Anchor",
         "type": "object"
       },
+      "AnchorAlternative": {
+        "properties": {
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Send it as a domain anchor to pick it.",
+            "title": "Domain"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "AnchorAlternative",
+        "type": "object"
+      },
       "AnchorBy": {
         "enum": [
           "domain",
@@ -246,6 +353,59 @@
         ],
         "title": "AnchorBy",
         "type": "string"
+      },
+      "AnchorMatch": {
+        "description": "What a company name sent as an anchor became.",
+        "properties": {
+          "alternatives": {
+            "description": "Other companies holding the name, when not exact.",
+            "items": {
+              "$ref": "#/components/schemas/AnchorAlternative"
+            },
+            "title": "Alternatives",
+            "type": "array"
+          },
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "That company's domain.",
+            "title": "Domain"
+          },
+          "exact": {
+            "description": "False when the name is not that company's own: it is the closest one held.",
+            "title": "Exact",
+            "type": "boolean"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The company the name became.",
+            "title": "Name"
+          },
+          "value": {
+            "description": "The name as sent.",
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "value",
+          "exact"
+        ],
+        "title": "AnchorMatch",
+        "type": "object"
       },
       "AskEnvelope": {
         "description": "Exactly one of the answers is set, named by ``route``.",
@@ -482,6 +642,25 @@
             "description": "`next_cursor` from the previous page. Send the same body with it.",
             "title": "Cursor"
           },
+          "fields": {
+            "anyOf": [
+              {
+                "items": {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "maxItems": 200,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "title": "Fields"
+          },
           "limit": {
             "default": 10,
             "maximum": 100.0,
@@ -505,6 +684,170 @@
         ],
         "title": "AutoSearchRequest",
         "type": "object"
+      },
+      "AutoTopup": {
+        "properties": {
+          "amount_cents": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Cents"
+          },
+          "card_on_file": {
+            "description": "A card saved by a paid purchase.",
+            "title": "Card On File",
+            "type": "boolean"
+          },
+          "consecutive_declines": {
+            "title": "Consecutive Declines",
+            "type": "integer"
+          },
+          "daily_cap_cents": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Daily Cap Cents"
+          },
+          "disabled_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Why it turned itself off: `declined` (three in a row) or `no_card`.",
+            "title": "Disabled Reason"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "threshold_credits": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Threshold Credits"
+          }
+        },
+        "required": [
+          "enabled",
+          "threshold_credits",
+          "amount_cents",
+          "daily_cap_cents",
+          "consecutive_declines",
+          "disabled_reason",
+          "card_on_file"
+        ],
+        "title": "AutoTopup",
+        "type": "object"
+      },
+      "AutoTopupIn": {
+        "properties": {
+          "amount_cents": {
+            "description": "What each top-up buys, in US cents.",
+            "maximum": 1000000000.0,
+            "minimum": 1.0,
+            "title": "Amount Cents",
+            "type": "integer"
+          },
+          "daily_cap_cents": {
+            "anyOf": [
+              {
+                "maximum": 1000000000.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "At most this a UTC day.",
+            "title": "Daily Cap Cents"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "threshold_credits": {
+            "description": "Buy when available credits fall below this.",
+            "maximum": 1000000000.0,
+            "minimum": 0.001,
+            "title": "Threshold Credits",
+            "type": "number"
+          }
+        },
+        "required": [
+          "enabled",
+          "threshold_credits",
+          "amount_cents"
+        ],
+        "title": "AutoTopupIn",
+        "type": "object"
+      },
+      "BadgeMetric": {
+        "enum": [
+          "Annual Growth",
+          "Authors",
+          "Cities",
+          "Companies",
+          "Company Age",
+          "Company Magnitude",
+          "Company Maturity",
+          "Company Signal Strength",
+          "Countries",
+          "Employee Growth",
+          "Funding",
+          "Funding Rounds",
+          "Grants",
+          "Industries",
+          "Investors",
+          "Languages",
+          "Magnitude",
+          "Manpower",
+          "Maturity",
+          "News Age",
+          "News Coverage",
+          "News Magnitude",
+          "Patents",
+          "Publication Propagation",
+          "Revenue",
+          "Trend Age",
+          "Trend Hype",
+          "Trend Signal Strength",
+          "Yearly Companies Growth",
+          "Yearly Funding Growth",
+          "Yearly News Growth",
+          "Yearly Publication Propagation Growth"
+        ],
+        "title": "BadgeMetric",
+        "type": "string"
+      },
+      "BadgeTier": {
+        "description": "Best first. A tier also takes the better ones: top 15% includes top 10% and top 5%.",
+        "enum": [
+          "top_5_percent",
+          "top_10_percent",
+          "top_15_percent"
+        ],
+        "title": "BadgeTier",
+        "type": "string"
       },
       "Breakdown": {
         "properties": {
@@ -626,6 +969,153 @@
           "count"
         ],
         "title": "Cell",
+        "type": "object"
+      },
+      "CellPerson": {
+        "description": "One person a cell counts. `id` is the id `POST /v1/search` gives the same person, and each\nother key a search person row also has (`contact_name` to `company_linkedin_url`) holds the\nsame thing, as a string or null. Where the chart counts them is `placement`, in the chart's\ncodes rather than the spellings search returns. The employer is the charted company, named\nas the answer's `company` is; its firmographics are the company's own record.",
+        "properties": {
+          "account_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The charted company's name.",
+            "title": "Account Name"
+          },
+          "avatar": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar"
+          },
+          "category": {
+            "const": "person",
+            "default": "person",
+            "title": "Category",
+            "type": "string"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City"
+          },
+          "company_linkedin_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The charted company's LinkedIn page.",
+            "title": "Company Linkedin Url"
+          },
+          "contact_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contact Name"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "linkedin_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Linkedin Url"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "`city, state, country`, the parts held.",
+            "title": "Location"
+          },
+          "placement": {
+            "$ref": "#/components/schemas/Placement"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "State"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "required": [
+          "id",
+          "contact_name",
+          "title",
+          "linkedin_url",
+          "avatar",
+          "city",
+          "state",
+          "country",
+          "location",
+          "account_name",
+          "company_linkedin_url",
+          "placement"
+        ],
+        "title": "CellPerson",
         "type": "object"
       },
       "CodeCount": {
@@ -829,6 +1319,7 @@
       },
       "CompanyLookup": {
         "additionalProperties": false,
+        "description": "A record's ``technology`` list is cut to the 25 a search row shows.",
         "properties": {
           "by": {
             "anyOf": [
@@ -1491,7 +1982,8 @@
           "upstream_advisory",
           "no_match",
           "topic_not_required",
-          "sparse_filter"
+          "sparse_filter",
+          "anchor_not_exact"
         ],
         "title": "DegradationReason",
         "type": "string"
@@ -1569,7 +2061,7 @@
                 "type": "null"
               }
             ],
-            "description": "A `company_ref` from an `org_chart.company_ambiguous` answer.",
+            "description": "One company by the `company_ref` this API gave it: an org chart answer's `company`, a candidate's in an `org_chart.company_ambiguous` answer, or a company search hit's `id`, which is the same ref. Opaque; a ref this API did not give is refused.",
             "title": "Company Ref"
           },
           "domain": {
@@ -2571,12 +3063,13 @@
         "type": "object"
       },
       "Effort": {
+        "description": "How hard a run works. The names the tiers had before (`minimal`, `low`, `medium`, `high`,\n`xhigh`) are read as the tier they named.",
         "enum": [
-          "minimal",
-          "low",
-          "medium",
-          "high",
-          "xhigh",
+          "quick",
+          "basic",
+          "standard",
+          "detailed",
+          "maximum",
           "auto"
         ],
         "title": "Effort",
@@ -2676,6 +3169,185 @@
           }
         },
         "title": "EmploymentHistoryGroup",
+        "type": "object"
+      },
+      "EnrichmentItem": {
+        "additionalProperties": false,
+        "description": "A person (contacts) or a company (accounts). Send what you know.",
+        "properties": {
+          "company_domain": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company Domain"
+          },
+          "company_id": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Our id for a company.",
+            "title": "Company Id"
+          },
+          "company_name": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company Name"
+          },
+          "email_hint": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email Hint"
+          },
+          "es_id": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Legacy name of person_id.",
+            "title": "Es Id"
+          },
+          "external_id": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Your id, echoed.",
+            "title": "External Id"
+          },
+          "fields": {
+            "anyOf": [
+              {
+                "items": {
+                  "enum": [
+                    "EMAIL",
+                    "PHONE",
+                    "DOMAIN",
+                    "LINKEDIN_URL"
+                  ],
+                  "type": "string"
+                },
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "This row's own fields, a subset of the request's. Unset: all of them.",
+            "title": "Fields"
+          },
+          "first_name": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Name"
+          },
+          "full_name": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "last_name": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Name"
+          },
+          "linkedin_url": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Linkedin Url"
+          },
+          "person_id": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Our id for a person.",
+            "title": "Person Id"
+          },
+          "reference": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Legacy: external_id.",
+            "title": "Reference"
+          }
+        },
+        "title": "EnrichmentItem",
         "type": "object"
       },
       "EntitiesEnvelope": {
@@ -2946,6 +3618,25 @@
             "title": "Exclude Domains",
             "type": "array"
           },
+          "fields": {
+            "anyOf": [
+              {
+                "items": {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "maxItems": 200,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "title": "Fields"
+          },
           "filters": {
             "anyOf": [
               {
@@ -3017,6 +3708,12 @@
             "minimum": 1.0,
             "title": "Limit",
             "type": "integer"
+          },
+          "lock_filters": {
+            "default": false,
+            "description": "True: `query` is never read into filters. It is searched as a description, by meaning (by its words where a category has no meaning search), and `filters` (with the domain lists) is the whole filter set, so text inside a query cannot add, change or remove a filter. Takes `mode: fast` or `auto` (both run it the same way, billed as `fast`).",
+            "title": "Lock Filters",
+            "type": "boolean"
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
@@ -3535,6 +4232,17 @@
             ],
             "description": "The company that raised."
           },
+          "company_city": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TermsFilter"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "City of the company that raised, matched ignoring case."
+          },
           "company_country": {
             "anyOf": [
               {
@@ -3566,7 +4274,7 @@
                 "type": "null"
               }
             ],
-            "description": "The amount raised, in US dollars."
+            "description": "The amount raised, in US dollars. In `auto` mode an amount the question writes in another currency is converted to US dollars, and a warning gives the rate."
           },
           "investor_country": {
             "anyOf": [
@@ -3582,13 +4290,13 @@
           "investors": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/EntityFilter"
+                "$ref": "#/components/schemas/MatchAllEntityFilter"
               },
               {
                 "type": "null"
               }
             ],
-            "description": "Any of these investors took part."
+            "description": "Investors that took part: any of them, or with `match_all` every one of them in the same round (\"rounds where both A and B took part\"). In `auto` mode a question naming both sets it."
           },
           "keywords": {
             "anyOf": [
@@ -3611,6 +4319,52 @@
               }
             ],
             "description": "Round type: Series A, Seed, Angel, Debt, M&A, Accelerator, ..."
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object"
+                  }
+                ],
+                "description": "a keyword or one of {\"and\": [...]}, {\"or\": [...]}, {\"not\": ...}, nested to any shape (at most 6 levels, 100 keywords, 100 characters each).",
+                "examples": [
+                  {
+                    "and": [
+                      {
+                        "or": [
+                          "medical billing",
+                          "revenue cycle management"
+                        ]
+                      },
+                      {
+                        "or": [
+                          "hospitals",
+                          "physician practices"
+                        ]
+                      },
+                      {
+                        "not": {
+                          "or": [
+                            "staffing",
+                            "recruitment"
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What the records must be about, matched in their own text: a keyword or phrase, or {\"and\": [...]}, {\"or\": [...]}, {\"not\": ...} nested. Filled from `query` when not sent.",
+            "title": "Topic"
           }
         },
         "title": "FundingFilters",
@@ -3666,6 +4420,25 @@
             "description": "`next_cursor` from the previous page. Send the same body with it.",
             "title": "Cursor"
           },
+          "fields": {
+            "anyOf": [
+              {
+                "items": {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "maxItems": 200,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "title": "Fields"
+          },
           "filters": {
             "anyOf": [
               {
@@ -3682,6 +4455,12 @@
             "minimum": 1.0,
             "title": "Limit",
             "type": "integer"
+          },
+          "lock_filters": {
+            "default": false,
+            "description": "True: `query` is never read into filters. It is searched as a description, by meaning (by its words where a category has no meaning search), and `filters` (with the domain lists) is the whole filter set, so text inside a query cannot add, change or remove a filter. Takes `mode: fast` or `auto` (both run it the same way, billed as `fast`).",
+            "title": "Lock Filters",
+            "type": "boolean"
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
@@ -3904,6 +4683,110 @@
         "title": "HistoryPage",
         "type": "object"
       },
+      "InstitutionLookupEnvelope": {
+        "description": "Suggestions for a typed employer or school name, most people first. Free.",
+        "properties": {
+          "corrected": {
+            "default": false,
+            "description": "No stored name starts with the text, so these are spelling corrections.",
+            "title": "Corrected",
+            "type": "boolean"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/InstitutionSuggestion"
+            },
+            "title": "Results",
+            "type": "array"
+          }
+        },
+        "required": [
+          "results",
+          "meta"
+        ],
+        "title": "InstitutionLookupEnvelope",
+        "type": "object"
+      },
+      "InstitutionLookupRequest": {
+        "additionalProperties": false,
+        "description": "Employers and schools whose name starts with what was typed: the picker behind\n`institutions`.",
+        "properties": {
+          "kind": {
+            "default": "any",
+            "description": "`company` keeps employers, `school` schools, `any` both.",
+            "enum": [
+              "any",
+              "company",
+              "school"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "limit": {
+            "default": 10,
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "query": {
+            "description": "What has been typed; a partial word is enough.",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Query",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "title": "InstitutionLookupRequest",
+        "type": "object"
+      },
+      "InstitutionSuggestion": {
+        "properties": {
+          "id": {
+            "description": "The institution key: a LinkedIn page, `edu:<slug>` or `name:<name>`.",
+            "title": "Id",
+            "type": "string"
+          },
+          "institution": {
+            "$ref": "#/components/schemas/RelationshipInstitution",
+            "description": "Send this as one of `institutions` in `POST /v1/relationships` to run on exactly this institution."
+          },
+          "kind": {
+            "enum": [
+              "company",
+              "school"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name as the index stores it (lower case).",
+            "title": "Name",
+            "type": "string"
+          },
+          "people": {
+            "description": "People with an affiliation there, current or past.",
+            "minimum": 0.0,
+            "title": "People",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "people",
+          "institution"
+        ],
+        "title": "InstitutionSuggestion",
+        "type": "object"
+      },
       "InstitutionsRequest": {
         "additionalProperties": false,
         "description": "The institutions two companies' people share, counted, without ranking people.",
@@ -4004,6 +4887,301 @@
           "items"
         ],
         "title": "ItemsRequest",
+        "type": "object"
+      },
+      "Job": {
+        "properties": {
+          "counts": {
+            "$ref": "#/components/schemas/JobCounts"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "credits_charged": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What the job cost, in credits, once it has ended. Null while it runs, never 0 (which reads as free). A value already known is free.",
+            "title": "Credits Charged"
+          },
+          "credits_used": {
+            "description": "Credits the values newly found so far cost, each at its field's price (a phone number costs more than an email).",
+            "title": "Credits Used",
+            "type": "number"
+          },
+          "entity": {
+            "enum": [
+              "contacts",
+              "accounts"
+            ],
+            "title": "Entity",
+            "type": "string"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "eta_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eta Seconds"
+          },
+          "fields": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Fields",
+            "type": "array"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "job_id": {
+            "title": "Job Id",
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "rows_per_second": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rows Per Second"
+          },
+          "status": {
+            "$ref": "#/components/schemas/JobStatus",
+            "description": "As of the last time the job was read."
+          },
+          "stop_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "time_limit",
+                  "no_credits"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Why DSP cancelled the job, when it did: `time_limit` (still running 6 h after it started) or `no_credits` (the workspace could no longer cover it). What it found until then is charged.",
+            "title": "Stop Reason"
+          },
+          "suppressed_rows": {
+            "description": "Positions in `items` left out because they are on the Do-Not-Contact list: never looked up, never charged.",
+            "items": {
+              "type": "integer"
+            },
+            "title": "Suppressed Rows",
+            "type": "array"
+          },
+          "total_rows": {
+            "title": "Total Rows",
+            "type": "integer"
+          },
+          "values_found": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How many values were newly found and charged for, one each whatever the field (a phone number and an email are 2), once the job has ended; rows on the Do-Not-Contact list are left out. Null while it runs. `credits_used` prices the same values, each at its field's price.",
+            "title": "Values Found"
+          }
+        },
+        "required": [
+          "job_id",
+          "entity",
+          "name",
+          "status",
+          "fields",
+          "total_rows",
+          "credits_charged",
+          "created_at",
+          "finished_at",
+          "counts",
+          "credits_used",
+          "rows_per_second",
+          "eta_seconds",
+          "error",
+          "meta"
+        ],
+        "title": "Job",
+        "type": "object"
+      },
+      "JobCounts": {
+        "properties": {
+          "done_rows": {
+            "title": "Done Rows",
+            "type": "integer"
+          },
+          "field_counts": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "type": "object"
+            },
+            "description": "Each field's rows by their status, e.g. `{\"EMAIL\": {\"found\": 3}}`.",
+            "title": "Field Counts",
+            "type": "object"
+          },
+          "rows": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "description": "Rows by their status.",
+            "title": "Rows",
+            "type": "object"
+          },
+          "total_rows": {
+            "title": "Total Rows",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total_rows",
+          "done_rows",
+          "rows",
+          "field_counts"
+        ],
+        "title": "JobCounts",
+        "type": "object"
+      },
+      "JobHandle": {
+        "properties": {
+          "entity": {
+            "enum": [
+              "contacts",
+              "accounts"
+            ],
+            "title": "Entity",
+            "type": "string"
+          },
+          "job_id": {
+            "title": "Job Id",
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "reused": {
+            "description": "True when this `Idempotency-Key` had started this job.",
+            "title": "Reused",
+            "type": "boolean"
+          },
+          "status": {
+            "$ref": "#/components/schemas/JobStatus"
+          },
+          "suppressed_rows": {
+            "description": "Positions in `items` left out because they are on the Do-Not-Contact list: never looked up, never charged.",
+            "items": {
+              "type": "integer"
+            },
+            "title": "Suppressed Rows",
+            "type": "array"
+          },
+          "total_rows": {
+            "title": "Total Rows",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "job_id",
+          "entity",
+          "status",
+          "total_rows",
+          "reused",
+          "meta"
+        ],
+        "title": "JobHandle",
+        "type": "object"
+      },
+      "JobList": {
+        "properties": {
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/JobSummary"
+            },
+            "title": "Results",
+            "type": "array"
+          }
+        },
+        "required": [
+          "results",
+          "has_more",
+          "next_cursor",
+          "meta"
+        ],
+        "title": "JobList",
         "type": "object"
       },
       "JobOpeningFilters": {
@@ -4182,6 +5360,25 @@
             "title": "Exclude Domains",
             "type": "array"
           },
+          "fields": {
+            "anyOf": [
+              {
+                "items": {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "maxItems": 200,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "title": "Fields"
+          },
           "filters": {
             "anyOf": [
               {
@@ -4207,6 +5404,12 @@
             "minimum": 1.0,
             "title": "Limit",
             "type": "integer"
+          },
+          "lock_filters": {
+            "default": false,
+            "description": "True: `query` is never read into filters. It is searched as a description, by meaning (by its words where a category has no meaning search), and `filters` (with the domain lists) is the whole filter set, so text inside a query cannot add, change or remove a filter. Takes `mode: fast` or `auto` (both run it the same way, billed as `fast`).",
+            "title": "Lock Filters",
+            "type": "boolean"
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
@@ -4256,6 +5459,256 @@
         ],
         "title": "JobOpeningSortField",
         "type": "string"
+      },
+      "JobRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "entity": {
+            "default": "contacts",
+            "enum": [
+              "contacts",
+              "accounts"
+            ],
+            "title": "Entity",
+            "type": "string"
+          },
+          "fields": {
+            "description": "What to find. No default: nothing is looked up, or charged, that you did not ask for.",
+            "items": {
+              "enum": [
+                "EMAIL",
+                "PHONE",
+                "DOMAIN",
+                "LINKEDIN_URL"
+              ],
+              "type": "string"
+            },
+            "maxItems": 3,
+            "minItems": 1,
+            "title": "Fields",
+            "type": "array"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/EnrichmentItem"
+            },
+            "minItems": 1,
+            "title": "Items",
+            "type": "array"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A label for your list.",
+            "title": "Name"
+          },
+          "re_enrich": {
+            "default": false,
+            "description": "Look up values that are already known.",
+            "title": "Re Enrich",
+            "type": "boolean"
+          },
+          "verify_mode": {
+            "anyOf": [
+              {
+                "enum": [
+                  "skip",
+                  "moderate",
+                  "strict"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Contacts only. How emails are verified: `skip` (not at all), `moderate` (syntax, domain and the source's own signal) or `strict` (every email checked by a verifier). Unset: the workspace's setting.",
+            "title": "Verify Mode"
+          }
+        },
+        "required": [
+          "items",
+          "fields"
+        ],
+        "title": "JobRequest",
+        "type": "object"
+      },
+      "JobResults": {
+        "properties": {
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "results": {
+            "description": "Rows; each carries its `credits`.",
+            "items": {
+              "$ref": "#/components/schemas/ResultRow"
+            },
+            "title": "Results",
+            "type": "array"
+          }
+        },
+        "required": [
+          "results",
+          "has_more",
+          "next_cursor",
+          "meta"
+        ],
+        "title": "JobResults",
+        "type": "object"
+      },
+      "JobStatus": {
+        "enum": [
+          "queued",
+          "running",
+          "cancelling",
+          "completed",
+          "failed",
+          "cancelled"
+        ],
+        "title": "JobStatus",
+        "type": "string"
+      },
+      "JobSummary": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "credits_charged": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What the job cost, in credits, once it has ended. Null while it runs, never 0 (which reads as free). A value already known is free.",
+            "title": "Credits Charged"
+          },
+          "entity": {
+            "enum": [
+              "contacts",
+              "accounts"
+            ],
+            "title": "Entity",
+            "type": "string"
+          },
+          "fields": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Fields",
+            "type": "array"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "job_id": {
+            "title": "Job Id",
+            "type": "string"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "status": {
+            "$ref": "#/components/schemas/JobStatus",
+            "description": "As of the last time the job was read."
+          },
+          "stop_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "time_limit",
+                  "no_credits"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Why DSP cancelled the job, when it did: `time_limit` (still running 6 h after it started) or `no_credits` (the workspace could no longer cover it). What it found until then is charged.",
+            "title": "Stop Reason"
+          },
+          "suppressed_rows": {
+            "description": "Positions in `items` left out because they are on the Do-Not-Contact list: never looked up, never charged.",
+            "items": {
+              "type": "integer"
+            },
+            "title": "Suppressed Rows",
+            "type": "array"
+          },
+          "total_rows": {
+            "title": "Total Rows",
+            "type": "integer"
+          },
+          "values_found": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How many values were newly found and charged for, one each whatever the field (a phone number and an email are 2), once the job has ended; rows on the Do-Not-Contact list are left out. Null while it runs. `credits_used` prices the same values, each at its field's price.",
+            "title": "Values Found"
+          }
+        },
+        "required": [
+          "job_id",
+          "entity",
+          "name",
+          "status",
+          "fields",
+          "total_rows",
+          "credits_charged",
+          "created_at",
+          "finished_at"
+        ],
+        "title": "JobSummary",
+        "type": "object"
       },
       "KeywordQuery": {
         "additionalProperties": false,
@@ -4504,7 +5957,7 @@
                 "type": "null"
               }
             ],
-            "description": "A `company_ref` from an `org_chart.company_ambiguous` answer.",
+            "description": "One company by the `company_ref` this API gave it: an org chart answer's `company`, a candidate's in an `org_chart.company_ambiguous` answer, or a company search hit's `id`, which is the same ref. Opaque; a ref this API did not give is refused.",
             "title": "Company Ref"
           },
           "domain": {
@@ -4605,6 +6058,153 @@
         "title": "LocationsResponse",
         "type": "object"
       },
+      "LookupRequest": {
+        "additionalProperties": false,
+        "description": "A few rows (at most 20) answered in the call.",
+        "properties": {
+          "entity": {
+            "default": "contacts",
+            "enum": [
+              "contacts",
+              "accounts"
+            ],
+            "title": "Entity",
+            "type": "string"
+          },
+          "fields": {
+            "description": "What to find. No default: nothing is looked up, or charged, that you did not ask for.",
+            "items": {
+              "enum": [
+                "EMAIL",
+                "PHONE",
+                "DOMAIN",
+                "LINKEDIN_URL"
+              ],
+              "type": "string"
+            },
+            "maxItems": 3,
+            "minItems": 1,
+            "title": "Fields",
+            "type": "array"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/EnrichmentItem"
+            },
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Items",
+            "type": "array"
+          },
+          "re_enrich": {
+            "default": false,
+            "description": "Look up values that are already known.",
+            "title": "Re Enrich",
+            "type": "boolean"
+          },
+          "verify_mode": {
+            "anyOf": [
+              {
+                "enum": [
+                  "skip",
+                  "moderate",
+                  "strict"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Contacts only. How emails are verified: `skip` (not at all), `moderate` (syntax, domain and the source's own signal) or `strict` (every email checked by a verifier). Unset: the workspace's setting.",
+            "title": "Verify Mode"
+          },
+          "wait_seconds": {
+            "anyOf": [
+              {
+                "maximum": 20.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wait Seconds"
+          }
+        },
+        "required": [
+          "items",
+          "fields"
+        ],
+        "title": "LookupRequest",
+        "type": "object"
+      },
+      "LookupResult": {
+        "properties": {
+          "complete": {
+            "description": "False when the lookup did not finish in the call: it became the job `job_id`, which settles its credits when it ends; read it for the rest.",
+            "title": "Complete",
+            "type": "boolean"
+          },
+          "credits_used": {
+            "title": "Credits Used",
+            "type": "number"
+          },
+          "job_id": {
+            "title": "Job Id",
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/ResultRow"
+            },
+            "title": "Results",
+            "type": "array"
+          },
+          "status": {
+            "$ref": "#/components/schemas/JobStatus"
+          },
+          "suppressed_rows": {
+            "description": "Positions in `items` left out because they are on the Do-Not-Contact list: never looked up, never charged.",
+            "items": {
+              "type": "integer"
+            },
+            "title": "Suppressed Rows",
+            "type": "array"
+          },
+          "values_found": {
+            "description": "Values newly found and charged for, one each whatever the field; rows on the Do-Not-Contact list are left out. For a lookup cut by its deadline: those found in the call.",
+            "title": "Values Found",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "complete",
+          "job_id",
+          "status",
+          "results",
+          "credits_used",
+          "values_found",
+          "meta"
+        ],
+        "title": "LookupResult",
+        "type": "object"
+      },
       "MarketReportFilters": {
         "additionalProperties": false,
         "properties": {
@@ -4650,6 +6250,65 @@
               }
             ],
             "description": "The publisher: marketresearch, researchandmarkets, globaldata, statista, ..."
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object"
+                  }
+                ],
+                "description": "a keyword or one of {\"and\": [...]}, {\"or\": [...]}, {\"not\": ...}, nested to any shape (at most 6 levels, 100 keywords, 100 characters each).",
+                "examples": [
+                  {
+                    "and": [
+                      {
+                        "or": [
+                          "medical billing",
+                          "revenue cycle management"
+                        ]
+                      },
+                      {
+                        "or": [
+                          "hospitals",
+                          "physician practices"
+                        ]
+                      },
+                      {
+                        "not": {
+                          "or": [
+                            "staffing",
+                            "recruitment"
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What the records must be about, matched in their own text: a keyword or phrase, or {\"and\": [...]}, {\"or\": [...]}, {\"not\": ...} nested. Filled from `query` when not sent.",
+            "title": "Topic"
+          },
+          "topic_description": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A short description of what the records are about; records close to it in meaning are found beside those holding `topic`. Filled from `query` when not sent.",
+            "title": "Topic Description"
           }
         },
         "title": "MarketReportFilters",
@@ -4689,6 +6348,25 @@
             "description": "`next_cursor` from the previous page. Send the same body with it.",
             "title": "Cursor"
           },
+          "fields": {
+            "anyOf": [
+              {
+                "items": {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "maxItems": 200,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "title": "Fields"
+          },
           "filters": {
             "anyOf": [
               {
@@ -4705,6 +6383,12 @@
             "minimum": 1.0,
             "title": "Limit",
             "type": "integer"
+          },
+          "lock_filters": {
+            "default": false,
+            "description": "True: `query` is never read into filters. It is searched as a description, by meaning (by its words where a category has no meaning search), and `filters` (with the domain lists) is the whole filter set, so text inside a query cannot add, change or remove a filter. Takes `mode: fast` or `auto` (both run it the same way, billed as `fast`).",
+            "title": "Lock Filters",
+            "type": "boolean"
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
@@ -4753,6 +6437,36 @@
         ],
         "title": "MarketReportSortField",
         "type": "string"
+      },
+      "MatchAllEntityFilter": {
+        "additionalProperties": false,
+        "description": "An `EntityFilter` on a field one record holds several entities in (a round's investors),\nwhich can require every included one.",
+        "properties": {
+          "exclude": {
+            "items": {
+              "$ref": "#/components/schemas/EntityRef"
+            },
+            "maxItems": 1000,
+            "title": "Exclude",
+            "type": "array"
+          },
+          "include": {
+            "items": {
+              "$ref": "#/components/schemas/EntityRef"
+            },
+            "maxItems": 1000,
+            "title": "Include",
+            "type": "array"
+          },
+          "match_all": {
+            "default": false,
+            "description": "True requires every `include` entity on the same record (AND). False (default) is any of them (OR).",
+            "title": "Match All",
+            "type": "boolean"
+          }
+        },
+        "title": "MatchAllEntityFilter",
+        "type": "object"
       },
       "Matched": {
         "description": "What `filters.query` matched; null when there was no query, or it matched nothing.",
@@ -5037,6 +6751,17 @@
             ],
             "description": "Keyword sets: positive sets must match, negative sets demote."
           },
+          "languages": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TermsFilter"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Language the article is written in, by its English name (German, Spanish)."
+          },
           "publications": {
             "anyOf": [
               {
@@ -5068,6 +6793,52 @@
               }
             ],
             "description": "Companies the article is about or mentions."
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object"
+                  }
+                ],
+                "description": "a keyword or one of {\"and\": [...]}, {\"or\": [...]}, {\"not\": ...}, nested to any shape (at most 6 levels, 100 keywords, 100 characters each).",
+                "examples": [
+                  {
+                    "and": [
+                      {
+                        "or": [
+                          "medical billing",
+                          "revenue cycle management"
+                        ]
+                      },
+                      {
+                        "or": [
+                          "hospitals",
+                          "physician practices"
+                        ]
+                      },
+                      {
+                        "not": {
+                          "or": [
+                            "staffing",
+                            "recruitment"
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What the records must be about, matched in their own text: a keyword or phrase, or {\"and\": [...]}, {\"or\": [...]}, {\"not\": ...} nested. Filled from `query` when not sent.",
+            "title": "Topic"
           }
         },
         "title": "NewsFilters",
@@ -5113,6 +6884,25 @@
             "description": "`next_cursor` from the previous page. Send the same body with it.",
             "title": "Cursor"
           },
+          "fields": {
+            "anyOf": [
+              {
+                "items": {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "maxItems": 200,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "title": "Fields"
+          },
           "filters": {
             "anyOf": [
               {
@@ -5129,6 +6919,12 @@
             "minimum": 1.0,
             "title": "Limit",
             "type": "integer"
+          },
+          "lock_filters": {
+            "default": false,
+            "description": "True: `query` is never read into filters. It is searched as a description, by meaning (by its words where a category has no meaning search), and `filters` (with the domain lists) is the whole filter set, so text inside a query cannot add, change or remove a filter. Takes `mode: fast` or `auto` (both run it the same way, billed as `fast`).",
+            "title": "Lock Filters",
+            "type": "boolean"
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
@@ -5188,7 +6984,8 @@
           "institutions",
           "lookup",
           "org_chart",
-          "agent_run"
+          "agent_run",
+          "enrichment"
         ],
         "title": "Operation",
         "type": "string"
@@ -5204,6 +7001,7 @@
                 "type": "null"
               }
             ],
+            "description": "Names this company in a follow-up call (its people, another chart) without resolving it again.",
             "title": "Company Ref"
           },
           "domain": {
@@ -5340,7 +7138,7 @@
                 "type": "null"
               }
             ],
-            "description": "A `company_ref` from an `org_chart.company_ambiguous` answer.",
+            "description": "One company by the `company_ref` this API gave it: an org chart answer's `company`, a candidate's in an `org_chart.company_ambiguous` answer, or a company search hit's `id`, which is the same ref. Opaque; a ref this API did not give is refused.",
             "title": "Company Ref"
           },
           "domain": {
@@ -5627,6 +7425,17 @@
               }
             ]
           },
+          "inventors": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TermsFilter"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Inventors named on the patent, as people's names in either order (`Jane Doe` matches `DOE JANE`). Set `match_all` to require every one."
+          },
           "keywords": {
             "anyOf": [
               {
@@ -5673,6 +7482,52 @@
             "$ref": "#/components/schemas/PatentStatus",
             "default": "all",
             "description": "Grant status."
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object"
+                  }
+                ],
+                "description": "a keyword or one of {\"and\": [...]}, {\"or\": [...]}, {\"not\": ...}, nested to any shape (at most 6 levels, 100 keywords, 100 characters each).",
+                "examples": [
+                  {
+                    "and": [
+                      {
+                        "or": [
+                          "medical billing",
+                          "revenue cycle management"
+                        ]
+                      },
+                      {
+                        "or": [
+                          "hospitals",
+                          "physician practices"
+                        ]
+                      },
+                      {
+                        "not": {
+                          "or": [
+                            "staffing",
+                            "recruitment"
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What the records must be about, matched in their own text: a keyword or phrase, or {\"and\": [...]}, {\"or\": [...]}, {\"not\": ...} nested. Filled from `query` when not sent.",
+            "title": "Topic"
           }
         },
         "title": "PatentFilters",
@@ -5729,6 +7584,25 @@
             "description": "`next_cursor` from the previous page. Send the same body with it.",
             "title": "Cursor"
           },
+          "fields": {
+            "anyOf": [
+              {
+                "items": {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "maxItems": 200,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "title": "Fields"
+          },
           "filters": {
             "anyOf": [
               {
@@ -5745,6 +7619,12 @@
             "minimum": 1.0,
             "title": "Limit",
             "type": "integer"
+          },
+          "lock_filters": {
+            "default": false,
+            "description": "True: `query` is never read into filters. It is searched as a description, by meaning (by its words where a category has no meaning search), and `filters` (with the domain lists) is the whole filter set, so text inside a query cannot add, change or remove a filter. Takes `mode: fast` or `auto` (both run it the same way, billed as `fast`).",
+            "title": "Lock Filters",
+            "type": "boolean"
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
@@ -5804,6 +7684,53 @@
         ],
         "title": "PatentStatus",
         "type": "string"
+      },
+      "PeopleCell": {
+        "additionalProperties": false,
+        "description": "One count on the chart, by code: a department, a seniority or both, and a sub-department\ninside its department. `unknown` names the people with no value on that axis, as the chart\ncounted them.",
+        "properties": {
+          "department": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Department"
+          },
+          "seniority": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seniority"
+          },
+          "subdepartment": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subdepartment"
+          }
+        },
+        "title": "PeopleCell",
+        "type": "object"
       },
       "PeopleConstraints": {
         "additionalProperties": false,
@@ -5866,6 +7793,176 @@
           "text"
         ],
         "title": "PeopleQuery",
+        "type": "object"
+      },
+      "PeopleRequest": {
+        "additionalProperties": false,
+        "description": "The people one cell counted. Send the chart's own `filters` and `include_suspects`: they\nnarrow the list as they narrowed the count.",
+        "properties": {
+          "cell": {
+            "$ref": "#/components/schemas/PeopleCell"
+          },
+          "company_ref": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "One company by the `company_ref` this API gave it: an org chart answer's `company`, a candidate's in an `org_chart.company_ambiguous` answer, or a company search hit's `id`, which is the same ref. Opaque; a ref this API did not give is refused.",
+            "title": "Company Ref"
+          },
+          "cursor": {
+            "anyOf": [
+              {
+                "maxLength": 8192,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "`next_cursor` from the previous page. Send the same body with it.",
+            "title": "Cursor"
+          },
+          "domain": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Domain"
+          },
+          "filters": {
+            "$ref": "#/components/schemas/OrgChartFilters"
+          },
+          "include_suspects": {
+            "default": false,
+            "title": "Include Suspects",
+            "type": "boolean"
+          },
+          "limit": {
+            "default": 10,
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "linkedin_url": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Linkedin Url"
+          }
+        },
+        "required": [
+          "cell"
+        ],
+        "title": "PeopleRequest",
+        "type": "object"
+      },
+      "PeopleResponse": {
+        "description": "The people one cell counted, a page at a time, most senior first. `total` is the cell's\ncount: the list and the chart are one query.",
+        "properties": {
+          "attribution": {
+            "items": {
+              "$ref": "#/components/schemas/Attribution"
+            },
+            "title": "Attribution",
+            "type": "array"
+          },
+          "company": {
+            "$ref": "#/components/schemas/OrgChartCompany"
+          },
+          "data_version": {
+            "description": "The people index the counts were read from.",
+            "title": "Data Version",
+            "type": "string"
+          },
+          "degradation": {
+            "items": {
+              "$ref": "#/components/schemas/Degradation"
+            },
+            "title": "Degradation",
+            "type": "array"
+          },
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "matched": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Matched"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Opaque and signed. `has_more` is true exactly when it is set.",
+            "title": "Next Cursor"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/CellPerson"
+            },
+            "title": "Results",
+            "type": "array"
+          },
+          "suspect_count": {
+            "description": "People left out as likely fake profiles.",
+            "minimum": 0.0,
+            "title": "Suspect Count",
+            "type": "integer"
+          },
+          "taxonomy_version": {
+            "title": "Taxonomy Version",
+            "type": "string"
+          },
+          "total": {
+            "description": "The cell's count, as the chart counts it. A person on the Do-Not-Contact list is counted but never listed, so the pages can hold fewer people than this.",
+            "minimum": 0.0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "company",
+          "total",
+          "data_version",
+          "meta",
+          "results",
+          "has_more",
+          "suspect_count",
+          "taxonomy_version"
+        ],
+        "title": "PeopleResponse",
         "type": "object"
       },
       "PersonBy": {
@@ -5940,6 +8037,35 @@
         "title": "Place",
         "type": "object"
       },
+      "Placement": {
+        "description": "Where the chart counts a person, in `taxonomy_version`'s codes: at their highest\nseniority, in each department they hold and in each of their sub-departments. A person with\nno seniority, or no department, is counted under `unknown` (\"Unknown\").",
+        "properties": {
+          "departments": {
+            "items": {
+              "$ref": "#/components/schemas/CodeLabel"
+            },
+            "title": "Departments",
+            "type": "array"
+          },
+          "seniority": {
+            "$ref": "#/components/schemas/CodeLabel"
+          },
+          "subdepartments": {
+            "items": {
+              "$ref": "#/components/schemas/CodeLabel"
+            },
+            "title": "Subdepartments",
+            "type": "array"
+          }
+        },
+        "required": [
+          "seniority",
+          "departments",
+          "subdepartments"
+        ],
+        "title": "Placement",
+        "type": "object"
+      },
       "Places": {
         "additionalProperties": false,
         "properties": {
@@ -5998,6 +8124,77 @@
           "sets"
         ],
         "title": "PositiveKeywordGroup",
+        "type": "object"
+      },
+      "PricingOut": {
+        "properties": {
+          "credits_per_usd": {
+            "title": "Credits Per Usd",
+            "type": "integer"
+          },
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "max_cents": {
+            "description": "The largest purchase.",
+            "title": "Max Cents",
+            "type": "integer"
+          },
+          "min_cents": {
+            "description": "The smallest purchase.",
+            "title": "Min Cents",
+            "type": "integer"
+          },
+          "pricing_version": {
+            "title": "Pricing Version",
+            "type": "string"
+          },
+          "quote": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PricingQuote"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "For `amount_cents`, when it was asked."
+          }
+        },
+        "required": [
+          "currency",
+          "credits_per_usd",
+          "min_cents",
+          "max_cents",
+          "pricing_version",
+          "quote"
+        ],
+        "title": "PricingOut",
+        "type": "object"
+      },
+      "PricingQuote": {
+        "properties": {
+          "amount_cents": {
+            "title": "Amount Cents",
+            "type": "integer"
+          },
+          "bonus_credits": {
+            "title": "Bonus Credits",
+            "type": "number"
+          },
+          "credits": {
+            "description": "The credits that amount buys today.",
+            "title": "Credits",
+            "type": "number"
+          }
+        },
+        "required": [
+          "amount_cents",
+          "credits",
+          "bonus_credits"
+        ],
+        "title": "PricingQuote",
         "type": "object"
       },
       "Problem": {
@@ -6099,18 +8296,168 @@
         "title": "Problem",
         "type": "object"
       },
+      "Purchase": {
+        "properties": {
+          "amount_cents": {
+            "title": "Amount Cents",
+            "type": "integer"
+          },
+          "bonus_credits": {
+            "title": "Bonus Credits",
+            "type": "number"
+          },
+          "checkout_expires_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Checkout Expires At"
+          },
+          "checkout_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Stripe's payment page, while it can be paid.",
+            "title": "Checkout Url"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "credits": {
+            "description": "The credits the amount buys.",
+            "title": "Credits",
+            "type": "number"
+          },
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "dispute_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dispute Status"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "paid_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paid At"
+          },
+          "refunded_cents": {
+            "title": "Refunded Cents",
+            "type": "integer"
+          },
+          "status": {
+            "description": "`pending` until paid; then `paid`, `expired` or `failed`.",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "amount_cents",
+          "currency",
+          "credits",
+          "bonus_credits",
+          "checkout_url",
+          "checkout_expires_at",
+          "created_at",
+          "paid_at",
+          "refunded_cents",
+          "dispute_status"
+        ],
+        "title": "Purchase",
+        "type": "object"
+      },
+      "PurchaseIn": {
+        "properties": {
+          "amount_cents": {
+            "description": "What the buyer pays, in US cents.",
+            "maximum": 1000000000.0,
+            "minimum": 1.0,
+            "title": "Amount Cents",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "amount_cents"
+        ],
+        "title": "PurchaseIn",
+        "type": "object"
+      },
+      "PurchasesOut": {
+        "properties": {
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/Purchase"
+            },
+            "title": "Results",
+            "type": "array"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "title": "PurchasesOut",
+        "type": "object"
+      },
       "QuoteIn": {
         "properties": {
           "effort": {
             "anyOf": [
               {
                 "enum": [
+                  "quick",
+                  "basic",
+                  "standard",
+                  "detailed",
+                  "maximum",
+                  "auto",
                   "minimal",
                   "low",
                   "medium",
                   "high",
-                  "xhigh",
-                  "auto"
+                  "xhigh"
                 ],
                 "type": "string"
               },
@@ -6118,16 +8465,39 @@
                 "type": "null"
               }
             ],
-            "description": "`agent_run` only, and required for it.",
+            "description": "`agent_run` only, and required for it. The earlier names (`minimal`, `low`, `medium`, `high`, `xhigh`) are still accepted.",
             "title": "Effort"
+          },
+          "fields": {
+            "anyOf": [
+              {
+                "items": {
+                  "enum": [
+                    "EMAIL",
+                    "PHONE",
+                    "DOMAIN",
+                    "LINKEDIN_URL"
+                  ],
+                  "type": "string"
+                },
+                "maxItems": 4,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "`enrichment` only: the fields asked for each of `rows` records. The quote is then every one of them found, each field at its own price (a phone number costs more than an email).",
+            "title": "Fields"
           },
           "operation": {
             "$ref": "#/components/schemas/Operation"
           },
           "rows": {
             "default": 10,
-            "description": "Rows on the page (paged operations, up to 100), or records found (`lookup`, up to 1,000). Ignored by flat operations and agent runs.",
-            "maximum": 1000.0,
+            "description": "Rows on the page (paged operations, up to 100), records found (`lookup`, up to 1,000), or for `enrichment`: records when `fields` is given (up to 10,000, a job's most), else values at one price (up to 30,000). Ignored by flat operations and agent runs. An enrichment quote over 30,000 credits is refused, as the job would be.",
+            "maximum": 30000.0,
             "minimum": 0.0,
             "title": "Rows",
             "type": "integer"
@@ -6162,13 +8532,14 @@
             "title": "Available"
           },
           "basis": {
-            "description": "`page`: these rows of a search; `records`: per record found; `call`: flat, whatever it returns; `run`: an agent run at that effort; `run_up_to`: `auto` holds this much and is charged at the effort it chooses.",
+            "description": "`page`: these rows of a search; `records`: per record found; `call`: flat, whatever it returns; `run`: an agent run at that effort; `run_up_to`: `auto` holds this much and is charged at the effort it chooses; `values_up_to`: enrichment holds this much (every value asked for) and is charged only for the values newly found.",
             "enum": [
               "page",
               "records",
               "call",
               "run",
-              "run_up_to"
+              "run_up_to",
+              "values_up_to"
             ],
             "title": "Basis",
             "type": "string"
@@ -6683,6 +9054,36 @@
           }
         },
         "title": "ReachTarget",
+        "type": "object"
+      },
+      "ReadAs": {
+        "description": "Words in the query that the reading turned into filters the query does not state.",
+        "properties": {
+          "filters": {
+            "description": "The filters they set, as `filters` names them.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Filters",
+            "type": "array"
+          },
+          "note": {
+            "description": "What the words were read as, in one sentence.",
+            "title": "Note",
+            "type": "string"
+          },
+          "words": {
+            "description": "The query's words, as written.",
+            "title": "Words",
+            "type": "string"
+          }
+        },
+        "required": [
+          "words",
+          "filters",
+          "note"
+        ],
+        "title": "ReadAs",
         "type": "object"
       },
       "RelationshipCompany": {
@@ -7387,6 +9788,14 @@
       "ResolvedSearch": {
         "description": "What the search was understood to mean. Send ``filters`` and ``keyword_query`` back\nto re-run exactly the search that ran.",
         "properties": {
+          "anchor_matches": {
+            "description": "Similar companies only: what each company name sent as an anchor became. One that is not `exact` also adds an `anchor_not_exact` degradation.",
+            "items": {
+              "$ref": "#/components/schemas/AnchorMatch"
+            },
+            "title": "Anchor Matches",
+            "type": "array"
+          },
           "category": {
             "$ref": "#/components/schemas/ResultCategory"
           },
@@ -7454,6 +9863,14 @@
               }
             ],
             "title": "Query"
+          },
+          "read_as": {
+            "description": "Words in `query` the reading took to mean filters the query does not state, each with the filters it set: \"startups\" sets `founded_year` from 2011 and `listing_status` not public. Empty when no such rule applied.",
+            "items": {
+              "$ref": "#/components/schemas/ReadAs"
+            },
+            "title": "Read As",
+            "type": "array"
           },
           "semantic_query": {
             "anyOf": [
@@ -7583,6 +10000,103 @@
         ],
         "title": "ResultCategory",
         "type": "string"
+      },
+      "ResultField": {
+        "description": "One field of a row as a customer sees it. Built from an allow-list: where a value came\nfrom (a vendor, the cache) and what was spent finding it never leave DSP.",
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Why there is no value, when known: `no_source` (no data source covers this field yet), `sources_unavailable` (try again later), `not_found`, `not_enough_input` (the row does not identify the record well enough) or `error`.",
+            "title": "Reason"
+          },
+          "status": {
+            "description": "`found`, `not_found`, `error`, `cancelled`, `skipped` or `suppressed` (on the Do-Not-Contact list: blanked).",
+            "title": "Status",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value"
+          },
+          "verified": {
+            "default": false,
+            "title": "Verified",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "ResultField",
+        "type": "object"
+      },
+      "ResultRow": {
+        "properties": {
+          "credits": {
+            "description": "Credits this row used: each value newly found at its field's price (a phone number costs more than an email).",
+            "title": "Credits",
+            "type": "number"
+          },
+          "fields": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ResultField"
+            },
+            "title": "Fields",
+            "type": "object"
+          },
+          "idx": {
+            "description": "The row's position in the job, from 0.",
+            "title": "Idx",
+            "type": "integer"
+          },
+          "incomplete": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Fields a lookup's deadline cut: still being looked up.",
+            "title": "Incomplete"
+          },
+          "input": {
+            "additionalProperties": true,
+            "description": "The row as you sent it.",
+            "title": "Input",
+            "type": "object"
+          },
+          "outcome": {
+            "description": "`found`, `partial`, `not_found`, `error`, `cancelled`, `skipped` or `suppressed` (on the Do-Not-Contact list: never looked up, or blanked since).",
+            "title": "Outcome",
+            "type": "string"
+          },
+          "values_found": {
+            "description": "Values newly found for this row (what `credits` prices): 0 for a miss, a value already known, or a row on the Do-Not-Contact list.",
+            "title": "Values Found",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "idx",
+          "input",
+          "outcome",
+          "fields",
+          "credits",
+          "values_found"
+        ],
+        "title": "ResultRow",
+        "type": "object"
       },
       "RunDetail": {
         "properties": {
@@ -7873,7 +10387,7 @@
         "properties": {
           "category": {
             "default": "company",
-            "description": "What the run looks for: companies or people.",
+            "description": "Optional. Companies or people. The run reads this from the question and takes it only as a hint.",
             "enum": [
               "company",
               "person"
@@ -7882,7 +10396,7 @@
             "type": "string"
           },
           "criteria": {
-            "description": "Extra requirements a row must meet, in plain words. The engine decides which it can prove with filters and which it judges.",
+            "description": "Optional. Requirements a row must meet that the question does not state, in plain words. The run already checks the question's own requirements; one sent here in the same words is checked once. The run proves what filters can and judges the rest.",
             "items": {
               "type": "string"
             },
@@ -7892,11 +10406,11 @@
           },
           "effort": {
             "$ref": "#/components/schemas/Effort",
-            "default": "medium",
-            "description": "How hard the run works: `minimal` to `xhigh`, or `auto` to let it choose."
+            "default": "standard",
+            "description": "How hard the run works: `quick`, `basic`, `standard`, `detailed` or `maximum`, or `auto` to let it choose. The earlier names (`minimal`, `low`, `medium`, `high`, `xhigh`) are still accepted."
           },
           "enrichments": {
-            "description": "Columns to fill, by name. A column no source supports comes back null with a reason, never invented.",
+            "description": "Optional. Columns to fill beside those the question asks for, by name. Each is read from Sprouts data first and the web last; a column no source supports comes back null with a reason, never invented.",
             "items": {
               "type": "string"
             },
@@ -7914,6 +10428,7 @@
             "type": "array"
           },
           "query": {
+            "description": "The question, in plain words. It is the only field a run needs: the run reads from it whether to find companies or people, the requirements to check on every row and the columns to fill.",
             "maxLength": 4000,
             "minLength": 1,
             "title": "Query",
@@ -8110,7 +10625,7 @@
             "type": "null"
           },
           "total": {
-            "description": "The answer's size: the run's exact universe when it counted one past the rows it stored, else the rows stored.",
+            "description": "The rows the run kept, the ones a reader can page. How many records the question matches is `coverage.universe`.",
             "minimum": 0.0,
             "title": "Total",
             "type": "integer"
@@ -8464,16 +10979,6 @@
             ],
             "title": "Columns"
           },
-          "coverage": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/dsp__features__search__schemas__envelope__Coverage"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
           "degradation": {
             "items": {
               "$ref": "#/components/schemas/Degradation"
@@ -8609,11 +11114,10 @@
         "type": "object"
       },
       "SearchMode": {
-        "description": "How the words in ``query`` are read.\n\n- ``fast``: matched by meaning (vector search, keywords as fallback). No AI reading, so\n  nothing is extracted into filters.\n- ``auto``: an AI reading extracts filters from the words.\n- ``deep``: an agent works the whole question out of ``query`` and enumerates every match it\n  can reach in the request's time, then reports how much of the matching set that was\n  (``coverage``). Companies and people only; one page, no cursor.",
+        "description": "How a search with words is billed. Both modes read ``query`` the same way: an AI\nreading turns what the words ask into filters (the filters sent win), and the description\nleft over is matched by meaning.\n\n- ``fast``: billed as a basic search.\n- ``auto``: billed as an AI search.",
         "enum": [
           "fast",
-          "auto",
-          "deep"
+          "auto"
         ],
         "title": "SearchMode",
         "type": "string"
@@ -8922,6 +11426,25 @@
             ],
             "description": "`next_cursor` from the previous page. Send the same body with it.",
             "title": "Cursor"
+          },
+          "fields": {
+            "anyOf": [
+              {
+                "items": {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "maxItems": 200,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "title": "Fields"
           },
           "filters": {
             "anyOf": [
@@ -9558,9 +12081,137 @@
         "title": "TransactionsOut",
         "type": "object"
       },
+      "TrendAdoption": {
+        "enum": [
+          "Early",
+          "Accelerating",
+          "Rapid",
+          "Wide",
+          "Mainstream"
+        ],
+        "title": "TrendAdoption",
+        "type": "string"
+      },
+      "TrendBadges": {
+        "additionalProperties": false,
+        "description": "Trends holding a badge for any of these metrics, in this tier or a better one.",
+        "properties": {
+          "include": {
+            "description": "Badge metrics, any of them.",
+            "items": {
+              "$ref": "#/components/schemas/BadgeMetric"
+            },
+            "minItems": 1,
+            "title": "Include",
+            "type": "array"
+          },
+          "tier": {
+            "$ref": "#/components/schemas/BadgeTier",
+            "default": "top_15_percent",
+            "description": "The tier or better: top 15% also takes top 10% and top 5%."
+          }
+        },
+        "required": [
+          "include"
+        ],
+        "title": "TrendBadges",
+        "type": "object"
+      },
       "TrendFilters": {
         "additionalProperties": false,
         "properties": {
+          "badges": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TrendBadges"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Top-percentile badges the trend holds."
+          },
+          "companies": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RangeFilter"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Number of companies in the trend."
+          },
+          "countries": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TermsFilter"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Countries the trend's companies are in (a region names its countries)."
+          },
+          "employees": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RangeFilter"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Total employees of its companies."
+          },
+          "funding_rounds": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RangeFilter"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Number of funding rounds its companies raised."
+          },
+          "funding_total": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RangeFilter"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Total its companies raised, in US dollars."
+          },
+          "growth": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/TrendGrowth"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The trend's yearly growth category, any of them.",
+            "title": "Growth"
+          },
+          "industries": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TermsFilter"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Industries the trend's companies work in."
+          },
           "keywords": {
             "anyOf": [
               {
@@ -9571,10 +12222,206 @@
               }
             ],
             "description": "Keyword sets over the trend's own text: positive sets match, negative demote."
+          },
+          "magnitude": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/TrendMagnitude"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The trend's magnitude category, any of them.",
+            "title": "Magnitude"
+          },
+          "market_cagr": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RangeFilter"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Market growth rate from a market report, in percent (15 = 15%)."
+          },
+          "market_size": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RangeFilter"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Market size, in US dollars."
+          },
+          "maturity": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/TrendMaturity"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The trend's maturity category, any of them.",
+            "title": "Maturity"
+          },
+          "patents": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RangeFilter"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Total patents of its companies."
+          },
+          "signal_strength": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/TrendSignalStrength"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The trend's signal strength, any of them.",
+            "title": "Signal Strength"
+          },
+          "technology_adoption": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/TrendAdoption"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The trend's technology adoption, any of them.",
+            "title": "Technology Adoption"
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object"
+                  }
+                ],
+                "description": "a keyword or one of {\"and\": [...]}, {\"or\": [...]}, {\"not\": ...}, nested to any shape (at most 6 levels, 100 keywords, 100 characters each).",
+                "examples": [
+                  {
+                    "and": [
+                      {
+                        "or": [
+                          "medical billing",
+                          "revenue cycle management"
+                        ]
+                      },
+                      {
+                        "or": [
+                          "hospitals",
+                          "physician practices"
+                        ]
+                      },
+                      {
+                        "not": {
+                          "or": [
+                            "staffing",
+                            "recruitment"
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What the records must be about, matched in their own text: a keyword or phrase, or {\"and\": [...]}, {\"or\": [...]}, {\"not\": ...} nested. Filled from `query` when not sent.",
+            "title": "Topic"
+          },
+          "topic_description": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A short description of what the records are about; records close to it in meaning are found beside those holding `topic`. Filled from `query` when not sent.",
+            "title": "Topic Description"
+          },
+          "topic_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TrendTopicType"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "`topic_cluster` for an umbrella trend grouping narrower ones."
           }
         },
         "title": "TrendFilters",
         "type": "object"
+      },
+      "TrendGrowth": {
+        "enum": [
+          "Declining",
+          "Stagnant",
+          "Incremental",
+          "Strong",
+          "Exponential"
+        ],
+        "title": "TrendGrowth",
+        "type": "string"
+      },
+      "TrendMagnitude": {
+        "enum": [
+          "Niche",
+          "Emergent",
+          "Established",
+          "Expansive",
+          "Widespread"
+        ],
+        "title": "TrendMagnitude",
+        "type": "string"
+      },
+      "TrendMaturity": {
+        "enum": [
+          "Inceptive",
+          "Developing",
+          "Average",
+          "Maturing",
+          "Mature"
+        ],
+        "title": "TrendMaturity",
+        "type": "string"
       },
       "TrendSearchRequest": {
         "additionalProperties": false,
@@ -9603,6 +12450,25 @@
             "description": "`next_cursor` from the previous page. Send the same body with it.",
             "title": "Cursor"
           },
+          "fields": {
+            "anyOf": [
+              {
+                "items": {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "maxItems": 200,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "title": "Fields"
+          },
           "filters": {
             "anyOf": [
               {
@@ -9619,6 +12485,12 @@
             "minimum": 1.0,
             "title": "Limit",
             "type": "integer"
+          },
+          "lock_filters": {
+            "default": false,
+            "description": "True: `query` is never read into filters. It is searched as a description, by meaning (by its words where a category has no meaning search), and `filters` (with the domain lists) is the whole filter set, so text inside a query cannot add, change or remove a filter. Takes `mode: fast` or `auto` (both run it the same way, billed as `fast`).",
+            "title": "Lock Filters",
+            "type": "boolean"
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
@@ -9660,12 +12532,32 @@
         "title": "TrendSearchRequest",
         "type": "object"
       },
+      "TrendSignalStrength": {
+        "enum": [
+          "Very weak",
+          "Weak",
+          "Medium",
+          "Medium strong",
+          "Strong",
+          "Very strong"
+        ],
+        "title": "TrendSignalStrength",
+        "type": "string"
+      },
       "TrendSortField": {
         "enum": [
           "trend",
           "created_at"
         ],
         "title": "TrendSortField",
+        "type": "string"
+      },
+      "TrendTopicType": {
+        "enum": [
+          "regular_topic",
+          "topic_cluster"
+        ],
+        "title": "TrendTopicType",
         "type": "string"
       },
       "ValidationError": {
@@ -10032,7 +12924,7 @@
         "type": "string"
       },
       "dsp__features__search__schemas__envelope__Coverage": {
-        "description": "How much of the matching set a `deep` answer represents. Null for `fast` and `auto`.\n\nThe universe is counted, not sampled, so ``enumeration_recall`` is a real fraction and\n``universe_exhausted`` means every match was returned and the count agrees.",
+        "description": "How much of the matching set an agent run's answer represents.\n\nThe universe is counted, not sampled, so ``enumeration_recall`` is a real fraction and\n``universe_exhausted`` means every match was returned and the count agrees.",
         "properties": {
           "audited": {
             "default": false,
@@ -10275,11 +13167,11 @@
         ]
       },
       "post": {
-        "description": "Start a run and get its handle at once (202). Follow it with `GET /runs/{run_id}`;\npage its answer with `/results` once it has completed.",
+        "description": "Start a run and get its handle at once (202). Only `query` is needed; `criteria` and\n`enrichments` add to what the question asks. Follow it with `GET /runs/{run_id}`; page its\nanswer with `/results` once it has completed.",
         "operationId": "agent_run_create",
         "parameters": [
           {
-            "description": "Required. One value per intent, at most 255 characters; send it again when retrying and the first run comes back.",
+            "description": "Required. One value per intent: 1 to 120 letters, digits or `._:-`; send it again when retrying and the first run comes back.",
             "in": "header",
             "name": "Idempotency-Key",
             "required": false,
@@ -10292,7 +13184,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Required. One value per intent, at most 255 characters; send it again when retrying and the first run comes back.",
+              "description": "Required. One value per intent: 1 to 120 letters, digits or `._:-`; send it again when retrying and the first run comes back.",
               "title": "Idempotency-Key"
             }
           }
@@ -10361,6 +13253,9 @@
               "application/problem+json": {}
             },
             "description": "The request is invalid (`request.invalid`), or its cursor is (`pagination.*`)."
+          },
+          "429": {
+            "description": "This credential already has as many runs going as it may, or the engine is running as many as it takes (`quota.concurrency_exceeded`). See `Retry-After`."
           },
           "503": {
             "content": {
@@ -10796,6 +13691,9 @@
             },
             "description": "No such resource for this workspace (`*.not_found`)."
           },
+          "410": {
+            "description": "The run's rows are no longer kept (`agents.results_expired`)."
+          },
           "422": {
             "content": {
               "application/json": {
@@ -11005,6 +13903,555 @@
         ]
       }
     },
+    "/v1/credits/auto-topup": {
+      "get": {
+        "operationId": "credits_auto_topup",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AutoTopup"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "No credential, or one that does not verify (`auth.unauthorized`)."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The credential lacks the scope this route needs (`auth.insufficient_scope`), or the signed-in user has not chosen a workspace (`auth.workspace_required`)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The request is invalid (`request.invalid`), or its cursor is (`pagination.*`)."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "A service this request needs is unavailable, or this pod is full. See `Retry-After`."
+          }
+        },
+        "summary": "The workspace's auto top-up",
+        "tags": [
+          "Credits"
+        ]
+      },
+      "put": {
+        "description": "Below `threshold_credits` available, buy `amount_cents` of credits with the card\nsaved by a paid purchase. Turning it on without one is `409` (`extra.mint_code`\n`auto_topup.no_card`). Owners and billing members only.",
+        "operationId": "credits_auto_topup_save",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AutoTopupIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AutoTopup"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "No credential, or one that does not verify (`auth.unauthorized`)."
+          },
+          "402": {
+            "description": "The workspace's wallet is frozen (`credits.wallet_frozen`)."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The credential lacks the scope this route needs (`auth.insufficient_scope`), or the signed-in user has not chosen a workspace (`auth.workspace_required`)."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "Conflicts with what is there: a list name in use, a size limit reached (`lists.*`)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The request is invalid (`request.invalid`), or its cursor is (`pagination.*`)."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "A service this request needs is unavailable, or this pod is full. See `Retry-After`."
+          }
+        },
+        "summary": "Set up, change or turn off auto top-up",
+        "tags": [
+          "Credits"
+        ]
+      }
+    },
+    "/v1/credits/pricing": {
+      "get": {
+        "description": "The price and the purchase limits. With `amount_cents`, also the credits it buys\n(`422` outside the limits, `extra.mint_code` `order.amount_invalid`).",
+        "operationId": "credits_pricing",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "amount_cents",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 1000000000,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Amount Cents"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "No credential, or one that does not verify (`auth.unauthorized`)."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The credential lacks the scope this route needs (`auth.insufficient_scope`), or the signed-in user has not chosen a workspace (`auth.workspace_required`)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The request is invalid (`request.invalid`), or its cursor is (`pagination.*`)."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "A service this request needs is unavailable, or this pod is full. See `Retry-After`."
+          }
+        },
+        "summary": "What credits cost, and what an amount buys",
+        "tags": [
+          "Credits"
+        ]
+      }
+    },
+    "/v1/credits/purchases": {
+      "get": {
+        "operationId": "credits_purchases",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "pending",
+                    "paid",
+                    "failed",
+                    "expired"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 200,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchasesOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "No credential, or one that does not verify (`auth.unauthorized`)."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The credential lacks the scope this route needs (`auth.insufficient_scope`), or the signed-in user has not chosen a workspace (`auth.workspace_required`)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The request is invalid (`request.invalid`), or its cursor is (`pagination.*`)."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "A service this request needs is unavailable, or this pod is full. See `Retry-After`."
+          }
+        },
+        "summary": "The workspace's purchases, newest first",
+        "tags": [
+          "Credits"
+        ]
+      },
+      "post": {
+        "description": "An order for `amount_cents` and the Stripe page to pay it on (`checkout_url`, open\nfor 30 minutes). Credits arrive once Stripe reports the payment: poll\n`GET /v1/credits/purchases/{purchase_id}` until it is `paid`. Owners and billing\nmembers only.",
+        "operationId": "credits_purchase",
+        "parameters": [
+          {
+            "description": "1 to 120 letters, digits or `._:-`; send it again when retrying and the same purchase comes back.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "description": "1 to 120 letters, digits or `._:-`; send it again when retrying and the same purchase comes back.",
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "A retry with the same `Idempotency-Key`: the same purchase."
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Purchase"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "No credential, or one that does not verify (`auth.unauthorized`)."
+          },
+          "402": {
+            "description": "The workspace's wallet is frozen (`credits.wallet_frozen`)."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The credential lacks the scope this route needs (`auth.insufficient_scope`), or the signed-in user has not chosen a workspace (`auth.workspace_required`)."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "Conflicts with what is there: a list name in use, a size limit reached (`lists.*`)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The request is invalid (`request.invalid`), or its cursor is (`pagination.*`)."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "A service this request needs is unavailable, or this pod is full. See `Retry-After`."
+          }
+        },
+        "summary": "Start buying credits",
+        "tags": [
+          "Credits"
+        ]
+      }
+    },
+    "/v1/credits/purchases/{purchase_id}": {
+      "get": {
+        "operationId": "credits_purchase_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "purchase_id",
+            "required": true,
+            "schema": {
+              "pattern": "^ord_[1-9][0-9]{0,18}$",
+              "title": "Purchase Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Purchase"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "No credential, or one that does not verify (`auth.unauthorized`)."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The credential lacks the scope this route needs (`auth.insufficient_scope`), or the signed-in user has not chosen a workspace (`auth.workspace_required`)."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "No such resource for this workspace (`*.not_found`)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The request is invalid (`request.invalid`), or its cursor is (`pagination.*`)."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "A service this request needs is unavailable, or this pod is full. See `Retry-After`."
+          }
+        },
+        "summary": "One purchase",
+        "tags": [
+          "Credits"
+        ]
+      }
+    },
     "/v1/credits/quote": {
       "post": {
         "description": "Holds nothing and costs nothing. `available` and `covered` are from the balance read\nmoments ago, when there is one; a quote never waits on the ledger.",
@@ -11165,10 +14612,732 @@
         ]
       }
     },
+    "/v1/enrichment/jobs": {
+      "get": {
+        "description": "The workspace's jobs, newest first, with the status each had when last read.",
+        "operationId": "enrichment_job_list",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/JobStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 512,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "No credential, or one that does not verify (`auth.unauthorized`)."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The credential lacks the scope this route needs (`auth.insufficient_scope`), or the signed-in user has not chosen a workspace (`auth.workspace_required`)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The request is invalid (`request.invalid`), or its cursor is (`pagination.*`)."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "A service this request needs is unavailable, or this pod is full. See `Retry-After`."
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The request did not finish within its time budget (`upstream.timeout`)."
+          }
+        },
+        "summary": "List the workspace's jobs",
+        "tags": [
+          "Enrichment"
+        ]
+      },
+      "post": {
+        "description": "Start a job and get its handle at once (202). The most it can cost (every field of\nevery row found, each at its price in the price list) is held first; only values newly\nfound are charged when it ends.",
+        "operationId": "enrichment_job_create",
+        "parameters": [
+          {
+            "description": "Required. One value per job; send it again when retrying and the first job comes back.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Required. One value per job; send it again when retrying and the first job comes back.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JobRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobHandle"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "A required header is missing or unusable (`request.invalid`)."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "No credential, or one that does not verify (`auth.unauthorized`)."
+          },
+          "402": {
+            "description": "Not enough credits (`credits.insufficient`)."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The credential lacks the scope this route needs (`auth.insufficient_scope`), or the signed-in user has not chosen a workspace (`auth.workspace_required`)."
+          },
+          "409": {
+            "description": "This `Idempotency-Key` started another job (`enrichment.idempotency_key_reused`)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The request is invalid (`request.invalid`), or its cursor is (`pagination.*`)."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "A service this request needs is unavailable, or this pod is full. See `Retry-After`."
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The request did not finish within its time budget (`upstream.timeout`)."
+          }
+        },
+        "summary": "Start an enrichment job",
+        "tags": [
+          "Enrichment"
+        ]
+      }
+    },
+    "/v1/enrichment/jobs/{job_id}": {
+      "get": {
+        "description": "Status, counts and credits. Reading a job that has ended settles its credits.",
+        "operationId": "enrichment_job_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-fA-F-]{32,36}$",
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "No credential, or one that does not verify (`auth.unauthorized`)."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The credential lacks the scope this route needs (`auth.insufficient_scope`), or the signed-in user has not chosen a workspace (`auth.workspace_required`)."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "No such resource for this workspace (`*.not_found`)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "A service this request needs is unavailable, or this pod is full. See `Retry-After`."
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The request did not finish within its time budget (`upstream.timeout`)."
+          }
+        },
+        "summary": "Get a job",
+        "tags": [
+          "Enrichment"
+        ]
+      }
+    },
+    "/v1/enrichment/jobs/{job_id}/cancel": {
+      "post": {
+        "description": "Stop a job. Idempotent. Only values already found are charged.",
+        "operationId": "enrichment_job_cancel",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-fA-F-]{32,36}$",
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "No credential, or one that does not verify (`auth.unauthorized`)."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The credential lacks the scope this route needs (`auth.insufficient_scope`), or the signed-in user has not chosen a workspace (`auth.workspace_required`)."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "No such resource for this workspace (`*.not_found`)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "A service this request needs is unavailable, or this pod is full. See `Retry-After`."
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The request did not finish within its time budget (`upstream.timeout`)."
+          }
+        },
+        "summary": "Cancel a job",
+        "tags": [
+          "Enrichment"
+        ]
+      }
+    },
+    "/v1/enrichment/jobs/{job_id}/results": {
+      "get": {
+        "description": "The job's rows so far, in order; each carries its `credits`.",
+        "operationId": "enrichment_job_results",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-fA-F-]{32,36}$",
+              "title": "Job Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "The last page's `next_cursor`, sent back as is.",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 512,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The last page's `next_cursor`, sent back as is.",
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobResults"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "No credential, or one that does not verify (`auth.unauthorized`)."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The credential lacks the scope this route needs (`auth.insufficient_scope`), or the signed-in user has not chosen a workspace (`auth.workspace_required`)."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "No such resource for this workspace (`*.not_found`)."
+          },
+          "410": {
+            "description": "The job's rows are no longer kept (`enrichment.results_expired`)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The request is invalid (`request.invalid`), or its cursor is (`pagination.*`)."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "A service this request needs is unavailable, or this pod is full. See `Retry-After`."
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The request did not finish within its time budget (`upstream.timeout`)."
+          }
+        },
+        "summary": "Page through a job's rows",
+        "tags": [
+          "Enrichment"
+        ]
+      }
+    },
+    "/v1/enrichment/lookups": {
+      "post": {
+        "description": "At most 20 records, answered in the call. The most it can cost is held first (402\nbefore anything is looked up); only values newly found are charged. Send an\n`Idempotency-Key` to retry safely: the same key answers the first lookup again and is\nnot charged twice. A lookup that does not finish in the call becomes a job\n(`complete: false`).",
+        "operationId": "enrichment_lookup",
+        "parameters": [
+          {
+            "description": "Optional. Send it again when retrying: the first answer comes back and is charged once.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send it again when retrying: the first answer comes back and is charged once.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LookupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LookupResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "No credential, or one that does not verify (`auth.unauthorized`)."
+          },
+          "402": {
+            "description": "Not enough credits (`credits.insufficient`)."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The credential lacks the scope this route needs (`auth.insufficient_scope`), or the signed-in user has not chosen a workspace (`auth.workspace_required`)."
+          },
+          "413": {
+            "description": "More rows than one lookup takes (`request.too_large`): start a job."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The request is invalid (`request.invalid`), or its cursor is (`pagination.*`)."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "Too many requests for this key or workspace (`quota.burst_exceeded`). See `Retry-After`."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "A service this request needs is unavailable, or this pod is full. See `Retry-After`."
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The request did not finish within its time budget (`upstream.timeout`)."
+          }
+        },
+        "summary": "Enrich a few records in one call",
+        "tags": [
+          "Enrichment"
+        ]
+      }
+    },
     "/v1/entities/academic-reports": {
       "post": {
         "description": "Documents by id: prism's, or the sealed `id` search returned.",
         "operationId": "entities_academic_report",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -11256,6 +15425,26 @@
       "post": {
         "description": "Companies by prism id, or `by` domain, LinkedIn URL or name (best match each).",
         "operationId": "entities_companies",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -11343,6 +15532,26 @@
       "post": {
         "description": "Documents by name (the default: every candidate, best first) or `by: id`.",
         "operationId": "entities_funding_round",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -11430,6 +15639,26 @@
       "post": {
         "description": "Documents by name (the default: every candidate, best first) or `by: id`.",
         "operationId": "entities_job_opening",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -11517,6 +15746,26 @@
       "post": {
         "description": "Documents by name (the default: every candidate, best first) or `by: id`.",
         "operationId": "entities_market_report",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -11604,6 +15853,26 @@
       "post": {
         "description": "Documents by name (the default: every candidate, best first) or `by: id`.",
         "operationId": "entities_news_article",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -11691,6 +15960,26 @@
       "post": {
         "description": "Documents by id: prism's, or the sealed `id` search returned.",
         "operationId": "entities_patent",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -11778,6 +16067,26 @@
       "post": {
         "description": "People by prism id, or `by` LinkedIn URL or name (best match each).",
         "operationId": "entities_persons",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -11865,6 +16174,26 @@
       "post": {
         "description": "Documents by id: prism's, or the sealed `id` search returned.",
         "operationId": "entities_trend",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -13488,8 +17817,28 @@
     },
     "/v1/org-chart": {
       "post": {
-        "description": "People counted by department and seniority (every cell, every total), with\nsub-departments, new joiners and open jobs per cell, and how much of the company the\nindex holds (`coverage`). Name the company by `domain`, `linkedin_url` or `company_ref`;\nwhen a name fits several records the answer is `org_chart.company_ambiguous`, listing a\n`company_ref` for each.",
+        "description": "People counted by department and seniority (every cell, every total), with\nsub-departments, new joiners and open jobs per cell, and how much of the company the\nindex holds (`coverage`). Name the company by `domain`, `linkedin_url` or `company_ref`;\nwhen a name fits several records the answer is `org_chart.company_ambiguous`, listing a\n`company_ref` for each. Every answer's `company` carries its `company_ref`, to name it\nin a follow-up call.",
         "operationId": "org_chart",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -13577,6 +17926,26 @@
       "post": {
         "description": "Department totals and sub-departments, without the seniority grid or badges.",
         "operationId": "org_chart_departments",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -13664,6 +18033,26 @@
       "post": {
         "description": "People by country, then state, then city, most people first.",
         "operationId": "org_chart_locations",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -13747,10 +18136,137 @@
         ]
       }
     },
+    "/v1/org-chart/people": {
+      "post": {
+        "description": "The people a cell counted, a page at a time, most senior first: the same query as the\ncount, so `total` is the cell's count. Name the company by the chart answer's\n`company_ref` (no resolving again), send the chart's own `filters` and\n`include_suspects`, and the cell by code (`GET /v1/org-chart/taxonomy`); `unknown` lists\nthe people with no value on that axis. A row names its person by the id\n`POST /v1/search` gives them, and says where the chart counts them in `placement`. Flat\nper page, free when it lists nobody.",
+        "operationId": "org_chart_people",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PeopleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PeopleResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "No credential, or one that does not verify (`auth.unauthorized`)."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The credential lacks the scope this route needs (`auth.insufficient_scope`), or the signed-in user has not chosen a workspace (`auth.workspace_required`)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The request is invalid (`request.invalid`), or its cursor is (`pagination.*`)."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "A service this request needs is unavailable, or this pod is full. See `Retry-After`."
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The request did not finish within its time budget (`upstream.timeout`)."
+          }
+        },
+        "summary": "The people one cell of a company's org chart counts",
+        "tags": [
+          "Org chart"
+        ]
+      }
+    },
     "/v1/org-chart/taxonomy": {
       "get": {
         "description": "Department and seniority codes with labels and order, sub-departments, and the\nstored spellings of governance levels and employment types.",
         "operationId": "org_chart_taxonomy",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -13783,6 +18299,16 @@
               "application/problem+json": {}
             },
             "description": "The credential lacks the scope this route needs (`auth.insufficient_scope`), or the signed-in user has not chosen a workspace (`auth.workspace_required`)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           },
           "503": {
             "content": {
@@ -13817,6 +18343,26 @@
       "post": {
         "description": "People who connect two companies, or a company and institutions, through shared\nemployers and schools, each with the reason they matched. Send a sentence (`query`) or the\nstructure (`relation`, `companies`, `institutions`).",
         "operationId": "relationships",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -13904,6 +18450,26 @@
       "post": {
         "description": "Any relationship question in plain words. `route` names the kind of answer and exactly\nthat field is set: `relationships`, `reach`, `institutions`, `compare` or `fan_out`.",
         "operationId": "relationships_ask",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -13991,6 +18557,26 @@
       "post": {
         "description": "The employers and schools two companies' people have in common, with how many people\non each side, without ranking people. One page; `truncated` says when there are more.",
         "operationId": "relationships_institutions",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -14074,10 +18660,137 @@
         ]
       }
     },
+    "/v1/relationships/institutions/lookup": {
+      "post": {
+        "description": "Employers and schools whose name starts with `query`, most people first. Send a\nsuggestion's `institution` as one of `institutions` in `POST /v1/relationships`. Free.",
+        "operationId": "relationships_institution_lookup",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InstitutionLookupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstitutionLookupEnvelope"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "No credential, or one that does not verify (`auth.unauthorized`)."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The credential lacks the scope this route needs (`auth.insufficient_scope`), or the signed-in user has not chosen a workspace (`auth.workspace_required`)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The request is invalid (`request.invalid`), or its cursor is (`pagination.*`)."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "A service this request needs is unavailable, or this pod is full. See `Retry-After`."
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "application/problem+json": {}
+            },
+            "description": "The request did not finish within its time budget (`upstream.timeout`)."
+          }
+        },
+        "summary": "Suggest employers and schools for a typed name",
+        "tags": [
+          "Relationships"
+        ]
+      }
+    },
     "/v1/relationships/reach": {
       "post": {
         "description": "The people at `target_company` that `person` shares an employer or a school with, and\nhow. Page with `next_cursor` (same body, same `limit`).",
         "operationId": "relationships_reach",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -14165,6 +18878,26 @@
       "post": {
         "description": "Search one category of the Sprouts corpus, named by `category`: companies and\npeople, or a document corpus (patents, research papers, ...). Each category has its own\n`filters` and `sort` fields; the body's schema lists them per category.\n\n`mode` decides how `query` is read; `resolved_search` says what it was understood to\nmean. Page with `next_cursor`, sending the same body each time.",
         "operationId": "search",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -14640,6 +19373,26 @@
       "post": {
         "description": "Companies like the anchors (by domain, LinkedIn URL or name), optionally narrowed by\n`filters`. Page with `next_cursor`, sending the same body each time.",
         "operationId": "similar",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -14982,7 +19735,7 @@
     },
     "/v1/usage/history/{run_id}": {
       "get": {
-        "description": "One run, and for a search's first page its records again (free, current).",
+        "description": "One run, and for a search's first page its records again (free, current). A Tools\nrun is read by its sdm ``run_id`` (its ``id`` in the lists).",
         "operationId": "run_v1_usage_history__run_id__get",
         "parameters": [
           {
@@ -14990,7 +19743,7 @@
             "name": "run_id",
             "required": true,
             "schema": {
-              "pattern": "^[0-9]{1,19}$",
+              "pattern": "^(?:[0-9]{1,19}|run_[0-9a-f]{32})$",
               "title": "Run Id",
               "type": "string"
             }
@@ -15206,8 +19959,8 @@
     }
   },
   "x-source": {
-    "commit": "8c06583ea53e56e492b160c627f209b3e5856652",
-    "ref": "origin/sd-qa",
+    "commit": "ec23ad95c867281565be2d1558752564513fe079",
+    "ref": "ec23ad9",
     "repo": "dsp-backend"
   }
 }

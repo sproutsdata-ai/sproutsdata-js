@@ -1,0 +1,47 @@
+{
+  "body": {
+    "has_more": false,
+    "meta": {
+      "as_of": "2026-11-24T09:06:08.666848Z",
+      "credential": "api_key",
+      "credits_balance": 964.405,
+      "credits_charged": null,
+      "environment": "live",
+      "request_id": "efbff85529fc4d459390ba692750b38f"
+    },
+    "next_cursor": null,
+    "results": [
+      {
+        "created_at": "2026-11-24T09:06:08.062326Z",
+        "credits_charged": 1.0,
+        "entity": "contacts",
+        "fields": [
+          "EMAIL"
+        ],
+        "finished_at": "2026-11-24T09:06:08.617944Z",
+        "job_id": "95d0e24f-fab5-4c72-b7c8-1ab0f9e97222",
+        "name": "E2E 433c0afd",
+        "status": "completed",
+        "stop_reason": null,
+        "suppressed_rows": [],
+        "total_rows": 3,
+        "values_found": 1
+      }
+    ]
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "600",
+    "ratelimit-remaining": "599",
+    "ratelimit-reset": "52",
+    "x-request-id": "efbff85529fc4d459390ba692750b38f"
+  },
+  "operation": "enrichment_list",
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/v1/enrichment/jobs",
+    "query": {}
+  },
+  "status": 200
+}

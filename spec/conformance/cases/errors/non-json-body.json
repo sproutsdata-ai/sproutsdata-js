@@ -1,6 +1,7 @@
 {
   "name": "non_json_error_body_does_not_mask_the_failure",
   "description": "A proxy's HTML 502 page must not become a JSON decode error. The real failure is the 502.",
+  "route_class": "billed",
   "responses": [
     {
       "status": 502,

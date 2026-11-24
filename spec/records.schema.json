@@ -648,6 +648,20 @@
           "description": "The public id: the one search gives this record, and a lookup key.",
           "type": "string"
         },
+        "industries_served": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "x-flex-list": true
+        },
         "industry": {
           "anyOf": [
             {
@@ -4590,7 +4604,7 @@
   },
   "version": 1,
   "x-source": {
-    "commit": "8ae39cddbdf89b4cea7d78fd1471e5193107c158",
+    "commit": "d264860caee988fa8e214a9b07eff623c96ecdb9",
     "ref": "origin/qa",
     "repo": "prism"
   }

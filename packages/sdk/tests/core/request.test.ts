@@ -7,6 +7,7 @@ import { buildHeaders, buildUrl, encodeSegment, fillPath } from '../../src/core/
 import { FIXTURE_KEY } from '../support/fakes.js';
 
 const search = { ...OPERATIONS.search, name: 'search' };
+const creditsQuote = { ...OPERATIONS.creditsQuote, name: 'creditsQuote' };
 const runsCreate = { ...OPERATIONS.runsCreate, name: 'runsCreate' };
 
 describe('request', () => {
@@ -44,10 +45,12 @@ describe('request', () => {
   });
 
   it('sends an idempotency key on keyed operations only', () => {
-    expect(buildHeaders(search, FIXTURE_KEY, {}, {}, false)['Idempotency-Key']).toBeUndefined();
+    expect(buildHeaders(creditsQuote, FIXTURE_KEY, {}, {}, false)['Idempotency-Key']).toBeUndefined();
+    // A billed read reads one too (dsp-backend DSP-449): a retry with it is charged once.
+    expect(buildHeaders(search, FIXTURE_KEY, {}, {}, false)['Idempotency-Key']).toMatch(/^sdk-/);
     expect(buildHeaders(runsCreate, FIXTURE_KEY, {}, {}, false)['Idempotency-Key']).toMatch(/^sdk-/);
     expect(buildHeaders(runsCreate, FIXTURE_KEY, {}, { idempotencyKey: 'mine' }, false)['Idempotency-Key']).toBe('mine');
-    expect(() => buildHeaders(search, FIXTURE_KEY, {}, { idempotencyKey: 'k' }, false)).toThrow(/does not take/);
+    expect(() => buildHeaders(creditsQuote, FIXTURE_KEY, {}, { idempotencyKey: 'k' }, false)).toThrow(/does not take/);
     for (const bad of ['', 'x'.repeat(256), 'line\nbreak']) {
       expect(() => buildHeaders(runsCreate, FIXTURE_KEY, {}, { idempotencyKey: bad }, false)).toThrow(ClientValidationError);
     }

@@ -1,14 +1,19 @@
 # Org charts
 
 One company's people, counted by department and seniority, by sub-department,
-and by place. `client.orgChart` has three billed calls (`retrieve`,
-`departments`, `locations`), each charged per call, and a free `taxonomy`. They
-need a key with `dsp.search.read`.
+and by place, and the people one of those counts holds. `client.orgChart` has
+four billed calls and a free `taxonomy`. They need a key with `dsp.search.read`.
 
-**Counts, never names.** The answers count people grouped by department and
-seniority codes. No person is named, there are no reporting lines, and nothing
-is paged: each answer is one aggregation. To see the people in one cell, run a
-person [search](quickstart.md#your-first-search) with matching filters.
+| Call | Answer | Cost |
+|---|---|---|
+| `retrieve` | the grid: people by department and seniority | per call |
+| `departments` | people by department and sub-department | per call |
+| `locations` | people by country, state and city | per call |
+| `people` | the people one cell counts, a page at a time | per page that lists anyone |
+| `taxonomy` | the codes the filters and cells take | free |
+
+The counts do not page: one request, one whole answer. `people` pages by
+cursor (`iterPeople` follows it). There are no reporting lines.
 
 ## Naming the company
 
@@ -17,8 +22,9 @@ Every call names the company by exactly one of:
 - `domain`: the company's domain, such as `stripe.com`;
 - `linkedin_url`: its LinkedIn company page, such as
   `linkedin.com/company/stripe`;
-- `company_ref`: a reference from an ambiguous answer (see
-  [below](#an-ambiguous-company)).
+- `company_ref`: every answer's `company.company_ref`, a candidate's in an
+  ambiguous answer (see [below](#an-ambiguous-company)), or a company search
+  row's `id`.
 
 The SDK refuses a call with none or several of these, a domain that is not a
 company domain, or a LinkedIn URL that is not a company page (a personal
@@ -75,6 +81,41 @@ for (const country of places.countries) {
 
 `locations` answers a tree: `countries`, each with its states as `children`,
 and each state with its cities.
+
+## `people`: a cell's people
+
+`people` lists the people one count holds, a page at a time, most senior first.
+It runs the query the count ran, so `total` is the cell's count. Name the company
+by the chart's `company_ref` (it is not resolved again), and send the chart's own
+`filters` and `include_suspects`: they narrow the list as they narrowed the count.
+
+```ts
+const chart = await client.orgChart.retrieve({ domain: 'stripe.com' });
+const ref = chart.company.company_ref;
+const wanted = { department: 'engineering', seniority: 'manager' };
+
+const page = await client.orgChart.people({ company_ref: ref, cell: wanted, limit: 25 });
+console.log(page.total, 'in the cell');
+for await (const person of client.orgChart.iterPeople({ company_ref: ref, cell: wanted })) {
+  console.log(person.contact_name, person.title, person.placement.seniority.label);
+}
+```
+
+- **The cell is codes** (`taxonomy()`, or the chart's own `{ code, label }`): a
+  `department`, a `seniority` or both, and a `subdepartment` (a team) inside its
+  department. `unknown` names the people with no value on that axis, as the
+  chart counted them. The SDK refuses a cell with neither, or a team without its
+  department.
+- **Rows** are `OrgChartCellPerson`: the person's `id` (the one a person search
+  gives them), name, title, LinkedIn page, place, and `placement`, the chart's
+  reading of their seniority, departments and teams. The employer is the charted
+  company.
+- **Paging**: `next_cursor` goes back with the same company, filters, cell and
+  `include_suspects`; any of them changed throws `CursorInvalidError`. The page
+  size (`limit`, 1 to 100, default 10) may change between pages.
+- **Do-Not-Contact**: a person on the list is counted but never listed, so a
+  cell's pages can hold fewer people than `total`.
+- **Price**: billed per page that lists anyone; a page that lists nobody is free.
 
 ## Filters
 

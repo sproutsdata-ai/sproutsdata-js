@@ -117,16 +117,6 @@ function degradation(entries: readonly { readonly reason: string; readonly detai
   return entries.map((d) => text('caveats', 'degradation', { reason: d.reason, detail: d.detail, impact: d.impact }));
 }
 
-function coverageNotes(coverage: SearchEnvelope['coverage']): string[] {
-  if (coverage === null) return [];
-  const notes: string[] = [];
-  if (coverage.truncated_by !== null) {
-    const { enumerated, universe } = coverage;
-    notes.push(text('caveats', 'coverage_truncated', { enumerated, universe, truncated_by: coverage.truncated_by }));
-  }
-  return [...notes, ...coverage.constraints_unmet.map((constraint) => text('caveats', 'constraint_unmet', { constraint }))];
-}
-
 /** The filters a search resolved to, without a look-alike's anchors and `combine`. */
 function resolvedFilters(resolved: SearchEnvelope['resolved_search']): Record<string, unknown> {
   const filters = resolved?.filters ?? {};
@@ -175,7 +165,7 @@ export function shapePage(page: SearchEnvelope, shaping: PageShaping): SearchToo
     else if (shaping.withLookup && ADDRESSABLE.has(hit.category)) unaddressed += 1;
     return row;
   });
-  const notes = [...degradation(page.degradation), ...coverageNotes(page.coverage)];
+  const notes = degradation(page.degradation);
   if (parserSkipped(page.resolved_search, shaping.askedInWords)) notes.push(text('caveats', 'parser_not_run'));
   notes.push(...shaping.caveats);
   if (unaddressed > 0) notes.push(text('caveats', 'rows_without_lookup', { count: unaddressed, shown: shaping.hits.length }));

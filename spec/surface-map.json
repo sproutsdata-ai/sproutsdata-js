@@ -163,24 +163,56 @@
       ]
     },
     {
+      "group": "enrichment",
+      "endpoints": [
+        "POST /v1/enrichment/jobs",
+        "GET /v1/enrichment/jobs",
+        "GET /v1/enrichment/jobs/{job_id}",
+        "POST /v1/enrichment/jobs/{job_id}/cancel",
+        "GET /v1/enrichment/jobs/{job_id}/results",
+        "POST /v1/enrichment/lookups"
+      ],
+      "python": [
+        "enrichment.create",
+        "enrichment.list",
+        "enrichment.retrieve",
+        "enrichment.cancel",
+        "enrichment.wait",
+        "enrichment.results",
+        "enrichment.lookup"
+      ],
+      "js": [
+        "enrichment.create",
+        "enrichment.list",
+        "enrichment.retrieve",
+        "enrichment.cancel",
+        "enrichment.wait",
+        "enrichment.results",
+        "enrichment.lookup"
+      ]
+    },
+    {
       "group": "org_chart",
       "endpoints": [
         "POST /v1/org-chart",
         "POST /v1/org-chart/departments",
         "POST /v1/org-chart/locations",
-        "GET /v1/org-chart/taxonomy"
+        "GET /v1/org-chart/taxonomy",
+        "POST /v1/org-chart/people"
       ],
       "python": [
         "org_chart.retrieve",
         "org_chart.departments",
         "org_chart.locations",
-        "org_chart.taxonomy"
+        "org_chart.taxonomy",
+        "org_chart.people"
       ],
       "js": [
         "orgChart.retrieve",
         "orgChart.departments",
         "orgChart.locations",
-        "orgChart.taxonomy"
+        "orgChart.taxonomy",
+        "orgChart.people"
       ]
     },
     {

@@ -16,7 +16,7 @@ const handle = await client.runs.create(
   {
     query: 'series B fintechs in DACH with an in-house ML team',
     category: 'company', // or 'person'
-    effort: 'high', // 'minimal', 'low', 'medium', 'high', 'xhigh' or 'auto'
+    effort: 'detailed', // 'quick', 'basic', 'standard' (the default), 'detailed', 'maximum' or 'auto'
     criteria: ['has an in-house ML team'], // up to 10, in words
     enrichments: ['ml_team_evidence'], // up to 20 columns to fill
     exclusion: ['<record-id-you-already-hold>'], // up to 1,000
@@ -25,6 +25,15 @@ const handle = await client.runs.create(
 );
 console.log(handle.run_id, handle.status);
 ```
+
+The earlier effort names (`minimal`, `low`, `medium`, `high`, `xhigh`, typed
+`LegacyEffort`) are still accepted, and the SDK sends them as the names above.
+
+A key may have two runs going at once. Starting a third throws `ConcurrencyLimitError` at
+once, without retrying: follow one to its end or cancel it, then start again. A run frees
+its place when a read sees it ended, or when it is cancelled. A run's rows are kept for a
+limited time after it finishes; read after that, `results` throws `ResultsExpiredError`
+(a `NotFoundError`).
 
 `create` answers at once with the run's id; the work goes on server-side. The
 run is billed when it settles (`credits_charged` on the result). A run
@@ -104,8 +113,19 @@ is the last state seen; the run goes on server-side. Your `signal` stops the
 wait at once.
 
 Read `coverage` before trusting a count: "we found 40 accounts" and "there are
-40 accounts" are different claims. See
-[the coverage block](quickstart.md#the-coverage-block).
+40 accounts" are different claims. `total` says how many rows the run kept,
+and `coverage` says how many records match and whether those rows are all of them:
+
+```ts
+const settled = await client.runs.retrieve('<run-id>');
+const c = settled.coverage;
+if (c !== null) {
+  console.log(c.universe, c.universe_is_exact); // records matching the resolved question, counted
+  console.log(c.enumerated, c.enumeration_recall); // how many this answer carries, as a fraction
+  console.log(c.universe_exhausted); // every match returned, and the count agrees
+  console.log(c.constraints_unmet, c.truncated_by); // what could not be asked, and what stopped it short
+}
+```
 
 ## The rows
 

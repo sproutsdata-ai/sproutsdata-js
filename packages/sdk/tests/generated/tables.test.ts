@@ -73,6 +73,7 @@ describe('generated tables', () => {
     for (const [index, row] of policy.outcomes.entries()) {
       const outcome = OUTCOMES[index];
       expect(outcome?.statuses).toEqual(row['status'] ?? []);
+      expect(outcome?.codes).toEqual(row['codes'] ?? []);
       expect(outcome?.retryAfter).toBe(row['retry_after'] ?? null);
       expect(outcome?.decisions).toEqual(Object.fromEntries(policy.classes.map((c) => [c, row[c]])));
     }

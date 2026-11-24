@@ -1,0 +1,31 @@
+{
+  "name": "an_unknown_410_is_results_expired",
+  "description": "A 410 whose code this SDK version does not know falls back to the results_expired concept: what was asked for existed and is gone.",
+  "request": {
+    "method": "GET",
+    "path": "/v1/agents/runs/run_1/results"
+  },
+  "responses": [
+    {
+      "status": 410,
+      "headers": {
+        "X-Request-Id": "req_410"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/agents-something-invented-later",
+        "title": "Gone",
+        "status": 410,
+        "code": "agents.something_invented_later"
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "error": {
+      "concept": "results_expired",
+      "status": 410,
+      "code": "agents.something_invented_later",
+      "request_id": "req_410"
+    }
+  }
+}

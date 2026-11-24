@@ -6,10 +6,17 @@ import {
   APIResponseValidationError,
   APITimeoutError,
   APIUserAbortError,
+  ConcurrencyLimitError,
+  ConflictError,
+  CreditsRefusedError,
   InsufficientCreditsError,
+  InvalidRequestError,
   NotFoundError,
   OrgChartCompanyAmbiguousError,
+  PermissionDeniedError,
   RateLimitError,
+  ResultsExpiredError,
+  ServiceUnavailableError,
 } from '../../src/core/errors.js';
 import { conceptFor, decodeErrorBody, errorFromAnswer, parseRetryAfter } from '../../src/core/problem.js';
 import { NOW } from '../support/fakes.js';
@@ -17,6 +24,27 @@ import { NOW } from '../support/fakes.js';
 const answer = (status: number, body: unknown, headers: Record<string, string> = {}) => ({ status, headers, body, retryAfter: undefined });
 
 describe('errors', () => {
+  it('makes the new classes kinds of the ones callers already catch', () => {
+    expect(new ResultsExpiredError(answer(410, {}))).toBeInstanceOf(NotFoundError);
+    expect(new ConcurrencyLimitError(answer(429, {}))).toBeInstanceOf(RateLimitError);
+    expect(new CreditsRefusedError(answer(503, {}))).toBeInstanceOf(ServiceUnavailableError);
+  });
+
+  it.each<[number, string | undefined, abstract new (...args: never[]) => APIError]>([
+    [410, 'agents.results_expired', ResultsExpiredError],
+    [410, 'enrichment.results_expired', ResultsExpiredError],
+    [410, undefined, ResultsExpiredError],
+    [429, 'quota.concurrency_exceeded', ConcurrencyLimitError],
+    [503, 'credits.refused', CreditsRefusedError],
+    [404, 'enrichment.job_not_found', NotFoundError],
+    [409, 'enrichment.idempotency_key_reused', ConflictError],
+    [403, 'credits.purchase_not_allowed', PermissionDeniedError],
+    [422, 'relationship.filter_value_unknown', InvalidRequestError],
+  ])('raises each new code as its class: %i %s', (status, code, cls) => {
+    const error = errorFromAnswer(status, {}, code === undefined ? { status } : { status, code }, NOW);
+    expect(error.constructor).toBe(cls);
+  });
+
   it('names the code, the detail and the request id', () => {
     const error = new APIError(answer(422, { code: 'request.invalid', title: 'Invalid request', detail: 'limit: too big', request_id: 'req_1' }));
     expect(error.message).toBe('Invalid request (request.invalid) - limit: too big - request_id=req_1');

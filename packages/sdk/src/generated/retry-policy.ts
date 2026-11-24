@@ -11,6 +11,8 @@ export interface Outcome {
   readonly name: string;
   readonly network: readonly NetworkOutcome[];
   readonly statuses: readonly number[];
+  /** Problem codes this row decides for, whatever their status: a repeat cannot help. */
+  readonly codes: readonly string[];
   /** Matches only when Retry-After is within (or beyond) the cap; `null`: either. */
   readonly retryAfter: 'within_cap' | 'beyond_cap' | null;
   readonly decisions: Readonly<Record<RouteClass, Decision>>;
@@ -24,6 +26,7 @@ export const OUTCOMES: readonly Outcome[] = [
     name: "not_sent",
     network: ["connect_refused","dns_failure","connect_timeout"],
     statuses: [],
+    codes: [],
     retryAfter: null,
     decisions: { safe: "retry", billed: "retry", keyed: "retry", once: "retry" },
   },
@@ -31,13 +34,23 @@ export const OUTCOMES: readonly Outcome[] = [
     name: "sent_no_answer",
     network: ["read_timeout","reset_after_send"],
     statuses: [408,502],
+    codes: [],
     retryAfter: null,
     decisions: { safe: "retry", billed: "raise", keyed: "retry", once: "raise" },
+  },
+  {
+    name: "never_retried_code",
+    network: [],
+    statuses: [],
+    codes: ["credits.refused","quota.concurrency_exceeded"],
+    retryAfter: null,
+    decisions: { safe: "raise", billed: "raise", keyed: "raise", once: "raise" },
   },
   {
     name: "rate_limited",
     network: [],
     statuses: [429],
+    codes: [],
     retryAfter: "within_cap",
     decisions: { safe: "retry", billed: "retry", keyed: "retry", once: "retry" },
   },
@@ -45,13 +58,15 @@ export const OUTCOMES: readonly Outcome[] = [
     name: "rate_limited_long",
     network: [],
     statuses: [429],
+    codes: [],
     retryAfter: "beyond_cap",
     decisions: { safe: "raise", billed: "raise", keyed: "raise", once: "raise" },
   },
   {
     name: "never_retried",
     network: [],
-    statuses: [400,401,402,403,404,405,409,413,415,422,501],
+    statuses: [400,401,402,403,404,405,409,410,413,415,422,501],
+    codes: [],
     retryAfter: null,
     decisions: { safe: "raise", billed: "raise", keyed: "raise", once: "raise" },
   },
@@ -59,6 +74,7 @@ export const OUTCOMES: readonly Outcome[] = [
     name: "internal_error",
     network: [],
     statuses: [500],
+    codes: [],
     retryAfter: null,
     decisions: { safe: "retry", billed: "retry", keyed: "retry", once: "raise" },
   },
@@ -66,6 +82,7 @@ export const OUTCOMES: readonly Outcome[] = [
     name: "unavailable",
     network: [],
     statuses: [503,504],
+    codes: [],
     retryAfter: null,
     decisions: { safe: "retry", billed: "retry", keyed: "retry", once: "retry" },
   },

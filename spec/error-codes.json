@@ -1,5 +1,5 @@
 {
-  "$comment": "The error taxonomy every SDK maps: every code dsp-backend can send an API-key caller (the `code = \"...\"` of each DspError subclass under dsp-backend src/dsp, at the commit spec/openapi.json names). Staff-only and internal codes (privacy.*) are left out. `concept` is the language-neutral name conformance cases use; each SDK maps it to an idiomatic class. `retry` is normative: an SDK that retries a code marked false is a bug. A code may be sent with a status other than its usual one (request.invalid on a 400, 404 or 405): map by code, and by status only when the code is unknown.",
+  "$comment": "The error taxonomy every SDK maps: every code dsp-backend can send an API-key caller (the `code = \"...\"` of each DspError subclass under dsp-backend src/dsp, at the commit spec/openapi.json names). Staff-only and internal codes (privacy.*), and the Tools API's (tools.*: /tools/v1, outside the published /v1/* paths), are left out. `concept` is the language-neutral name conformance cases use; each SDK maps it to an idiomatic class. `retry` is normative: an SDK that retries a code marked false is a bug. A code may be sent with a status other than its usual one (request.invalid on a 400, 404 or 405): map by code, and by status only when the code is unknown.",
   "version": 2,
   "problem_media_type": "application/problem+json",
   "docs_base": "https://dashboard.sproutsdata.ai/errors/",
@@ -20,14 +20,17 @@
     "invalid_request",
     "org_chart_company_ambiguous",
     "not_found",
+    "results_expired",
     "conflict",
     "list_name_taken",
     "cursor_invalid",
     "cursor_expired",
     "pagination_depth_exceeded",
     "rate_limit",
+    "concurrency_limit",
     "feature_not_available",
     "service_unavailable",
+    "credits_refused",
     "upstream_timeout",
     "internal"
   ],
@@ -40,6 +43,7 @@
     "404": "not_found",
     "405": "invalid_request",
     "409": "conflict",
+    "410": "results_expired",
     "413": "invalid_request",
     "415": "invalid_request",
     "422": "invalid_request",
@@ -51,6 +55,13 @@
     "504": "upstream_timeout"
   },
   "codes": [
+    {
+      "code": "agents.results_expired",
+      "status": 410,
+      "concept": "results_expired",
+      "retry": false,
+      "meaning": "A finished run's rows are kept for a limited time; these are gone. Start the run again for fresh results."
+    },
     {
       "code": "agents.run_not_found",
       "status": 404,
@@ -87,6 +98,13 @@
       "meaning": "A signed-in user (a dashboard token, never an API key) has not chosen a workspace. Choosing one at the auth service fixes it; signing in again does not."
     },
     {
+      "code": "credits.idempotency_key_reused",
+      "status": 409,
+      "concept": "conflict",
+      "retry": false,
+      "meaning": "This Idempotency-Key already started another credit purchase. Purchases are dashboard-only; an API key never gets this far."
+    },
+    {
       "code": "credits.insufficient",
       "status": 402,
       "concept": "insufficient_credits",
@@ -96,6 +114,27 @@
         "available_credits",
         "required_credits"
       ]
+    },
+    {
+      "code": "credits.no_card_on_file",
+      "status": 409,
+      "concept": "conflict",
+      "retry": false,
+      "meaning": "Auto top-up needs the card a dashboard purchase saves, and there is none. Dashboard-only."
+    },
+    {
+      "code": "credits.purchase_not_allowed",
+      "status": 403,
+      "concept": "permission_denied",
+      "retry": false,
+      "meaning": "Buying credits and saving auto top-up take a signed-in owner or billing member; an API key is always refused."
+    },
+    {
+      "code": "credits.refused",
+      "status": 503,
+      "concept": "credits_refused",
+      "retry": false,
+      "meaning": "The credits ledger refused to hold credits for this work (an agent run or an enrichment start), so it did not run and nothing was charged. A repeat cannot help: contact support with the request_id."
     },
     {
       "code": "credits.unavailable",
@@ -110,6 +149,34 @@
       "concept": "wallet_frozen",
       "retry": false,
       "meaning": "Sprouts staff froze this workspace's wallet: nothing can be charged until it is unfrozen. Contact support. Never retried."
+    },
+    {
+      "code": "enrichment.idempotency_key_reused",
+      "status": 409,
+      "concept": "conflict",
+      "retry": false,
+      "meaning": "This Idempotency-Key already started an enrichment job or lookup with another body. Send a new key for a new job; reuse one only to retry the same request."
+    },
+    {
+      "code": "enrichment.job_finished",
+      "status": 409,
+      "concept": "conflict",
+      "retry": false,
+      "meaning": "A cancel of an enrichment job that has already ended. The API answers with the job instead, so a caller rarely sees it."
+    },
+    {
+      "code": "enrichment.job_not_found",
+      "status": 404,
+      "concept": "not_found",
+      "retry": false,
+      "meaning": "No enrichment job with that id in this workspace."
+    },
+    {
+      "code": "enrichment.results_expired",
+      "status": 410,
+      "concept": "results_expired",
+      "retry": false,
+      "meaning": "An enrichment job's rows are kept for 7 days after it ends; these are gone. Start a new job to enrich them again."
     },
     {
       "code": "export.not_found",
@@ -224,6 +291,13 @@
       "meaning": "Too many calls to one operation from this workspace or key in the current minute. `extra` carries `limit`, `window`, `operation`, `scope` and `retry_after`; X-RateLimit-* and RateLimit-* headers carry the limit, what remains and the reset in seconds. Honour Retry-After."
     },
     {
+      "code": "quota.concurrency_exceeded",
+      "status": 429,
+      "concept": "concurrency_limit",
+      "retry": false,
+      "meaning": "This credential already has as many agent runs going as it may (two), or the engine is running as many as it takes. Sent with Retry-After, but never retried: a run takes minutes, so follow or cancel one, then start again."
+    },
+    {
       "code": "relationship.anchor_ambiguous",
       "status": 422,
       "concept": "invalid_request",
@@ -238,6 +312,18 @@
       "meaning": "A relationship anchor matched no company or institution."
     },
     {
+      "code": "relationship.filter_value_unknown",
+      "status": 422,
+      "concept": "invalid_request",
+      "retry": false,
+      "meaning": "A department or seniority the taxonomy does not hold. `extra.allowed` lists the values it takes.",
+      "extra_fields": [
+        "allowed",
+        "field",
+        "value"
+      ]
+    },
+    {
       "code": "request.invalid",
       "status": 422,
       "concept": "invalid_request",
@@ -249,7 +335,7 @@
       "status": 413,
       "concept": "invalid_request",
       "retry": false,
-      "meaning": "The request body is larger than the route accepts (the Tools routes cap it). Send a smaller body: fewer items, or a shorter query."
+      "meaning": "The request is larger than the route accepts: a Tools body over its cap, or an enrichment lookup with more rows than the workspace's lookups take (start a job instead). Send a smaller request."
     },
     {
       "code": "request.unsupported",

@@ -5,7 +5,8 @@
  * depends on what the operation costs, so each operation carries a route class and the
  * first row matching the failure decides for that class. In short: a call that provably
  * never arrived is always retried; one that may have arrived only where a repeat is free
- * (`safe`) or recognised by its key (`keyed`); a deterministic answer never.
+ * (`safe`) or recognised by its key (`keyed`); a deterministic answer never, nor one whose
+ * code says a repeat cannot help (too many runs at once, a refused credit hold).
  */
 
 import { DEFAULTS } from '../generated/defaults.js';
@@ -26,6 +27,9 @@ export function outcomeFor(error: SproutsDataError): Outcome | undefined {
     return OUTCOMES.find((o) => o.network.includes(network));
   }
   if (!(error instanceof APIError)) return undefined;
+  const { code } = error;
+  const byCode = code === undefined ? undefined : OUTCOMES.find((o) => o.codes.includes(code));
+  if (byCode !== undefined) return byCode; // the code says a repeat cannot help, whatever its status
   const beyondCap = error.retryAfter !== undefined && error.retryAfter * 1_000 > RETRY_AFTER_CAP_MS;
   return OUTCOMES.find(
     (o) => o.statuses.includes(error.status) && (o.retryAfter === null || (o.retryAfter === 'beyond_cap') === beyondCap),

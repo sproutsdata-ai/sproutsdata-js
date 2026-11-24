@@ -27,6 +27,7 @@ export interface Defaults {
   readonly streamIdleTimeoutMs: number;
   readonly runWait: WaitDefaults;
   readonly exportWait: WaitDefaults;
+  readonly enrichmentWait: WaitDefaults;
 }
 
 export const DEFAULTS: Defaults = {
@@ -45,4 +46,5 @@ export const DEFAULTS: Defaults = {
   streamIdleTimeoutMs: 60000,
   runWait: { deadlineMs: 900000, pollInitialMs: 3000, pollMultiplier: 1.5, pollMaxMs: 15000 },
   exportWait: { deadlineMs: 900000, pollInitialMs: 2000, pollMultiplier: 1.5, pollMaxMs: 10000 },
+  enrichmentWait: { deadlineMs: 1800000, pollInitialMs: 2000, pollMultiplier: 1.5, pollMaxMs: 30000 },
 };

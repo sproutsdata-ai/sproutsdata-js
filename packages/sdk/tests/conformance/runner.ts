@@ -11,7 +11,7 @@ import { join, relative } from 'node:path';
 
 import { expect } from 'vitest';
 
-import { OPERATIONS, type OperationName } from '../../src/generated/operations.js';
+import { OPERATIONS, type OperationName, type RouteClass } from '../../src/generated/operations.js';
 import type { Answer } from '../../src/core/answer.js';
 import { APIConnectionError, APIError, APITimeoutError, SproutsDataError } from '../../src/core/errors.js';
 import { degraded, Pager, truncated, type SentPage } from '../../src/core/pagination.js';
@@ -22,7 +22,7 @@ import { FakeClock, options, recordingFetch, type Scripted, type Sent } from '..
 export const CASES_DIR = new URL('../../../../spec/conformance/cases/', import.meta.url).pathname;
 
 const KEYS = {
-  case: ['name', 'description', 'request', 'responses', 'expect', 'max_retries', 'paginate', 'next_page_limit', 'mutate_request_after_first_page', 'request_id', 'off_spec'],
+  case: ['name', 'description', 'request', 'responses', 'expect', 'max_retries', 'paginate', 'next_page_limit', 'mutate_request_after_first_page', 'request_id', 'off_spec', 'route_class'],
   expect: ['attempts', 'error', 'success', 'sent', 'slept', 'no_sleep', 'no_next_page'],
   error: ['concept', 'not_concept', 'status', 'code', 'request_id', 'fields', 'extra', 'field_errors_length', 'reached_server'],
   success: ['results_length', 'has_more', 'request_id', 'truncated', 'degraded', 'first_category', 'first_degradation_reason', 'hit_extra_field', 'attribution_length', 'attribution_url_is_none', 'export_kind', 'job_id'],
@@ -49,6 +49,7 @@ export interface Case {
   readonly next_page_limit?: number;
   readonly mutate_request_after_first_page?: Json;
   readonly request_id?: string;
+  readonly route_class?: RouteClass;
 }
 
 export interface Run {
@@ -85,7 +86,11 @@ export function checkKeys(test: Case): void {
 
 const pattern = (template: string): RegExp => new RegExp(`^${template.replace(/\{[^}]+\}/g, '[^/]+')}$`);
 
-/** The case's operation, its template path replaced by the case's concrete one. */
+/**
+ * The case's operation, its template path replaced by the case's concrete one, and its class
+ * by the case's `route_class` where it pins a class rather than a route (only `keyed` sends a
+ * key).
+ */
 export function operationFor(test: Case): Operation {
   const method = test.request?.method ?? 'POST';
   const path = test.request?.path ?? '/v1/search';
@@ -93,7 +98,11 @@ export function operationFor(test: Case): Operation {
   expect(matches, `${test.file}: ${method} ${path}`).toHaveLength(1);
   const name = matches[0];
   if (name === undefined) throw new Error(`${test.file}: no operation for ${method} ${path}`);
-  return { ...OPERATIONS[name], path, name };
+  const op: Operation = { ...OPERATIONS[name], path, name };
+  const routeClass = test.route_class;
+  if (routeClass === undefined) return op;
+  const keyed = op.idempotency === 'none' ? 'optional' : op.idempotency;
+  return { ...op, routeClass, idempotency: routeClass === 'keyed' ? keyed : 'none' };
 }
 
 function firstInput(test: Case, op: Operation): SentPage {

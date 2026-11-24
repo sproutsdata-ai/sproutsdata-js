@@ -25,6 +25,165 @@ every file here against the others and the error table against the backend.
 
 ---
 
+## 2026-11-24 — re-pinned to dsp-backend sd-qa `ec23ad9`
+
+`fix/enrichment-status-width-values-found` merged (#217), with `dc4fe16`: a lookup's
+`credits_used` leaves out Do-Not-Contact rows, as a job's does (no shape change).
+
+- **openapi.json**: an agent run's results `total` is the rows the run kept (376d067); how
+  many records the question matches stays `coverage.universe`. Description only.
+- **fixtures**: unchanged (the fake prism keeps every row, so the two agree).
+
+## 2026-11-24 — re-pinned to dsp-backend `364ec98`
+
+From `fix/enrichment-status-width-values-found` (on top of `c580236`), which merges to sd-qa
+before these SDKs do: until it has, sd-qa's enrichment answers lack `values_found`.
+
+- **openapi.json**: `values_found` on `EnrichmentJob` and `EnrichmentJobSummary` (null until
+  the job ends, and for jobs that ended before the change), and required on `EnrichmentRow`
+  and `EnrichmentLookupResult`: the values newly found, one each whatever the field, that
+  `credits_used` and a row's `credits` price. A job with a miss reads `completed` instead of
+  answering 500 (migration 0017 widens `enrichment_jobs.status`).
+- **fixtures**: re-recorded; the recorded job now holds a miss and ends `completed`.
+
+## 2026-11-24 — re-pinned to dsp-backend sd-qa `c580236`
+
+- **openapi.json** (from `d0ef156`):
+  - DSP-466: `QuoteIn.fields` (enrichment only, at most 10,000 records with it). An
+    enrichment quote, job or lookup that could cost over 30,000 credits answers
+    `422 request.invalid`. `credits_used` and a row's `credits` are credits at each field's
+    price.
+  - DSP-454: a result field's `reason` (`no_source`, `sources_unavailable`, `not_found`,
+    `not_enough_input`, `error`, or null).
+  - DSP-449: search, similar, the four relationships routes, the org chart routes and the
+    nine entity lookups take an optional `Idempotency-Key`.
+  - DSP-319: an ended agent run settles on `/results` and `/events`; while it can't, they
+    answer `503 credits.unavailable` with `Retry-After`.
+- **routes.json**: the 19 billed routes are `keyed` (`idempotency: optional`). No route is
+  `billed` now. `GET /v1/org-chart/taxonomy` takes the header from the org chart router but
+  is free, so it stays `safe` and sends none; `check_spec` allows a `safe` route that.
+- **conformance**: the `billed` cases pin the class with `route_class`, which the Python
+  runner now reads (the README described it, no runner read it). `billed-sends-no-idempotency-key`
+  becomes `keyed-search-reuses-its-key-after-a-timeout`.
+
+## 2026-11-24 — enrichment wrapped
+
+- **routes.json**: the six `/v1/enrichment/*` operations leave `not_wrapped`:
+  `enrichment_create` (keyed, key required, 202), `enrichment_list` and
+  `enrichment_results` (cursor in the query), `enrichment_retrieve`, `enrichment_cancel`
+  (safe) and `enrichment_lookup` (keyed, key optional). **surface-map.json**: an
+  `enrichment` group (`create`, `list`, `retrieve`, `cancel`, `wait`, `results`, `lookup`).
+- **defaults.json** (version 3): `enrichment_wait`, polled from 2 s, half again longer each
+  time, up to 30 s, for up to 30 minutes.
+- **error-codes.json**: `request.too_large` also answers an enrichment lookup with more rows
+  than the workspace's lookups take.
+- **tools**: `sprouts_entity_lookup` no longer calls itself "the enrichment tool": an
+  enrichment API exists now, and a lookup reads records, it does not find new values.
+- **fixtures**: twelve enrichment answers and an enrichment quote, recorded through the
+  stack's fake dsp-enrichment (`e2e/fake_enrichment.py`), which speaks dsp-enrichment's own
+  shapes. A job that misses a value ends `completed_with_errors`, which dsp-backend d0ef156
+  cannot store (`enrichment_jobs.status` is `varchar(16)`, so reading the job answers 500);
+  the recorded jobs keep to found rows until dsp-backend fixes it, and misses are recorded
+  through a lookup.
+
+---
+
+## 2026-11-24 — org chart people wrapped
+
+- **routes.json**: `POST /v1/org-chart/people` (`org_chart_people`) leaves
+  `not_wrapped`: billed, cursor paging in the body over `results`, the cursor not
+  bound to `limit`. **surface-map.json**: `org_chart.people` / `orgChart.people`.
+- **fixtures**: `org_chart_people/first_page`, `next_page` and `cursor_invalid`
+  (422 `pagination.cursor_invalid`), recorded through the stack's fake prism, which now
+  answers `POST /v1/people/search` from the population its chart counts.
+
+---
+
+## 2026-11-24 — every error code mapped; retry policy version 3
+
+- **error-codes.json**: every code dsp-backend `d0ef156` sends an API key is mapped
+  (44 codes). New concepts `results_expired` (status fallback for 410),
+  `concurrency_limit` and `credits_refused`. New codes: `agents.results_expired`,
+  `enrichment.results_expired`, `enrichment.job_not_found`,
+  `enrichment.idempotency_key_reused`, `enrichment.job_finished`,
+  `quota.concurrency_exceeded`, `credits.refused` (it reaches API-key callers on run
+  and enrichment starts, so it is no longer treated as internal),
+  `credits.purchase_not_allowed`, `credits.no_card_on_file`,
+  `credits.idempotency_key_reused`, `relationship.filter_value_unknown`. The Tools
+  API's `tools.*` codes are left out: `/tools/v1` is outside the published paths.
+- **retry-policy.json** (version 3): a row may match on `codes`, the problem
+  document's `code`, ahead of the rows for those codes' statuses. The new row
+  `never_retried_code` raises `quota.concurrency_exceeded` (429) and
+  `credits.refused` (503) at once in every class; 410 joins `never_retried`.
+  `check_spec` now takes each code's `retry` flag from the policy instead of a
+  fixed list of statuses, and checks the policy's rows.
+- **conformance**: `retry/concurrency-exceeded-is-never-retried.json`,
+  `retry/credits-refused-is-never-retried.json`, `errors/results-expired.json`,
+  `errors/unknown-410-is-results-expired.json`.
+
+---
+
+## 2026-11-24 — enrichment exported, deep search removed, effort renamed
+
+Re-exported from dsp-backend `sd-qa` at d0ef156 (108 commits after 8c06583) and
+prism `qa` at d264860c.
+
+- **openapi.json**: 14 new operations, none removed.
+  - Enrichment (#170): `POST /v1/enrichment/jobs` (202, `Idempotency-Key`
+    required), `GET /v1/enrichment/jobs`, `GET /v1/enrichment/jobs/{job_id}`,
+    `POST /v1/enrichment/jobs/{job_id}/cancel`,
+    `GET /v1/enrichment/jobs/{job_id}/results` and `POST /v1/enrichment/lookups`;
+    scopes `dsp.enrichment.read` / `.write`.
+  - `POST /v1/org-chart/people` (#186): the people one org chart cell counts.
+  - `POST /v1/relationships/institutions/lookup`: employer and school
+    type-ahead for the dashboard.
+  - Credits (346c8f8): `GET /v1/credits/pricing`, `GET` and `POST
+    /v1/credits/purchases`, `GET /v1/credits/purchases/{purchase_id}`, `GET` and
+    `PUT /v1/credits/auto-topup`. Writes refuse API keys.
+  - `SearchMode` is `fast | auto`: `deep` is refused (83c27ac) and
+    `SearchEnvelope.coverage` is gone. Both modes read the words into filters
+    (943254c).
+  - `Effort` is `quick | basic | standard | detailed | maximum | auto`; the
+    server still reads the earlier names, which only `QuoteIn.effort` lists.
+    `RunRequest` needs only `query` (7372bbc).
+  - `lock_filters` and `fields` on every search body; `ResolvedSearch.read_as`
+    and `anchor_matches`; `DegradationReason` gains `anchor_not_exact`.
+  - Document filters (DSP-331): `topic` on six document categories,
+    `topic_description`, `languages`, `inventors`, `authors`,
+    `company_city`, 18 trend fields; `FundingFilters.investors` is a
+    `MatchAllEntityFilter`.
+  - `QuoteIn`: `operation` gains `enrichment`, `rows` goes up to 30,000;
+    `QuoteOut.basis` gains `values_up_to`.
+  - `POST /v1/agents/runs` documents 429 (two runs per credential) and a
+    tighter `Idempotency-Key`; run results document 410.
+  - `GET /v1/usage/history/{run_id}` also takes `run_<32 hex>` ids.
+- **records.schema.json**: `CompanyRecord.industries_served`.
+- **routes.json**: `not_wrapped` lists all 14 new operations, each with its
+  `reason`. Enrichment and `org_chart_people` move into `routes` once the SDKs
+  wrap them; the institution lookup and the credit purchase routes stay out
+  (dashboard only). `check_spec` now checks each entry exists, is not routed as
+  well, and says why.
+- **schema-names.json** (version 2): names too generic for a public type get
+  their feature: `Job*` → `EnrichmentJob*`, `LookupRequest` / `LookupResult` →
+  `EnrichmentLookup*`, `ResultRow` / `ResultField` → `EnrichmentRow` /
+  `EnrichmentRowField`, `PeopleRequest` / `PeopleResponse` / `PeopleCell` /
+  `CellPerson` / `Placement` → `OrgChart*`, the purchase models → `Credit*`,
+  `BadgeMetric` / `BadgeTier` → `TrendBadge*`. A rename may now name any
+  schema, not only one with an underscore.
+- **Generated forms**: `RelationshipInstitution` is reached from an answer too,
+  so the request form is `RelationshipInstitutionInput`.
+- **tools/messages.json** (version 3): `coverage_truncated` and
+  `constraint_unmet` are removed with search coverage;
+  `fixtures/search_constraints_unmet.json` is deleted and the search and
+  look-alike fixtures drop `coverage`.
+- **conformance**: `errors/not-implemented.json` sent `mode: deep`; it is
+  replaced by `errors/not-implemented-is-never-retried.json`, a 501 on a free
+  read.
+- **scripts/export_openapi.py**: sets the enrichment upstream, without which
+  the backend does not mount `/v1/enrichment/*`.
+
+---
+
 ## 2026-11-17 — test keys removed, empty answers explained, balance and quote
 
 Re-exported from dsp-backend `sd-qa` at 8c06583 (#176, #179, #180, #181,

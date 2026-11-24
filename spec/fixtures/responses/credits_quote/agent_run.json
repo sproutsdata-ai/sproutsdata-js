@@ -1,6 +1,6 @@
 {
   "body": {
-    "available": 870.5,
+    "available": 951.405,
     "basis": "run",
     "covered": true,
     "credits": 42.5,
@@ -10,14 +10,14 @@
   "headers": {
     "content-type": "application/json",
     "ratelimit-limit": "2000",
-    "ratelimit-remaining": "1998",
-    "ratelimit-reset": "24",
-    "x-request-id": "98e20e661a9b472fa83484801bb0cdaf"
+    "ratelimit-remaining": "1996",
+    "ratelimit-reset": "51",
+    "x-request-id": "7e4d4a33d5f64f2183d2cbe1fcd1ecaf"
   },
   "operation": "credits_quote",
   "request": {
     "body": {
-      "effort": "high",
+      "effort": "detailed",
       "operation": "agent_run"
     },
     "method": "POST",

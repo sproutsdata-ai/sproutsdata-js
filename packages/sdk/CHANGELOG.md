@@ -18,11 +18,17 @@ every changed call with its replacement.
   `sk_dsp_test_…` key throws `ClientValidationError` saying so. Tool results no
   longer carry `environment`, and `meta.environment` is a deprecated constant
   (`'live'`).
+- `mode: 'deep'`, which the backend no longer offers: it throws
+  `ClientValidationError` pointing to `runs.create()`, the agent run that does that
+  work now. `SearchEnvelope.coverage` is gone with it (an agent run still carries
+  `coverage`), and so are the search tool's `coverage_truncated` and
+  `constraint_unmet` caveats.
 
 ### Changed
 
 - **Search** covers every category (or `auto`, which lets the question choose)
-  and the `fast`, `auto` and `deep` modes; document categories take their own
+  and the `fast` and `auto` modes (both read the words into filters; `auto` is
+  billed as an AI search); document categories take their own
   filters and refuse company ones. Billing is per search session, and
   `meta.credits_charged` is what each page cost. `iterSearch()` walks the pages.
 - **Lookups** default to `by: 'auto'`; company and person lookups apply `fields`
@@ -43,6 +49,27 @@ every changed call with its replacement.
   specs; `resolveClient`, `ConnectionOptions` and `isApplicationError` are
   exported for adapters, and a client from a second copy of the package is
   recognised.
+- **Agent run effort** is named `quick`, `basic`, `standard` (the default),
+  `detailed` and `maximum` (plus `auto`), as the API names it. The earlier names
+  (typed `LegacyEffort`) are still accepted by `runs.create()` and `credits.quote()`
+  and sent as the new ones.
+- **`RelationshipInstitution`** is now the answer type; a request's institutions are
+  `RelationshipInstitutionInput` (**breaking** for code that typed them).
+- **Errors**: every code the backend sends an API key is mapped. Two answers are never
+  retried whatever their status: a third agent run on a key that has two going
+  (`ConcurrencyLimitError`, which used to sleep its 30-second Retry-After twice before
+  failing) and a refused credit hold (`CreditsRefusedError`).
+- **Document filters** are checked as the server checks them: a `topic` tree has
+  `keyword_query`'s limits on every document category, `investors` on a funding round
+  (a `MatchAllEntityFilter`) needs an entry, and filters of empty lists or objects
+  alone narrow nothing, so a document search then needs a `query`.
+- **`credits.quote()`** takes `operation: 'enrichment'` with `fields` (each field at its
+  own price, for up to 10,000 records); `fields` for another operation, an unknown or
+  repeated field, and a `lookup` quote over 1,000 records are refused locally.
+- **Billed calls carry an idempotency key** (dsp-backend DSP-449): search, look-alikes,
+  entity lookups, relationships and org charts send a generated `Idempotency-Key`, so one
+  that timed out, lost its connection after sending, or met a 502 or 408 is retried with
+  the same key and charged once. It used to be thrown with `reachedServer: true`.
 
 ### Added
 
@@ -58,6 +85,28 @@ every changed call with its replacement.
   holds nothing). `meta.credits_balance` is the balance after each billed call.
 - `APIError.nextStep`: the server's one sentence on what to do now, after
   `detail` in the message; tool errors carry it after the detail too.
+- `client.enrichment`: emails and phones for people (`contacts`), domains, phones and
+  LinkedIn pages for companies (`accounts`). `lookup()` answers up to 20 items in the call
+  (one that does not finish becomes a job); `create()` starts a job, followed with
+  `retrieve()`, `wait()` (on the spec's `enrichmentWait` rhythm), `results()` /
+  `iterResults()`, `list()` / `iterList()` and `cancel()`. Requests the server would refuse
+  are refused locally in its words; both keyed calls send an `Idempotency-Key`. Each field
+  has its price (by default 1 credit, a phone number 9); a request holds at most 30,000
+  credits; only values newly found are charged, and `values_found` counts them (on a lookup,
+  a row, and a job once it has ended); a field with no value says why (`reason`). Needs the `dsp.enrichment.*` scopes
+  (`examples/enrichment.ts`, `docs/enrichment.md`).
+- `orgChart.people()` and `iterPeople()`: the people one cell of a company's chart
+  counts, a page at a time, named by the chart's `company_ref` (every chart answer
+  carries one, and a company search row's `id` is one). Billed per page that lists
+  anyone.
+- `ResultsExpiredError` (410, a `NotFoundError`: a run's or an enrichment job's rows are no
+  longer kept), `ConcurrencyLimitError` (a `RateLimitError`) and `CreditsRefusedError` (a
+  `ServiceUnavailableError`).
+- The types of the API at dsp-backend sd-qa `ec23ad9`: the new document and trend filters,
+  `lock_filters` and `fields` on the search bodies, `resolved_search.read_as` and
+  `anchor_matches`, and the enrichment, org chart people and credit purchase types.
+  Generic backend names carry their feature (`EnrichmentJob`, `OrgChartPlacement`,
+  `CreditPurchase`, ...).
 
 ## 0.0.1
 

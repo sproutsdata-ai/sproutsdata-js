@@ -35,7 +35,6 @@
         }
       ],
       "columns": null,
-      "coverage": null,
       "degradation": [
         {
           "detail": "No company in the index is headquartered in Iceland.",

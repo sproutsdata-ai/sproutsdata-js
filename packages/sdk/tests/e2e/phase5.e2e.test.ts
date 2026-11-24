@@ -3,9 +3,11 @@
  * A local refusal is proved to be the server's by sending the same body with no SDK.
  */
 
+import { randomUUID } from 'node:crypto';
+
 import { describe, expect, it } from 'vitest';
 
-import { APIError, ClientValidationError, PermissionDeniedError } from '../../src/core/errors.js';
+import { ClientValidationError, ConcurrencyLimitError, PermissionDeniedError } from '../../src/core/errors.js';
 import { entityHit, lookupRef, totalFor } from '../../src/resources/helpers.js';
 import type { SearchParams } from '../../src/types/index.js';
 import { collect } from '../support/rig.js';
@@ -44,12 +46,6 @@ describe.skipIf(STACK === undefined)('phase 5, live', () => {
     expect(first.meta.credits_charged).toBeGreaterThan(0);
     expect(again.meta.credits_charged).toBe(first.meta.credits_charged);
     expect(spent).toBeGreaterThanOrEqual(costs.reduce((a, b) => a + b, 0) - 1e-9);
-  });
-
-  it('a deep search answers one page', async () => {
-    const page = await client().search({ query: 'fintechs in Berlin', mode: 'deep', limit: 5 });
-    expect(page.results.length).toBeGreaterThan(0);
-    expect(page.next_cursor).toBeNull();
   });
 
   it('similar reads its anchors back', async () => {
@@ -113,10 +109,10 @@ describe.skipIf(STACK === undefined)('phase 5, live', () => {
 
   it.each([
     ['S1 auto takes no filters', '/v1/search', { query: 'x', filters: { industry: { include: ['x'] } } }],
-    ['S2 deep takes no filters', '/v1/search', { category: 'company', query: 'x', mode: 'deep', filters: { industry: { include: ['x'] } } }],
+    ['S2 deep is no longer offered', '/v1/search', { category: 'company', query: 'x', mode: 'deep' }],
     ['S3 query or keyword_query', '/v1/search', { category: 'company', query: 'x', keyword_query: 'y' }],
     ['S4 sort fits the category', '/v1/search', { category: 'person', query: 'x', sort: [{ field: 'revenue' }] }],
-    ['S6 documents are not deep', '/v1/search', { category: 'patent', query: 'x', mode: 'deep' }],
+    ['S6 nor on documents', '/v1/search', { category: 'patent', query: 'x', mode: 'deep' }],
     ['S7 a range needs a bound', '/v1/search', { category: 'company', query: 'x', filters: { revenue: {} } }],
     ['N3 fifty values resolved', '/v1/entities/companies', { ids: Array.from({ length: 51 }, (_, i) => `n${String(i)}.de`), by: 'auto' }],
     ['M1 look-alikes are companies', '/v1/similar', { anchors: [{ value: 'stripe.com' }], category: 'person' }],
@@ -143,19 +139,46 @@ describe.skipIf(STACK === undefined)('phase 5, live', () => {
     expect(events.length).toBeGreaterThan(0);
   });
 
+  it('a run started with an earlier effort name is accepted', async () => {
+    const sdk = client();
+    const handle = await sdk.runs.create({ query: 'fintech companies', effort: 'minimal' });
+    const cancelled = await sdk.runs.cancel(handle.run_id);
+    expect(cancelled.run_id).toBe(handle.run_id);
+  });
+
+  it('a third run at once is refused at once and never retried', async () => {
+    const sdk = client();
+    const started: string[] = [];
+    const began = Date.now();
+    let refused: unknown;
+    try {
+      for (let n = 0; n < 3; n += 1) started.push((await sdk.runs.create({ query: `fintech companies ${String(n)}` })).run_id);
+    } catch (error) {
+      refused = error;
+    } finally {
+      for (const id of started) await sdk.runs.cancel(id); // a cancelled run gives its place back
+    }
+    expect(refused).toBeInstanceOf(ConcurrencyLimitError);
+    expect((refused as ConcurrencyLimitError).retryAfter).toBe(30);
+    expect(Date.now() - began).toBeLessThan(5_000);
+  });
+
   it('a key with the default scopes cannot start a run', async () => {
     const sdk = client({ key: setting('SPROUTSDATA_E2E_DEFAULT_SCOPES_KEY') });
     await expect(sdk.runs.create({ query: 'x' })).rejects.toBeInstanceOf(PermissionDeniedError);
   });
 
-  it('a 502 on a free read is retried and succeeds; on a billed search it is thrown, not repeated', async () => {
+  it('a 502 is retried, a search with its key, which the server charges once', async () => {
     const proxy = client({ baseUrl: setting('SPROUTSDATA_E2E_FAULT_URL') });
     await arm('/v1/coverage', 502);
     expect((await proxy.coverage()).segments.length).toBeGreaterThan(0);
     await arm('/v1/search', 502);
-    const error = await proxy.search({ query: 'robotics', limit: 1 }).catch((err: unknown) => err);
-    expect(error).toBeInstanceOf(APIError);
-    expect((error as APIError).status).toBe(502);
     expect((await proxy.search({ query: 'robotics', limit: 1 })).results.length).toBeGreaterThan(0);
+    const body = { query: 'robotics', limit: 1 };
+    const key = { 'Idempotency-Key': `e2e-retry-${randomUUID().slice(0, 8)}` };
+    const first = (await (await raw('POST', '/v1/search', body, key)).json()) as { meta: { credits_charged: number } };
+    const again = (await (await raw('POST', '/v1/search', body, key)).json()) as { meta: { credits_charged: number } };
+    expect(first.meta.credits_charged).toBeGreaterThan(0);
+    expect(again.meta.credits_charged).toBe(0); // dsp-backend DSP-449
   });
 });

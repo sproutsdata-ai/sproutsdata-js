@@ -25,6 +25,9 @@ for await (const hit of client.iterSimilar({ anchors: ['acme.com'], maxResults: 
 | `similar` | `iterSimilar` |
 | `relationships.find` | `relationships.iterFind` |
 | `relationships.reach` | `relationships.iterReach` |
+| `orgChart.people` | `orgChart.iterPeople` |
+| `enrichment.list` | `enrichment.iterList` |
+| `enrichment.results` | `enrichment.iterResults` |
 | `lists.items` | `lists.iterItems` |
 | `history.list` | `history.iterList` |
 | `credits.transactions` | `credits.iterTransactions` |
@@ -94,8 +97,6 @@ if (truncated) console.warn('The server stopped paging early; narrow the search 
 
 ## What does not page like a search
 
-- **`mode: 'deep'`** returns one page and has no cursor. The SDK refuses a
-  `cursor` on a deep search.
 - **`relationships.reach`** binds its page size to its cursor: every later page
   must ask for page 1's `limit`. `iterReach` does this for you and trims the
   last page locally to `maxResults`.

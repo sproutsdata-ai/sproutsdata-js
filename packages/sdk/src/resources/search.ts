@@ -11,9 +11,10 @@ export class Search extends Resource {
   /**
    * Search the index: one page of results. Billed by the rows a search delivers: page 1 opens a
    * search session and costs the price list's base, which covers its first rows; a later page
-   * costs only the rows it adds beyond those (often nothing). A repeat of page 1 opens a new
-   * session and is charged again; `meta.credits_charged` is what the page cost. A search that
-   * may have reached the server without an answer is thrown, never repeated (`reachedServer`).
+   * costs only the rows it adds beyond those (often nothing). Calling for page 1 again opens a
+   * new session and is charged again; `meta.credits_charged` is what the page cost. A search
+   * that may have reached the server without an answer is retried with the `Idempotency-Key` it
+   * was sent with, so the server charges it once.
    *
    * `category` defaults to `company`; `auto` lets the question pick it (and takes only `query`,
    * `mode`, `limit` and `cursor`). Document categories take their own `filters` and `sort`.

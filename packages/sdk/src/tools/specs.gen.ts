@@ -610,7 +610,7 @@ export const TOOL_SPECS: Readonly<Record<ToolName, ToolSpecFile>> = {
   },
   sprouts_entity_lookup: {
     "name": "sprouts_entity_lookup",
-    "description": "Full records for IDENTIFIERS YOU ALREADY HOLD: domains, LinkedIn URLs, names, or record ids. The enrichment tool; do not search for something you can look up.\n\nSay what the ids are with `by`: a company by `domain` or `li_url`, a person by `li_url` (a person has no domain), `name` for either, or `auto` (the default for both) to classify each value. A row from a search or look-alike result carries a `lookup` value: pass its value, with its `by` when it has one. A document row's `id` (`d1_...`) is its lookup value; a person row's `id` is a hash that comes back not found.\n\nEvery id is answered, in order. `found: false` is a miss: we hold no record under that identifier, which is not proof the entity does not exist. `found: true` with empty `matches` means the record exists but none came back. `ambiguous: true` means several records matched (a name is not a unique key): show them rather than picking the first. At most 3 matches are shown per id. Company and person records are trimmed to a compact default set unless you name `fields`, which picks fields from the records returned.\n\nBatch ceilings: 50 ids for company and person, 100 for document categories (50 by name). Billed per record found; a miss is free.",
+    "description": "Full records for IDENTIFIERS YOU ALREADY HOLD: domains, LinkedIn URLs, names, or record ids. Do not search for something you can look up.\n\nSay what the ids are with `by`: a company by `domain` or `li_url`, a person by `li_url` (a person has no domain), `name` for either, or `auto` (the default for both) to classify each value. A row from a search or look-alike result carries a `lookup` value: pass its value, with its `by` when it has one. A document row's `id` (`d1_...`) is its lookup value; a person row's `id` is a hash that comes back not found.\n\nEvery id is answered, in order. `found: false` is a miss: we hold no record under that identifier, which is not proof the entity does not exist. `found: true` with empty `matches` means the record exists but none came back. `ambiguous: true` means several records matched (a name is not a unique key): show them rather than picking the first. At most 3 matches are shown per id. Company and person records are trimmed to a compact default set unless you name `fields`, which picks fields from the records returned.\n\nBatch ceilings: 50 ids for company and person, 100 for document categories (50 by name). Billed per record found; a miss is free.",
     "description_hints": {},
     "refused_arguments": {
       "kind": "This tool takes `category`, not `kind`.",
@@ -837,8 +837,6 @@ export const MESSAGES: MessagesSpec = {
   "caveats": {
     "degradation": "{reason}: {detail} (impact: {impact})",
     "parser_not_run": "parser_not_run: `fast` mode did not parse the query, so a constraint stated only in words (a country, a headcount, an industry) was not applied. Use `mode: \"auto\"` or put it in `filters`.",
-    "coverage_truncated": "coverage_truncated: {enumerated} of {universe} matching records were enumerated before {truncated_by} stopped it.",
-    "constraint_unmet": "constraint_unmet: {constraint}",
     "application_filter": "application_filter: `filters.{path}` is fixed by this application to {value}; your {requested} was not applied.",
     "limit_capped": "limit_capped: you asked for {requested} rows; this application returns at most {limit} per call.",
     "rows_without_lookup": "rows_without_lookup: {count} of {shown} rows carry no domain or LinkedIn URL, so they have no `lookup` value and cannot be looked up.",
@@ -854,7 +852,7 @@ export const MESSAGES: MessagesSpec = {
     "timeout_sent": "The request timed out after it was sent. This call is charged once the server has done the work, so a charge may already have happened; it was not repeated. Do not retry it automatically.",
     "connection_sent": "The connection failed after the request was sent. This call is charged once the server has done the work, so a charge may already have happened; it was not repeated. Do not retry it automatically.",
     "connection_unsent": "Could not reach the Sprouts API. The request was never sent and nothing was charged; retrying later may succeed.",
-    "gateway_no_answer": "A gateway answered {status} without a result. The request may have reached the service and been charged; it was not repeated. Do not retry it automatically.",
+    "gateway_no_answer": "A gateway answered {status} without a result. The request may have reached the service and been charged. Do not retry it automatically.",
     "response_invalid": "The API answered in a shape this SDK version cannot read. The call may have been charged; do not retry it.",
     "http_status": "HTTP {status}"
   }

@@ -1,18 +1,9 @@
 {
-  "name": "a_billed_call_sends_no_idempotency_key",
-  "description": "Billed routes do not read Idempotency-Key (a repeated first page is a new paid session either way), so the SDK does not send one, on the first attempt or on a retry.",
+  "name": "search_is_retried_with_the_same_idempotency_key",
+  "description": "Search reads Idempotency-Key (dsp-backend DSP-449): the same key on the same request, from the same credential on the same UTC day, is charged once. So a search that may have reached the server is retried, carrying the key of its first attempt.",
   "responses": [
     {
-      "status": 503,
-      "headers": {
-        "Retry-After": "0"
-      },
-      "body": {
-        "type": "https://dashboard.sproutsdata.ai/errors/upstream-unavailable",
-        "title": "Upstream unavailable",
-        "status": 503,
-        "code": "upstream.unavailable"
-      }
+      "network": "read_timeout"
     },
     {
       "status": 200,
@@ -47,15 +38,16 @@
     "attempts": 2,
     "sent": [
       {
-        "headers_absent": [
+        "headers_present": [
           "Idempotency-Key"
         ]
       },
       {
         "body_equals_index": 0,
-        "headers_absent": [
-          "Idempotency-Key"
-        ]
+        "same_header_as_index": {
+          "header": "Idempotency-Key",
+          "index": 0
+        }
       }
     ],
     "success": {

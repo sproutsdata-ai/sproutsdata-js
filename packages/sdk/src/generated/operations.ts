@@ -36,15 +36,21 @@ export interface Operations {
   readonly creditsRetrieve: { readonly method: 'GET'; readonly path: '/v1/credits'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
   readonly creditsTransactions: { readonly method: 'GET'; readonly path: '/v1/credits/transactions'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'query' } };
   readonly documentFilterValues: { readonly method: 'GET'; readonly path: '/v1/search/filters/{category}/{name}'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none'; readonly paging: { readonly style: 'page_number'; readonly items: 'values' } };
-  readonly entitiesAcademicReports: { readonly method: 'POST'; readonly path: '/v1/entities/academic-reports'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none' };
-  readonly entitiesCompanies: { readonly method: 'POST'; readonly path: '/v1/entities/companies'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none' };
-  readonly entitiesFundings: { readonly method: 'POST'; readonly path: '/v1/entities/fundings'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none' };
-  readonly entitiesJobOpenings: { readonly method: 'POST'; readonly path: '/v1/entities/job-openings'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none' };
-  readonly entitiesMarketReports: { readonly method: 'POST'; readonly path: '/v1/entities/market-reports'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none' };
-  readonly entitiesNews: { readonly method: 'POST'; readonly path: '/v1/entities/news'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none' };
-  readonly entitiesPatents: { readonly method: 'POST'; readonly path: '/v1/entities/patents'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none' };
-  readonly entitiesPersons: { readonly method: 'POST'; readonly path: '/v1/entities/persons'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none' };
-  readonly entitiesTrends: { readonly method: 'POST'; readonly path: '/v1/entities/trends'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none' };
+  readonly enrichmentCancel: { readonly method: 'POST'; readonly path: '/v1/enrichment/jobs/{job_id}/cancel'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
+  readonly enrichmentCreate: { readonly method: 'POST'; readonly path: '/v1/enrichment/jobs'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'required' };
+  readonly enrichmentList: { readonly method: 'GET'; readonly path: '/v1/enrichment/jobs'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'query' } };
+  readonly enrichmentLookup: { readonly method: 'POST'; readonly path: '/v1/enrichment/lookups'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional' };
+  readonly enrichmentResults: { readonly method: 'GET'; readonly path: '/v1/enrichment/jobs/{job_id}/results'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'query' } };
+  readonly enrichmentRetrieve: { readonly method: 'GET'; readonly path: '/v1/enrichment/jobs/{job_id}'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
+  readonly entitiesAcademicReports: { readonly method: 'POST'; readonly path: '/v1/entities/academic-reports'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional' };
+  readonly entitiesCompanies: { readonly method: 'POST'; readonly path: '/v1/entities/companies'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional' };
+  readonly entitiesFundings: { readonly method: 'POST'; readonly path: '/v1/entities/fundings'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional' };
+  readonly entitiesJobOpenings: { readonly method: 'POST'; readonly path: '/v1/entities/job-openings'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional' };
+  readonly entitiesMarketReports: { readonly method: 'POST'; readonly path: '/v1/entities/market-reports'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional' };
+  readonly entitiesNews: { readonly method: 'POST'; readonly path: '/v1/entities/news'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional' };
+  readonly entitiesPatents: { readonly method: 'POST'; readonly path: '/v1/entities/patents'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional' };
+  readonly entitiesPersons: { readonly method: 'POST'; readonly path: '/v1/entities/persons'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional' };
+  readonly entitiesTrends: { readonly method: 'POST'; readonly path: '/v1/entities/trends'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional' };
   readonly exportsDownload: { readonly method: 'GET'; readonly path: '/v1/exports/{job_id}/file'; readonly routeClass: 'safe'; readonly response: 'csv'; readonly idempotency: 'none' };
   readonly exportsRetrieve: { readonly method: 'GET'; readonly path: '/v1/exports/{job_id}'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
   readonly feedbackCreate: { readonly method: 'POST'; readonly path: '/v1/feedback'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional' };
@@ -64,23 +70,24 @@ export interface Operations {
   readonly listsList: { readonly method: 'GET'; readonly path: '/v1/lists'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
   readonly listsRemoveItems: { readonly method: 'DELETE'; readonly path: '/v1/lists/{list_id}/items'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
   readonly listsRename: { readonly method: 'PATCH'; readonly path: '/v1/lists/{list_id}'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
-  readonly orgChart: { readonly method: 'POST'; readonly path: '/v1/org-chart'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none' };
-  readonly orgChartDepartments: { readonly method: 'POST'; readonly path: '/v1/org-chart/departments'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none' };
-  readonly orgChartLocations: { readonly method: 'POST'; readonly path: '/v1/org-chart/locations'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none' };
+  readonly orgChart: { readonly method: 'POST'; readonly path: '/v1/org-chart'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional' };
+  readonly orgChartDepartments: { readonly method: 'POST'; readonly path: '/v1/org-chart/departments'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional' };
+  readonly orgChartLocations: { readonly method: 'POST'; readonly path: '/v1/org-chart/locations'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional' };
+  readonly orgChartPeople: { readonly method: 'POST'; readonly path: '/v1/org-chart/people'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'body' } };
   readonly orgChartTaxonomy: { readonly method: 'GET'; readonly path: '/v1/org-chart/taxonomy'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
-  readonly relationships: { readonly method: 'POST'; readonly path: '/v1/relationships'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'body' } };
-  readonly relationshipsAsk: { readonly method: 'POST'; readonly path: '/v1/relationships/ask'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none' };
-  readonly relationshipsInstitutions: { readonly method: 'POST'; readonly path: '/v1/relationships/institutions'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none' };
-  readonly relationshipsReach: { readonly method: 'POST'; readonly path: '/v1/relationships/reach'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'body'; readonly bindsLimit: true } };
+  readonly relationships: { readonly method: 'POST'; readonly path: '/v1/relationships'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'body' } };
+  readonly relationshipsAsk: { readonly method: 'POST'; readonly path: '/v1/relationships/ask'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional' };
+  readonly relationshipsInstitutions: { readonly method: 'POST'; readonly path: '/v1/relationships/institutions'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional' };
+  readonly relationshipsReach: { readonly method: 'POST'; readonly path: '/v1/relationships/reach'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'body'; readonly bindsLimit: true } };
   readonly runsCancel: { readonly method: 'POST'; readonly path: '/v1/agents/runs/{run_id}/cancel'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
   readonly runsCreate: { readonly method: 'POST'; readonly path: '/v1/agents/runs'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'required' };
   readonly runsEvents: { readonly method: 'GET'; readonly path: '/v1/agents/runs/{run_id}/events'; readonly routeClass: 'safe'; readonly response: 'sse'; readonly idempotency: 'none' };
   readonly runsList: { readonly method: 'GET'; readonly path: '/v1/agents/runs'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'query' } };
   readonly runsResults: { readonly method: 'GET'; readonly path: '/v1/agents/runs/{run_id}/results'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'query' } };
   readonly runsRetrieve: { readonly method: 'GET'; readonly path: '/v1/agents/runs/{run_id}'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
-  readonly search: { readonly method: 'POST'; readonly path: '/v1/search'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'body' } };
+  readonly search: { readonly method: 'POST'; readonly path: '/v1/search'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'body' } };
   readonly searchExport: { readonly method: 'POST'; readonly path: '/v1/search/export'; readonly routeClass: 'safe'; readonly response: 'csv_or_job'; readonly idempotency: 'none' };
-  readonly similar: { readonly method: 'POST'; readonly path: '/v1/similar'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'body' } };
+  readonly similar: { readonly method: 'POST'; readonly path: '/v1/similar'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'body' } };
   readonly sorts: { readonly method: 'GET'; readonly path: '/v1/sorts/{category}'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
 }
 
@@ -91,15 +98,21 @@ export const OPERATIONS: Operations = {
   creditsRetrieve: { method: 'GET', path: '/v1/credits', routeClass: 'safe', response: 'json', idempotency: 'none' },
   creditsTransactions: { method: 'GET', path: '/v1/credits/transactions', routeClass: 'safe', response: 'json', idempotency: 'none', paging: { style: 'cursor', items: 'results', cursorIn: 'query' } },
   documentFilterValues: { method: 'GET', path: '/v1/search/filters/{category}/{name}', routeClass: 'safe', response: 'json', idempotency: 'none', paging: { style: 'page_number', items: 'values' } },
-  entitiesAcademicReports: { method: 'POST', path: '/v1/entities/academic-reports', routeClass: 'billed', response: 'json', idempotency: 'none' },
-  entitiesCompanies: { method: 'POST', path: '/v1/entities/companies', routeClass: 'billed', response: 'json', idempotency: 'none' },
-  entitiesFundings: { method: 'POST', path: '/v1/entities/fundings', routeClass: 'billed', response: 'json', idempotency: 'none' },
-  entitiesJobOpenings: { method: 'POST', path: '/v1/entities/job-openings', routeClass: 'billed', response: 'json', idempotency: 'none' },
-  entitiesMarketReports: { method: 'POST', path: '/v1/entities/market-reports', routeClass: 'billed', response: 'json', idempotency: 'none' },
-  entitiesNews: { method: 'POST', path: '/v1/entities/news', routeClass: 'billed', response: 'json', idempotency: 'none' },
-  entitiesPatents: { method: 'POST', path: '/v1/entities/patents', routeClass: 'billed', response: 'json', idempotency: 'none' },
-  entitiesPersons: { method: 'POST', path: '/v1/entities/persons', routeClass: 'billed', response: 'json', idempotency: 'none' },
-  entitiesTrends: { method: 'POST', path: '/v1/entities/trends', routeClass: 'billed', response: 'json', idempotency: 'none' },
+  enrichmentCancel: { method: 'POST', path: '/v1/enrichment/jobs/{job_id}/cancel', routeClass: 'safe', response: 'json', idempotency: 'none' },
+  enrichmentCreate: { method: 'POST', path: '/v1/enrichment/jobs', routeClass: 'keyed', response: 'json', idempotency: 'required' },
+  enrichmentList: { method: 'GET', path: '/v1/enrichment/jobs', routeClass: 'safe', response: 'json', idempotency: 'none', paging: { style: 'cursor', items: 'results', cursorIn: 'query' } },
+  enrichmentLookup: { method: 'POST', path: '/v1/enrichment/lookups', routeClass: 'keyed', response: 'json', idempotency: 'optional' },
+  enrichmentResults: { method: 'GET', path: '/v1/enrichment/jobs/{job_id}/results', routeClass: 'safe', response: 'json', idempotency: 'none', paging: { style: 'cursor', items: 'results', cursorIn: 'query' } },
+  enrichmentRetrieve: { method: 'GET', path: '/v1/enrichment/jobs/{job_id}', routeClass: 'safe', response: 'json', idempotency: 'none' },
+  entitiesAcademicReports: { method: 'POST', path: '/v1/entities/academic-reports', routeClass: 'keyed', response: 'json', idempotency: 'optional' },
+  entitiesCompanies: { method: 'POST', path: '/v1/entities/companies', routeClass: 'keyed', response: 'json', idempotency: 'optional' },
+  entitiesFundings: { method: 'POST', path: '/v1/entities/fundings', routeClass: 'keyed', response: 'json', idempotency: 'optional' },
+  entitiesJobOpenings: { method: 'POST', path: '/v1/entities/job-openings', routeClass: 'keyed', response: 'json', idempotency: 'optional' },
+  entitiesMarketReports: { method: 'POST', path: '/v1/entities/market-reports', routeClass: 'keyed', response: 'json', idempotency: 'optional' },
+  entitiesNews: { method: 'POST', path: '/v1/entities/news', routeClass: 'keyed', response: 'json', idempotency: 'optional' },
+  entitiesPatents: { method: 'POST', path: '/v1/entities/patents', routeClass: 'keyed', response: 'json', idempotency: 'optional' },
+  entitiesPersons: { method: 'POST', path: '/v1/entities/persons', routeClass: 'keyed', response: 'json', idempotency: 'optional' },
+  entitiesTrends: { method: 'POST', path: '/v1/entities/trends', routeClass: 'keyed', response: 'json', idempotency: 'optional' },
   exportsDownload: { method: 'GET', path: '/v1/exports/{job_id}/file', routeClass: 'safe', response: 'csv', idempotency: 'none' },
   exportsRetrieve: { method: 'GET', path: '/v1/exports/{job_id}', routeClass: 'safe', response: 'json', idempotency: 'none' },
   feedbackCreate: { method: 'POST', path: '/v1/feedback', routeClass: 'keyed', response: 'json', idempotency: 'optional' },
@@ -119,23 +132,24 @@ export const OPERATIONS: Operations = {
   listsList: { method: 'GET', path: '/v1/lists', routeClass: 'safe', response: 'json', idempotency: 'none' },
   listsRemoveItems: { method: 'DELETE', path: '/v1/lists/{list_id}/items', routeClass: 'safe', response: 'json', idempotency: 'none' },
   listsRename: { method: 'PATCH', path: '/v1/lists/{list_id}', routeClass: 'safe', response: 'json', idempotency: 'none' },
-  orgChart: { method: 'POST', path: '/v1/org-chart', routeClass: 'billed', response: 'json', idempotency: 'none' },
-  orgChartDepartments: { method: 'POST', path: '/v1/org-chart/departments', routeClass: 'billed', response: 'json', idempotency: 'none' },
-  orgChartLocations: { method: 'POST', path: '/v1/org-chart/locations', routeClass: 'billed', response: 'json', idempotency: 'none' },
+  orgChart: { method: 'POST', path: '/v1/org-chart', routeClass: 'keyed', response: 'json', idempotency: 'optional' },
+  orgChartDepartments: { method: 'POST', path: '/v1/org-chart/departments', routeClass: 'keyed', response: 'json', idempotency: 'optional' },
+  orgChartLocations: { method: 'POST', path: '/v1/org-chart/locations', routeClass: 'keyed', response: 'json', idempotency: 'optional' },
+  orgChartPeople: { method: 'POST', path: '/v1/org-chart/people', routeClass: 'keyed', response: 'json', idempotency: 'optional', paging: { style: 'cursor', items: 'results', cursorIn: 'body' } },
   orgChartTaxonomy: { method: 'GET', path: '/v1/org-chart/taxonomy', routeClass: 'safe', response: 'json', idempotency: 'none' },
-  relationships: { method: 'POST', path: '/v1/relationships', routeClass: 'billed', response: 'json', idempotency: 'none', paging: { style: 'cursor', items: 'results', cursorIn: 'body' } },
-  relationshipsAsk: { method: 'POST', path: '/v1/relationships/ask', routeClass: 'billed', response: 'json', idempotency: 'none' },
-  relationshipsInstitutions: { method: 'POST', path: '/v1/relationships/institutions', routeClass: 'billed', response: 'json', idempotency: 'none' },
-  relationshipsReach: { method: 'POST', path: '/v1/relationships/reach', routeClass: 'billed', response: 'json', idempotency: 'none', paging: { style: 'cursor', items: 'results', cursorIn: 'body', bindsLimit: true } },
+  relationships: { method: 'POST', path: '/v1/relationships', routeClass: 'keyed', response: 'json', idempotency: 'optional', paging: { style: 'cursor', items: 'results', cursorIn: 'body' } },
+  relationshipsAsk: { method: 'POST', path: '/v1/relationships/ask', routeClass: 'keyed', response: 'json', idempotency: 'optional' },
+  relationshipsInstitutions: { method: 'POST', path: '/v1/relationships/institutions', routeClass: 'keyed', response: 'json', idempotency: 'optional' },
+  relationshipsReach: { method: 'POST', path: '/v1/relationships/reach', routeClass: 'keyed', response: 'json', idempotency: 'optional', paging: { style: 'cursor', items: 'results', cursorIn: 'body', bindsLimit: true } },
   runsCancel: { method: 'POST', path: '/v1/agents/runs/{run_id}/cancel', routeClass: 'safe', response: 'json', idempotency: 'none' },
   runsCreate: { method: 'POST', path: '/v1/agents/runs', routeClass: 'keyed', response: 'json', idempotency: 'required' },
   runsEvents: { method: 'GET', path: '/v1/agents/runs/{run_id}/events', routeClass: 'safe', response: 'sse', idempotency: 'none' },
   runsList: { method: 'GET', path: '/v1/agents/runs', routeClass: 'safe', response: 'json', idempotency: 'none', paging: { style: 'cursor', items: 'results', cursorIn: 'query' } },
   runsResults: { method: 'GET', path: '/v1/agents/runs/{run_id}/results', routeClass: 'safe', response: 'json', idempotency: 'none', paging: { style: 'cursor', items: 'results', cursorIn: 'query' } },
   runsRetrieve: { method: 'GET', path: '/v1/agents/runs/{run_id}', routeClass: 'safe', response: 'json', idempotency: 'none' },
-  search: { method: 'POST', path: '/v1/search', routeClass: 'billed', response: 'json', idempotency: 'none', paging: { style: 'cursor', items: 'results', cursorIn: 'body' } },
+  search: { method: 'POST', path: '/v1/search', routeClass: 'keyed', response: 'json', idempotency: 'optional', paging: { style: 'cursor', items: 'results', cursorIn: 'body' } },
   searchExport: { method: 'POST', path: '/v1/search/export', routeClass: 'safe', response: 'csv_or_job', idempotency: 'none' },
-  similar: { method: 'POST', path: '/v1/similar', routeClass: 'billed', response: 'json', idempotency: 'none', paging: { style: 'cursor', items: 'results', cursorIn: 'body' } },
+  similar: { method: 'POST', path: '/v1/similar', routeClass: 'keyed', response: 'json', idempotency: 'optional', paging: { style: 'cursor', items: 'results', cursorIn: 'body' } },
   sorts: { method: 'GET', path: '/v1/sorts/{category}', routeClass: 'safe', response: 'json', idempotency: 'none' },
 };
 
@@ -172,6 +186,42 @@ export interface OperationMap {
     query: { readonly search?: string | null; readonly page?: number; };
     body: undefined;
     responses: { 200: W.DocumentFilterValues };
+  };
+  enrichmentCancel: {
+    path: { readonly job_id: string; };
+    query: Readonly<Record<string, never>>;
+    body: undefined;
+    responses: { 200: W.EnrichmentJob };
+  };
+  enrichmentCreate: {
+    path: Readonly<Record<string, never>>;
+    query: Readonly<Record<string, never>>;
+    body: W.EnrichmentJobRequest;
+    responses: { 202: W.EnrichmentJobHandle };
+  };
+  enrichmentList: {
+    path: Readonly<Record<string, never>>;
+    query: { readonly status?: W.EnrichmentJobStatusInput | null; readonly cursor?: string | null; readonly limit?: number; };
+    body: undefined;
+    responses: { 200: W.EnrichmentJobList };
+  };
+  enrichmentLookup: {
+    path: Readonly<Record<string, never>>;
+    query: Readonly<Record<string, never>>;
+    body: W.EnrichmentLookupRequest;
+    responses: { 200: W.EnrichmentLookupResult };
+  };
+  enrichmentResults: {
+    path: { readonly job_id: string; };
+    query: { readonly cursor?: string | null; readonly limit?: number; };
+    body: undefined;
+    responses: { 200: W.EnrichmentJobResults };
+  };
+  enrichmentRetrieve: {
+    path: { readonly job_id: string; };
+    query: Readonly<Record<string, never>>;
+    body: undefined;
+    responses: { 200: W.EnrichmentJob };
   };
   entitiesAcademicReports: {
     path: Readonly<Record<string, never>>;
@@ -358,6 +408,12 @@ export interface OperationMap {
     query: Readonly<Record<string, never>>;
     body: W.LocationsRequest;
     responses: { 200: W.LocationsResponse };
+  };
+  orgChartPeople: {
+    path: Readonly<Record<string, never>>;
+    query: Readonly<Record<string, never>>;
+    body: W.OrgChartPeopleRequest;
+    responses: { 200: W.OrgChartPeopleResponse };
   };
   orgChartTaxonomy: {
     path: Readonly<Record<string, never>>;

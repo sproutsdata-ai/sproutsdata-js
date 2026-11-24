@@ -33,7 +33,7 @@ export const RECORD_SHAPES: Readonly<Record<string, RecordShape>> = {
     nested: {  },
   },
   CompanyRecord: {
-    lists: ["acquired_by", "acquisitions", "business_models", "clients", "company_keyword", "company_types", "funding_rounds", "investors", "naics", "office_locations", "other_industries", "owned_by_organization", "partnerships", "products", "region", "sic", "subsidiaries", "suppliers", "technology"],
+    lists: ["acquired_by", "acquisitions", "business_models", "clients", "company_keyword", "company_types", "funding_rounds", "industries_served", "investors", "naics", "office_locations", "other_industries", "owned_by_organization", "partnerships", "products", "region", "sic", "subsidiaries", "suppliers", "technology"],
     nested: { acquired_by: "Deal", acquisitions: "Deal", employee_range: "EmployeeRange", funding_rounds: "FundingRound", global_presence: "GlobalPresence", office_locations: "OfficeLocation", parent_organization: "Organisation", products: "Product", revenue_range: "RevenueRange", subsidiaries: "Organisation" },
   },
   Deal: {

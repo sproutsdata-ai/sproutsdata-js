@@ -180,7 +180,7 @@ in `degradation` instead.
 
 - **Behaviour change:** the SDK now checks a request against the API's own request models
   before sending it: unknown fields, values out of range, closed vocabularies and the
-  cross-field rules (for example `deep` reads only `query`). A request the server would refuse
+  cross-field rules (for example `query` with `keyword_query`). A request the server would refuse
   throws `ClientValidationError` and nothing is sent.
 - `category: 'auto'` takes only `query`, `mode`, `limit` and `cursor`, and `auto` is its only
   mode. The 0.0.1 docs asked for `mode: 'auto'` beside it; now you may leave `mode` out.
@@ -657,6 +657,20 @@ try {
 Runs need a key with the `dsp.agents.*` scopes, which a key made with the default scopes does
 not have; without them `runs.create` throws `PermissionDeniedError`. A run result no longer
 carries `effort`; `effort_ran` says which effort ran.
+
+The effort tiers were renamed. The earlier names are still accepted (typed `LegacyEffort`)
+and sent as the new ones; answers use the new ones:
+
+| Earlier | Now |
+|---|---|
+| `minimal` | `quick` |
+| `low` | `basic` |
+| `medium` (the default) | `standard` (the default) |
+| `high` | `detailed` |
+| `xhigh` | `maximum` |
+
+`mode: 'deep'` and `page.coverage` are gone: deep search is no longer offered. Start an agent
+run (`runs.create`) to have an agent work a question out; a run still carries `coverage`.
 
 ## Errors
 

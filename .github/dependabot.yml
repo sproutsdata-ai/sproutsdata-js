@@ -1,6 +1,7 @@
-# Workflows pin every action to a commit SHA, so a moved tag cannot change what
-# runs with release permissions. Dependabot keeps those pins current: it opens a
-# PR with the new SHA and the version in the trailing comment.
+# Workflows pin every action to a commit SHA, so a moved tag cannot change what runs with
+# release permissions; dependabot keeps those pins current, with the version in the trailing
+# comment. It also proposes updates to package-lock.json (the packages' dependencies and every
+# tool the gates run), weekly and grouped.
 version: 2
 updates:
   - package-ecosystem: github-actions
@@ -9,4 +10,11 @@ updates:
       interval: weekly
     groups:
       actions:
+        patterns: ["*"]
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      npm:
         patterns: ["*"]

@@ -97,7 +97,7 @@
       "coverage": null,
       "attribution": [
         {
-          "source_corpus": "companies",
+          "source_corpus": "gtm_index",
           "domain": null,
           "as_of": "2026-09-28T00:00:00Z",
           "url": null,
@@ -107,10 +107,11 @@
       "degradation": [],
       "columns": null,
       "meta": {
-        "request_id": "req_e4b1f07c22",
-        "environment": "test",
         "as_of": "2026-10-01T09:12:44Z",
-        "credential": "api_key"
+        "credential": "api_key",
+        "credits_charged": null,
+        "environment": "live",
+        "request_id": "req_e4b1f07c22"
       }
     }
   },
@@ -127,7 +128,6 @@
   },
   "expected_output": {
     "caveats": [],
-    "environment": "test",
     "request_id": "req_e4b1f07c22",
     "results": [
       {

@@ -1,5 +1,5 @@
 {
-  "description": "A filter value from the retired vocabulary. The 422 comes back as data with the server's message, the field path in the tool's own terms, and `retryable: false`.",
+  "description": "A filter value from the retired vocabulary. The 422 comes back as data with the server's message, the field path in the tool's own terms, and `retryable: false`. The problem's `next_step` (dsp-backend's sentence for the code) follows the detail in `message`.",
   "tool": "sprouts_search",
   "options": {},
   "arguments": {
@@ -26,22 +26,21 @@
       "detail": "seniority: 'director' — not values this index holds. Valid values include 'C-Suite', 'VP', 'Director / Head', 'Manager', 'IC', 'Entry', 'In Training'.",
       "instance": "/v1/search",
       "request_id": "req_5d1e0a77c2",
-      "extra": {
-        "errors": [
-          {
-            "type": "value_error",
-            "loc": [
-              "body",
-              "filters",
-              "seniority",
-              "include",
-              0
-            ],
-            "msg": "'director' is not a value this index holds",
-            "input": "director"
-          }
-        ]
-      }
+      "errors": [
+        {
+          "type": "value_error",
+          "loc": [
+            "body",
+            "filters",
+            "seniority",
+            "include",
+            0
+          ],
+          "msg": "'director' is not a value this index holds",
+          "input": "director"
+        }
+      ],
+      "next_step": "Fix the fields named in `errors` (or `detail`) and send the request again."
     }
   },
   "expected_request": {
@@ -67,7 +66,7 @@
       "field_errors": [
         "filters.seniority.include.0: 'director' is not a value this index holds"
       ],
-      "message": "seniority: 'director' — not values this index holds. Valid values include 'C-Suite', 'VP', 'Director / Head', 'Manager', 'IC', 'Entry', 'In Training'.",
+      "message": "seniority: 'director' — not values this index holds. Valid values include 'C-Suite', 'VP', 'Director / Head', 'Manager', 'IC', 'Entry', 'In Training'. Fix the fields named in `errors` (or `detail`) and send the request again.",
       "request_id": "req_5d1e0a77c2",
       "retry_after": null,
       "retryable": false

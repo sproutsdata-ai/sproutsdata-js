@@ -6,7 +6,7 @@ import type { JsonSchema, ToolName } from 'sproutsdata/tools';
 import { vi } from 'vitest';
 
 /** Built at run time, so no key-shaped string sits in the repository. */
-export const TEST_KEY = 'sk_dsp_test_' + 'x'.repeat(22);
+export const FIXTURE_KEY = 'sk_dsp_live_' + 'x'.repeat(22);
 export const BASE_URL = 'https://dsp.example.test/backend';
 
 /** A tool's file in the vendored `spec/tools/`. */
@@ -23,27 +23,25 @@ export function jsonResponse(body: unknown, status = 200, headers: Record<string
 }
 
 export function problemResponse(status: number, problem: Record<string, unknown>): Response {
-  return new Response(JSON.stringify({ status, title: 'Refused', ...problem }), {
+  return new Response(JSON.stringify({ type: 'about:blank', status, title: 'Refused', ...problem }), {
     status,
     headers: { 'content-type': 'application/problem+json', 'x-request-id': 'req_1' },
   });
 }
 
-/** A search answer with one company row. */
+/** A search answer: the recorded company page (`spec/fixtures/responses/`), with one company row and no resolved search. */
 export function searchBody(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  const url = new URL('../../../spec/fixtures/responses/search/company.json', import.meta.url);
+  const recorded = (JSON.parse(readFileSync(url, 'utf8')) as { body: Record<string, unknown> }).body;
   return {
+    ...recorded,
     results: [{ id: 'acme.com', category: 'company', score: 0.9, account_name: 'Acme', domain: 'acme.com' }],
     total: 1,
     total_is_estimate: false,
     has_more: false,
     next_cursor: null,
-    resolved_search: { filters: {}, filters_source: 'none', conflicts: [] },
-    suggestion: null,
-    coverage: null,
-    attribution: [],
-    degradation: [],
-    columns: null,
-    meta: { request_id: 'req_1', environment: 'test', as_of: '2026-09-01T00:00:00Z', credential: 'api_key' },
+    resolved_search: null,
+    meta: { ...(recorded['meta'] as object), request_id: 'req_1' },
     ...overrides,
   };
 }
@@ -58,7 +56,7 @@ export function fetchQueue(...queue: Response[]) {
 }
 
 export function client(fetchImpl: typeof globalThis.fetch): SproutsData {
-  return new SproutsData({ apiKey: TEST_KEY, baseUrl: BASE_URL, fetch: fetchImpl, maxRetries: 0 });
+  return new SproutsData({ apiKey: FIXTURE_KEY, baseUrl: BASE_URL, fetch: fetchImpl, maxRetries: 0 });
 }
 
 export function sentBody(fetchMock: ReturnType<typeof fetchQueue>, index = 0): Record<string, unknown> {

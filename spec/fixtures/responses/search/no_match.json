@@ -1,0 +1,102 @@
+{
+  "body": {
+    "attribution": [
+      {
+        "as_of": "2026-11-24T09:06:07.509407Z",
+        "domain": null,
+        "quote": null,
+        "source_corpus": "gtm_index",
+        "url": null
+      }
+    ],
+    "columns": null,
+    "degradation": [
+      {
+        "detail": "No company in the index is headquartered in Iceland.",
+        "impact": "recall",
+        "reason": "no_match",
+        "source_corpus": "gtm_index"
+      }
+    ],
+    "has_more": false,
+    "meta": {
+      "as_of": "2026-11-24T09:06:07.509407Z",
+      "credential": "api_key",
+      "credits_balance": 997.905,
+      "credits_charged": 0.0,
+      "environment": "live",
+      "request_id": "c5d80fa0bd5f4bf28ea015e99692c5be"
+    },
+    "next_cursor": null,
+    "resolved_search": {
+      "anchor_matches": [],
+      "category": "company",
+      "conflicts": [],
+      "filters": {
+        "industry": {
+          "include": [
+            "Industrial Machinery & Equipment"
+          ]
+        }
+      },
+      "filters_source": "caller",
+      "keyword_query": null,
+      "mode": "fast",
+      "overrides": [],
+      "parser_version": "none",
+      "query": "enterprise software",
+      "read_as": [],
+      "semantic_query": "industrial automation",
+      "semantic_scope": null,
+      "sort": [],
+      "sparse_filters": []
+    },
+    "results": [],
+    "suggestion": {
+      "category": null,
+      "kind": "relax",
+      "message": "0 with every filter; 12,345 without HQ in Iceland.",
+      "without": [
+        {
+          "filter": "geo",
+          "label": "HQ in Iceland",
+          "total": 12345
+        }
+      ]
+    },
+    "total": 0,
+    "total_is_estimate": false
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1995",
+    "ratelimit-reset": "53",
+    "x-request-id": "c5d80fa0bd5f4bf28ea015e99692c5be"
+  },
+  "operation": "search",
+  "request": {
+    "body": {
+      "category": "company",
+      "filters": {
+        "employee_count": {
+          "gte": 5000
+        },
+        "geo": {
+          "places": [
+            {
+              "level": "country",
+              "value": "Iceland"
+            }
+          ]
+        }
+      },
+      "limit": 2,
+      "query": "enterprise software"
+    },
+    "method": "POST",
+    "path": "/v1/search",
+    "query": {}
+  },
+  "status": 200
+}

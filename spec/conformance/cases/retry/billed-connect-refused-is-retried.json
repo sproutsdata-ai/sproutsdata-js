@@ -1,6 +1,7 @@
 {
   "name": "billed_call_is_retried_when_it_never_reached_the_server",
-  "description": "A refused connection proves the request was never sent, so nothing was charged and a retry is safe.",
+  "description": "Pins the retry table's `billed` class (since dsp-backend DSP-449 every billed read takes Idempotency-Key and is `keyed`, so no route is in it). A refused connection proves the request was never sent, so nothing was charged and a retry is safe.",
+  "route_class": "billed",
   "responses": [
     {
       "network": "connect_refused"
@@ -21,7 +22,7 @@
         "degradation": [],
         "meta": {
           "request_id": "req_ok",
-          "environment": "test",
+          "environment": "live",
           "as_of": "2026-08-13T00:00:00Z",
           "credential": "api_key"
         }

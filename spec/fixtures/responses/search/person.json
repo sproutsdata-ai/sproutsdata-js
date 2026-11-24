@@ -1,0 +1,162 @@
+{
+  "body": {
+    "attribution": [
+      {
+        "as_of": "2026-11-24T09:06:07.470487Z",
+        "domain": null,
+        "quote": null,
+        "source_corpus": "gtm_index",
+        "url": null
+      }
+    ],
+    "columns": null,
+    "degradation": [],
+    "has_more": true,
+    "meta": {
+      "as_of": "2026-11-24T09:06:07.470487Z",
+      "credential": "api_key",
+      "credits_balance": 999.0,
+      "credits_charged": 0.5,
+      "environment": "live",
+      "request_id": "cf4fb5dc84f3449fa67aa521de0a6c64"
+    },
+    "next_cursor": "eyJmIjoiMTgyNjU4ODMxNWQ5NDZlYTI3MmYyMmJiYzU3N2FiNDIiLCJvIjoyLCJzIjoiYzY1ODQ0MzBjNjg2NDMxZDljOTMwOTIxOGFlYmU0OWMiLCJ0IjoxNzk1NTExMTY3LCJ1IjoicHJpc218cGVyc29ufDEifQ.84987144411a49d012ea81e981088cbe",
+    "resolved_search": {
+      "anchor_matches": [],
+      "category": "person",
+      "conflicts": [],
+      "filters": {
+        "industry": {
+          "include": [
+            "Industrial Machinery & Equipment"
+          ]
+        }
+      },
+      "filters_source": "none",
+      "keyword_query": null,
+      "mode": "fast",
+      "overrides": [],
+      "parser_version": "none",
+      "query": "security leaders",
+      "read_as": [],
+      "semantic_query": "industrial automation",
+      "semantic_scope": null,
+      "sort": [],
+      "sparse_filters": []
+    },
+    "results": [
+      {
+        "account_name": "Example Fintech 0",
+        "category": "person",
+        "city": "Berlin",
+        "cmp_id": "es-company-0",
+        "company_id": "es-company-0",
+        "contact_name": "Alex Example 0",
+        "country": "Germany",
+        "department": "Engineering",
+        "division": "Technology",
+        "domain": "fintech-0.de",
+        "employment_history": [
+          {
+            "company": "Previous Bank AG",
+            "title": "Data Engineer",
+            "years": 4
+          },
+          {
+            "company": "Startup GmbH",
+            "title": "Engineer",
+            "years": 2
+          }
+        ],
+        "employment_type": "full_time",
+        "first_name": "Alex",
+        "id": "c456c786c51c8c3f",
+        "job_title": "Head of Data Engineering",
+        "last_name": "Example 0",
+        "linkedin_connections": 500,
+        "linkedin_url": "https://www.linkedin.com/in/alex-example-0",
+        "region": "Europe",
+        "score": 0.9,
+        "seniority": "Head",
+        "skills": [
+          "spark",
+          "kafka",
+          "dbt",
+          "python",
+          "airflow",
+          "snowflake"
+        ],
+        "state": "Berlin",
+        "sub_department": "Data",
+        "tenure": 3.4
+      },
+      {
+        "account_name": "Example Fintech 1",
+        "category": "person",
+        "city": "Berlin",
+        "cmp_id": "es-company-1",
+        "company_id": "es-company-1",
+        "contact_name": "Alex Example 1",
+        "country": "Germany",
+        "department": "Engineering",
+        "division": "Technology",
+        "domain": "fintech-1.de",
+        "employment_history": [
+          {
+            "company": "Previous Bank AG",
+            "title": "Data Engineer",
+            "years": 4
+          },
+          {
+            "company": "Startup GmbH",
+            "title": "Engineer",
+            "years": 2
+          }
+        ],
+        "employment_type": "full_time",
+        "first_name": "Alex",
+        "id": "5a37b7e2ea989ce3",
+        "job_title": "Head of Data Engineering",
+        "last_name": "Example 1",
+        "linkedin_connections": 500,
+        "linkedin_url": "https://www.linkedin.com/in/alex-example-1",
+        "region": "Europe",
+        "score": 0.89,
+        "seniority": "Head",
+        "skills": [
+          "spark",
+          "kafka",
+          "dbt",
+          "python",
+          "airflow",
+          "snowflake"
+        ],
+        "state": "Berlin",
+        "sub_department": "Data",
+        "tenure": 3.4
+      }
+    ],
+    "suggestion": null,
+    "total": 12345,
+    "total_is_estimate": false
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1998",
+    "ratelimit-reset": "53",
+    "x-request-id": "cf4fb5dc84f3449fa67aa521de0a6c64"
+  },
+  "operation": "search",
+  "request": {
+    "body": {
+      "category": "person",
+      "limit": 2,
+      "query": "security leaders"
+    },
+    "method": "POST",
+    "path": "/v1/search",
+    "query": {}
+  },
+  "status": 200
+}

@@ -1,0 +1,47 @@
+{
+  "body": {
+    "comment": "e2e",
+    "created_at": "2026-11-24T09:06:09.537913Z",
+    "expected": null,
+    "feedback_id": "644b7e29-ea43-407f-b4ba-5ceaa0937a07",
+    "sentiment": "bad",
+    "status": "open",
+    "subject_ref": {
+      "id": "c0eb7701c7c54fbd905225fa1e52c00e",
+      "kind": "request"
+    },
+    "tag_vocab_version": 2,
+    "tags": [],
+    "target": {
+      "entity_id": null,
+      "entity_type": null,
+      "kind": "result_set"
+    },
+    "target_verified": true
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "51",
+    "x-request-id": "923ff33b06dd4a8bb05c1fddddf6862b"
+  },
+  "operation": "feedback_create",
+  "request": {
+    "body": {
+      "comment": "e2e",
+      "sentiment": "bad",
+      "subject_ref": {
+        "id": "c0eb7701c7c54fbd905225fa1e52c00e",
+        "kind": "request"
+      },
+      "target": {
+        "kind": "result_set"
+      }
+    },
+    "method": "POST",
+    "path": "/v1/feedback",
+    "query": {}
+  },
+  "status": 201
+}

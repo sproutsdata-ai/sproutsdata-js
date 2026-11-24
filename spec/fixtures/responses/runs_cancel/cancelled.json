@@ -1,0 +1,64 @@
+{
+  "body": {
+    "coverage": {
+      "audited": false,
+      "constraints_unmet": [],
+      "criteria": [],
+      "enumerated": 812,
+      "enumeration_recall": null,
+      "linkage": [],
+      "linkage_coverage": null,
+      "linkage_coverage_is_lower_bound": false,
+      "similarity": [],
+      "truncated_by": null,
+      "universe": 812,
+      "universe_exhausted": true,
+      "universe_is_exact": true
+    },
+    "credits_charged": 8.5,
+    "effort_ran": "standard",
+    "error": null,
+    "exclusions": [],
+    "insight_sources": [
+      {
+        "id": 1,
+        "title": "Market report"
+      }
+    ],
+    "insights": [
+      {
+        "sources": [
+          1
+        ],
+        "text": "Most are Series A or later."
+      }
+    ],
+    "meta": {
+      "as_of": "2026-11-24T09:06:07.898621Z",
+      "credential": "api_key",
+      "credits_balance": null,
+      "credits_charged": null,
+      "environment": "live",
+      "request_id": "d88efbbc15ee49c388f65a5ceefb3cc8"
+    },
+    "run_id": "run-perf",
+    "status": "completed",
+    "stop_reason": "universe_exhausted",
+    "summary": "812 companies matched every criterion."
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "53",
+    "x-request-id": "d88efbbc15ee49c388f65a5ceefb3cc8"
+  },
+  "operation": "runs_cancel",
+  "request": {
+    "body": null,
+    "method": "POST",
+    "path": "/v1/agents/runs/run-perf/cancel",
+    "query": {}
+  },
+  "status": 200
+}

@@ -1,41 +1,44 @@
 /**
- * `SproutsDataRetriever` — Sprouts search as a LangChain retriever.
+ * `SproutsDataRetriever`: Sprouts search as a LangChain retriever.
  *
  * Lossy by construction: a `page_content` string is a poor fit for a
  * structured record, so each document renders a short per-category line and
  * carries the complete raw row under `metadata.record`. For agents, prefer
- * the tools (`sproutsDataTools()`) — this class exists for chains that
+ * the tools (`sproutsDataTools()`); this class exists for chains that
  * already speak `BaseRetriever`.
  *
- * `fast` is the default mode. A retriever bound into an agent loop can fire
- * several times per user turn, and `auto` runs a model on every first page
- * (an order of magnitude slower, and billed as a different action).
+ * `fast` is the default mode with a category. A retriever bound into an agent
+ * loop can fire several times per user turn, and `auto` runs a model on every
+ * first page (an order of magnitude slower, and billed as a different
+ * action). With `category: 'auto'` no mode is sent: the server reads the
+ * question in `auto`, its only mode there.
  *
  * Errors throw, unchanged from the SDK. A retriever has no error-as-data
  * channel, and the SDK's typed errors carry `request_id` in the message.
  * Retry policy belongs to the caller (`retriever.withRetry()`): the SDK
- * transport already retries what is safe to retry. Arguments are sent as
- * given — the server's 422 names any field it refuses — so no copy of the
- * server's bounds or vocabularies here can go stale.
+ * transport already retries what is safe to retry. Arguments are checked by
+ * the client and the server, never copied here, so no copy of the server's
+ * bounds or vocabularies can go stale.
  */
 
 import type { CallbackManagerForRetrieverRun } from '@langchain/core/callbacks/manager';
 import type { Document } from '@langchain/core/documents';
 import { BaseRetriever, type BaseRetrieverInput } from '@langchain/core/retrievers';
-import type { DiscoverFilters, EntityCategory, SearchMode, SearchParams, SproutsData } from 'sproutsdata';
+import type { DiscoverFilters, SearchCategory, SearchMode, SearchParams, SproutsData } from 'sproutsdata';
+import { type ConnectionOptions, resolveClient } from 'sproutsdata/tools';
 
-import { connect, type SproutsDataConnection } from './connection';
-import { envelopeToDocuments } from './document';
+import { envelopeToDocuments } from './document.js';
 
 /** Constructor fields for {@link SproutsDataRetriever}. */
-export interface SproutsDataRetrieverFields extends BaseRetrieverInput, SproutsDataConnection {
+export interface SproutsDataRetrieverFields extends BaseRetrieverInput, ConnectionOptions {
   /** Number of documents to retrieve: the request's `limit`. Default 10. */
   k?: number;
-  /** Category searched, sent on every request. Default `'company'`. */
-  category?: EntityCategory;
+  /** Category searched, sent on every request; `'auto'` lets the question pick it. Default `'company'`. */
+  category?: SearchCategory | 'auto';
   /**
-   * Search mode, sent on every request so a change in the server's default
-   * can never change what a deployed retriever bills. Default `'fast'`.
+   * Search mode. Unset, `'fast'` is sent with a category, so a change in the
+   * server's default can never change what a deployed retriever bills; with
+   * `category: 'auto'` no mode is sent (`auto` is its only one).
    */
   mode?: SearchMode;
   /** Filters sent verbatim on every retrieval, full Sprouts filter vocabulary. */
@@ -64,23 +67,22 @@ export interface SproutsDataRetrieverFields extends BaseRetrieverInput, SproutsD
  *
  * The key never becomes a field: it goes to the client, which holds it in a
  * private field, so `JSON.stringify`, `toJSON()` and `util.inspect` of the
- * retriever never show it. Calls send `X-SproutsData-Client:
- * langchain/<version>`.
+ * retriever never show it.
  */
 export class SproutsDataRetriever extends BaseRetriever {
   static override lc_name(): string {
     return 'SproutsDataRetriever';
   }
 
-  lc_namespace = ['langchain', 'retrievers', 'sproutsdata'];
+  lc_namespace: string[] = ['langchain', 'retrievers', 'sproutsdata'];
 
   readonly k: number;
-  readonly category: EntityCategory;
-  readonly mode: SearchMode;
-  readonly filters?: DiscoverFilters | Record<string, unknown>;
-  readonly includeDomains?: string[];
-  readonly excludeDomains?: string[];
-  readonly contentFields?: string[];
+  readonly category: SearchCategory | 'auto';
+  readonly mode: SearchMode | undefined;
+  readonly filters: DiscoverFilters | Record<string, unknown> | undefined;
+  readonly includeDomains: string[] | undefined;
+  readonly excludeDomains: string[] | undefined;
+  readonly contentFields: string[] | undefined;
   readonly includeResolvedSearch: boolean;
 
   readonly #client: SproutsData;
@@ -92,28 +94,31 @@ export class SproutsDataRetriever extends BaseRetriever {
     super(rest);
     this.k = rest.k ?? 10;
     this.category = rest.category ?? 'company';
-    this.mode = rest.mode ?? 'fast';
+    this.mode = rest.mode ?? (this.category === 'auto' ? undefined : 'fast');
     this.filters = rest.filters;
     this.includeDomains = rest.includeDomains;
     this.excludeDomains = rest.excludeDomains;
     this.contentFields = rest.contentFields;
     this.includeResolvedSearch = rest.includeResolvedSearch ?? true;
-    this.#client = connect({ client, apiKey, baseUrl, timeoutMs, maxRetries });
+    this.#client = resolveClient({ client, apiKey, baseUrl, timeoutMs, maxRetries });
   }
 
   override async _getRelevantDocuments(
     query: string,
     _runManager?: CallbackManagerForRetrieverRun,
   ): Promise<Document[]> {
-    const envelope = await this.#client.search({
+    const params = {
       query,
-      mode: this.mode,
       limit: this.k,
       category: this.category,
-      filters: this.filters,
-      include_domains: this.includeDomains,
-      exclude_domains: this.excludeDomains,
-    } as SearchParams);
+      ...(this.mode === undefined ? {} : { mode: this.mode }),
+      ...(this.filters === undefined ? {} : { filters: this.filters }),
+      // An empty domain list says nothing, and the server would refuse it.
+      ...(this.includeDomains === undefined || this.includeDomains.length === 0 ? {} : { include_domains: this.includeDomains }),
+      ...(this.excludeDomains === undefined || this.excludeDomains.length === 0 ? {} : { exclude_domains: this.excludeDomains }),
+    };
+    // The client checks the body against the category's own type before sending.
+    const envelope = await this.#client.search(params as SearchParams);
 
     // The one zero-result case worth a warning: the platform inferred filters
     // from the query and they ANDed to nothing. Without `resolved_search`
@@ -122,7 +127,7 @@ export class SproutsDataRetriever extends BaseRetriever {
       console.warn(
         '[sproutsdata] Search returned no results; the platform inferred these ' +
           `filters from the query: ${JSON.stringify(envelope.resolved_search.filters)} ` +
-          `(request_id: ${envelope.meta?.request_id ?? 'none'})`,
+          `(request_id: ${envelope.meta.request_id})`,
       );
     }
 

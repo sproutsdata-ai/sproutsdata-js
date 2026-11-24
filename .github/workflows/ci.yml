@@ -1,5 +1,9 @@
-# Quality gate for the JS monorepo. Nothing here touches the network: the live
-# smoke test is run by hand with a test key.
+# The quality gate for the JS monorepo: the SDK and its two adapters. Nothing here calls the
+# API: the live suites run against the local stack (the e2e job, and sproutsdata-py's
+# e2e.yml), and scripts/smoke-live.mjs by hand.
+#
+# release.yml runs this same workflow (`workflow_call`) before it publishes anything. Every
+# action is pinned to a commit SHA; dependabot keeps the pins current.
 name: ci
 
 on:
@@ -7,87 +11,158 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   checks:
-    # Everything that does not depend on the Node.js version runs once.
+    # Everything that does not depend on the Node.js version, once.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Lint
-        run: npm run lint
+      # First: the adapters and the examples import `sproutsdata` as a consumer does, from its
+      # built declarations, so typed lint needs the build.
+      - run: npm run build
+      - run: npm run lint
+      - run: npm run lint:layers
       - name: Vendored spec and generated code are current
-        # spec/ must match the checksums in spec/PIN.json (a hand edit fails
-        # here), and the generated types, error codes and tool specs must match
-        # what the generators produce from that spec.
         run: npm run check:generated
-      - name: Types
-        run: npm run typecheck
-      - name: Package contents
-        # What `npm publish` would upload. A missing dist/ or a stray file shows
-        # up here, not after the release.
+      - run: npm run typecheck
+      - name: Every code block in the docs compiles
+        run: npm run check:docs
+      - run: npm run check:links
+      - name: Package shape (publint, are-the-types-wrong)
+        run: npm run check:package
+      - name: The declarations in a strict and a lenient consumer, skipLibCheck off
+        run: npm run check:consumer
+      - run: npm run check:size
+      - name: What npm publish would upload
         run: |
-          npm run build
           for ws in packages/sdk packages/langchain packages/ai-sdk; do
             npm pack --dry-run -w "$ws"
           done
+      - run: npm run audit
 
   test:
-    # The adapters need Node.js 22.12+ (the `ai` package sets that floor), so
-    # the full suite runs on 22 and 24.
+    # The suites with coverage, then the built package loaded through both of its formats, on
+    # the Node.js floor (22.12.0) and on current releases.
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        node-version: [22, 24]
+        node-version: ["22.12.0", "22", "24"]
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
       - run: npm ci
-      - name: Tests, example type-check and links
-        run: npm test
+      - run: npm run build
+      - run: npm test
+      - run: npm run smoke:dist
 
-  sdk-node-20:
-    # The sdk and the LangChain adapter support Node.js 20. vitest 4 runs there.
+  edge:
+    # The built SDK inside workerd (the Cloudflare Workers runtime): one call per resource.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: 20
-          cache: npm
-      - run: npm ci
-      - run: npm run build -w packages/sdk
-      - run: npm test -w packages/sdk -w packages/langchain
-
-  sdk-node-18:
-    # The sdk claims Node.js 18, where vitest cannot run. Build on 22, then load
-    # the built package on 18 and make one call against a local stub.
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run build -w packages/sdk
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - run: npm run build
+      - run: npm run smoke:edge
+
+  e2e:
+    # The live suites against the local stack, run by sproutsdata-py's harness. By hand only
+    # (sproutsdata-py's e2e.yml runs it nightly), and only once switched on: the variable
+    # E2E_ENABLED and the DSP_STACK_READ_TOKEN secret, as in sproutsdata-py.
+    if: github.event_name == 'workflow_dispatch' && vars.E2E_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      UV_VERSION: "0.12.3"
+      PGUSER: postgres
+      SPROUTSDATA_E2E_PGUSER: postgres
+      SPROUTSDATA_E2E_AUTH_REPO: ${{ github.workspace }}/dsp-auth
+      SPROUTSDATA_E2E_MINT_REPO: ${{ github.workspace }}/dsp-mint
+      SPROUTSDATA_E2E_BACKEND_REPO: ${{ github.workspace }}/dsp-backend
+      SPROUTSDATA_E2E_AUTH_REF: origin/${{ vars.DSP_AUTH_REF || 'qa' }}
+      SPROUTSDATA_E2E_MINT_REF: origin/${{ vars.DSP_MINT_REF || 'qa' }}
+      SPROUTSDATA_E2E_BACKEND_REF: origin/${{ vars.DSP_BACKEND_REF || 'sd-qa' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          node-version: 18
-      - run: node scripts/smoke-node-floor.mjs
+          path: sproutsdata-js
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ vars.DSP_PY_REPOSITORY || 'sproutsdata-ai/sproutsdata-py' }}
+          path: sproutsdata-py
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ vars.DSP_AUTH_REPOSITORY || 'gtmprouts-ai/dsp-auth' }}
+          token: ${{ secrets.DSP_STACK_READ_TOKEN }}
+          path: dsp-auth
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ vars.DSP_MINT_REPOSITORY || 'gtmprouts-ai/dsp-mint' }}
+          token: ${{ secrets.DSP_STACK_READ_TOKEN }}
+          path: dsp-mint
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ vars.DSP_BACKEND_REPOSITORY || 'gtmprouts-ai/dsp-backend' }}
+          token: ${{ secrets.DSP_STACK_READ_TOKEN }}
+          path: dsp-backend
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - run: python -m pip install "uv==${UV_VERSION}"
+      - name: Start the stack
+        working-directory: sproutsdata-py
+        run: |
+          make install
+          make e2e-up
+      - name: Live suites, examples and the smoke
+        working-directory: sproutsdata-js
+        run: |
+          npm ci
+          npm run build
+          npm run e2e
+          npm run e2e:examples
+          set -a; . ../sproutsdata-py/e2e/.state/env; set +a
+          SPROUTSDATA_API_KEY="$SPROUTSDATA_E2E_KEY" SPROUTSDATA_BASE_URL="$SPROUTSDATA_E2E_BASE_URL" node scripts/smoke-live.mjs
+      - name: Stop the stack
+        if: always()
+        working-directory: sproutsdata-py
+        run: make e2e-down || true

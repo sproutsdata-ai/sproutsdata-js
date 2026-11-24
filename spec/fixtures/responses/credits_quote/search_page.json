@@ -1,0 +1,29 @@
+{
+  "body": {
+    "available": 951.405,
+    "basis": "page",
+    "covered": true,
+    "credits": 2.0,
+    "operation": "search",
+    "rate_card": "2026-10-model-a"
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1997",
+    "ratelimit-reset": "51",
+    "x-request-id": "b79544c5e3b54d96ba044062a7447dc4"
+  },
+  "operation": "credits_quote",
+  "request": {
+    "body": {
+      "operation": "search",
+      "rows": 25,
+      "start": 10
+    },
+    "method": "POST",
+    "path": "/v1/credits/quote",
+    "query": {}
+  },
+  "status": 200
+}

@@ -1,0 +1,99 @@
+{
+  "body": {
+    "tags": [
+      {
+        "description": "This has nothing to do with what I searched for.",
+        "label": "Not what I asked for",
+        "level": "result",
+        "requires_comment": false,
+        "tag": "irrelevant"
+      },
+      {
+        "description": "The right kind of result, but not the one I meant.",
+        "label": "Wrong company or person",
+        "level": "result",
+        "requires_comment": false,
+        "tag": "wrong_entity"
+      },
+      {
+        "description": "This was true once, but it is not true now.",
+        "label": "Out of date",
+        "level": "result",
+        "requires_comment": false,
+        "tag": "stale"
+      },
+      {
+        "description": "The right record, but something on it is incorrect.",
+        "label": "Details are wrong",
+        "level": "result",
+        "requires_comment": false,
+        "tag": "data_quality"
+      },
+      {
+        "description": "The same record appears again elsewhere in these results.",
+        "label": "Listed more than once",
+        "level": "result",
+        "requires_comment": false,
+        "tag": "duplicate"
+      },
+      {
+        "description": "The right results, but the best ones are not near the top.",
+        "label": "Wrong order",
+        "level": "result_set",
+        "requires_comment": false,
+        "tag": "bad_ranking"
+      },
+      {
+        "description": "A record I expected to see is not here.",
+        "label": "Something is missing",
+        "level": "result_set",
+        "requires_comment": false,
+        "tag": "missing"
+      },
+      {
+        "description": "This returned an empty list.",
+        "label": "Nothing came back",
+        "level": "result_set",
+        "requires_comment": false,
+        "tag": "no_results"
+      },
+      {
+        "description": "There should be more of these than came back.",
+        "label": "Too few results",
+        "level": "result_set",
+        "requires_comment": false,
+        "tag": "too_few"
+      },
+      {
+        "description": "Far more results than what I asked for.",
+        "label": "Too broad",
+        "level": "result_set",
+        "requires_comment": false,
+        "tag": "too_many"
+      },
+      {
+        "description": "None of these fit. Tell us what went wrong in your own words.",
+        "label": "Something else",
+        "level": "any",
+        "requires_comment": true,
+        "tag": "other"
+      }
+    ],
+    "version": 2
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "51",
+    "x-request-id": "6b0a1f9c3acb4c0887c091994cd712f3"
+  },
+  "operation": "feedback_tags",
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/v1/feedback/tags",
+    "query": {}
+  },
+  "status": 200
+}

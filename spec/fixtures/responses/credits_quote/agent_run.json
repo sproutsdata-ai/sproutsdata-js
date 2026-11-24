@@ -1,0 +1,28 @@
+{
+  "body": {
+    "available": 951.405,
+    "basis": "run",
+    "covered": true,
+    "credits": 42.5,
+    "operation": "agent_run",
+    "rate_card": "2026-10-model-a"
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1996",
+    "ratelimit-reset": "51",
+    "x-request-id": "7e4d4a33d5f64f2183d2cbe1fcd1ecaf"
+  },
+  "operation": "credits_quote",
+  "request": {
+    "body": {
+      "effort": "detailed",
+      "operation": "agent_run"
+    },
+    "method": "POST",
+    "path": "/v1/credits/quote",
+    "query": {}
+  },
+  "status": 200
+}

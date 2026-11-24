@@ -67,22 +67,22 @@
       "next_cursor": "eyJvIjoyfQ.k9q1",
       "resolved_search": null,
       "suggestion": null,
-      "coverage": null,
       "attribution": [],
       "degradation": [
         {
           "reason": "vector_coverage_incomplete",
           "detail": "9% of company records have no embedding and were matched lexically only.",
           "impact": "recall",
-          "source_corpus": "companies"
+          "source_corpus": "gtm_index"
         }
       ],
       "columns": null,
       "meta": {
-        "request_id": "req_5c0e19ab47",
-        "environment": "test",
         "as_of": "2026-10-01T09:30:00Z",
-        "credential": "api_key"
+        "credential": "api_key",
+        "credits_charged": null,
+        "environment": "live",
+        "request_id": "req_5c0e19ab47"
       }
     }
   },
@@ -107,7 +107,6 @@
           "weight": 0
         }
       ],
-      "category": "company",
       "filters": {
         "employee_count": {
           "gte": 500,
@@ -129,7 +128,6 @@
       "anchors_removed: stripe.com — returned as a look-alike of itself and removed.",
       "rows_without_lookup: 1 of 2 rows carry no domain or LinkedIn URL, so they have no `lookup` value and cannot be looked up."
     ],
-    "environment": "test",
     "has_more": true,
     "interpreted_as": {
       "conflicts": [],

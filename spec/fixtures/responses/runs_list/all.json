@@ -1,0 +1,256 @@
+{
+  "body": {
+    "has_more": true,
+    "meta": {
+      "as_of": "2026-11-24T09:06:07.888954Z",
+      "credential": "api_key",
+      "credits_balance": null,
+      "credits_charged": null,
+      "environment": "live",
+      "request_id": "fd5265147fe9483a800eb69fe08d1295"
+    },
+    "next_cursor": "eyJmIjoiYmYwNzRiZTJjOWRmMmUzZjE3ZDVlN2Y4MTdjM2Q5MzQiLCJvIjoyNSwicyI6IjU5YWUwMjhiMWE3NDQ4OTY4YzExZDdlY2Y3YmY3YWU0IiwidCI6MTc5NTUxMTE2NywidSI6InBlcmYtYzIifQ.d4e691eaaa4aeb6cf4f3c4f84443ef4e",
+    "results": [
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-0",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-1",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-2",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-3",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-4",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-5",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-6",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-7",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-8",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-9",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-10",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-11",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-12",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-13",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-14",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-15",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-16",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-17",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-18",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-19",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-20",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-21",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-22",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-23",
+        "status": "completed",
+        "stop_reason": null
+      },
+      {
+        "created_at": "2026-11-10T09:00:00Z",
+        "effort": "basic",
+        "finished_at": "2026-11-10T09:02:00Z",
+        "query": "b2b fintechs in berlin",
+        "run_id": "run-24",
+        "status": "completed",
+        "stop_reason": null
+      }
+    ]
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "600",
+    "ratelimit-remaining": "599",
+    "ratelimit-reset": "53",
+    "x-request-id": "fd5265147fe9483a800eb69fe08d1295"
+  },
+  "operation": "runs_list",
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/v1/agents/runs",
+    "query": {}
+  },
+  "status": 200
+}

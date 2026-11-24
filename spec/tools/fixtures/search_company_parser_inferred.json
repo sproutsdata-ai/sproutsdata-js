@@ -154,10 +154,9 @@
         "overrides": []
       },
       "suggestion": null,
-      "coverage": null,
       "attribution": [
         {
-          "source_corpus": "companies",
+          "source_corpus": "gtm_index",
           "domain": null,
           "as_of": "2026-09-28T00:00:00Z",
           "url": null,
@@ -169,15 +168,16 @@
           "reason": "vector_coverage_incomplete",
           "detail": "12% of company records have no embedding and were matched lexically only.",
           "impact": "recall",
-          "source_corpus": "companies"
+          "source_corpus": "gtm_index"
         }
       ],
       "columns": null,
       "meta": {
-        "request_id": "req_9f2c41d07a",
-        "environment": "test",
         "as_of": "2026-10-01T09:12:44Z",
-        "credential": "api_key"
+        "credential": "api_key",
+        "credits_charged": null,
+        "environment": "live",
+        "request_id": "req_9f2c41d07a"
       }
     }
   },
@@ -196,7 +196,6 @@
       "vector_coverage_incomplete: 12% of company records have no embedding and were matched lexically only. (impact: recall)",
       "rows_without_lookup: 1 of 3 rows carry no domain or LinkedIn URL, so they have no `lookup` value and cannot be looked up."
     ],
-    "environment": "test",
     "has_more": true,
     "interpreted_as": {
       "conflicts": [],

@@ -34,15 +34,16 @@ either — the temptation when a case fails is to edit the case.
     {
       "status": 402,
       "headers": { "X-Request-Id": "req_abc" },
-      "body": { "code": "credits.insufficient", "title": "Insufficient credits",
-                "status": 402, "extra": { "available": 0, "required": 1 } }
+      "body": { "code": "credits.insufficient", "title": "Not enough credits",
+                "status": 402,
+                "extra": { "available_credits": 0, "required_credits": 1 } }
     }
   ],
   "expect": {
     "error": {
       "concept": "insufficient_credits",
       "request_id": "req_abc",
-      "fields": { "available": 0, "required": 1 }
+      "fields": { "available_credits": 0, "required_credits": 1 }
     },
     "attempts": 1,                   // how many HTTP requests should be made
     "no_sleep": true                 // must not have waited before giving up
@@ -58,6 +59,15 @@ either — the temptation when a case fails is to edit the case.
   "success": { "results_length": 2, "has_more": false, "request_id": "req_x" }
 }
 ```
+
+`expect.success.export_kind` (`"file"` or `"job"`) and `expect.success.job_id`
+assert on an export's result: a `csv_or_job` route (routes.json) answers 200 with
+the CSV or 202 with a job to poll, and the SDK must say which it got.
+
+`expect.error.fields` asserts on the SDK's typed accessors, by the wire name of
+the value they read (`available_credits`). `expect.error.extra` asserts that the
+problem's `extra` survives onto the error: every key given must be present with
+exactly that value (other keys may be present too).
 
 `expect.sent` asserts on what went out — the pagination cases use it to prove the
 second request body matches the first:
@@ -104,7 +114,7 @@ Whether a failure may be retried depends on what the route costs, so every case
 runs against a route class. The runner looks `request.method` + `request.path`
 up in `spec/routes.json` (path templates such as `/v1/entities/{category}`
 match any segment). With no `request`, the case is `POST /v1/search`, a
-`billed` route. `GET` requests send no body; the runner calls the route through
+`keyed` route. `GET` requests send no body; the runner calls the route through
 the client's generic request path, so cases are not tied to one resource.
 
 A `responses[]` entry may describe a transport outcome instead of an HTTP
@@ -130,6 +140,18 @@ repeated.
 `Retry-After` values in `headers` may be seconds or an HTTP date. A date far in
 the future is how a case says "beyond the 60-second cap" without depending on
 the clock.
+
+## Every case is checked against the API
+
+`scripts/check_spec.py` validates each case before any SDK runs it: the request
+must resolve to a route in `routes.json`, its body must validate against that
+route's request schema in `openapi.json`, every 2xx JSON response must validate
+against the route's response schema, and every error `code` must be in
+`error-codes.json` (a code ending `.something_invented_later` is the one
+exception: it is how a case proves an unknown code falls back by status). So a
+case can only pin behaviour on a shape the server really sends. A case that
+deliberately sends something off the schema (an enum member the SDK has never
+seen) names those JSON paths in a top-level `"off_spec"` list.
 
 ## Why cases name a concept, not a class
 

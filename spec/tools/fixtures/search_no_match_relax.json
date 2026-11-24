@@ -1,0 +1,162 @@
+{
+  "description": "A company search that matched nothing. The empty first page carries prism's reason as a `no_match` degradation, which becomes the first caveat verbatim, and a `relax` suggestion: `category` is null, so it is dropped, and `without` lists the filters whose removal alone finds records, each with its count.",
+  "tool": "sprouts_search",
+  "options": {},
+  "arguments": {
+    "query": "enterprise software",
+    "filters": {
+      "geo": {
+        "places": [
+          {
+            "level": "country",
+            "value": "Iceland"
+          }
+        ]
+      },
+      "employee_count": {
+        "gte": 5000
+      }
+    },
+    "limit": 2
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "X-Request-Id": "d16933505cc646da83b632554859a2ce"
+    },
+    "body": {
+      "attribution": [
+        {
+          "as_of": "2026-11-16T23:02:25.643727Z",
+          "domain": null,
+          "quote": null,
+          "source_corpus": "gtm_index",
+          "url": null
+        }
+      ],
+      "columns": null,
+      "degradation": [
+        {
+          "detail": "No company in the index is headquartered in Iceland.",
+          "impact": "recall",
+          "reason": "no_match",
+          "source_corpus": "gtm_index"
+        }
+      ],
+      "has_more": false,
+      "meta": {
+        "as_of": "2026-11-16T23:02:25.643727Z",
+        "credential": "api_key",
+        "credits_balance": 997.905,
+        "credits_charged": 0.0,
+        "environment": "live",
+        "request_id": "d16933505cc646da83b632554859a2ce"
+      },
+      "next_cursor": null,
+      "resolved_search": {
+        "category": "company",
+        "conflicts": [],
+        "filters": {
+          "geo": {
+            "places": [
+              {
+                "level": "country",
+                "value": "Iceland"
+              }
+            ]
+          },
+          "employee_count": {
+            "gte": 5000
+          }
+        },
+        "filters_source": "caller",
+        "keyword_query": null,
+        "mode": "fast",
+        "overrides": [],
+        "parser_version": "none",
+        "query": "enterprise software",
+        "semantic_query": "industrial automation",
+        "semantic_scope": null,
+        "sort": [],
+        "sparse_filters": []
+      },
+      "results": [],
+      "suggestion": {
+        "category": null,
+        "kind": "relax",
+        "message": "0 with every filter; 12,345 without HQ in Iceland.",
+        "without": [
+          {
+            "filter": "geo",
+            "label": "HQ in Iceland",
+            "total": 12345
+          }
+        ]
+      },
+      "total": 0,
+      "total_is_estimate": false
+    }
+  },
+  "expected_request": {
+    "method": "POST",
+    "path": "/v1/search",
+    "body": {
+      "category": "company",
+      "filters": {
+        "employee_count": {
+          "gte": 5000
+        },
+        "geo": {
+          "places": [
+            {
+              "level": "country",
+              "value": "Iceland"
+            }
+          ]
+        }
+      },
+      "limit": 2,
+      "mode": "fast",
+      "query": "enterprise software"
+    }
+  },
+  "expected_output": {
+    "results": [],
+    "total": 0,
+    "total_is_estimate": false,
+    "has_more": false,
+    "next_cursor": null,
+    "interpreted_as": {
+      "filters": {
+        "geo": {
+          "places": [
+            {
+              "level": "country",
+              "value": "Iceland"
+            }
+          ]
+        },
+        "employee_count": {
+          "gte": 5000
+        }
+      },
+      "source": "caller",
+      "conflicts": []
+    },
+    "caveats": [
+      "no_match: No company in the index is headquartered in Iceland. (impact: recall)"
+    ],
+    "suggestion": {
+      "kind": "relax",
+      "message": "0 with every filter; 12,345 without HQ in Iceland.",
+      "without": [
+        {
+          "filter": "geo",
+          "label": "HQ in Iceland",
+          "total": 12345
+        }
+      ]
+    },
+    "request_id": "d16933505cc646da83b632554859a2ce"
+  }
+}

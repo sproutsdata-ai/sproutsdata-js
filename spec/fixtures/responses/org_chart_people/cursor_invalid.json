@@ -1,0 +1,34 @@
+{
+  "body": {
+    "code": "pagination.cursor_invalid",
+    "detail": "The request changed between pages. A cursor is only valid for the exact search that produced it.",
+    "instance": "/v1/org-chart/people",
+    "next_step": "Send `next_cursor` exactly as received, with the same body as the first page.",
+    "request_id": "a597a1ae7fcd4f3cbed6c1279f60999b",
+    "status": 422,
+    "title": "Invalid cursor",
+    "type": "https://dashboard.sproutsdata.ai/errors/pagination-cursor-invalid"
+  },
+  "headers": {
+    "content-type": "application/problem+json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1997",
+    "ratelimit-reset": "52",
+    "x-request-id": "a597a1ae7fcd4f3cbed6c1279f60999b"
+  },
+  "operation": "org_chart_people",
+  "request": {
+    "body": {
+      "cell": {
+        "department": "sales",
+        "seniority": "manager"
+      },
+      "company_ref": "d1_cxClVTpId3XUN3Qkbk7Dx1jQddd-NYikABazRw",
+      "cursor": "eyJmIjoiYzk3YWE2NjM2NzQ2Mzk4YjAxOGRhZDM3ZTkwMzhlYTQiLCJvIjoyLCJzIjoiZGJlNzI2M2FkNjYyNDRiOGJjZTA4NWE0YmZiMjNkMDMiLCJ0IjoxNzk1NTExMTY4LCJ1IjoiMiJ9.67509b0eb10b671daef5999c84bf2350"
+    },
+    "method": "POST",
+    "path": "/v1/org-chart/people",
+    "query": {}
+  },
+  "status": 422
+}

@@ -9,14 +9,13 @@
       },
       "body": {
         "type": "https://dashboard.sproutsdata.ai/errors/credits-insufficient",
-        "title": "Insufficient credits",
+        "title": "Not enough credits",
         "status": 402,
         "code": "credits.insufficient",
-        "detail": "This action costs 0.595 credits; 0.25 available.",
+        "detail": "This needs 0.595 credits; 0.25 are available.",
         "extra": {
-          "available": 0.25,
-          "required": 0.595,
-          "action_type": "dsp.search.auto"
+          "available_credits": 0.25,
+          "required_credits": 0.595
         }
       }
     }
@@ -28,9 +27,8 @@
       "concept": "insufficient_credits",
       "request_id": "req_402_fraction",
       "fields": {
-        "available": 0.25,
-        "required": 0.595,
-        "action_type": "dsp.search.auto"
+        "available_credits": 0.25,
+        "required_credits": 0.595
       }
     }
   }

@@ -1,0 +1,27 @@
+{
+  "body": {
+    "code": "enrichment.job_not_found",
+    "detail": "This job does not exist, or belongs to another workspace.",
+    "instance": "/v1/enrichment/jobs/00000000-0000-4000-8000-000000000000",
+    "next_step": "List jobs with `GET /v1/enrichment/jobs` for valid ids.",
+    "request_id": "72c47db02e8f4b94affec64edf940b77",
+    "status": 404,
+    "title": "No such job",
+    "type": "https://dashboard.sproutsdata.ai/errors/enrichment-job-not-found"
+  },
+  "headers": {
+    "content-type": "application/problem+json",
+    "ratelimit-limit": "600",
+    "ratelimit-remaining": "597",
+    "ratelimit-reset": "52",
+    "x-request-id": "72c47db02e8f4b94affec64edf940b77"
+  },
+  "operation": "enrichment_retrieve",
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/v1/enrichment/jobs/00000000-0000-4000-8000-000000000000",
+    "query": {}
+  },
+  "status": 404
+}

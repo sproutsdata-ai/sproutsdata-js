@@ -1,0 +1,28 @@
+{
+  "body": {
+    "created_at": "2026-11-24T09:06:08.899396Z",
+    "error": null,
+    "expires_at": "2026-11-25T09:06:09.135705Z",
+    "file_url": "/v1/exports/8569bdaf-6c92-476c-82c3-16cca14bb4b8/file",
+    "finished_at": "2026-11-24T09:06:09.135705Z",
+    "job_id": "8569bdaf-6c92-476c-82c3-16cca14bb4b8",
+    "rows": 50,
+    "skipped": 0,
+    "status": "done"
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1998",
+    "ratelimit-reset": "51",
+    "x-request-id": "6467c5b0f70c4f019441d633666c120f"
+  },
+  "operation": "exports_retrieve",
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/v1/exports/8569bdaf-6c92-476c-82c3-16cca14bb4b8",
+    "query": {}
+  },
+  "status": 200
+}

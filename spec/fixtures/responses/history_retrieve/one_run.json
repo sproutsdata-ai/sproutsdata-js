@@ -1,0 +1,45 @@
+{
+  "body": {
+    "action_type": "dsp.enrichment",
+    "actor_type": "api_key",
+    "credits_charged": null,
+    "environment": "live",
+    "error_code": null,
+    "id": "34",
+    "latency_ms": 15,
+    "occurred_at": "2026-11-24T09:06:08.755396Z",
+    "query": null,
+    "request": {
+      "fields": [
+        "EMAIL"
+      ],
+      "items": [
+        {
+          "company_domain": "example-5.de",
+          "external_id": "SLOW-5",
+          "full_name": "Grace Example"
+        }
+      ]
+    },
+    "resolved_search": null,
+    "result_count": 1,
+    "snapshot": null,
+    "snapshot_state": "absent",
+    "status": "pending"
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "51",
+    "x-request-id": "b2b704168c5c442aa8adf7655d5318e6"
+  },
+  "operation": "history_retrieve",
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/v1/usage/history/34",
+    "query": {}
+  },
+  "status": 200
+}

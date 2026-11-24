@@ -1,6 +1,7 @@
 {
   "name": "billed_call_is_not_repeated_after_the_connection_drops_mid_request",
-  "description": "A connection reset after the request was written gives no answer about the charge, so it is treated like a read timeout.",
+  "description": "Pins the retry table's `billed` class (since dsp-backend DSP-449 every billed read takes Idempotency-Key and is `keyed`, so no route is in it). A connection reset after the request was written gives no answer about the charge, so it is treated like a read timeout.",
+  "route_class": "billed",
   "responses": [
     {
       "network": "reset_after_send"
@@ -21,7 +22,7 @@
         "degradation": [],
         "meta": {
           "request_id": "req_ok",
-          "environment": "test",
+          "environment": "live",
           "as_of": "2026-08-13T00:00:00Z",
           "credential": "api_key"
         }

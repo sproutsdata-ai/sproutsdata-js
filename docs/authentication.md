@@ -2,7 +2,7 @@
 
 ## The header
 
-The API authenticates with a custom header, not `Authorization: Bearer`:
+The API authenticates each request with an API key in the `X-API-Key` header:
 
 ```http
 POST /v1/search HTTP/1.1
@@ -11,177 +11,174 @@ X-API-Key: sk_dsp_live_…
 Content-Type: application/json
 ```
 
-The SDK sends the key in `X-API-Key` and nowhere else. The API also accepts a
-dashboard-issued delegation token as `Authorization: Bearer …` on `/v1`; that is
-a browser-side credential with a different lifetime and consent model, and this
-SDK authenticates a key and only a key.
+The SDK sends the key in `X-API-Key` and nowhere else.
 
 ## Key format
 
 ```
-sk_<platform>_<environment>_<secret>
-
 sk_dsp_live_<secret>
-sk_dsp_test_<your-key>
 ```
 
-Issued keys use the `dsp` platform. The client checks the shape of the whole
-key — `sk_`, a platform, `live` or `test`, then the secret — so a new platform
-prefix works without a new release, and a key with a trailing newline (a common
-copy-paste accident) is refused. The secret is base64url, so it contains `_`
-and `-`: if you parse a key at all, split on the first three underscores only.
+Keys are created in the Sprouts Data dashboard. The client checks the shape of
+the key before it sends anything: `sk_dsp_live_`, then the secret, at most 200
+characters. A key with a trailing newline (a common
+copy-paste accident) is refused with a `ClientValidationError`. The secret may
+contain `_` and `-`, so if you parse a key at all, split on the first three
+underscores only.
 
-## Live and test keys
+## Every key is charged
 
-A key's environment is chosen when it is created and is part of the credential.
-There is no environment parameter on requests: the key decides, and live and
-test never mix. A **test** key is authenticated, metered and written to the
-ledger exactly like a live one, but charged **zero credits**, against the same
-records.
+Every key spends the workspace's credits; a new workspace starts with sign-up
+credits for evaluation. Test keys (`sk_dsp_test_…`) were retired, and the server
+no longer accepts them. The client refuses one when it is constructed, with a
+`ClientValidationError` that says so, rather than letting the call fail with a
+bare `401`.
 
-The prefix decides live or test only — not which deployment answers. The SDK
-talks to the production API (`https://api.sproutsdata.ai`) for live and test
-keys alike; to point it elsewhere, set `SPROUTSDATA_BASE_URL` or `baseUrl`.
-
-Every response echoes which environment answered:
+Use a separate key for development and CI, so that it can be revoked without
+affecting production. Every response says what it cost:
 
 ```ts
 const page = await client.search({ query: 'fintech' });
-page.meta.environment; // 'live' | 'test'
+console.log(page.meta.credits_charged);
 ```
 
-Use a test key in development and CI, and assert on `meta.environment` in
-integration tests if mixing them up would be expensive for you.
+The key does not decide which deployment answers. The SDK talks to
+`https://api.sproutsdata.ai`; to point it elsewhere, set `SPROUTSDATA_BASE_URL`
+or `baseUrl`.
 
 ## Scopes
 
-Scopes are chosen per key at creation. An endpoint the key is not scoped for
-returns `403 auth.insufficient_scope` (`PermissionDeniedError`): the key exists
-and is valid, it was not granted that capability. Create a key with the scope
-you need — scopes cannot be added to an existing key.
+Scopes are chosen per key when it is created. A call the key is not scoped for
+throws `PermissionDeniedError` (403): the key is valid, but it was not granted
+that capability.
 
-| Scope | Unlocks |
+| Scope | Calls |
 |---|---|
-| `dsp.search.read` | `search()`, `similar()`, `filterValues()`, `documentFilterValues()` (and their `iter*` forms), `sorts()`, `coverage()`, `relationships.*()`, `orgChart.*()`, `members.resolve()` |
-| `dsp.entities.read` | `entities.*()` |
-| `dsp.usage.read` | `credits.retrieve()`, `credits.usage()`, `history.*()` |
-| `dsp.agents.write` | `runs.create()`, `runs.cancel()` (and `members.resolve()`) |
-| `dsp.agents.read` | `runs.retrieve()`, `wait()`, `list()`, `results()` and `events()` (also unlocked by `dsp.agents.write`) |
-| `dsp.search.read` or `dsp.entities.read` | `lists.*()`, `searchExport()` |
-| `dsp.search.read` or `dsp.usage.read` | `feedback.create()`, `feedback.list()`, `feedback.votes.*()` |
-| *(any key, or none)* | `feedback.tags()` |
+| `dsp.search.read` | `search`, `similar` (and their `iter*` forms), `filterValues`, `documentFilterValues`, `sorts`, `coverage`, `relationships.*`, `orgChart.*` |
+| `dsp.entities.read` | `entities.*` |
+| `dsp.usage.read` | `credits.*`, `history.*` |
+| `dsp.agents.write` | `runs.create`, `runs.cancel` |
+| `dsp.agents.read` or `dsp.agents.write` | `runs.retrieve`, `runs.wait`, `runs.list`, `runs.results`, `runs.events` |
+| `dsp.enrichment.write` | `enrichment.create`, `enrichment.cancel`, `enrichment.lookup` |
+| `dsp.enrichment.read` or `dsp.enrichment.write` | `enrichment.retrieve`, `enrichment.wait`, `enrichment.list`, `enrichment.results` |
+| `dsp.search.read` or `dsp.entities.read` | `lists.*`, `exports.*`, `searchExport` |
+| `dsp.search.read` or `dsp.usage.read` | `feedback.*`, including `feedback.tags` and `feedback.votes.*` |
 
-A key cannot create another key — key management is done from the dashboard by
-a signed-in person, not over the API — so an integration has no way to
-escalate.
+A key made with the default scopes has no `dsp.agents.*` or
+`dsp.enrichment.*` scope. [Agent runs](runs.md) and
+[enrichment](enrichment.md) need a key created with them.
+
+A call that needs a workspace throws `WorkspaceRequiredError`, a subclass of
+`PermissionDeniedError`.
 
 ## Lifecycle
 
-- Keys **expire**: 365 days by default, 730 at most.
-- The secret is shown **once**, at creation, and cannot be retrieved again.
-- **Revocation is immediate** and permanent.
-- **Rotate** by creating the new key, deploying it, then revoking the old one.
+- The secret is shown once, when the key is created. Store it in a secrets
+  manager and inject it as `SPROUTSDATA_API_KEY`. Never commit it.
+- Revoking a key takes up to about five minutes to apply everywhere.
+- Keys can be rotated. Rotating a key issues a new key with the same name,
+  scopes, environment and lifetime, and revokes the old one at the same
+  moment. There is no overlap period: deploy the new key as soon as you rotate,
+  because the old one stops working within the revocation window.
+- Use one key per integration or service, named for it, so revoking one does
+  not stop another, and grant each key only the scopes it needs.
 
-Key hygiene:
+## Authentication failures
 
-- Keep keys in a secrets manager and inject them as `SPROUTSDATA_API_KEY`. Never
-  commit them.
-- One key per integration or service, named for it — so revoking one does not
-  take down another, and usage stays attributable.
-- Grant each key only the scopes it needs.
-- If a key may have leaked, revoke it in the dashboard first, then check
-  `client.credits.usage()` on the replacement and the dashboard's per-key report
-  for spend you do not recognise.
+Every key failure is the same answer: a missing, unknown, revoked or expired
+key is a 401, thrown as `AuthenticationError`. The answer does not say which,
+so a caller without a valid key cannot learn anything about the keys that
+exist. Quote `err.requestId` to support for the reason.
 
-## Authentication failures are deliberately vague
+```ts
+import { AuthenticationError, PermissionDeniedError } from 'sproutsdata';
 
-No key, an unknown key and an expired session are answered identically — `401
-auth.unauthorized` — so an anonymous caller cannot map the authentication model.
-A caller who presented a malformed, unknown or revoked key is told
-`auth.invalid_key`; an expired key is `auth.expired`. The real reason is logged
-against the response's request id: quote `err.requestId` and support can answer
-precisely.
+try {
+  await client.credits.retrieve();
+} catch (err) {
+  if (err instanceof AuthenticationError) console.error('Check SPROUTSDATA_API_KEY', err.requestId);
+  else if (err instanceof PermissionDeniedError) console.error('This key lacks dsp.usage.read', err.requestId);
+  else throw err;
+}
+```
 
 ## Keys are server-side credentials
 
-An API key carries the tenant's whole credit balance, and a key shipped in
-frontend JavaScript is a key in every visitor's developer tools. So:
+A key spends the workspace's credits, and a key shipped in frontend code is
+readable by every visitor. A key is therefore never sent from a browser:
 
-- **The API** refuses any request that carries both an `Origin` header and an
-  `X-API-Key` — `403 auth.browser_origin`, before the request reaches a route.
-  There is no CORS allowlist and no browser-safe key format.
-- **The SDK** throws at construction in a browser-like environment, with
-  `dangerouslyAllowBrowser: true` as the explicit escape hatch for non-browser
-  environments that look like one (an Electron main process, for example).
+- **The API** refuses any key sent with an `Origin` header, with a plain 401
+  (`AuthenticationError`).
+- **The SDK** throws a `ClientValidationError` when it is constructed in a
+  browser. There is no option to turn this off. It runs on servers: Node.js,
+  Deno, Bun or an edge runtime.
 
-The architecture for a web app:
+For a web application, your server holds the key and calls the API; the browser
+calls your server:
 
 ```
-browser  ──(your auth)──▶  your server  ──(X-API-Key)──▶  Sprouts Data API
+browser  --(your auth)-->  your server  --(X-API-Key)-->  Sprouts Data API
 ```
 
-Your server holds the key and exposes only the operations your product needs.
-If you see `auth.browser_origin` from a server-side call, something between you
-and the API — a proxy, or a runtime shim — is adding the header.
+If a server-side call fails with 401 although the key is valid, check whether
+something between your code and the API (a proxy, a runtime shim) adds an
+`Origin` header.
 
-What the SDK does to keep the key where it belongs:
+What the SDK does to keep the key safe:
 
-- It is sent only in `X-API-Key`, which neither `defaultHeaders` nor per-call
-  `headers` can override (nor `User-Agent`, nor an SDK-set `Idempotency-Key`),
-  in any casing.
-- `Origin` and `Referer` are refused in `defaultHeaders` and per-call `headers`
-  with a `ClientValidationError`, since the API would answer 403.
+- It sends the key only in `X-API-Key`. `defaultHeaders` cannot replace it, nor
+  any other header the SDK sets (`Accept`, `Content-Type`, `User-Agent`,
+  `X-Request-Id`, `Idempotency-Key`, `Last-Event-ID`), in any casing.
+- `Origin` and `Referer` are refused in `defaultHeaders` with a
+  `ClientValidationError`.
 - Redirects are never followed, so the key is never re-sent to wherever a
-  redirect points; plain `http://` is refused except for `localhost` and
-  `127.0.0.1`.
-- `console.log(client)`, `util.inspect(client)` and `JSON.stringify(client)`
-  show the key redacted (`sk_dsp_test_***`), never the secret.
+  redirect points (`RedirectRefusedError`). Plain `http://` is refused except
+  for `localhost` and `127.0.0.1`.
+- The key is held in a private field. `JSON.stringify(client)` and
+  `util.inspect(client)` show it redacted (`sk_dsp_live_***`), never the
+  secret.
 
 ## Configuration
 
 ```ts
+import { SproutsData } from 'sproutsdata';
+
 const client = new SproutsData({
-  apiKey: 'sk_dsp_test_<your-key>', // default: SPROUTSDATA_API_KEY
-  baseUrl: 'https://…',             // default: SPROUTSDATA_BASE_URL, then https://api.sproutsdata.ai
-  timeoutMs: 60_000,                // per attempt, to the last byte of the body
-  maxRetries: 2,                    // see Errors and retries
-  fetch: customFetch,               // bring your own fetch (proxies, tests)
-  defaultHeaders: {},               // sent on every request; cannot override X-API-Key or User-Agent
-  integration: 'my-agent/1.2.0',    // for a framework built on the SDK: sent as X-SproutsData-Client
-  dangerouslyAllowBrowser: false,   // leave this alone
+  apiKey: 'sk_dsp_live_<your-key>', // default: SPROUTSDATA_API_KEY
+  baseUrl: 'https://api.sproutsdata.ai', // default: SPROUTSDATA_BASE_URL, then this
+  timeoutMs: 60_000, // per attempt
+  maxRetries: 2, // see Errors and retries
+  defaultHeaders: { 'X-Team': 'growth' }, // added to every request
+  fetch: globalThis.fetch, // your own fetch (a proxy agent, a test double)
+  onResponse: (meta) => console.log(meta.status, meta.requestId, meta.rateLimit.remaining),
 });
 ```
 
 | Option | Environment variable | Default |
 |---|---|---|
-| `apiKey` | `SPROUTSDATA_API_KEY` | — (required) |
+| `apiKey` | `SPROUTSDATA_API_KEY` | none: required |
 | `baseUrl` | `SPROUTSDATA_BASE_URL` | `https://api.sproutsdata.ai` |
-| `timeoutMs` | — | `60000` |
-| `maxRetries` | — | `2` |
+| `timeoutMs` | | `60000` |
+| `maxRetries` | | `2` |
+| `defaultHeaders` | | none |
+| `fetch` | | the global `fetch` |
+| `onResponse` | | none |
 
 An option wins over the environment. The older `DSP_API_KEY` and `DSP_BASE_URL`
-names are still read when the new ones are unset, with a deprecation warning,
-until 1.0. The path prefix
-is part of the base URL: `/v1` does not sit at the host root on every
-deployment.
+are still read when the new names are unset, with a deprecation warning; they
+stop being read at 1.0.
 
-`timeoutMs` defaults to 60 seconds because `mode: 'auto'` runs a model in the
-request path and takes tens of seconds on page 1.
+The constructor sends nothing. It throws `ClientValidationError` when the key
+is missing or not a Sprouts Data key, when `baseUrl` is not an absolute
+`https://` URL (plain `http://` only for `localhost` and `127.0.0.1`), when
+`timeoutMs` is not a positive number, when `maxRetries` is negative or not a
+whole number, when `defaultHeaders` sets `Origin`, `Referer` or a header the
+SDK sets itself, or when it runs in a browser.
 
-The constructor fails fast — `ClientValidationError`, no network call — when
-the key is missing or not key-shaped, when `baseUrl` is not `https://` (plain
-`http://` is accepted only for `localhost` and `127.0.0.1`), when
-`defaultHeaders` carries `Origin`, `Referer` or `X-SproutsData-Client` (set
-that one with `integration`), when `integration` is not `<name>/<version>`, or
-when the environment looks like a browser.
+`onResponse` is called with the status, the request id, the headers (lower-case
+names) and the rate limit of every successful answer. See
+[Errors and retries](errors.md#response-details).
 
-`client.withOptions({ timeoutMs, maxRetries, defaultHeaders, integration })`
-returns a copy with those settings changed — same key, base URL and `fetch` —
-and leaves the original as it is:
-
-```ts
-await client.withOptions({ maxRetries: 0 }).search({ query: '…' });
-```
-
-Every method also takes per-call options as its last argument; see
+Every method also takes per-call options as its last argument (`signal`,
+`timeoutMs`, `maxRetries`, `requestId`, `idempotencyKey`, `onResponse`); see
 [Errors and retries](errors.md#retries-timeouts-and-cancellation).

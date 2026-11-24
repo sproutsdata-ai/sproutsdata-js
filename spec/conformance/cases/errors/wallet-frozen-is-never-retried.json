@@ -1,0 +1,29 @@
+{
+  "name": "wallet_frozen_is_never_retried",
+  "description": "A frozen wallet answers 402 credits.wallet_frozen: commercial, like an empty one, so it is raised on the first attempt without sleeping, as its own concept.",
+  "responses": [
+    {
+      "status": 402,
+      "headers": {
+        "X-Request-Id": "req_frozen"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/credits-wallet-frozen",
+        "title": "Wallet frozen",
+        "status": 402,
+        "code": "credits.wallet_frozen",
+        "detail": "This workspace's wallet is frozen; contact support."
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "no_sleep": true,
+    "error": {
+      "concept": "wallet_frozen",
+      "status": 402,
+      "code": "credits.wallet_frozen",
+      "request_id": "req_frozen"
+    }
+  }
+}

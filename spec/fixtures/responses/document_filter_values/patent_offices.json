@@ -1,0 +1,55 @@
+{
+  "body": {
+    "category": "patent",
+    "filter": "offices",
+    "has_more": true,
+    "meta": {
+      "as_of": "2026-11-24T09:06:07.577398Z",
+      "credential": "api_key",
+      "credits_balance": null,
+      "credits_charged": null,
+      "environment": "live",
+      "request_id": "9e937b23094c41ca91db4e8c8bb25d3b"
+    },
+    "page": 1,
+    "page_size": 20,
+    "total": 412,
+    "values": [
+      "Industry value 0",
+      "Industry value 1",
+      "Industry value 2",
+      "Industry value 3",
+      "Industry value 4",
+      "Industry value 5",
+      "Industry value 6",
+      "Industry value 7",
+      "Industry value 8",
+      "Industry value 9",
+      "Industry value 10",
+      "Industry value 11",
+      "Industry value 12",
+      "Industry value 13",
+      "Industry value 14",
+      "Industry value 15",
+      "Industry value 16",
+      "Industry value 17",
+      "Industry value 18",
+      "Industry value 19"
+    ]
+  },
+  "headers": {
+    "content-type": "application/json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1999",
+    "ratelimit-reset": "53",
+    "x-request-id": "9e937b23094c41ca91db4e8c8bb25d3b"
+  },
+  "operation": "document_filter_values",
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/v1/search/filters/patent/offices",
+    "query": {}
+  },
+  "status": 200
+}

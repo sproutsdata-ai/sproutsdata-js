@@ -1,0 +1,58 @@
+{
+  "name": "search_is_retried_with_the_same_idempotency_key",
+  "description": "Search reads Idempotency-Key (dsp-backend DSP-449): the same key on the same request, from the same credential on the same UTC day, is charged once. So a search that may have reached the server is retried, carrying the key of its first attempt.",
+  "responses": [
+    {
+      "network": "read_timeout"
+    },
+    {
+      "status": 200,
+      "headers": {
+        "X-Request-Id": "req_ok"
+      },
+      "body": {
+        "results": [
+          {
+            "id": "a.com",
+            "category": "company",
+            "score": 1.0
+          }
+        ],
+        "total": 1,
+        "total_is_estimate": false,
+        "has_more": false,
+        "next_cursor": null,
+        "resolved_search": null,
+        "attribution": [],
+        "degradation": [],
+        "meta": {
+          "request_id": "req_ok",
+          "environment": "live",
+          "as_of": "2026-11-11T00:00:00Z",
+          "credential": "api_key"
+        }
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 2,
+    "sent": [
+      {
+        "headers_present": [
+          "Idempotency-Key"
+        ]
+      },
+      {
+        "body_equals_index": 0,
+        "same_header_as_index": {
+          "header": "Idempotency-Key",
+          "index": 0
+        }
+      }
+    ],
+    "success": {
+      "results_length": 1,
+      "request_id": "req_ok"
+    }
+  }
+}

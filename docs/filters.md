@@ -1,38 +1,43 @@
 # Filters
 
-Where a filter is checked depends on the category.
+`filters` narrows a search. Each category has its own filter type:
 
-- **`company` and `person`** filters are validated by the API against the typed
-  vocabulary below. A wrong name or shape is a `422 request.invalid` located at
-  `body`, with the filter's own path in the message:
-  `body: Value error, filters.employee_count.gt: Extra inputs are not permitted`.
-  The SDK surfaces it as `InvalidRequestError`, with the entry on
-  `err.fieldErrors` and the path in `err.message`.
-- **The document categories** take their filters flat, and the API passes them
-  to the retrieval engine as sent. The engine checks them, and its refusal is a
-  `422 request.invalid` in the engine's own words, with no field paths — so it
-  may not say which key was wrong.
+- **`company` and `person`** take `DiscoverFilters`, one vocabulary for both.
+  A company filter on a person search applies to the person's employer; a
+  person filter on a company search keeps companies that employ a matching
+  person.
+- **Each document category** (`patent`, `academic_report`, `news_article`,
+  `market_report`, `trend`, `funding_round`, `job_opening`) takes its own filter
+  type, such as `PatentFilters` or `NewsFilters`, and refuses the
+  `DiscoverFilters` fields.
+- **`category: 'auto'`** takes no filters: the question picks the category, and
+  filters belong to one category.
 
-Filters are never silently dropped.
+The types are generated from the server's request models, so a misspelt filter
+name is a compile error in TypeScript. The SDK also checks every filter before
+sending it (the field names, the shapes, the closed values and the rules
+below), and throws `ClientValidationError` for anything the server would
+refuse. Filters are never silently dropped.
 
-## The typed vocabulary
+## The company and person vocabulary
 
-For `company` and `person` — and for `category: 'auto'` — `filters` is
-the typed `DiscoverFilters` vocabulary (industry, employee_count, revenue,
-technology, funding_stage, seniority, governance_level, employment_type, title,
-geo, employment_history, …), built from a handful of value shapes:
+`DiscoverFilters` (industry, employee_count, revenue, technology,
+funding_stage, seniority, governance_level, employment_type, title, geo,
+employment_history, and more) is built from a few value shapes:
 
 | Shape | Fields | Used by |
 |---|---|---|
-| `TermsFilter` | `include[]`, `exclude[]`, `match_all` | industry, technology, seniority, governance_level, employment_type, has_direct_access_to_c_suite, … |
-| `RangeFilter` | `gte`, `lte` (inclusive) | employee_count, revenue, tenure, … |
-| `DateBound` | `gte` / `lte` (ISO or `"now-30d"`), or a `preset` such as `'last_90_days'` | last_funding_date, hiring_recency, … |
-| `EntityFilter` | `include[]` / `exclude[]` of `{ value, by? }` refs | company, investors, owned_by_organization, … |
-| `TextFilter` | `include[]`, `exclude[]`, `exact` | title, hiring_role, person |
-| `GeoFilter` | `places[]` of `{ value, level, scope?, negate? }` — `level` is required | geo |
-| `EmploymentHistoryFilter` | `groups[]` of `{ company?, title?, role_started?, role_ended?, tenure_gte?, tenure_lte? }` — one group per past job | employment_history |
+| `TermsFilter` | `include`, `exclude`, `include_groups`, `match_all` | industry, technology, seniority, governance_level, employment_type, has_direct_access_to_c_suite, ... |
+| `RangeFilter` | `gte`, `lte` (inclusive; at least one, low before high) | employee_count, revenue, tenure, ... |
+| `DateBound` | `gte` / `lte`, or a `preset` such as `'last_90_days'` (not both) | last_funding_date, hiring_recency, last_job_changed |
+| `EntityFilter` | `include` / `exclude` of `{ value, by? }` | company, investors, owned_by_organization |
+| `TextFilter` | `include`, `exclude`, `exact` | title, hiring_role, person |
+| `GeoFilter` | `places` of `{ value, level, scope?, negate? }`; `level` is `country`, `state`, `city` or `region` | geo |
+| `EmploymentHistoryFilter` | `groups` of `{ company?, title?, role_started?, role_ended?, tenure_gte?, tenure_lte? }`, one group per past job | employment_history |
 
-A misspelt filter name is a compile error:
+A filter object must say something: a `TermsFilter` needs at least one value in
+`include`, `exclude` or `include_groups`, a range at least one bound, and
+`filters` itself at least one filter.
 
 ```ts
 await client.search({
@@ -47,12 +52,10 @@ await client.search({
 
 ## Past jobs
 
-`employment_history` replaces the retired `prior_company`: "previously worked at
-any of these" is one group whose `company.include` lists them, and two groups
-are two distinct jobs. `prior_company` is still declared (marked
-`@deprecated`) so existing code compiles, but the SDK refuses it before
-sending — in `filters` and in `filterValues` — with a `ClientValidationError`
-that names `employment_history`.
+`employment_history` describes past jobs: each group is one job, and every
+attribute of a group must hold for the same job. "Previously worked at any of
+these" is one group whose `company.include` lists them; two groups are two
+distinct jobs.
 
 ```ts
 await client.search({
@@ -68,8 +71,7 @@ await client.search({
 
 ## Document categories
 
-The document categories take a free-form object — their filter vocabularies are
-their own — with one filter per field:
+A document category takes its own filters. For example, patents:
 
 ```ts
 await client.search({
@@ -79,8 +81,31 @@ await client.search({
 });
 ```
 
-Read a document category's filter names and values with
-`client.documentFilterValues` (below) rather than guessing them.
+A patent's `status` defaults to every patent, so `status` alone does not count
+as narrowing the search: a patent search with no `query` needs another filter.
+Nor does a filter of empty lists or objects (`{ growth: [] }`): a document
+search then needs a `query`, or a filter with a value.
+
+Every document category takes `topic`, what the records must be about, matched
+in their own text: a keyword, or `{ and: [...] }`, `{ or: [...] }` and
+`{ not: ... }` nested, with the limits of `keyword_query` (six levels, 100
+keywords, 100 characters each). When it is not sent, it is filled from `query`.
+
+```ts
+await client.search({
+  category: 'funding_round',
+  filters: {
+    topic: { and: ['payments', { not: 'crypto' }] },
+    investors: { include: [{ value: 'sequoia.com' }, { value: 'a16z.com' }], match_all: true },
+  },
+});
+```
+
+`investors` on a funding round matches any of its `include` investors, or with
+`match_all: true` every one of them in the same round; it needs at least one
+entry.
+List a document filter's values with `client.documentFilterValues` (below)
+rather than guessing them.
 
 ## Domain lists
 
@@ -93,62 +118,64 @@ await client.search({
 });
 ```
 
-These apply to `company`, `person` and `job_opening` (a posting carries the
-posting company's domain) only. A patent has no domain, and the API refuses the
-parameter (`422`) rather than silently ignoring it. Domain lists are refused
-beside a `company` filter — the same idea twice — and under `mode: 'deep'`.
+On a person search, the lists apply to the person's employer. They apply to
+`company`, `person` and `job_opening` only, and the SDK refuses them on any
+other category, beside a `company` filter (two ways of saying the same thing),
+and when a domain is blank.
 
 ## What a filter accepts
 
-Do not guess vocabulary values — enumerate them. Filter values are free:
+List the values rather than guessing them. Filter values are free, 20 to a
+page.
 
 ```ts
-// What can `industry` be? (page size fixed at 20)
 const values = await client.filterValues('industry', { search: 'soft' });
-values.values; // ['Software & Technology', …]
-values.items;  // aligned entries with { value, name, domain, id } where applicable
+console.log(values.values, values.has_more);
 
-// …or every value, with the pages walked for you
+// Every value, with the pages walked for you
 for await (const value of client.iterFilterValues('industry', { search: 'soft' })) {
   console.log(value);
 }
 ```
 
-`filterValues` accepts every `DiscoverFilters` field except `geo`, plus
-`country`, `state`, `city` and `region`. Filters with no fixed vocabulary
-(every range, the free-text and entity filters) return empty `values` — an
-answer, not a failure: those take values you supply.
+The names `filterValues` takes are the `FilterName` type: the `DiscoverFilters`
+fields except `geo`, plus `country`, `state`, `city` and `region`. A filter with
+no fixed vocabulary (a range, a free-text filter) answers with no values: it
+takes values you supply. For the `company` filter, `items` gives each company's
+name and domain; it is `null` for every other filter.
 
-### Geography is enumerated per level
+### Geography is listed per level
 
-`geo` itself is not a lookup name: it spans four levels with no single
-vocabulary. Enumerate `country`, `state`, `city` or `region`, and send each
-answer back in `geo.places[].value` with the matching `level`:
+`geo` spans four levels with no single vocabulary. List `country`, `state`,
+`city` or `region`, and send each value back in `geo.places[].value` with the
+matching `level`:
 
 ```ts
 const cities = await client.filterValues('city', { search: 'ber' });
-// each answer goes into geo.places[].value with level: 'city'
+const city = cities.values[0];
+if (city !== undefined) {
+  await client.search({ category: 'company', filters: { geo: { places: [{ value: city, level: 'city' }] } } });
+}
 ```
 
 ### Two-level vocabularies
 
-`industry`, `sub_industry` and `department` have two layers: list the parents
-first, then one branch at a time as the user expands it. `parent` and `level`
-exclude each other, and `department` cannot be walked any other way.
+Some filters, such as `industry` and `department`, have two levels: list the
+parents first, then the children of one parent.
 
 ```ts
 const parents = await client.filterValues('department', { level: 'parents' });
 const children = await client.filterValues('department', { parent: 'Engineering' });
+console.log(parents.values, children.values);
 ```
 
-### Document categories keep their own filters
+### Document filters
 
 ```ts
 const statuses = await client.documentFilterValues('patent', 'status');
-for await (const value of client.iterDocumentFilterValues('patent', 'status')) {
-  console.log(value);
+console.log(statuses.values);
+
+for await (const office of client.iterDocumentFilterValues('patent', 'offices')) {
+  console.log(office);
 }
 ```
-
-No `parent` or `level` here, and an unknown name is a 404. `company` and
-`person` are refused locally: their vocabulary is `filterValues`.

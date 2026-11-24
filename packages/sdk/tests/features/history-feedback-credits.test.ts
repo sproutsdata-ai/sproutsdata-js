@@ -169,12 +169,24 @@ describe('credits', () => {
     expect(r.body()).toEqual({ operation: 'enrichment', rows: 30_000 });
   });
 
+  it('K4: an enrichment quote by fields prices each field at its own price', async () => {
+    const r = rig([recorded('credits_quote', 'enrichment')]);
+    const quote = await new Credits(r.transport).quote({ operation: 'enrichment', rows: 3, fields: ['EMAIL', 'PHONE'] });
+    expect(r.body()).toEqual({ operation: 'enrichment', rows: 3, fields: ['EMAIL', 'PHONE'] });
+    expect([quote.basis, quote.credits]).toEqual(['values_up_to', 30]); // an email 1 and a phone 9, for 3 records
+  });
+
   it.each([
     [{ operation: 'agent_run' }, /`effort` is required for agent_run/],
     [{ operation: 'search', effort: 'high' }, /`effort` is required for agent_run/],
     [{ operation: 'similar', rows: 101 }, /a page holds at most 100 rows/],
     [{ operation: 'lookup', rows: 1001 }, /a lookup takes at most 1,000 records/],
     [{ operation: 'enrichment', rows: 30_001 }, /rows/],
+    [{ operation: 'search', fields: ['EMAIL'] }, /`fields` applies to enrichment only/],
+    [{ operation: 'enrichment', fields: ['EMAIL', 'EMAIL'] }, /`fields` must not repeat/],
+    [{ operation: 'enrichment', fields: [] }, /fields/],
+    [{ operation: 'enrichment', fields: ['NAME'] }, /fields/],
+    [{ operation: 'enrichment', rows: 10_001, fields: ['EMAIL'] }, /a job takes at most 10,000 rows/],
     [{ operation: 'refund' }, /operation/],
   ])('K4: a quote the server would refuse is refused locally: %j', async (params, message) => {
     const r = rig([]);

@@ -6,8 +6,8 @@
     "environment": "live",
     "error_code": null,
     "id": "34",
-    "latency_ms": 18,
-    "occurred_at": "2026-11-23T20:03:42.990542Z",
+    "latency_ms": 15,
+    "occurred_at": "2026-11-24T06:39:12.689422Z",
     "query": null,
     "request": {
       "fields": [
@@ -31,8 +31,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "17",
-    "x-request-id": "65d934e5831a4061be6a991e6faa2f27"
+    "ratelimit-reset": "46",
+    "x-request-id": "9bf83c0c370d4270ba6eb4f7e138c174"
   },
   "operation": "history_retrieve",
   "request": {

@@ -1069,7 +1069,8 @@ export interface EnrichmentJob {
    */
   readonly credits_charged: number | null;
   /**
-   * Usage units so far: 1 per value newly found.
+   * Credits the values newly found so far cost, each at its field's price (a
+   * phone number costs more than an email).
    */
   readonly credits_used: number;
   readonly entity: "contacts" | "accounts" | (string & {});
@@ -1262,7 +1263,8 @@ export interface EnrichmentLookupResult {
 
 export interface EnrichmentRow {
   /**
-   * Usage units this row used: 1 per value newly found.
+   * Credits this row used: each value newly found at its field's price (a phone
+   * number costs more than an email).
    */
   readonly credits: number;
   readonly fields: Readonly<Record<string, EnrichmentRowField>>;
@@ -1292,6 +1294,13 @@ export interface EnrichmentRow {
  * leave DSP.
  */
 export interface EnrichmentRowField {
+  /**
+   * Why there is no value, when known: `no_source` (no data source covers this
+   * field yet), `sources_unavailable` (try again later), `not_found`,
+   * `not_enough_input` (the row does not identify the record well enough) or
+   * `error`.
+   */
+  readonly reason: string | null;
   /**
    * `found`, `not_found`, `error`, `cancelled`, `skipped` or `suppressed` (on
    * the Do-Not-Contact list: blanked).
@@ -3003,11 +3012,19 @@ export interface QuoteIn {
    * `medium`, `high`, `xhigh`) are still accepted.
    */
   readonly effort?: "quick" | "basic" | "standard" | "detailed" | "maximum" | "auto" | "minimal" | "low" | "medium" | "high" | "xhigh" | null;
+  /**
+   * `enrichment` only: the fields asked for each of `rows` records. The quote
+   * is then every one of them found, each field at its own price (a phone
+   * number costs more than an email).
+   */
+  readonly fields?: readonly ("EMAIL" | "PHONE" | "DOMAIN" | "LINKEDIN_URL")[] | null;
   readonly operation: OperationInput;
   /**
    * Rows on the page (paged operations, up to 100), records found (`lookup`, up
-   * to 1,000), or values asked for (`enrichment`: rows x fields, up to 30,000).
-   * Ignored by flat operations and agent runs.
+   * to 1,000), or for `enrichment`: records when `fields` is given (up to
+   * 10,000, a job's most), else values at one price (up to 30,000). Ignored by
+   * flat operations and agent runs. An enrichment quote over 30,000 credits is
+   * refused, as the job would be.
    */
   readonly rows?: number;
   /**

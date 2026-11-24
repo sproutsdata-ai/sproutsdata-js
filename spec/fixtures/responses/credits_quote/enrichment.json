@@ -3,7 +3,7 @@
     "available": 964.405,
     "basis": "values_up_to",
     "covered": true,
-    "credits": 6.0,
+    "credits": 30.0,
     "operation": "enrichment",
     "rate_card": "2026-10-model-a"
   },
@@ -11,14 +11,18 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "18",
-    "x-request-id": "47beda1c8b0f4689a238eef9e184cd75"
+    "ratelimit-reset": "48",
+    "x-request-id": "b841e2aa013d46d2bbab70ce437925fa"
   },
   "operation": "credits_quote",
   "request": {
     "body": {
+      "fields": [
+        "EMAIL",
+        "PHONE"
+      ],
       "operation": "enrichment",
-      "rows": 6
+      "rows": 3
     },
     "method": "POST",
     "path": "/v1/credits/quote",

@@ -25,6 +25,26 @@ every file here against the others and the error table against the backend.
 
 ---
 
+## 2026-11-24 — re-pinned to dsp-backend sd-qa `c580236`
+
+- **openapi.json** (from `d0ef156`):
+  - DSP-466: `QuoteIn.fields` (enrichment only, at most 10,000 records with it). An
+    enrichment quote, job or lookup that could cost over 30,000 credits answers
+    `422 request.invalid`. `credits_used` and a row's `credits` are credits at each field's
+    price.
+  - DSP-454: a result field's `reason` (`no_source`, `sources_unavailable`, `not_found`,
+    `not_enough_input`, `error`, or null).
+  - DSP-449: search, similar, the four relationships routes, the org chart routes and the
+    nine entity lookups take an optional `Idempotency-Key`.
+  - DSP-319: an ended agent run settles on `/results` and `/events`; while it can't, they
+    answer `503 credits.unavailable` with `Retry-After`.
+- **routes.json**: the 19 billed routes are `keyed` (`idempotency: optional`). No route is
+  `billed` now. `GET /v1/org-chart/taxonomy` takes the header from the org chart router but
+  is free, so it stays `safe` and sends none; `check_spec` allows a `safe` route that.
+- **conformance**: the `billed` cases pin the class with `route_class`, which the Python
+  runner now reads (the README described it, no runner read it). `billed-sends-no-idempotency-key`
+  becomes `keyed-search-reuses-its-key-after-a-timeout`.
+
 ## 2026-11-24 — enrichment wrapped
 
 - **routes.json**: the six `/v1/enrichment/*` operations leave `not_wrapped`:

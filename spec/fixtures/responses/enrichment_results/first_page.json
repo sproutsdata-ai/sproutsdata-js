@@ -2,12 +2,12 @@
   "body": {
     "has_more": false,
     "meta": {
-      "as_of": "2026-11-23T20:03:42.876958Z",
+      "as_of": "2026-11-24T06:39:12.589891Z",
       "credential": "api_key",
       "credits_balance": 964.405,
       "credits_charged": null,
       "environment": "live",
-      "request_id": "6c0c03fc127e4c398129707a9b5d190a"
+      "request_id": "c97c3a4904c8429496d8d2cbfa58470e"
     },
     "next_cursor": null,
     "results": [
@@ -15,6 +15,7 @@
         "credits": 1.0,
         "fields": {
           "EMAIL": {
+            "reason": null,
             "status": "found",
             "value": "ada@example-1.de",
             "verified": true
@@ -33,6 +34,7 @@
         "credits": 0.0,
         "fields": {
           "EMAIL": {
+            "reason": null,
             "status": "found",
             "value": "person1@example-1.de",
             "verified": true
@@ -52,14 +54,14 @@
     "content-type": "application/json",
     "ratelimit-limit": "600",
     "ratelimit-remaining": "599",
-    "ratelimit-reset": "18",
-    "x-request-id": "6c0c03fc127e4c398129707a9b5d190a"
+    "ratelimit-reset": "48",
+    "x-request-id": "c97c3a4904c8429496d8d2cbfa58470e"
   },
   "operation": "enrichment_results",
   "request": {
     "body": null,
     "method": "GET",
-    "path": "/v1/enrichment/jobs/44c188f9-41d4-48ea-a01b-58e652d60ae4/results",
+    "path": "/v1/enrichment/jobs/b4de41f4-5a5f-429a-b2af-1969afea7869/results",
     "query": {
       "limit": 2
     }

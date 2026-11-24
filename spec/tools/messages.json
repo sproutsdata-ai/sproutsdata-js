@@ -48,7 +48,7 @@
     "timeout_sent": "The request timed out after it was sent. This call is charged once the server has done the work, so a charge may already have happened; it was not repeated. Do not retry it automatically.",
     "connection_sent": "The connection failed after the request was sent. This call is charged once the server has done the work, so a charge may already have happened; it was not repeated. Do not retry it automatically.",
     "connection_unsent": "Could not reach the Sprouts API. The request was never sent and nothing was charged; retrying later may succeed.",
-    "gateway_no_answer": "A gateway answered {status} without a result. The request may have reached the service and been charged; it was not repeated. Do not retry it automatically.",
+    "gateway_no_answer": "A gateway answered {status} without a result. The request may have reached the service and been charged. Do not retry it automatically.",
     "response_invalid": "The API answered in a shape this SDK version cannot read. The call may have been charged; do not retry it.",
     "http_status": "HTTP {status}"
   }

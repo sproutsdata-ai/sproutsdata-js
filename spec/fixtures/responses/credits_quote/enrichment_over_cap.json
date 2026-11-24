@@ -1,0 +1,34 @@
+{
+  "body": {
+    "code": "request.invalid",
+    "detail": "This could cost up to 100,000 credits; one job holds at most 30,000. Split it, or ask for fewer fields.",
+    "instance": "/v1/credits/quote",
+    "next_step": "Fix the fields named in `errors` (or `detail`) and send the request again.",
+    "request_id": "b0c37e6e1a844461b8f8ec9c1a2cc726",
+    "status": 422,
+    "title": "Invalid request",
+    "type": "https://dashboard.sproutsdata.ai/errors/request-invalid"
+  },
+  "headers": {
+    "content-type": "application/problem+json",
+    "ratelimit-limit": "2000",
+    "ratelimit-remaining": "1998",
+    "ratelimit-reset": "48",
+    "x-request-id": "b0c37e6e1a844461b8f8ec9c1a2cc726"
+  },
+  "operation": "credits_quote",
+  "request": {
+    "body": {
+      "fields": [
+        "EMAIL",
+        "PHONE"
+      ],
+      "operation": "enrichment",
+      "rows": 10000
+    },
+    "method": "POST",
+    "path": "/v1/credits/quote",
+    "query": {}
+  },
+  "status": 422
+}

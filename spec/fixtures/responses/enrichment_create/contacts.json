@@ -1,14 +1,14 @@
 {
   "body": {
     "entity": "contacts",
-    "job_id": "44c188f9-41d4-48ea-a01b-58e652d60ae4",
+    "job_id": "b4de41f4-5a5f-429a-b2af-1969afea7869",
     "meta": {
-      "as_of": "2026-11-23T20:03:42.299795Z",
+      "as_of": "2026-11-24T06:39:11.990521Z",
       "credential": "api_key",
       "credits_balance": 964.405,
       "credits_charged": null,
       "environment": "live",
-      "request_id": "22080543b6684d68b67f953eb0b90bbf"
+      "request_id": "73bc4084dc344641a93eff3c9e92b36a"
     },
     "reused": false,
     "status": "queued",
@@ -19,8 +19,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "18",
-    "x-request-id": "22080543b6684d68b67f953eb0b90bbf"
+    "ratelimit-reset": "49",
+    "x-request-id": "73bc4084dc344641a93eff3c9e92b36a"
   },
   "operation": "enrichment_create",
   "request": {
@@ -40,7 +40,7 @@
           "linkedin_url": "https://www.linkedin.com/in/e2e-cached"
         }
       ],
-      "name": "E2E b75ec4bb"
+      "name": "E2E 6eee8ea1"
     },
     "method": "POST",
     "path": "/v1/enrichment/jobs",

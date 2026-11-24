@@ -4,7 +4,7 @@
     "detail": "The request changed between pages. A cursor is only valid for the exact search that produced it.",
     "instance": "/v1/org-chart/people",
     "next_step": "Send `next_cursor` exactly as received, with the same body as the first page.",
-    "request_id": "2a0bcae7bde6487ba34799e2e696c712",
+    "request_id": "3f56d76c897a4adbbfc4d042b231cd0a",
     "status": 422,
     "title": "Invalid cursor",
     "type": "https://dashboard.sproutsdata.ai/errors/pagination-cursor-invalid"
@@ -13,8 +13,8 @@
     "content-type": "application/problem+json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1997",
-    "ratelimit-reset": "18",
-    "x-request-id": "2a0bcae7bde6487ba34799e2e696c712"
+    "ratelimit-reset": "49",
+    "x-request-id": "3f56d76c897a4adbbfc4d042b231cd0a"
   },
   "operation": "org_chart_people",
   "request": {
@@ -24,7 +24,7 @@
         "seniority": "manager"
       },
       "company_ref": "d1_cxClVTpId3XUN3Qkbk7Dx1jQddd-NYikABazRw",
-      "cursor": "eyJmIjoiYzk3YWE2NjM2NzQ2Mzk4YjAxOGRhZDM3ZTkwMzhlYTQiLCJvIjoyLCJzIjoiNDNkYzdhZTIyMjg1NGE2NDkxZmE1MWMwNzY3NmYyYWMiLCJ0IjoxNzk1NDY0MjIyLCJ1IjoiMiJ9.73a1122fb02c06a41f13011a89805d9e"
+      "cursor": "eyJmIjoiYzk3YWE2NjM2NzQ2Mzk4YjAxOGRhZDM3ZTkwMzhlYTQiLCJvIjoyLCJzIjoiNTdjMTIzMmMwOGRmNGI3YWEzYjZkOTJiMzUwODEyNTAiLCJ0IjoxNzk1NTAyMzUxLCJ1IjoiMiJ9.7a93de98919f6c342aacc69c89225f5a"
     },
     "method": "POST",
     "path": "/v1/org-chart/people",

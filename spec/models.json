@@ -7371,7 +7371,7 @@
           }
         },
         {
-          "description": "Usage units so far: 1 per value newly found.",
+          "description": "Credits the values newly found so far cost, each at its field's price (a phone number costs more than an email).",
           "name": "credits_used",
           "required": true,
           "type": {
@@ -8210,7 +8210,7 @@
       "direction": "output",
       "fields": [
         {
-          "description": "Usage units this row used: 1 per value newly found.",
+          "description": "Credits this row used: each value newly found at its field's price (a phone number costs more than an email).",
           "name": "credits",
           "required": true,
           "type": {
@@ -8279,6 +8279,21 @@
       "description": "One field of a row as a customer sees it. Built from an allow-list: where a value came\nfrom (a vendor, the cache) and what was spent finding it never leave DSP.",
       "direction": "output",
       "fields": [
+        {
+          "description": "Why there is no value, when known: `no_source` (no data source covers this field yet), `sources_unavailable` (try again later), `not_found`, `not_enough_input` (the row does not identify the record well enough) or `error`.",
+          "name": "reason",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "prim": "string"
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
         {
           "description": "`found`, `not_found`, `error`, `cancelled`, `skipped` or `suppressed` (on the Do-Not-Contact list: blanked).",
           "name": "status",
@@ -17437,6 +17452,40 @@
           }
         },
         {
+          "constraints": {
+            "maxItems": 4,
+            "minItems": 1
+          },
+          "description": "`enrichment` only: the fields asked for each of `rows` records. The quote is then every one of them found, each field at its own price (a phone number costs more than an email).",
+          "name": "fields",
+          "required": false,
+          "type": {
+            "union": [
+              {
+                "array": {
+                  "union": [
+                    {
+                      "literal": "EMAIL"
+                    },
+                    {
+                      "literal": "PHONE"
+                    },
+                    {
+                      "literal": "DOMAIN"
+                    },
+                    {
+                      "literal": "LINKEDIN_URL"
+                    }
+                  ]
+                }
+              },
+              {
+                "prim": "null"
+              }
+            ]
+          }
+        },
+        {
           "name": "operation",
           "required": true,
           "type": {
@@ -17449,7 +17498,7 @@
             "minimum": 0.0
           },
           "default": 10,
-          "description": "Rows on the page (paged operations, up to 100), records found (`lookup`, up to 1,000), or values asked for (`enrichment`: rows x fields, up to 30,000). Ignored by flat operations and agent runs.",
+          "description": "Rows on the page (paged operations, up to 100), records found (`lookup`, up to 1,000), or for `enrichment`: records when `fields` is given (up to 10,000, a job's most), else values at one price (up to 30,000). Ignored by flat operations and agent runs. An enrichment quote over 30,000 credits is refused, as the job would be.",
           "name": "rows",
           "required": false,
           "type": {
@@ -23976,8 +24025,8 @@
   },
   "version": 1,
   "x-source": {
-    "commit": "d0ef156e4938ef785e85f5f24fd0559fd2430346",
-    "ref": "origin/sd-qa",
+    "commit": "c580236b59e44e8352031454b43116813a6fc57e",
+    "ref": "c580236",
     "repo": "dsp-backend"
   }
 }

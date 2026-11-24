@@ -3,14 +3,14 @@
   "headers": {
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "17",
-    "x-request-id": "cc94bdf053254aafbf2cb0ea25f5b887"
+    "ratelimit-reset": "46",
+    "x-request-id": "45675432e48640b788226bdacc17ee5d"
   },
   "operation": "lists_delete",
   "request": {
     "body": null,
     "method": "DELETE",
-    "path": "/v1/lists/1de3c47c-2a69-40d9-a41a-2fa52be69c0f",
+    "path": "/v1/lists/87455abe-3913-4cdd-96e3-8f7152eaa6c9",
     "query": {}
   },
   "status": 204

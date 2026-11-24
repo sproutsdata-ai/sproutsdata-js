@@ -23,14 +23,19 @@ export class Credits extends Resource {
    * What a call would cost, from the live price list. Holds nothing and costs nothing, and the
    * arithmetic is the meter's own, so the charge that follows matches the quote while the price
    * list is unchanged. `operation` is `search`, `search_auto` (an `auto` search), `similar`,
-   * `relationships`, `institutions`, `lookup`, `org_chart` or `agent_run`; `rows` the rows on
-   * the page (up to 100) or records found for `lookup` (up to 1,000), default 10; `start` the
-   * rows of the same search already paid for; `effort` is required for `agent_run` and refused
-   * otherwise (`auto` quotes what it holds: `basis` `run_up_to`). `available` and `covered` come
-   * from a balance read moments ago, and are `null` when there is none.
+   * `relationships`, `institutions`, `lookup`, `org_chart`, `agent_run` or `enrichment`; `rows`
+   * the rows on the page (up to 100), records found for `lookup` (up to 1,000) or the records to
+   * enrich (up to 10,000), default 10; `start` the rows of the same search already paid for;
+   * `effort` is required for `agent_run` and refused otherwise (`auto` quotes what it holds:
+   * `basis` `run_up_to`); `fields` is for `enrichment` only, the fields asked of each record, each
+   * at its own price (a phone number costs more than an email): what a job holds, `basis`
+   * `values_up_to`, and only values newly found are charged. `available` and `covered` come from
+   * a balance read moments ago, and are `null` when there is none.
    *
    * @throws {ClientValidationError} `effort` missing for `agent_run` or given for another
-   *   operation, or more rows than a page holds. Nothing is sent.
+   *   operation, `fields` given for another operation or repeated, or more rows than a page
+   *   holds, a lookup takes or a job takes. Nothing is sent.
+   * @throws {InvalidRequestError} an enrichment quote over the 30,000 credits a job may hold.
    */
   async quote(params: W.QuoteIn, options?: RequestOptions): Promise<W.QuoteOut> {
     return this.json('creditsQuote', { body: quoteBody('credits.quote', params) }, options);

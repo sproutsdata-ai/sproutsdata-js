@@ -21,11 +21,12 @@ const people = [
 ];
 
 try {
-  const quote = await client.credits.quote({ operation: 'enrichment', rows: people.length });
+  const quote = await client.credits.quote({ operation: 'enrichment', rows: people.length, fields: ['EMAIL'] });
   console.log(`holds up to ${String(quote.credits)} credits (${quote.basis})`);
 
   const found = await client.enrichment.lookup({ items: people, fields: ['EMAIL'] });
-  for (const row of found.results) console.log(`  ${String(row.input['external_id'])}: ${JSON.stringify(row.fields['EMAIL']?.value ?? null)}`);
+  // A miss says why (`reason`).
+  for (const row of found.results) console.log(`  ${String(row.input['external_id'])}: ${JSON.stringify(row.fields['EMAIL']?.value ?? row.fields['EMAIL']?.reason ?? null)}`);
   console.log(`lookup charged ${String(found.meta.credits_charged)} credits`);
 
   const handle = await client.enrichment.create({ items: people, fields: ['EMAIL'], name: 'Prospects' });

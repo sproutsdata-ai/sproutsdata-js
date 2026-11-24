@@ -6,25 +6,25 @@
       "entity_id": null,
       "level": "result_set",
       "reason_code": null,
-      "request_id": "78eeddac8651452aa3ec756835de3edc",
+      "request_id": "18cb119c067a4dbd8dfeaef4198e8aa7",
       "text": null,
       "vote": "like",
-      "vote_id": "7a693005-7a25-4d02-b7ac-772a8512083e"
+      "vote_id": "e5dc33ec-14f0-4224-9497-bfd805dfaea6"
     }
   },
   "headers": {
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "17",
-    "x-request-id": "8a406e3bfe6e4e38bab40f1448dee1fd"
+    "ratelimit-reset": "46",
+    "x-request-id": "73f99449e740405fa5df82174010f33f"
   },
   "operation": "feedback_vote",
   "request": {
     "body": {
       "entity_category": "company",
       "level": "result_set",
-      "request_id": "78eeddac8651452aa3ec756835de3edc",
+      "request_id": "18cb119c067a4dbd8dfeaef4198e8aa7",
       "vote": "like"
     },
     "method": "PUT",

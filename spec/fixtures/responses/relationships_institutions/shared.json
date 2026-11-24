@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-23T20:03:42.142385Z",
+        "as_of": "2026-11-24T06:39:11.658760Z",
         "domain": null,
         "quote": null,
         "source_corpus": "affiliations",
@@ -14,12 +14,12 @@
     "degradation": [],
     "has_more": false,
     "meta": {
-      "as_of": "2026-11-23T20:03:42.142385Z",
+      "as_of": "2026-11-24T06:39:11.658760Z",
       "credential": "api_key",
       "credits_balance": 971.405,
       "credits_charged": 2.0,
       "environment": "live",
-      "request_id": "634258ea6cac4154b84885a483f62379"
+      "request_id": "9c253176f93d4d55b78b706cf5dcb4a2"
     },
     "next_cursor": null,
     "resolved_search": {
@@ -135,8 +135,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "18",
-    "x-request-id": "634258ea6cac4154b84885a483f62379"
+    "ratelimit-reset": "49",
+    "x-request-id": "9c253176f93d4d55b78b706cf5dcb4a2"
   },
   "operation": "relationships_institutions",
   "request": {

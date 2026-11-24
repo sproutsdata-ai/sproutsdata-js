@@ -5,15 +5,16 @@
  * `e2e/fake_enrichment.py`): a name with `MISSING` is not found, a LinkedIn URL with `CACHED`
  * is already held (and free), an `external_id` with `SLOW` outlasts a lookup, and the cursor
  * `e2e-expired` reads rows that are no longer kept. Jobs keep to rows that are found: a job
- * with a miss ends `completed_with_errors`, which dsp-backend d0ef156 cannot store yet
- * (`enrichment_jobs.status` is `varchar(16)`).
+ * with a miss ends `completed_with_errors`, which dsp-backend c580236 cannot store yet
+ * (`enrichment_jobs.status` is `varchar(16)`). Prices are the backend's defaults: an email 1
+ * credit, a phone number 9.
  */
 
 import { randomUUID } from 'node:crypto';
 
 import { describe, expect, it } from 'vitest';
 
-import { ClientValidationError, ConflictError, NotFoundError, PermissionDeniedError, ResultsExpiredError } from '../../src/core/errors.js';
+import { ClientValidationError, ConflictError, InvalidRequestError, NotFoundError, PermissionDeniedError, ResultsExpiredError } from '../../src/core/errors.js';
 import { collect } from '../support/rig.js';
 import { client, raw, setting, STACK } from './stack.js';
 
@@ -24,12 +25,14 @@ const QUICK = { pollIntervalMs: 100 };
 describe.skipIf(STACK === undefined)('enrichment, live', () => {
   it('a job from start to its rows is charged for the values found', async () => {
     const sdk = client();
-    const handle = await sdk.enrichment.create({ items: FOUND, fields: ['EMAIL'], name: 'e2e' });
+    const handle = await sdk.enrichment.create({ items: FOUND, fields: ['EMAIL', 'PHONE'], name: 'e2e' });
     const job = await sdk.enrichment.wait(handle.job_id, QUICK);
     const rows = await collect(sdk.enrichment.iterResults(handle.job_id));
     const listed = await sdk.enrichment.list({ limit: 100 });
     expect(job.status).toBe('completed');
-    expect(job.credits_charged).toBe(1); // the cached value is free
+    // Each value found live at its field's price, the cached ones free.
+    expect([job.credits_charged, job.credits_used]).toEqual([10, 10]);
+    expect(rows.map((row) => row.credits)).toEqual([10, 0]);
     expect(rows.map((row) => row.fields['EMAIL']?.status)).toEqual(['found', 'found']);
     expect(listed.results.map((j) => j.job_id)).toContain(handle.job_id);
   });
@@ -42,6 +45,8 @@ describe.skipIf(STACK === undefined)('enrichment, live', () => {
     const ended = await sdk.enrichment.wait(cut.job_id, QUICK);
     expect(found.complete).toBe(true);
     expect(found.results.map((row) => row.outcome)).toEqual(['found', 'not_found']);
+    // The engine's reason, mapped; a found value's (which names its vendor) is never sent.
+    expect(found.results.map((row) => row.fields['EMAIL']?.reason ?? null)).toEqual([null, 'not_found']);
     expect(found.meta.credits_charged).toBe(1); // the miss is free
     expect(cut.complete).toBe(false);
     expect(ended.status).toBe('completed');
@@ -82,9 +87,13 @@ describe.skipIf(STACK === undefined)('enrichment, live', () => {
     await expect(sdk.enrichment.lookup({ items: [ADA], fields: ['EMAIL'] })).rejects.toBeInstanceOf(PermissionDeniedError);
   });
 
-  it('a quote holds every value asked for', async () => {
-    const quote = await client().credits.quote({ operation: 'enrichment', rows: 4 });
+  it('a quote holds every value asked for at its price, up to a job\'s most', async () => {
+    const fields = ['EMAIL', 'PHONE'] as const;
+    const quote = await client().credits.quote({ operation: 'enrichment', rows: 4, fields });
     expect(quote.basis).toBe('values_up_to');
-    expect(quote.credits).toBe(4);
+    expect(quote.credits).toBe(40);
+    const over = client().credits.quote({ operation: 'enrichment', rows: 10_000, fields });
+    await expect(over).rejects.toThrow(InvalidRequestError);
+    await expect(over).rejects.toThrow(/holds at most 30,000/);
   });
 });

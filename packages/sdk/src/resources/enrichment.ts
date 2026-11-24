@@ -1,8 +1,8 @@
 /**
  * Enrichment: values for records you already hold. People (`contacts`) are enriched for `EMAIL`
- * and `PHONE`, companies (`accounts`) for `DOMAIN`, `PHONE` and `LINKEDIN_URL`. The most a
- * request can cost (rows x fields x the unit price) is held first; only values newly found are
- * charged. A value already known, a miss and a row on the Do-Not-Contact list cost nothing.
+ * and `PHONE`, companies (`accounts`) for `DOMAIN`, `PHONE` and `LINKEDIN_URL`. Each field has
+ * its price (by default 1 credit, a phone number 9). The most a request can cost (every field of
+ * every row, at its price) is held first; only values newly found are charged. A value already known, a miss and a row on the Do-Not-Contact list cost nothing.
  * Needs a key with `dsp.enrichment.write` to start, cancel and look up, and
  * `dsp.enrichment.read` (or write) to read; a key's default scopes have neither.
  */

@@ -189,10 +189,10 @@ Everything the SDK throws is a `SproutsDataError`. Branch on the class or on
 Up to `maxRetries` (default 2), with full-jitter backoff, and a `Retry-After` of
 up to 60 seconds waited out in full. What is retried depends on what repeating
 the call costs: a billed call (search, look-alikes, lookups, relationships, org
-charts) that may have reached the server without an answer is raised with
-`reachedServer: true`, never repeated, because it may already have been
-charged. `runs.create` and `feedback.create` are retried under their
-`Idempotency-Key`. Redirects are never followed. The default rate limit is 60
+charts), `runs.create`, the enrichment calls and `feedback.create` are retried
+under their `Idempotency-Key`, so the server charges a repeat once and starts
+nothing twice. `lists.create` and `lists.delete` that may have reached the
+server without an answer are raised with `reachedServer: true`, never repeated. Redirects are never followed. The default rate limit is 60
 requests a minute per endpoint.
 
 ## Configuration

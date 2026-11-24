@@ -184,7 +184,8 @@ with a leading `body` or `query` segment dropped (`msg` defaults to `invalid`);
 `retry_after` in seconds. `retryable` is true for 429, 500, 503 and 504. A 502 or 408 is `gateway_no_answer`, and
 a timeout (`timeout`) or dropped connection (`connection_error`) after the
 request was sent is not retryable either: all three tools are charged once the
-server has done the work, so a repeat may be a second charge. A request that never left is
+server has done the work, so a repeat may be a second charge (the SDK's own retries
+resend the call's `Idempotency-Key` and are charged once; a new call is a new charge). A request that never left is
 retryable. An unreadable success is `response_invalid`.
 
 Raised to the application: 401, 403 and 402 (a frozen wallet included), and the

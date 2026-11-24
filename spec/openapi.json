@@ -4912,7 +4912,7 @@
             "title": "Credits Charged"
           },
           "credits_used": {
-            "description": "Usage units so far: 1 per value newly found.",
+            "description": "Credits the values newly found so far cost, each at its field's price (a phone number costs more than an email).",
             "title": "Credits Used",
             "type": "number"
           },
@@ -8438,12 +8438,35 @@
             "description": "`agent_run` only, and required for it. The earlier names (`minimal`, `low`, `medium`, `high`, `xhigh`) are still accepted.",
             "title": "Effort"
           },
+          "fields": {
+            "anyOf": [
+              {
+                "items": {
+                  "enum": [
+                    "EMAIL",
+                    "PHONE",
+                    "DOMAIN",
+                    "LINKEDIN_URL"
+                  ],
+                  "type": "string"
+                },
+                "maxItems": 4,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "`enrichment` only: the fields asked for each of `rows` records. The quote is then every one of them found, each field at its own price (a phone number costs more than an email).",
+            "title": "Fields"
+          },
           "operation": {
             "$ref": "#/components/schemas/Operation"
           },
           "rows": {
             "default": 10,
-            "description": "Rows on the page (paged operations, up to 100), records found (`lookup`, up to 1,000), or values asked for (`enrichment`: rows x fields, up to 30,000). Ignored by flat operations and agent runs.",
+            "description": "Rows on the page (paged operations, up to 100), records found (`lookup`, up to 1,000), or for `enrichment`: records when `fields` is given (up to 10,000, a job's most), else values at one price (up to 30,000). Ignored by flat operations and agent runs. An enrichment quote over 30,000 credits is refused, as the job would be.",
             "maximum": 30000.0,
             "minimum": 0.0,
             "title": "Rows",
@@ -9951,6 +9974,18 @@
       "ResultField": {
         "description": "One field of a row as a customer sees it. Built from an allow-list: where a value came\nfrom (a vendor, the cache) and what was spent finding it never leave DSP.",
         "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Why there is no value, when known: `no_source` (no data source covers this field yet), `sources_unavailable` (try again later), `not_found`, `not_enough_input` (the row does not identify the record well enough) or `error`.",
+            "title": "Reason"
+          },
           "status": {
             "description": "`found`, `not_found`, `error`, `cancelled`, `skipped` or `suppressed` (on the Do-Not-Contact list: blanked).",
             "title": "Status",
@@ -9974,7 +10009,7 @@
       "ResultRow": {
         "properties": {
           "credits": {
-            "description": "Usage units this row used: 1 per value newly found.",
+            "description": "Credits this row used: each value newly found at its field's price (a phone number costs more than an email).",
             "title": "Credits",
             "type": "number"
           },
@@ -14665,7 +14700,7 @@
         ]
       },
       "post": {
-        "description": "Start a job and get its handle at once (202). The most it can cost (rows x fields x\nthe unit price) is held first; only values newly found are charged when it ends.",
+        "description": "Start a job and get its handle at once (202). The most it can cost (every field of\nevery row found, each at its price in the price list) is held first; only values newly\nfound are charged when it ends.",
         "operationId": "enrichment_job_create",
         "parameters": [
           {
@@ -15247,6 +15282,26 @@
       "post": {
         "description": "Documents by id: prism's, or the sealed `id` search returned.",
         "operationId": "entities_academic_report",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -15334,6 +15389,26 @@
       "post": {
         "description": "Companies by prism id, or `by` domain, LinkedIn URL or name (best match each).",
         "operationId": "entities_companies",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -15421,6 +15496,26 @@
       "post": {
         "description": "Documents by name (the default: every candidate, best first) or `by: id`.",
         "operationId": "entities_funding_round",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -15508,6 +15603,26 @@
       "post": {
         "description": "Documents by name (the default: every candidate, best first) or `by: id`.",
         "operationId": "entities_job_opening",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -15595,6 +15710,26 @@
       "post": {
         "description": "Documents by name (the default: every candidate, best first) or `by: id`.",
         "operationId": "entities_market_report",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -15682,6 +15817,26 @@
       "post": {
         "description": "Documents by name (the default: every candidate, best first) or `by: id`.",
         "operationId": "entities_news_article",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -15769,6 +15924,26 @@
       "post": {
         "description": "Documents by id: prism's, or the sealed `id` search returned.",
         "operationId": "entities_patent",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -15856,6 +16031,26 @@
       "post": {
         "description": "People by prism id, or `by` LinkedIn URL or name (best match each).",
         "operationId": "entities_persons",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -15943,6 +16138,26 @@
       "post": {
         "description": "Documents by id: prism's, or the sealed `id` search returned.",
         "operationId": "entities_trend",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -17568,6 +17783,26 @@
       "post": {
         "description": "People counted by department and seniority (every cell, every total), with\nsub-departments, new joiners and open jobs per cell, and how much of the company the\nindex holds (`coverage`). Name the company by `domain`, `linkedin_url` or `company_ref`;\nwhen a name fits several records the answer is `org_chart.company_ambiguous`, listing a\n`company_ref` for each. Every answer's `company` carries its `company_ref`, to name it\nin a follow-up call.",
         "operationId": "org_chart",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -17655,6 +17890,26 @@
       "post": {
         "description": "Department totals and sub-departments, without the seniority grid or badges.",
         "operationId": "org_chart_departments",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -17742,6 +17997,26 @@
       "post": {
         "description": "People by country, then state, then city, most people first.",
         "operationId": "org_chart_locations",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -17829,6 +18104,26 @@
       "post": {
         "description": "The people a cell counted, a page at a time, most senior first: the same query as the\ncount, so `total` is the cell's count. Name the company by the chart answer's\n`company_ref` (no resolving again), send the chart's own `filters` and\n`include_suspects`, and the cell by code (`GET /v1/org-chart/taxonomy`); `unknown` lists\nthe people with no value on that axis. A row names its person by the id\n`POST /v1/search` gives them, and says where the chart counts them in `placement`. Flat\nper page, free when it lists nobody.",
         "operationId": "org_chart_people",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -17916,6 +18211,26 @@
       "get": {
         "description": "Department and seniority codes with labels and order, sub-departments, and the\nstored spellings of governance levels and employment types.",
         "operationId": "org_chart_taxonomy",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -17948,6 +18263,16 @@
               "application/problem+json": {}
             },
             "description": "The credential lacks the scope this route needs (`auth.insufficient_scope`), or the signed-in user has not chosen a workspace (`auth.workspace_required`)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           },
           "503": {
             "content": {
@@ -17982,6 +18307,26 @@
       "post": {
         "description": "People who connect two companies, or a company and institutions, through shared\nemployers and schools, each with the reason they matched. Send a sentence (`query`) or the\nstructure (`relation`, `companies`, `institutions`).",
         "operationId": "relationships",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -18069,6 +18414,26 @@
       "post": {
         "description": "Any relationship question in plain words. `route` names the kind of answer and exactly\nthat field is set: `relationships`, `reach`, `institutions`, `compare` or `fan_out`.",
         "operationId": "relationships_ask",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -18156,6 +18521,26 @@
       "post": {
         "description": "The employers and schools two companies' people have in common, with how many people\non each side, without ranking people. One page; `truncated` says when there are more.",
         "operationId": "relationships_institutions",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -18243,6 +18628,26 @@
       "post": {
         "description": "Employers and schools whose name starts with `query`, most people first. Send a\nsuggestion's `institution` as one of `institutions` in `POST /v1/relationships`. Free.",
         "operationId": "relationships_institution_lookup",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -18330,6 +18735,26 @@
       "post": {
         "description": "The people at `target_company` that `person` shares an employer or a school with, and\nhow. Page with `next_cursor` (same body, same `limit`).",
         "operationId": "relationships_reach",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -18417,6 +18842,26 @@
       "post": {
         "description": "Search one category of the Sprouts corpus, named by `category`: companies and\npeople, or a document corpus (patents, research papers, ...). Each category has its own\n`filters` and `sort` fields; the body's schema lists them per category.\n\n`mode` decides how `query` is read; `resolved_search` says what it was understood to\nmean. Page with `next_cursor`, sending the same body each time.",
         "operationId": "search",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -18892,6 +19337,26 @@
       "post": {
         "description": "Companies like the anchors (by domain, LinkedIn URL or name), optionally narrowed by\n`filters`. Page with `next_cursor`, sending the same body each time.",
         "operationId": "similar",
+        "parameters": [
+          {
+            "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Send the same value when retrying the same request: a retry that returns the same rows is not charged again. 1 to 120 letters, digits or `._:-`.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -19458,8 +19923,8 @@
     }
   },
   "x-source": {
-    "commit": "d0ef156e4938ef785e85f5f24fd0559fd2430346",
-    "ref": "origin/sd-qa",
+    "commit": "c580236b59e44e8352031454b43116813a6fc57e",
+    "ref": "c580236",
     "repo": "dsp-backend"
   }
 }

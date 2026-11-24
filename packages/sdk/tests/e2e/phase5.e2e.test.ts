@@ -3,9 +3,11 @@
  * A local refusal is proved to be the server's by sending the same body with no SDK.
  */
 
+import { randomUUID } from 'node:crypto';
+
 import { describe, expect, it } from 'vitest';
 
-import { APIError, ClientValidationError, ConcurrencyLimitError, PermissionDeniedError } from '../../src/core/errors.js';
+import { ClientValidationError, ConcurrencyLimitError, PermissionDeniedError } from '../../src/core/errors.js';
 import { entityHit, lookupRef, totalFor } from '../../src/resources/helpers.js';
 import type { SearchParams } from '../../src/types/index.js';
 import { collect } from '../support/rig.js';
@@ -166,14 +168,17 @@ describe.skipIf(STACK === undefined)('phase 5, live', () => {
     await expect(sdk.runs.create({ query: 'x' })).rejects.toBeInstanceOf(PermissionDeniedError);
   });
 
-  it('a 502 on a free read is retried and succeeds; on a billed search it is thrown, not repeated', async () => {
+  it('a 502 is retried, a search with its key, which the server charges once', async () => {
     const proxy = client({ baseUrl: setting('SPROUTSDATA_E2E_FAULT_URL') });
     await arm('/v1/coverage', 502);
     expect((await proxy.coverage()).segments.length).toBeGreaterThan(0);
     await arm('/v1/search', 502);
-    const error = await proxy.search({ query: 'robotics', limit: 1 }).catch((err: unknown) => err);
-    expect(error).toBeInstanceOf(APIError);
-    expect((error as APIError).status).toBe(502);
     expect((await proxy.search({ query: 'robotics', limit: 1 })).results.length).toBeGreaterThan(0);
+    const body = { query: 'robotics', limit: 1 };
+    const key = { 'Idempotency-Key': `e2e-retry-${randomUUID().slice(0, 8)}` };
+    const first = (await (await raw('POST', '/v1/search', body, key)).json()) as { meta: { credits_charged: number } };
+    const again = (await (await raw('POST', '/v1/search', body, key)).json()) as { meta: { credits_charged: number } };
+    expect(first.meta.credits_charged).toBeGreaterThan(0);
+    expect(again.meta.credits_charged).toBe(0); // dsp-backend DSP-449
   });
 });

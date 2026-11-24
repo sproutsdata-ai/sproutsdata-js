@@ -4,9 +4,9 @@
     "results": [
       {
         "action": "dsp.enrichment",
-        "balance_after": 960.405,
-        "created_at": "2026-11-23T20:03:42.960085Z",
-        "credits": -2.0,
+        "balance_after": 952.405,
+        "created_at": "2026-11-24T06:39:12.660941Z",
+        "credits": -10.0,
         "id": "txn_30",
         "kind": "hold_capture",
         "source": null
@@ -14,7 +14,7 @@
       {
         "action": "dsp.enrichment",
         "balance_after": 962.405,
-        "created_at": "2026-11-23T20:03:42.925698Z",
+        "created_at": "2026-11-24T06:39:12.630466Z",
         "credits": -1.0,
         "id": "txn_29",
         "kind": "hold_capture",
@@ -23,7 +23,7 @@
       {
         "action": "dsp.enrichment",
         "balance_after": 963.405,
-        "created_at": "2026-11-23T20:03:42.843436Z",
+        "created_at": "2026-11-24T06:39:12.541138Z",
         "credits": -1.0,
         "id": "txn_28",
         "kind": "hold_capture",
@@ -32,7 +32,7 @@
       {
         "action": "dsp.org_chart",
         "balance_after": 964.405,
-        "created_at": "2026-11-23T20:03:42.235793Z",
+        "created_at": "2026-11-24T06:39:11.732134Z",
         "credits": -1.0,
         "id": "txn_27",
         "kind": "charge",
@@ -41,7 +41,7 @@
       {
         "action": "dsp.org_chart",
         "balance_after": 965.405,
-        "created_at": "2026-11-23T20:03:42.226085Z",
+        "created_at": "2026-11-24T06:39:11.722707Z",
         "credits": -1.0,
         "id": "txn_26",
         "kind": "charge",
@@ -50,7 +50,7 @@
       {
         "action": "dsp.org_chart",
         "balance_after": 966.405,
-        "created_at": "2026-11-23T20:03:42.209741Z",
+        "created_at": "2026-11-24T06:39:11.710390Z",
         "credits": -1.0,
         "id": "txn_25",
         "kind": "charge",
@@ -59,7 +59,7 @@
       {
         "action": "dsp.org_chart",
         "balance_after": 967.405,
-        "created_at": "2026-11-23T20:03:42.196126Z",
+        "created_at": "2026-11-24T06:39:11.701845Z",
         "credits": -1.0,
         "id": "txn_24",
         "kind": "charge",
@@ -68,7 +68,7 @@
       {
         "action": "dsp.org_chart",
         "balance_after": 968.405,
-        "created_at": "2026-11-23T20:03:42.181624Z",
+        "created_at": "2026-11-24T06:39:11.692845Z",
         "credits": -1.0,
         "id": "txn_23",
         "kind": "charge",
@@ -77,7 +77,7 @@
       {
         "action": "dsp.relationships.ask",
         "balance_after": 969.405,
-        "created_at": "2026-11-23T20:03:42.166926Z",
+        "created_at": "2026-11-24T06:39:11.676527Z",
         "credits": -2.0,
         "id": "txn_22",
         "kind": "charge",
@@ -86,7 +86,7 @@
       {
         "action": "dsp.relationships",
         "balance_after": 971.405,
-        "created_at": "2026-11-23T20:03:42.134186Z",
+        "created_at": "2026-11-24T06:39:11.654887Z",
         "credits": -2.0,
         "id": "txn_21",
         "kind": "charge",
@@ -95,7 +95,7 @@
       {
         "action": "dsp.relationships",
         "balance_after": 973.405,
-        "created_at": "2026-11-23T20:03:42.112904Z",
+        "created_at": "2026-11-24T06:39:11.638016Z",
         "credits": -2.0,
         "id": "txn_20",
         "kind": "charge",
@@ -104,7 +104,7 @@
       {
         "action": "dsp.relationships",
         "balance_after": 975.405,
-        "created_at": "2026-11-23T20:03:42.095125Z",
+        "created_at": "2026-11-24T06:39:11.614084Z",
         "credits": -2.0,
         "id": "txn_19",
         "kind": "charge",
@@ -113,7 +113,7 @@
       {
         "action": "dsp.agent.run.medium",
         "balance_after": 977.405,
-        "created_at": "2026-11-23T20:03:41.987439Z",
+        "created_at": "2026-11-24T06:39:11.455724Z",
         "credits": -8.5,
         "id": "txn_18",
         "kind": "hold_capture",
@@ -122,7 +122,7 @@
       {
         "action": "dsp.entities",
         "balance_after": 985.905,
-        "created_at": "2026-11-23T20:03:41.911887Z",
+        "created_at": "2026-11-24T06:39:11.086640Z",
         "credits": -1.0,
         "id": "txn_17",
         "kind": "charge",
@@ -131,7 +131,7 @@
       {
         "action": "dsp.entities",
         "balance_after": 986.905,
-        "created_at": "2026-11-23T20:03:41.892989Z",
+        "created_at": "2026-11-24T06:39:11.065091Z",
         "credits": -1.0,
         "id": "txn_16",
         "kind": "charge",
@@ -140,7 +140,7 @@
       {
         "action": "dsp.entities",
         "balance_after": 987.905,
-        "created_at": "2026-11-23T20:03:41.873219Z",
+        "created_at": "2026-11-24T06:39:11.039154Z",
         "credits": -1.0,
         "id": "txn_15",
         "kind": "charge",
@@ -149,7 +149,7 @@
       {
         "action": "dsp.entities",
         "balance_after": 988.905,
-        "created_at": "2026-11-23T20:03:41.853318Z",
+        "created_at": "2026-11-24T06:39:11.015262Z",
         "credits": -1.0,
         "id": "txn_14",
         "kind": "charge",
@@ -158,7 +158,7 @@
       {
         "action": "dsp.entities",
         "balance_after": 989.905,
-        "created_at": "2026-11-23T20:03:41.834260Z",
+        "created_at": "2026-11-24T06:39:10.994869Z",
         "credits": -1.0,
         "id": "txn_13",
         "kind": "charge",
@@ -167,7 +167,7 @@
       {
         "action": "dsp.entities",
         "balance_after": 990.905,
-        "created_at": "2026-11-23T20:03:41.814236Z",
+        "created_at": "2026-11-24T06:39:10.975548Z",
         "credits": -1.0,
         "id": "txn_12",
         "kind": "charge",
@@ -176,7 +176,7 @@
       {
         "action": "dsp.entities",
         "balance_after": 991.905,
-        "created_at": "2026-11-23T20:03:41.793737Z",
+        "created_at": "2026-11-24T06:39:10.957971Z",
         "credits": -1.0,
         "id": "txn_11",
         "kind": "charge",
@@ -185,7 +185,7 @@
       {
         "action": "dsp.entities",
         "balance_after": 992.905,
-        "created_at": "2026-11-23T20:03:41.775250Z",
+        "created_at": "2026-11-24T06:39:10.941495Z",
         "credits": -1.0,
         "id": "txn_10",
         "kind": "charge",
@@ -194,7 +194,7 @@
       {
         "action": "dsp.entities",
         "balance_after": 993.905,
-        "created_at": "2026-11-23T20:03:41.756573Z",
+        "created_at": "2026-11-24T06:39:10.923164Z",
         "credits": -1.0,
         "id": "txn_9",
         "kind": "charge",
@@ -203,7 +203,7 @@
       {
         "action": "dsp.similar",
         "balance_after": 994.905,
-        "created_at": "2026-11-23T20:03:41.701747Z",
+        "created_at": "2026-11-24T06:39:10.850938Z",
         "credits": -2.0,
         "id": "txn_8",
         "kind": "charge",
@@ -212,7 +212,7 @@
       {
         "action": "dsp.search.fast",
         "balance_after": 996.905,
-        "created_at": "2026-11-23T20:03:41.690096Z",
+        "created_at": "2026-11-24T06:39:10.829109Z",
         "credits": -0.5,
         "id": "txn_7",
         "kind": "charge",
@@ -221,7 +221,7 @@
       {
         "action": "dsp.search.fast",
         "balance_after": 997.405,
-        "created_at": "2026-11-23T20:03:41.678372Z",
+        "created_at": "2026-11-24T06:39:10.808632Z",
         "credits": -0.5,
         "id": "txn_6",
         "kind": "charge",
@@ -230,7 +230,7 @@
       {
         "action": "dsp.search.auto",
         "balance_after": 997.905,
-        "created_at": "2026-11-23T20:03:41.657745Z",
+        "created_at": "2026-11-24T06:39:10.783571Z",
         "credits": -0.595,
         "id": "txn_5",
         "kind": "charge",
@@ -239,7 +239,7 @@
       {
         "action": "dsp.search.fast",
         "balance_after": 998.5,
-        "created_at": "2026-11-23T20:03:41.645280Z",
+        "created_at": "2026-11-24T06:39:10.769393Z",
         "credits": -0.5,
         "id": "txn_4",
         "kind": "charge",
@@ -248,7 +248,7 @@
       {
         "action": "dsp.search.fast",
         "balance_after": 999.0,
-        "created_at": "2026-11-23T20:03:41.632810Z",
+        "created_at": "2026-11-24T06:39:10.751526Z",
         "credits": -0.5,
         "id": "txn_3",
         "kind": "charge",
@@ -257,7 +257,7 @@
       {
         "action": "dsp.search.fast",
         "balance_after": 999.5,
-        "created_at": "2026-11-23T20:03:41.614265Z",
+        "created_at": "2026-11-24T06:39:10.723846Z",
         "credits": -0.5,
         "id": "txn_2",
         "kind": "charge",
@@ -266,7 +266,7 @@
       {
         "action": null,
         "balance_after": 1000.0,
-        "created_at": "2026-11-23T20:03:41.282064Z",
+        "created_at": "2026-11-24T06:39:03.671869Z",
         "credits": 1000.0,
         "id": "txn_1",
         "kind": "grant",
@@ -278,8 +278,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "17",
-    "x-request-id": "b20fdb26fa3744dbac275ac04ab68374"
+    "ratelimit-reset": "46",
+    "x-request-id": "00f2f7606b494d688845531455fc99ff"
   },
   "operation": "credits_transactions",
   "request": {

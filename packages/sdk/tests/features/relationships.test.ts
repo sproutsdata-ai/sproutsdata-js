@@ -63,7 +63,7 @@ describe('relationships', () => {
     assertValidRequest('relationships_ask', r.body());
   });
 
-  it('R6: find and institutions page and send no idempotency key', async () => {
+  it('R6: find and institutions page, each call with its own idempotency key', async () => {
     const first = recordedBody<{ results: unknown[]; next_cursor: string }>('relationships', 'between_companies');
     const r = rig([respond('relationships', 200, first), respond('relationships', 200, { ...first, next_cursor: null, has_more: false }), recorded('relationships_institutions', 'shared')]);
     const relationships = new Relationships(r.transport);
@@ -71,7 +71,9 @@ describe('relationships', () => {
     await relationships.institutions({ companies: [STRIPE, { value: 'adyen.com' }], institution_type: 'education' });
     expect(rows).toHaveLength(2 * first.results.length);
     expect((r.body(1) as { cursor: string }).cursor).toBe(first.next_cursor);
-    expect(r.sent.every((s) => !s.headers.has('idempotency-key'))).toBe(true);
+    const keys = r.sent.map((s) => s.headers.get('idempotency-key'));
+    expect(keys.every((key) => key !== null)).toBe(true);
+    expect(new Set(keys).size).toBe(keys.length);
     for (const [index, op] of ['relationships', 'relationships', 'relationships_institutions'].entries()) assertValidRequest(op, r.body(index));
   });
 

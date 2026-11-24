@@ -87,10 +87,15 @@ console.log(accounts.results[0]?.fields['DOMAIN']?.value);
 
 ## What it costs
 
-The most a request can cost is held first: every value asked for (items x
-fields) at the unit price. A quote shows it (`credits.quote({ operation:
-'enrichment', rows })`, with `rows` the number of values, basis
-`values_up_to`). When the work ends, only the values newly found are charged:
+Each field has its own price, set in the workspace's price list: by default an
+email, a domain or a LinkedIn page costs 1 credit and a phone number 9. The most
+a request can cost is held first: every field asked of every item, each at its
+price. One request may hold at most 30,000 credits; one that could cost more is
+refused (`InvalidRequestError`): split it, or ask for fewer fields. A quote
+shows the hold (`credits.quote({ operation: 'enrichment', rows, fields })`,
+with `rows` the number of records, basis `values_up_to`). It can be higher than
+a job's hold, never lower: an item that asks for fewer fields is held for fewer.
+When the work ends, only the values newly found are charged:
 
 - a value Sprouts already holds, a miss, and an error cost nothing;
 - `re_enrich: true` looks up values that are already known, and each costs
@@ -98,8 +103,9 @@ fields) at the unit price. A quote shows it (`credits.quote({ operation:
 - a failed or cancelled job is charged for the values it found before it
   stopped.
 
-A job's `credits_used` and a row's `credits` count values newly found;
-`credits_charged` is what the job cost, set once it has ended. Reading a job
+A job's `credits_used` and a row's `credits` are what the values newly found
+cost, each at its field's price; `credits_charged` is what the job cost, set
+once it has ended. Reading a job
 that has ended settles it.
 
 ## Rows
@@ -107,9 +113,13 @@ that has ended settles it.
 A row has its position (`idx`), its `input` as you sent it, an `outcome`
 (`found`, `partial`, `not_found`, `error`, `cancelled`, `skipped` or
 `suppressed`), and `fields`: per field a `status` (`found`, `not_found`,
-`unavailable`, `ineligible`, `cancelled`, `pending`, ...), a `value` and
-whether it was `verified`. Read `status` as an open set: new words can appear.
-`incomplete` names the fields a lookup's time ran out on.
+`unavailable`, `ineligible`, `cancelled`, `pending`, ...), a `value`, whether it
+was `verified`, and, for a field with no value, the `reason` when it is known:
+`no_source` (no data source covers the field yet), `sources_unavailable` (try
+again later), `not_found` (every source was asked), `not_enough_input` (the item
+does not identify its subject well enough) or `error`. Read `status` and
+`reason` as open sets: new words can appear. `incomplete` names the fields a
+lookup's time ran out on.
 
 A job's rows are kept for 7 days after it ends; after that `results` throws
 `ResultsExpiredError` (a `NotFoundError`, 410).

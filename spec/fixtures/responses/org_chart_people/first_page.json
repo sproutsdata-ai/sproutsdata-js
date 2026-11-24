@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-23T20:03:42.223931Z",
+        "as_of": "2026-11-24T06:39:11.721226Z",
         "domain": null,
         "quote": null,
         "source_corpus": "gtm_index",
@@ -20,14 +20,14 @@
     "has_more": true,
     "matched": null,
     "meta": {
-      "as_of": "2026-11-23T20:03:42.223931Z",
+      "as_of": "2026-11-24T06:39:11.721226Z",
       "credential": "api_key",
       "credits_balance": null,
       "credits_charged": 1.0,
       "environment": "live",
-      "request_id": "264376afe9c04866bdbc92dd37aa9e80"
+      "request_id": "92992891d1c448d3b41734f29392232e"
     },
-    "next_cursor": "eyJmIjoiYzk3YWE2NjM2NzQ2Mzk4YjAxOGRhZDM3ZTkwMzhlYTQiLCJvIjoyLCJzIjoiNDNkYzdhZTIyMjg1NGE2NDkxZmE1MWMwNzY3NmYyYWMiLCJ0IjoxNzk1NDY0MjIyLCJ1IjoiMiJ9.73a1122fb02c06a41f13011a89805d9e",
+    "next_cursor": "eyJmIjoiYzk3YWE2NjM2NzQ2Mzk4YjAxOGRhZDM3ZTkwMzhlYTQiLCJvIjoyLCJzIjoiNTdjMTIzMmMwOGRmNGI3YWEzYjZkOTJiMzUwODEyNTAiLCJ0IjoxNzk1NTAyMzUxLCJ1IjoiMiJ9.7a93de98919f6c342aacc69c89225f5a",
     "results": [
       {
         "account_name": "acme.com Inc",
@@ -102,8 +102,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "18",
-    "x-request-id": "264376afe9c04866bdbc92dd37aa9e80"
+    "ratelimit-reset": "49",
+    "x-request-id": "92992891d1c448d3b41734f29392232e"
   },
   "operation": "org_chart_people",
   "request": {

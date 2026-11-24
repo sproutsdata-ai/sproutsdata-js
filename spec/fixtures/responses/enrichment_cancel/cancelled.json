@@ -18,7 +18,7 @@
       },
       "total_rows": 1
     },
-    "created_at": "2026-11-23T20:03:42.908466Z",
+    "created_at": "2026-11-24T06:39:12.614509Z",
     "credits_charged": 1.0,
     "credits_used": 1.0,
     "entity": "accounts",
@@ -27,15 +27,15 @@
     "fields": [
       "DOMAIN"
     ],
-    "finished_at": "2026-11-23T20:03:42.922015Z",
-    "job_id": "863f7085-8400-4578-a497-e3169bf838ca",
+    "finished_at": "2026-11-24T06:39:12.627491Z",
+    "job_id": "0673d2d2-799d-4324-a37e-a4b8ddc61dde",
     "meta": {
-      "as_of": "2026-11-23T20:03:42.937624Z",
+      "as_of": "2026-11-24T06:39:12.641704Z",
       "credential": "api_key",
       "credits_balance": 964.405,
       "credits_charged": 1.0,
       "environment": "live",
-      "request_id": "07b6d88884b84d80a6ceb47fddf94a26"
+      "request_id": "e8a68168131343d0b780dcaf1795e371"
     },
     "name": null,
     "rows_per_second": 1.0,
@@ -48,14 +48,14 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "18",
-    "x-request-id": "07b6d88884b84d80a6ceb47fddf94a26"
+    "ratelimit-reset": "48",
+    "x-request-id": "e8a68168131343d0b780dcaf1795e371"
   },
   "operation": "enrichment_cancel",
   "request": {
     "body": null,
     "method": "POST",
-    "path": "/v1/enrichment/jobs/863f7085-8400-4578-a497-e3169bf838ca/cancel",
+    "path": "/v1/enrichment/jobs/0673d2d2-799d-4324-a37e-a4b8ddc61dde/cancel",
     "query": {}
   },
   "status": 200

@@ -60,7 +60,7 @@ try {
   } else if (err instanceof InvalidRequestError) {
     console.error(err.message, err.fieldErrors);
   } else if (err instanceof APIConnectionError) {
-    // No answer. On a billed call, reachedServer: true means it may have been charged.
+    // No answer, after the retries a keyed call gets. reachedServer: true means it may have arrived.
     console.error(err.message, err.reachedServer);
   } else {
     throw err;
@@ -164,8 +164,8 @@ belongs to one class:
 | Class | Operations | Repeating it |
 |---|---|---|
 | `safe` | every read, `runs.cancel`, `enrichment.cancel`, `feedback.votes.cast`, `lists.rename`, `lists.addItems`, `lists.removeItems`, `lists.export`, `searchExport` | costs nothing and changes nothing the first call did not |
-| `billed` | `search`, `similar`, `entities.*`, `relationships.find` / `reach` / `institutions` / `ask`, `orgChart.retrieve` / `departments` / `locations` / `people` | may charge again |
-| `keyed` | `runs.create`, `enrichment.create`, `enrichment.lookup`, `feedback.create` | is recognised by its `Idempotency-Key` |
+| `billed` | none today: every billed call reads an `Idempotency-Key` and is `keyed` | may charge again |
+| `keyed` | `search`, `similar`, `entities.*`, `relationships.find` / `reach` / `institutions` / `ask`, `orgChart.retrieve` / `departments` / `locations` / `people`, `runs.create`, `enrichment.create`, `enrichment.lookup`, `feedback.create` | is recognised by its `Idempotency-Key`: a billed call is charged once |
 | `once` | `lists.create`, `lists.delete` | makes a second list (409), or answers 404 for the list the first call deleted |
 
 | Failure | `safe` | `billed` | `keyed` | `once` |
@@ -181,10 +181,13 @@ belongs to one class:
 
 "Never sent" is known only when the runtime says so (`ECONNREFUSED`,
 `ENOTFOUND`, `EAI_AGAIN` or `UND_ERR_CONNECT_TIMEOUT` in the error's cause
-chain); any other failure counts as possibly sent. A billed or `once` call
-raised from the "sent, no answer" row has `reachedServer: true`, and its
-message says what may have happened. Check `client.history.list()` (or
-`client.lists.list()`) before trying again. `maxRetries: 0` turns retrying off.
+chain); any other failure counts as possibly sent. A `keyed` call is repeated
+with the key it was first sent with: on a search, look-alike, lookup,
+relationships or org chart call, the same key on the same request, from the same
+credential, on the same UTC day, is charged once (the repeat answers
+`meta.credits_charged: 0`). A `once` call raised from the "sent, no answer" row
+has `reachedServer: true`, and its message says what may have happened. Check
+`client.lists.list()` before trying again. `maxRetries: 0` turns retrying off.
 
 **`timeoutMs` is per attempt.** With `maxRetries: 2`, an unresponsive network
 can take about three times the timeout, plus backoff, before the final error.
@@ -217,13 +220,15 @@ console.log(JSON.stringify(patient));
 
 ## Idempotency keys
 
-Two operations send an `Idempotency-Key`: `runs.create`, where the server
-requires one, and `feedback.create`. The SDK sends the `idempotencyKey` you pass
-in the call's options (1 to 255 printable characters), or generates
-`sdk-<32 hex>`, and resends the same key on every retry of that call. That is
-what makes them safe to retry after a lost answer. Pass your own key when a
-retry may come from somewhere the SDK cannot see, such as another process or a
-job queued again after a crash.
+Every `keyed` operation sends an `Idempotency-Key`: `runs.create` and
+`enrichment.create`, where the server requires one, and `enrichment.lookup`,
+`feedback.create` and the billed calls (search, look-alikes, entity lookups,
+relationships, org charts). The SDK sends the `idempotencyKey` you pass in the
+call's options (1 to 255 printable characters; a billed call's server takes 1 to
+120 letters, digits or `._:-`), or generates `sdk-<32 hex>`, and resends the same
+key on every retry of that call. That is what makes them safe to retry after a
+lost answer. Pass your own key when a retry may come from somewhere the SDK
+cannot see, such as another process or a job queued again after a crash.
 
 Every other operation takes no key: passing `idempotencyKey` to one throws a
 `ClientValidationError`.

@@ -1,27 +1,29 @@
 {
   "body": {
     "complete": true,
-    "credits_used": 2.0,
-    "job_id": "59de0503-a307-4c6b-b827-8bfe107c2cea",
+    "credits_used": 10.0,
+    "job_id": "e4737e79-2583-45a8-ab4e-19135343a904",
     "meta": {
-      "as_of": "2026-11-23T20:03:42.970618Z",
+      "as_of": "2026-11-24T06:39:12.672053Z",
       "credential": "api_key",
       "credits_balance": 964.405,
-      "credits_charged": 2.0,
+      "credits_charged": 10.0,
       "environment": "live",
-      "request_id": "968fa9e36ff04e3b8b7bc6751ed6fc3a"
+      "request_id": "768637605eab437e977390e04116fa0a"
     },
     "reason": null,
     "results": [
       {
-        "credits": 2.0,
+        "credits": 10.0,
         "fields": {
           "EMAIL": {
+            "reason": null,
             "status": "found",
             "value": "ada@example-1.de",
             "verified": true
           },
           "PHONE": {
+            "reason": null,
             "status": "found",
             "value": "+49 30 5550 0000",
             "verified": false
@@ -40,11 +42,13 @@
         "credits": 0.0,
         "fields": {
           "EMAIL": {
+            "reason": "not_found",
             "status": "not_found",
             "value": null,
             "verified": false
           },
           "PHONE": {
+            "reason": "not_found",
             "status": "not_found",
             "value": null,
             "verified": false
@@ -67,8 +71,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "18",
-    "x-request-id": "968fa9e36ff04e3b8b7bc6751ed6fc3a"
+    "ratelimit-reset": "48",
+    "x-request-id": "768637605eab437e977390e04116fa0a"
   },
   "operation": "enrichment_lookup",
   "request": {

@@ -12,7 +12,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import { readAnswer } from '../../src/core/answer.js';
-import { type APIError, ConflictError, CursorInvalidError, ListNameTakenError, NotFoundError, OrgChartCompanyAmbiguousError, ResultsExpiredError } from '../../src/core/errors.js';
+import { type APIError, ConflictError, CursorInvalidError, InvalidRequestError, ListNameTakenError, NotFoundError, OrgChartCompanyAmbiguousError, ResultsExpiredError } from '../../src/core/errors.js';
 import { errorFromAnswer, decodeErrorBody } from '../../src/core/problem.js';
 import { SSEDecoder } from '../../src/core/sse.js';
 import { OPERATIONS, type OperationName } from '../../src/generated/operations.js';
@@ -22,6 +22,7 @@ const NOW = Date.UTC(2026, 10, 11, 12);
 const ERROR_CLASSES: Readonly<Record<string, abstract new (...args: never[]) => APIError>> = {
   'enrichment_create/key_reused': ConflictError,
   'enrichment_results/expired': ResultsExpiredError,
+  'credits_quote/enrichment_over_cap': InvalidRequestError,
   'enrichment_retrieve/not_found': NotFoundError,
   'lists_create/name_taken': ListNameTakenError,
   'org_chart/ambiguous': OrgChartCompanyAmbiguousError,

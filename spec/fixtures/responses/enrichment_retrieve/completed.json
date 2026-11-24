@@ -18,7 +18,7 @@
       },
       "total_rows": 2
     },
-    "created_at": "2026-11-23T20:03:42.282343Z",
+    "created_at": "2026-11-24T06:39:11.827187Z",
     "credits_charged": 1.0,
     "credits_used": 1.0,
     "entity": "contacts",
@@ -27,17 +27,17 @@
     "fields": [
       "EMAIL"
     ],
-    "finished_at": "2026-11-23T20:03:42.830199Z",
-    "job_id": "44c188f9-41d4-48ea-a01b-58e652d60ae4",
+    "finished_at": "2026-11-24T06:39:12.526170Z",
+    "job_id": "b4de41f4-5a5f-429a-b2af-1969afea7869",
     "meta": {
-      "as_of": "2026-11-23T20:03:42.863321Z",
+      "as_of": "2026-11-24T06:39:12.577246Z",
       "credential": "api_key",
       "credits_balance": 964.405,
       "credits_charged": 1.0,
       "environment": "live",
-      "request_id": "e96c05ddb7a8487e88a06cc70973d5de"
+      "request_id": "ce37620dd24a487ab0c801052bdebbf9"
     },
-    "name": "E2E b75ec4bb",
+    "name": "E2E 6eee8ea1",
     "rows_per_second": 2.0,
     "status": "completed",
     "stop_reason": null,
@@ -48,14 +48,14 @@
     "content-type": "application/json",
     "ratelimit-limit": "600",
     "ratelimit-remaining": "598",
-    "ratelimit-reset": "18",
-    "x-request-id": "e96c05ddb7a8487e88a06cc70973d5de"
+    "ratelimit-reset": "48",
+    "x-request-id": "ce37620dd24a487ab0c801052bdebbf9"
   },
   "operation": "enrichment_retrieve",
   "request": {
     "body": null,
     "method": "GET",
-    "path": "/v1/enrichment/jobs/44c188f9-41d4-48ea-a01b-58e652d60ae4",
+    "path": "/v1/enrichment/jobs/b4de41f4-5a5f-429a-b2af-1969afea7869",
     "query": {}
   },
   "status": 200

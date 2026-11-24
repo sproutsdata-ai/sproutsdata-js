@@ -114,7 +114,7 @@ Whether a failure may be retried depends on what the route costs, so every case
 runs against a route class. The runner looks `request.method` + `request.path`
 up in `spec/routes.json` (path templates such as `/v1/entities/{category}`
 match any segment). With no `request`, the case is `POST /v1/search`, a
-`billed` route. `GET` requests send no body; the runner calls the route through
+`keyed` route. `GET` requests send no body; the runner calls the route through
 the client's generic request path, so cases are not tied to one resource.
 
 A `responses[]` entry may describe a transport outcome instead of an HTTP

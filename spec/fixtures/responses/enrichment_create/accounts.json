@@ -1,14 +1,14 @@
 {
   "body": {
     "entity": "accounts",
-    "job_id": "863f7085-8400-4578-a497-e3169bf838ca",
+    "job_id": "0673d2d2-799d-4324-a37e-a4b8ddc61dde",
     "meta": {
-      "as_of": "2026-11-23T20:03:42.915226Z",
+      "as_of": "2026-11-24T06:39:12.620439Z",
       "credential": "api_key",
       "credits_balance": 964.405,
       "credits_charged": null,
       "environment": "live",
-      "request_id": "137b9861221c49e5b60d9ba5c5a755ec"
+      "request_id": "5e58ba1a65ca4e0099ecefe13fe77b67"
     },
     "reused": false,
     "status": "queued",
@@ -19,8 +19,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1997",
-    "ratelimit-reset": "18",
-    "x-request-id": "137b9861221c49e5b60d9ba5c5a755ec"
+    "ratelimit-reset": "48",
+    "x-request-id": "5e58ba1a65ca4e0099ecefe13fe77b67"
   },
   "operation": "enrichment_create",
   "request": {

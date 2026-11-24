@@ -106,9 +106,11 @@ server would refuse is refused locally with a `ClientValidationError`, before
 anything is sent.
 
 Up to `maxRetries` (default 2) retries, by what a repeat costs: a billed call
-(search, look-alikes, lookups, relationships, org charts) that may have reached
-the server is raised with `reachedServer: true` rather than repeated.
-`runs.create` and `feedback.create` are retried under their `Idempotency-Key`.
+(search, look-alikes, lookups, relationships, org charts), `runs.create`, the
+enrichment calls and `feedback.create` are retried under their `Idempotency-Key`,
+so a repeat is charged once and starts nothing twice. `lists.create` and
+`lists.delete` that may have reached the server are raised with
+`reachedServer: true` rather than repeated.
 Redirects are never followed. See [Errors and retries](docs/errors.md).
 
 ## Configuration

@@ -2,14 +2,14 @@
   "body": {
     "complete": false,
     "credits_used": 0.0,
-    "job_id": "2dd8e955-88d2-41d9-8fe4-78bf64efe7e6",
+    "job_id": "26112616-8ea5-4137-b7fd-92460e24cf41",
     "meta": {
-      "as_of": "2026-11-23T20:03:42.990373Z",
+      "as_of": "2026-11-24T06:39:12.689229Z",
       "credential": "api_key",
       "credits_balance": 964.405,
       "credits_charged": null,
       "environment": "live",
-      "request_id": "1765b4c5b245491fac0c7bc803214f39"
+      "request_id": "d77acdd57c45450890e468b36aabb5c5"
     },
     "reason": "deadline",
     "results": [
@@ -17,6 +17,7 @@
         "credits": 0.0,
         "fields": {
           "EMAIL": {
+            "reason": null,
             "status": "pending",
             "value": null,
             "verified": false
@@ -41,8 +42,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1998",
-    "ratelimit-reset": "18",
-    "x-request-id": "1765b4c5b245491fac0c7bc803214f39"
+    "ratelimit-reset": "48",
+    "x-request-id": "d77acdd57c45450890e468b36aabb5c5"
   },
   "operation": "enrichment_lookup",
   "request": {

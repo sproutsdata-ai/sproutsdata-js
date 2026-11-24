@@ -63,8 +63,13 @@ every changed call with its replacement.
   `keyword_query`'s limits on every document category, `investors` on a funding round
   (a `MatchAllEntityFilter`) needs an entry, and filters of empty lists or objects
   alone narrow nothing, so a document search then needs a `query`.
-- **`credits.quote()`** takes `operation: 'enrichment'` (rows x fields, up to 30,000);
-  a `lookup` quote over 1,000 records is refused locally.
+- **`credits.quote()`** takes `operation: 'enrichment'` with `fields` (each field at its
+  own price, for up to 10,000 records); `fields` for another operation, an unknown or
+  repeated field, and a `lookup` quote over 1,000 records are refused locally.
+- **Billed calls carry an idempotency key** (dsp-backend DSP-449): search, look-alikes,
+  entity lookups, relationships and org charts send a generated `Idempotency-Key`, so one
+  that timed out, lost its connection after sending, or met a 502 or 408 is retried with
+  the same key and charged once. It used to be thrown with `reachedServer: true`.
 
 ### Added
 
@@ -85,8 +90,10 @@ every changed call with its replacement.
   (one that does not finish becomes a job); `create()` starts a job, followed with
   `retrieve()`, `wait()` (on the spec's `enrichmentWait` rhythm), `results()` /
   `iterResults()`, `list()` / `iterList()` and `cancel()`. Requests the server would refuse
-  are refused locally in its words; both keyed calls send an `Idempotency-Key`. Needs the
-  `dsp.enrichment.*` scopes (`examples/enrichment.ts`, `docs/enrichment.md`).
+  are refused locally in its words; both keyed calls send an `Idempotency-Key`. Each field
+  has its price (by default 1 credit, a phone number 9); a request holds at most 30,000
+  credits; a field with no value says why (`reason`). Needs the `dsp.enrichment.*` scopes
+  (`examples/enrichment.ts`, `docs/enrichment.md`).
 - `orgChart.people()` and `iterPeople()`: the people one cell of a company's chart
   counts, a page at a time, named by the chart's `company_ref` (every chart answer
   carries one, and a company search row's `id` is one). Billed per page that lists
@@ -94,7 +101,7 @@ every changed call with its replacement.
 - `ResultsExpiredError` (410, a `NotFoundError`: a run's or an enrichment job's rows are no
   longer kept), `ConcurrencyLimitError` (a `RateLimitError`) and `CreditsRefusedError` (a
   `ServiceUnavailableError`).
-- The types of the API at dsp-backend `d0ef156`: the new document and trend filters,
+- The types of the API at dsp-backend `c580236`: the new document and trend filters,
   `lock_filters` and `fields` on the search bodies, `resolved_search.read_as` and
   `anchor_matches`, and the enrichment, org chart people and credit purchase types.
   Generic backend names carry their feature (`EnrichmentJob`, `OrgChartPlacement`,

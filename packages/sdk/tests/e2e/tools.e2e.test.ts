@@ -31,9 +31,12 @@ describe.skipIf(STACK === undefined)('tools on the stack', () => {
     expect(rows(result).every((row) => row['domain'] !== 'stripe.com')).toBe(true);
   });
 
-  it('a gateway answer comes back as data, not retried', async () => {
+  it('a gateway answer is retried, and one that persists comes back as data', async () => {
+    const tools = new Toolset(client({ baseUrl: setting('SPROUTSDATA_E2E_FAULT_URL') }));
     await arm('/v1/search', 502);
-    const result = await new Toolset(client({ baseUrl: setting('SPROUTSDATA_E2E_FAULT_URL') })).run('sprouts_search', { query: 'robotics', limit: 1 });
+    expect('error' in (await tools.run('sprouts_search', { query: 'robotics', limit: 1 }))).toBe(false);
+    await arm('/v1/search', 502, 3); // the first attempt and both retries
+    const result = await tools.run('sprouts_search', { query: 'robotics', limit: 1 });
     expect('error' in result && [result.error.code, result.error.retryable]).toEqual(['http.502', false]);
   });
 

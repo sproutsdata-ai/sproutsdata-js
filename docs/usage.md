@@ -58,9 +58,10 @@ if (run.covered === false) console.warn(`An agent run at detailed effort costs $
 | Field | Meaning |
 |---|---|
 | `operation` | `search`, `search_auto` (an `auto` search), `similar`, `relationships`, `institutions`, `lookup`, `org_chart`, `agent_run` or `enrichment`. |
-| `rows` | Rows on the page (up to 100), records found for `lookup` (up to 1,000), or values asked for with `enrichment` (rows x fields, up to 30,000). Default 10; flat operations and agent runs ignore it. |
+| `rows` | Rows on the page (up to 100), records found for `lookup` (up to 1,000), or the records to enrich with `enrichment` and `fields` (up to 10,000). Default 10; flat operations and agent runs ignore it. |
 | `start` | Rows of the same search already paid for (the next page's offset): only the rows beyond them are charged. |
 | `effort` | Required for `agent_run`, and refused for any other operation. The earlier tier names are still accepted and sent as the new ones. |
+| `fields` | `enrichment` only: the fields asked of each record, each at its own price (a phone number costs more than an email). A quote over the 30,000 credits a request may hold is refused. |
 
 The answer has `credits`, its `basis` (`page`, `records`, `call`, `run`,
 `run_up_to` for an `auto` agent run, which holds that much and is charged at the

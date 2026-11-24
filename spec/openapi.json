@@ -10625,7 +10625,7 @@
             "type": "null"
           },
           "total": {
-            "description": "The answer's size: the run's exact universe when it counted one past the rows it stored, else the rows stored.",
+            "description": "The rows the run kept, the ones a reader can page. How many records the question matches is `coverage.universe`.",
             "minimum": 0.0,
             "title": "Total",
             "type": "integer"
@@ -19959,8 +19959,8 @@
     }
   },
   "x-source": {
-    "commit": "364ec98ffc17dbd71306f8c13bb23e5ea335c04b",
-    "ref": "364ec98",
+    "commit": "ec23ad95c867281565be2d1558752564513fe079",
+    "ref": "ec23ad9",
     "repo": "dsp-backend"
   }
 }

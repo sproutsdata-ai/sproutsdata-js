@@ -1,8 +1,8 @@
 {
   "source": "sproutsdata-py/spec",
-  "source_commit": "ffdc79fb9528e6d9e367febac9d66d6a9a4b8669",
+  "source_commit": "70f50dc049d36d521d044c3ef7691791a1813127",
   "files": {
-    "CHANGELOG.md": "578f1abf92cbd86a196dddfc02075698f46e1e903741f10e303080528469e1a6",
+    "CHANGELOG.md": "b502d138916a15732caa85fbf40b42b351c333b732ee98080c6c91a7b926e570",
     "conformance/README.md": "704df7020cc23ec1275fc5cee375fa3ca2490498610a1a9004521f9a842efcbb",
     "conformance/cases/envelope/api-key-header.json": "fbac53a796f451f6ca5aba3f2ed6fbbae85e1c9e5f2441293a8c1ac2fc524b8f",
     "conformance/cases/envelope/export-202-is-a-job.json": "78c8730857c698285445c8c97321c8e311ffac59e60b535f7cd03a052c24c12d",
@@ -143,8 +143,8 @@
     "fixtures/responses/search_export/file.json": "65546794d91412bc26d7afa34f90b068da44b97f1e41f4dc920f2fdf3460fa2c",
     "fixtures/responses/similar/company.json": "d82ce717ee4a7e82fd6d407c1e17ff3ce8eda93c4fda047399ccaba3ffa481e7",
     "fixtures/responses/sorts/company.json": "4ddc271007ec80362d95f5a5a3b7b4025f5b35abf233863b9a4a587399d7fce0",
-    "models.json": "78575171e95048536e25ee04718c6515fa0505639075a00e43fa65f9e78444c4",
-    "openapi.json": "999c110e4636e50a17ab9571990af5a7d3b30be2947576cf0996092b41a2e0a0",
+    "models.json": "9bfccca9ae405980b515876a9e5ce2821349d4afd7ebb7461db096a643c8bf00",
+    "openapi.json": "36da602332961ce568f204c0d216ad7e822a03ec00380586e45948afb315cc92",
     "records.schema.json": "ad3ab39f51c944366500c1421e60033c11c60e7bc13364e5dc25c957cdb99125",
     "retry-policy.json": "92de3a31dc2725ed55543f5acdca739c47a6dbf83066685c9b6cf359426474fb",
     "routes.json": "8de3a10b3bb01e9ce2b4fd18e6da0e4c714ba4579199a0cc1773bb75b78b46ea",

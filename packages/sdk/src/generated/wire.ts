@@ -3585,8 +3585,8 @@ export interface RunResultsEnvelope {
   readonly results: readonly Readonly<Record<string, unknown>>[];
   readonly suggestion: null;
   /**
-   * The answer's size: the run's exact universe when it counted one past the
-   * rows it stored, else the rows stored.
+   * The rows the run kept, the ones a reader can page. How many records the
+   * question matches is `coverage.universe`.
    */
   readonly total: number;
   readonly total_is_estimate: boolean;

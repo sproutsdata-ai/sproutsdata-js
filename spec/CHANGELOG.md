@@ -25,6 +25,15 @@ every file here against the others and the error table against the backend.
 
 ---
 
+## 2026-11-24 — re-pinned to dsp-backend sd-qa `ec23ad9`
+
+`fix/enrichment-status-width-values-found` merged (#217), with `dc4fe16`: a lookup's
+`credits_used` leaves out Do-Not-Contact rows, as a job's does (no shape change).
+
+- **openapi.json**: an agent run's results `total` is the rows the run kept (376d067); how
+  many records the question matches stays `coverage.universe`. Description only.
+- **fixtures**: unchanged (the fake prism keeps every row, so the two agree).
+
 ## 2026-11-24 — re-pinned to dsp-backend `364ec98`
 
 From `fix/enrichment-status-width-values-found` (on top of `c580236`), which merges to sd-qa

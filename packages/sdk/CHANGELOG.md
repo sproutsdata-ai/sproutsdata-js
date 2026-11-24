@@ -102,7 +102,7 @@ every changed call with its replacement.
 - `ResultsExpiredError` (410, a `NotFoundError`: a run's or an enrichment job's rows are no
   longer kept), `ConcurrencyLimitError` (a `RateLimitError`) and `CreditsRefusedError` (a
   `ServiceUnavailableError`).
-- The types of the API at dsp-backend `364ec98`: the new document and trend filters,
+- The types of the API at dsp-backend sd-qa `ec23ad9`: the new document and trend filters,
   `lock_filters` and `fields` on the search bodies, `resolved_search.read_as` and
   `anchor_matches`, and the enrichment, org chart people and credit purchase types.
   Generic backend names carry their feature (`EnrichmentJob`, `OrgChartPlacement`,

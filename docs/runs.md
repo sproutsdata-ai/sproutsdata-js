@@ -113,8 +113,8 @@ is the last state seen; the run goes on server-side. Your `signal` stops the
 wait at once.
 
 Read `coverage` before trusting a count: "we found 40 accounts" and "there are
-40 accounts" are different claims. `total` says how many rows matched, and
-`coverage` says whether those are all of them:
+40 accounts" are different claims. `total` says how many rows the run kept,
+and `coverage` says how many records match and whether those rows are all of them:
 
 ```ts
 const settled = await client.runs.retrieve('<run-id>');

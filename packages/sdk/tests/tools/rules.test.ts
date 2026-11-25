@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { SproutsData } from '../../src/index.js';
+import { ClientValidationError, SproutsData } from '../../src/index.js';
 import { isSproutsData, resolveClient, Toolset, type ToolResult, type ToolsetOptions } from '../../src/tools/index.js';
 import { recordedBody, respond } from '../support/answers.js';
 import { BASE_URL, FIXTURE_KEY } from '../support/fakes.js';
@@ -62,7 +62,9 @@ describe('settings', () => {
     [{ baselineFilters: { industry: [] } }, /non-empty filter object/],
     [{ baselineFilters: { industry: {} } }, /non-empty filter object/],
   ])('refuse invalid options when built (%#)', (options, match) => {
-    expect(() => new Toolset(client([]).client, options as unknown as ToolsetOptions)).toThrow(match);
+    const build = (): Toolset => new Toolset(client([]).client, options as unknown as ToolsetOptions);
+    expect(build).toThrow(match);
+    expect(build).toThrow(ClientValidationError);
   });
 
   it('need a SproutsData client, recognised by its brand across copies of the package', () => {

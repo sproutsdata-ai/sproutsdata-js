@@ -24,7 +24,7 @@ export const CASES_DIR = new URL('../../../../spec/conformance/cases/', import.m
 const KEYS = {
   case: ['name', 'description', 'request', 'responses', 'expect', 'max_retries', 'paginate', 'next_page_limit', 'mutate_request_after_first_page', 'request_id', 'off_spec', 'route_class'],
   expect: ['attempts', 'error', 'success', 'sent', 'slept', 'no_sleep', 'no_next_page'],
-  error: ['concept', 'not_concept', 'status', 'code', 'request_id', 'fields', 'extra', 'field_errors_length', 'reached_server'],
+  error: ['concept', 'not_concept', 'status', 'code', 'request_id', 'fields', 'extra', 'field_errors_length', 'reached_server', 'message_contains'],
   success: ['results_length', 'has_more', 'request_id', 'truncated', 'degraded', 'first_category', 'first_degradation_reason', 'hit_extra_field', 'attribution_length', 'attribution_url_is_none', 'export_kind', 'job_id'],
   sent: ['body_equals_index', 'except_keys', 'cursor', 'limit', 'headers_present', 'headers_absent', 'headers_equal', 'same_header_as_index'],
 } as const;
@@ -178,6 +178,8 @@ function checkConcept(spec: Json, raised: unknown): void {
   const notConcept = spec['not_concept'];
   if (typeof notConcept === 'string') expect(raised).not.toBeInstanceOf(CONCEPTS[notConcept]);
   if (spec['reached_server'] !== undefined) expect((raised as APIConnectionError).reachedServer).toBe(spec['reached_server']);
+  const contains = spec['message_contains'];
+  if (typeof contains === 'string') expect((raised as Error).message).toContain(contains);
 }
 
 function checkProblem(spec: Json, error: APIError): void {

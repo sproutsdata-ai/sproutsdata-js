@@ -1,5 +1,5 @@
 {
-  "description": "A filter value from the retired vocabulary. The 422 comes back as data with the server's message, the field path in the tool's own terms, and `retryable: false`. The problem's `next_step` (dsp-backend's sentence for the code) follows the detail in `message`.",
+  "description": "A filter value from the retired vocabulary. The 422 comes back as data with the server's message, the field path in the tool's own terms, and `retryable: false`. The problem's `next_step` (the API's sentence for the code) follows the detail in `message`.",
   "tool": "sprouts_search",
   "options": {},
   "arguments": {

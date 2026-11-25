@@ -22,10 +22,12 @@ const DOCUMENT_BY: Readonly<Record<string, LookupRef['by']>> = {
 };
 
 /**
- * How to look a search row up in `client.entities`, or `undefined` when it cannot be. A
- * company by its domain (also its `id`), else its LinkedIn page; a person by their LinkedIn URL;
- * a document by its `d1_...` id. A row with none of these has nothing a lookup takes: its `id`
- * is then a hash of the record, which no route resolves.
+ * How to look a search row up in `client.entities`, or `undefined` when it cannot be. A company
+ * by its domain, else its LinkedIn page; a person by their LinkedIn URL; a document by its `d1_...`
+ * id, which the lookups accept as an id. A company or person row with neither has nothing a lookup
+ * takes: a company's `id` is its sealed reference, which the org chart takes as `company_ref` but
+ * no lookup resolves, and a person's is a one-way hash of the record. Project `domain` and
+ * `linkedin_url` (`fields`) to keep a row lookable.
  */
 export function lookupRef(hit: W.SearchHit): LookupRef | undefined {
   const domain = hit['domain'];

@@ -1971,7 +1971,7 @@
         },
         {
           "default": 0,
-          "description": "Named nothing prism could find.",
+          "description": "Named nothing the search service could find.",
           "name": "not_found",
           "required": false,
           "type": {
@@ -2314,7 +2314,7 @@
     },
     "AskRequest": {
       "additional": false,
-      "description": "A relationship question in words; prism decides which kind of answer it needs.",
+      "description": "A relationship question in words; the search service decides which kind of answer it needs.",
       "direction": "input",
       "fields": [
         {
@@ -2440,7 +2440,7 @@
     },
     "AutoSearchRequest": {
       "additional": false,
-      "description": "A question, with the category left to prism.",
+      "description": "A question, with the category left to the search service.",
       "direction": "input",
       "fields": [
         {
@@ -2827,7 +2827,7 @@
     },
     "CompanyItem": {
       "additional": false,
-      "description": "One company in the ``company`` picker. Identified by its domain; prism's own id for it\nnever leaves this service.",
+      "description": "One company in the ``company`` picker. Identified by its domain; its internal record id\nnever leaves this service.",
       "direction": "output",
       "fields": [
         {
@@ -2978,7 +2978,7 @@
       "direction": "input",
       "fields": [
         {
-          "description": "Omit for prism ids; `domain`, `li_url` or `name`, or `auto` to classify each.",
+          "description": "Omit for internal record ids; `domain`, `li_url` or `name`, or `auto` to classify each.",
           "name": "by",
           "required": false,
           "type": {
@@ -4617,7 +4617,7 @@
       "schema": "CoverageSegment"
     },
     "CoverageSegmentName": {
-      "description": "One corpus, named as prism's search path names it.",
+      "description": "One corpus, named as the search service's search path names it.",
       "direction": "output",
       "kind": "enum",
       "origin": "api",
@@ -4636,7 +4636,7 @@
       ]
     },
     "CoverageSegmentNameInput": {
-      "description": "One corpus, named as prism's search path names it.",
+      "description": "One corpus, named as the search service's search path names it.",
       "direction": "input",
       "kind": "enum",
       "origin": "api",
@@ -5647,7 +5647,7 @@
     },
     "DiscoverFilters": {
       "additional": false,
-      "description": "Every filter accepted for `category: company` and `category: person`.\n\nNames match prism's filter vocabulary exactly — this is a contract mirror,\nnot a re-design, so a name that reads oddly (`gov_nongov`) stays as it is\nrather than being prettied up into something prism would reject.\n\nWhich side a filter applies to is not encoded here: prism routes a\nperson-side filter through `has_child` when the search targets companies\n(and vice versa), so `seniority` is meaningful on a company search. The one\nhonest statement this model can make is which filters *exist*.",
+      "description": "Every filter accepted for `category: company` and `category: person`.\n\nNames match the search service's filter vocabulary exactly — this is a contract mirror,\nnot a re-design, so a name that reads oddly (`gov_nongov`) stays as it is\nrather than being prettied up into something the search service would reject.\n\nWhich side a filter applies to is not encoded here: the search service routes a\nperson-side filter through `has_child` when the search targets companies\n(and vice versa), so `seniority` is meaningful on a company search. The one\nhonest statement this model can make is which filters *exist*.",
       "direction": "input",
       "fields": [
         {
@@ -6986,7 +6986,7 @@
     },
     "EmploymentHistoryGroup": {
       "additional": false,
-      "description": "One independently-scoped past job.\n\nMirrors `prism.schema.search.discover.EmploymentHistoryGroup` (filters\nv3, replaces the old `prior_company` field plus `title`/`tenure`'s\n`previous_*` sugar) — matched against its own `p_comp` array entry\nserver-side, so naming two groups requires two different entries, not\none shared row.",
+      "description": "One independently-scoped past job.\n\nMirrors the search service's `EmploymentHistoryGroup` (filters\nv3, replaces the old `prior_company` field plus `title`/`tenure`'s\n`previous_*` sugar) — matched against its own `p_comp` array entry\nserver-side, so naming two groups requires two different entries, not\none shared row.",
       "direction": "input",
       "fields": [
         {
@@ -8588,7 +8588,7 @@
     },
     "EntitySearchRequest": {
       "additional": false,
-      "description": "Companies and people, through prism's discover route.",
+      "description": "Companies and people, through the search service's discover route.",
       "direction": "input",
       "fields": [
         {
@@ -10516,7 +10516,7 @@
     },
     "GlobalPresenceFilter": {
       "additional": false,
-      "description": "Country-footprint filter: where a company has people, not where it is headquartered.\n\n`countries` names the places: a country (\"germany\", ISO3 \"deu\") or a region (\"EU\", \"APAC\",\n\"Nordics\"), which any one of its member countries satisfies. A company matches with at least\n`gte` (default 1) people in ANY place named, or in EVERY place with `match_all` (\"offices in\nGermany and France\"). With `min_countries` instead, it matches companies present in at least\nthat many countries. Prism refuses a place it does not know with `request.invalid`.",
+      "description": "Country-footprint filter: where a company has people, not where it is headquartered.\n\n`countries` names the places: a country (\"germany\", ISO3 \"deu\") or a region (\"EU\", \"APAC\",\n\"Nordics\"), which any one of its member countries satisfies. A company matches with at least\n`gte` (default 1) people in ANY place named, or in EVERY place with `match_all` (\"offices in\nGermany and France\"). With `min_countries` instead, it matches companies present in at least\nthat many countries. The search service refuses a place it does not know with `request.invalid`.",
       "direction": "input",
       "fields": [
         {
@@ -10874,7 +10874,7 @@
             "maxLength": 255,
             "minLength": 1
           },
-          "description": "A company's `company_ref`, domain or LinkedIn page; a person's LinkedIn profile URL; a document's `id` from search (or prism's own id).",
+          "description": "A company's `company_ref`, domain or LinkedIn page; a person's LinkedIn profile URL; a document's `id` from search (or its internal record id).",
           "name": "entity_id",
           "required": true,
           "type": {
@@ -12019,7 +12019,7 @@
     },
     "LocationFilter": {
       "additional": false,
-      "description": "OR within a level, AND across levels; an excluded place removes everyone holding it.\nPlaces are matched as prism stores them, lower case (``united states``, ``san francisco``).",
+      "description": "OR within a level, AND across levels; an excluded place removes everyone holding it.\nPlaces are matched as the search service stores them, lower case (``united states``, ``san francisco``).",
       "direction": "input",
       "fields": [
         {
@@ -14267,7 +14267,7 @@
           "constraints": {
             "maxItems": 20
           },
-          "description": "As prism stores them: `Full Time`.",
+          "description": "As the search service stores them: `Full Time`.",
           "name": "employment_types",
           "required": false,
           "type": {
@@ -14280,7 +14280,7 @@
           "constraints": {
             "maxItems": 20
           },
-          "description": "As prism stores them: `Co Founder`.",
+          "description": "As the search service stores them: `Co Founder`.",
           "name": "governance_levels",
           "required": false,
           "type": {
@@ -16168,7 +16168,7 @@
       "direction": "input",
       "fields": [
         {
-          "description": "Omit for prism ids; `li_url` or `name`, or `auto`.",
+          "description": "Omit for internal record ids; `li_url` or `name`, or `auto`.",
           "name": "by",
           "required": false,
           "type": {
@@ -16383,7 +16383,7 @@
           }
         },
         {
-          "description": "The employer's id, as on search hits (dsp-backend copies `company_id`).",
+          "description": "The employer's id, as on search hits (the API copies `company_id`).",
           "name": "cmp_id",
           "required": false,
           "type": {
@@ -20153,7 +20153,7 @@
     },
     "RunResult": {
       "additional": false,
-      "description": "A run's state and outcome, as prism last recorded it.",
+      "description": "A run's state and outcome, as the search service last recorded it.",
       "direction": "output",
       "fields": [
         {
@@ -20431,7 +20431,7 @@
       "schema": "RunResultsEnvelope"
     },
     "RunStatus": {
-      "description": "A run's state in this API's words. Prism's ``succeeded`` is ``completed`` here; a state\nprism adds later reads as ``pending`` until this list names it.",
+      "description": "A run's state in this API's words. The search service's ``succeeded`` is ``completed`` here; a state\nthe search service adds later reads as ``pending`` until this list names it.",
       "direction": "output",
       "kind": "enum",
       "origin": "api",
@@ -20788,7 +20788,7 @@
       ]
     },
     "SearchCategory": {
-      "description": "What to search. Each is a route of prism's (see ``features/search/categories.py``).",
+      "description": "What to search. Each is a route of the search service's.",
       "direction": "input",
       "kind": "enum",
       "origin": "api",
@@ -21134,7 +21134,7 @@
     },
     "SearchHit": {
       "additional": true,
-      "description": "One row: its public id, its kind and score, then the record's own fields, flattened.\n\nThe record fields are prism's and grow as the index grows, so they are passed through\nrather than enumerated here: a field we did not list must not disappear from the answer.",
+      "description": "One row: its public id, its kind and score, then the record's own fields, flattened.\n\nThe record fields are the search service's and grow as the index grows, so they are passed through\nrather than enumerated here: a field we did not list must not disappear from the answer.",
       "direction": "output",
       "fields": [
         {
@@ -24069,10 +24069,5 @@
       "schema": "VoteView"
     }
   },
-  "version": 1,
-  "x-source": {
-    "commit": "ec23ad95c867281565be2d1558752564513fe079",
-    "ref": "ec23ad9",
-    "repo": "dsp-backend"
-  }
+  "version": 1
 }

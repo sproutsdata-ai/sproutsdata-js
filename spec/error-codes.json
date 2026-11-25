@@ -1,6 +1,6 @@
 {
-  "$comment": "The error taxonomy every SDK maps: every code dsp-backend can send an API-key caller (the `code = \"...\"` of each DspError subclass under dsp-backend src/dsp, at the commit spec/openapi.json names). Staff-only and internal codes (privacy.*), and the Tools API's (tools.*: /tools/v1, outside the published /v1/* paths), are left out. `concept` is the language-neutral name conformance cases use; each SDK maps it to an idiomatic class. `retry` is normative: an SDK that retries a code marked false is a bug. A code may be sent with a status other than its usual one (request.invalid on a 400, 404 or 405): map by code, and by status only when the code is unknown.",
-  "version": 2,
+  "$comment": "The error taxonomy every SDK maps: every code the API can send an API-key caller, at the version spec/openapi.json describes. Staff-only and internal codes (privacy.*), and the Tools API's (tools.*: /tools/v1, outside the published /v1/* paths), are left out. `concept` is the language-neutral name conformance cases use; each SDK maps it to an idiomatic class. `retry` is normative: an SDK that retries a code marked false is a bug. A code may be sent with a status other than its usual one (request.invalid on a 400, 404 or 405): map by code, and by status only when the code is unknown.",
+  "version": 3,
   "problem_media_type": "application/problem+json",
   "docs_base": "https://dashboard.sproutsdata.ai/errors/",
   "type_uri_rule": "docs_base + code with '.' and '_' replaced by '-'",
@@ -32,16 +32,18 @@
     "service_unavailable",
     "credits_refused",
     "upstream_timeout",
+    "gateway",
     "internal"
   ],
   "status_fallbacks": {
-    "$comment": "Used when a response carries a code this SDK version does not know (or none, as from a proxy). Never raise on an unknown code.",
+    "$comment": "Used when a response carries a code this SDK version does not know, or none. Never raise on an unknown code. 408, 502 and 504 without a code are a gateway's answers, not the API's: `gateway` says the work behind them may or may not have happened.",
     "400": "invalid_request",
     "401": "authentication",
     "402": "insufficient_credits",
     "403": "permission_denied",
     "404": "not_found",
     "405": "invalid_request",
+    "408": "gateway",
     "409": "conflict",
     "410": "results_expired",
     "413": "invalid_request",
@@ -50,9 +52,9 @@
     "429": "rate_limit",
     "500": "internal",
     "501": "feature_not_available",
-    "502": "service_unavailable",
+    "502": "gateway",
     "503": "service_unavailable",
-    "504": "upstream_timeout"
+    "504": "gateway"
   },
   "codes": [
     {

@@ -1,13 +1,16 @@
 import { describe, expect, it } from 'vitest';
 
 import type { RouteClass } from '../../src/generated/operations.js';
-import { APIConnectionError, APIError, ClientValidationError, type SproutsDataError } from '../../src/core/errors.js';
+import { APIConnectionError, APIError, ClientValidationError, GatewayError, UpstreamTimeoutError, type SproutsDataError } from '../../src/core/errors.js';
 import { backoffMs, consequence, decide, outcomeFor, provablyNotSent } from '../../src/core/retry.js';
 import { networkError } from '../support/fakes.js';
 
 const status = (code: number, retryAfter?: number): APIError => new APIError({ status: code, headers: {}, body: undefined, retryAfter });
 const coded = (code: number, problem: string, retryAfter?: number): APIError =>
   new APIError({ status: code, headers: {}, body: { status: code, code: problem }, retryAfter });
+const gateway = (code: number): GatewayError => new GatewayError({ status: code, headers: {}, body: undefined, retryAfter: undefined });
+const upstream = (): UpstreamTimeoutError =>
+  new UpstreamTimeoutError({ status: 504, headers: {}, body: { status: 504, code: 'upstream.timeout' }, retryAfter: undefined });
 
 describe('retry', () => {
   it.each<[string, SproutsDataError, RouteClass, string]>([
@@ -27,9 +30,30 @@ describe('retry', () => {
     ['429 quota.concurrency_exceeded within the cap, keyed', coded(429, 'quota.concurrency_exceeded', 30), 'keyed', 'raise'],
     ['429 quota.burst_exceeded within the cap, keyed', coded(429, 'quota.burst_exceeded', 5), 'keyed', 'retry'],
     ['410 agents.results_expired', coded(410, 'agents.results_expired'), 'safe', 'raise'],
+    ["a gateway's 504, safe", gateway(504), 'safe', 'retry'],
+    ["a gateway's 504, keyed", gateway(504), 'keyed', 'retry'],
+    ["a gateway's 504, billed", gateway(504), 'billed', 'raise'],
+    ["a gateway's 504, once", gateway(504), 'once', 'raise'],
+    ["a gateway's 408, billed", gateway(408), 'billed', 'raise'],
+    ["the API's 504, safe", upstream(), 'safe', 'retry'],
+    ["the API's 504, keyed", upstream(), 'keyed', 'retry'],
+    ["the API's 504, billed", upstream(), 'billed', 'retry'],
+    ["the API's 504, once", upstream(), 'once', 'raise'],
     ['local', new ClientValidationError('x'), 'safe', 'raise'],
   ])('decides as the policy says: %s', (_, error, routeClass, decision) => {
     expect(decide(error, routeClass)).toBe(decision);
+  });
+
+  it("reads a 504 as the API's timeout only when its code says so", () => {
+    expect(outcomeFor(upstream())?.name).toBe('upstream_timeout');
+    expect(outcomeFor(status(504))?.name).toBe('sent_no_answer');
+  });
+
+  it("gives a gateway's answer the same note as a timeout after sending", () => {
+    expect(consequence(gateway(504), 'billed')).toMatch(/may have been charged/);
+    expect(consequence(gateway(504), 'once')).toMatch(/may already be done/);
+    expect(consequence(gateway(504), 'keyed')).toBeUndefined();
+    expect(consequence(upstream(), 'once')).toBeUndefined();
   });
 
   it('decides a code the policy names by its own row, whatever its status', () => {

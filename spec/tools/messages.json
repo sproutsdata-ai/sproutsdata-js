@@ -1,6 +1,6 @@
 {
   "$comment": "Every sentence the tools modules write to a model themselves — validation refusals, rule refusals, caveats, and the errors that have no problem document to quote. Shared so that the same failure reads the same in every language (fixtures/ compares results byte for byte). `{name}` is a placeholder, substituted verbatim; no other braces carry meaning. README.md documents when each one is used.",
-  "version": 3,
+  "version": 4,
   "validation": {
     "summary": "Invalid arguments: fix the listed fields and call again.",
     "not_json": "Arguments are not valid JSON. Send a JSON object.",
@@ -19,6 +19,7 @@
   },
   "rules": {
     "needs_query_or_filters": "Provide `query`, `filters`, or both. A search with neither has nothing to match on.",
+    "query_blank": "`query` holds only spaces, which name nothing to search. Put words in it, or leave it out and search by `filters` alone.",
     "auto_needs_query": "`category: \"auto\"` asks the engine to classify your words, so it needs `query`. Name the category to search with filters alone.",
     "auto_needs_auto_mode": "`category: \"auto\"` requires `mode: \"auto\"`: classification is itself a model call, and `fast` runs none. Set both, or name the category and keep `fast`.",
     "auto_takes_query_only": "`category: \"auto\"` accepts only `query`: filters, domain lists and `sort` are category-specific. Name the category to use them.",
@@ -40,7 +41,7 @@
     "anchors_by_name": "anchors_by_name: {names} — resolved by name with no disambiguation, so a same-named company may have been used. Prefer a domain.",
     "anchors_zero_weight": "anchors_zero_weight: {names} — weight 0, so no influence on the result.",
     "anchors_removed": "anchors_removed: {ids} — returned as a look-alike of itself and removed.",
-    "search_ids_not_found": "search_ids_not_found: {ids} — these look like the hash a search gives a person row, which no lookup resolves. Look the row up by its `lookup` value (its LinkedIn URL); this miss does not mean the record is not held.",
+    "search_ids_not_found": "search_ids_not_found: {ids} — these look like the id a search gives a company row (a sealed reference) or a person row (a hash), which no lookup resolves. Look the row up by its `lookup` value (a company's domain or LinkedIn page, a person's LinkedIn URL); this miss does not mean the record is not held.",
     "record_unavailable": "record_unavailable: {ids} — resolved, but no record came back. This is not a miss."
   },
   "errors": {

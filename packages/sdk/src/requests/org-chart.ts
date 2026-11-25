@@ -32,7 +32,11 @@ interface Company {
 
 /** An org chart body: one company, the nested filters, no retired field. */
 export function orgChartBody<T extends Company>(what: string, type: string, params: T): T {
-  const retired = Object.keys(params).filter((name) => name in RETIRED).sort();
+  // A retired field left undefined is never sent; one set (even to null) is, and the API refuses it.
+  const retired = Object.entries(params)
+    .filter(([name, value]) => name in RETIRED && value !== undefined)
+    .map(([name]) => name)
+    .sort();
   if (retired.length > 0) refuse(what, `retired field(s): ${retired.map((name) => `\`${name}\` is now \`${RETIRED[name] ?? ''}\``).join('; ')}`);
   checkShape(what, params, type);
   const named = [params.domain, params.linkedin_url, params.company_ref].filter((value) => value !== undefined && value !== null);

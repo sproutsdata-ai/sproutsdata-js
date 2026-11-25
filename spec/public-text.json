@@ -1,0 +1,21 @@
+{
+  "$comment": "What public text may not say. Both SDKs, their spec and their packages are public; the services behind the API are not, and their names, repositories, branches, tickets and source paths together would map them. `denied_words_sha256`: the SHA-256 of each word that may not appear, lower case (hashed so that this file does not publish them); a text's words are its runs of letters and digits joined by single hyphens, lower-cased. `denied_patterns`: regular expressions that may not match, case-sensitive unless they say otherwise. Each SDK's public-text check reads this file: sproutsdata-py `scripts/check_public_text.py`, sproutsdata-js `scripts/check-public-text.mjs`.",
+  "version": 1,
+  "denied_words_sha256": [
+    "2bc0cb6fd0b38dc7032cefae5cedcbd12d4de87bc1b2a580c5a4207ffd8aa93a",
+    "37d0246c2ab0e20e41d45f8385b12fb1899d859654ec7ad566fbbdc7fdb17877",
+    "6bd082d30f809578773ee4968c01823d987b962a9575580e9808e9fb8d959ad9",
+    "7667223980e3d5a095c161334c690260b58ddd8356b27b0869e20448f6710ad3",
+    "8cdb91a60c35795ff258ca8a3eac8a2061c3720ebae6bb1e813f14bde1c88cce",
+    "b4cfb95ee024d271a9a291d6cd75bdaeb9c4799cf996d8bb8f10909d56c62102",
+    "bb4c8eb92b6ec7b9055c94a397581544693c61da0f8f6cbb808681ccd0d9ce9b",
+    "bb9d5e250a52b20a55cd563a916cf18a0259fbf24ce5b7fe1c387c9b65fb5d3e",
+    "c60a2784ac511bcff256856e670ccd18d4261fe0449afac5fe35e4c05e3892e7",
+    "d2d4ab5e9081cbcf6d9ee8c2e247a5cd376d3e7b6333f555612f8dd41ba58d03",
+    "d2ed5e9b1f909c65df58f42c866b09369717ac1f1e9ef32086020102a0f6d2e7"
+  ],
+  "denied_patterns": {
+    "ticket": "\\b(?:DSP|SP1P)-\\d+\\b",
+    "service source path": "(?:\\bsrc/dsp/|\\bfeatures/[\\w/]+\\.py\\b|\\bbe [\\w./-]+\\.py\\b)"
+  }
+}

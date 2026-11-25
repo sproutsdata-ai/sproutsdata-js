@@ -27,11 +27,12 @@ export interface ConnectionOptions {
 /** The brand every `SproutsData` client carries, whichever copy of the package made it. */
 export const CLIENT_BRAND: unique symbol = Symbol.for('sproutsdata.client');
 
-/** The errors only the application can act on: a key (401), a scope (403), credits (402). */
+/** The errors only the application can act on: a key (401), a scope (403), credits (402), a redirect (its base URL). */
 export const APPLICATION_ERRORS: ReadonlySet<string> = new Set([
   'AuthenticationError',
   'PermissionDeniedError',
   'InsufficientCreditsError',
+  'RedirectRefusedError',
 ]);
 
 /** `value` is a `SproutsData` client, from this copy of the package or another. */
@@ -53,7 +54,11 @@ export function errorClasses(value: unknown): ReadonlySet<string> {
 
 /** `value` is an error only the application can fix (its class, or a parent, is one of them). */
 export function isApplicationError(value: unknown): value is Error {
-  return [...errorClasses(value)].some((name) => APPLICATION_ERRORS.has(name));
+  const names = errorClasses(value);
+  if ([...names].some((name) => APPLICATION_ERRORS.has(name))) return true;
+  // A custom fetch may hand a redirect back as an answer: the base URL is wrong either way.
+  const status: unknown = names.has('APIError') && value instanceof Error ? Reflect.get(value, 'status') : undefined;
+  return typeof status === 'number' && status >= 300 && status < 400;
 }
 
 /**

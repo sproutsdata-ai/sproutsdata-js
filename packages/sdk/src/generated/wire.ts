@@ -127,7 +127,7 @@ export interface AddItemsResponse {
   readonly added: number;
   readonly already_present: number;
   /**
-   * Named nothing prism could find.
+   * Named nothing the search service could find.
    */
   readonly not_found: number;
   readonly saved_list: SavedListView;
@@ -210,8 +210,8 @@ export interface AskReading {
 }
 
 /**
- * A relationship question in words; prism decides which kind of answer it
- * needs.
+ * A relationship question in words; the search service decides which kind of
+ * answer it needs.
  */
 export interface AskRequest {
   /**
@@ -237,7 +237,7 @@ export interface Attribution {
 }
 
 /**
- * A question, with the category left to prism.
+ * A question, with the category left to the search service.
  */
 export interface AutoSearchRequest {
   /**
@@ -315,8 +315,8 @@ export type CompanyBy =
   | "name";
 
 /**
- * One company in the ``company`` picker. Identified by its domain; prism's own
- * id for it never leaves this service.
+ * One company in the ``company`` picker. Identified by its domain; its internal
+ * record id never leaves this service.
  */
 export interface CompanyItem {
   readonly domain: string | null;
@@ -360,8 +360,8 @@ export interface CompanyKeywordsFilter {
  */
 export interface CompanyLookup {
   /**
-   * Omit for prism ids; `domain`, `li_url` or `name`, or `auto` to classify
-   * each.
+   * Omit for internal record ids; `domain`, `li_url` or `name`, or `auto` to
+   * classify each.
    */
   readonly by?: CompanyBy | null;
   readonly ids: readonly string[];
@@ -553,7 +553,7 @@ export interface CoverageSegment {
 }
 
 /**
- * One corpus, named as prism's search path names it.
+ * One corpus, named as the search service's search path names it.
  */
 export type CoverageSegmentName =
   | "companies"
@@ -569,7 +569,7 @@ export type CoverageSegmentName =
   | (string & {});
 
 /**
- * One corpus, named as prism's search path names it.
+ * One corpus, named as the search service's search path names it.
  */
 export type CoverageSegmentNameInput =
   | "companies"
@@ -837,13 +837,14 @@ export interface DepartmentsResponse {
 
 /**
  * Every filter accepted for `category: company` and `category: person`. Names
- * match prism's filter vocabulary exactly — this is a contract mirror, not a
- * re-design, so a name that reads oddly (`gov_nongov`) stays as it is rather
- * than being prettied up into something prism would reject. Which side a filter
- * applies to is not encoded here: prism routes a person-side filter through
- * `has_child` when the search targets companies (and vice versa), so
- * `seniority` is meaningful on a company search. The one honest statement this
- * model can make is which filters *exist*.
+ * match the search service's filter vocabulary exactly — this is a contract
+ * mirror, not a re-design, so a name that reads oddly (`gov_nongov`) stays as
+ * it is rather than being prettied up into something the search service would
+ * reject. Which side a filter applies to is not encoded here: the search
+ * service routes a person-side filter through `has_child` when the search
+ * targets companies (and vice versa), so `seniority` is meaningful on a company
+ * search. The one honest statement this model can make is which filters
+ * *exist*.
  */
 export interface DiscoverFilters {
   readonly b2b_b2c?: TermsFilter | null;
@@ -1008,11 +1009,11 @@ export interface EmploymentHistoryFilter {
 }
 
 /**
- * One independently-scoped past job. Mirrors
- * `prism.schema.search.discover.EmploymentHistoryGroup` (filters v3, replaces
- * the old `prior_company` field plus `title`/`tenure`'s `previous_*` sugar) —
- * matched against its own `p_comp` array entry server-side, so naming two
- * groups requires two different entries, not one shared row.
+ * One independently-scoped past job. Mirrors the search service's
+ * `EmploymentHistoryGroup` (filters v3, replaces the old `prior_company` field
+ * plus `title`/`tenure`'s `previous_*` sugar) — matched against its own
+ * `p_comp` array entry server-side, so naming two groups requires two different
+ * entries, not one shared row.
  */
 export interface EmploymentHistoryGroup {
   readonly company?: EntityFilter | null;
@@ -1391,7 +1392,7 @@ export interface EntityRef {
 }
 
 /**
- * Companies and people, through prism's discover route.
+ * Companies and people, through the search service's discover route.
  */
 export interface EntitySearchRequest {
   /**
@@ -1797,8 +1798,8 @@ export interface GlobalPresence {
  * countries satisfies. A company matches with at least `gte` (default 1) people
  * in ANY place named, or in EVERY place with `match_all` ("offices in Germany
  * and France"). With `min_countries` instead, it matches companies present in
- * at least that many countries. Prism refuses a place it does not know with
- * `request.invalid`.
+ * at least that many countries. The search service refuses a place it does not
+ * know with `request.invalid`.
  */
 export interface GlobalPresenceFilter {
   /**
@@ -1888,7 +1889,7 @@ export interface ItemRef {
   readonly entity_category: ResultCategoryInput;
   /**
    * A company's `company_ref`, domain or LinkedIn page; a person's LinkedIn
-   * profile URL; a document's `id` from search (or prism's own id).
+   * profile URL; a document's `id` from search (or its internal record id).
    */
   readonly entity_id: string;
 }
@@ -2098,8 +2099,8 @@ export interface ListsResponse {
 
 /**
  * OR within a level, AND across levels; an excluded place removes everyone
- * holding it. Places are matched as prism stores them, lower case (``united
- * states``, ``san francisco``).
+ * holding it. Places are matched as the search service stores them, lower case
+ * (``united states``, ``san francisco``).
  */
 export interface LocationFilter {
   readonly exclude?: Places;
@@ -2547,11 +2548,11 @@ export interface OrgChartCoverage {
 export interface OrgChartFilters {
   readonly departments?: readonly string[];
   /**
-   * As prism stores them: `Full Time`.
+   * As the search service stores them: `Full Time`.
    */
   readonly employment_types?: readonly string[];
   /**
-   * As prism stores them: `Co Founder`.
+   * As the search service stores them: `Co Founder`.
    */
   readonly governance_levels?: readonly string[];
   readonly has_direct_access_to_c_suite?: boolean | null;
@@ -2903,7 +2904,7 @@ export type PersonBy =
 
 export interface PersonLookup {
   /**
-   * Omit for prism ids; `li_url` or `name`, or `auto`.
+   * Omit for internal record ids; `li_url` or `name`, or `auto`.
    */
   readonly by?: PersonBy | null;
   readonly ids: readonly string[];
@@ -2934,7 +2935,7 @@ export interface PersonRecord {
   readonly certifications: readonly string[];
   readonly city?: string | null;
   /**
-   * The employer's id, as on search hits (dsp-backend copies `company_id`).
+   * The employer's id, as on search hits (the API copies `company_id`).
    */
   readonly cmp_id?: string | null;
   readonly company?: CompanyRecord | null;
@@ -3530,7 +3531,7 @@ export interface RunRequest {
 }
 
 /**
- * A run's state and outcome, as prism last recorded it.
+ * A run's state and outcome, as the search service last recorded it.
  */
 export interface RunResult {
   readonly coverage: SearchCoverage | null;
@@ -3593,8 +3594,9 @@ export interface RunResultsEnvelope {
 }
 
 /**
- * A run's state in this API's words. Prism's ``succeeded`` is ``completed``
- * here; a state prism adds later reads as ``pending`` until this list names it.
+ * A run's state in this API's words. The search service's ``succeeded`` is
+ * ``completed`` here; a state the search service adds later reads as
+ * ``pending`` until this list names it.
  */
 export type RunStatus =
   | "pending"
@@ -3655,8 +3657,7 @@ export type SearchBody =
   | AutoSearchRequest;
 
 /**
- * What to search. Each is a route of prism's (see
- * ``features/search/categories.py``).
+ * What to search. Each is a route of the search service's.
  */
 export type SearchCategory =
   | "company"
@@ -3747,9 +3748,9 @@ export interface SearchExportRequest {
 
 /**
  * One row: its public id, its kind and score, then the record's own fields,
- * flattened. The record fields are prism's and grow as the index grows, so they
- * are passed through rather than enumerated here: a field we did not list must
- * not disappear from the answer.
+ * flattened. The record fields are the search service's and grow as the index
+ * grows, so they are passed through rather than enumerated here: a field we did
+ * not list must not disappear from the answer.
  */
 export interface SearchHit {
   readonly category: ResultCategory;

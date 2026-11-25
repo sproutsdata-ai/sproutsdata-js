@@ -1,6 +1,6 @@
 {
   "name": "search_is_retried_with_the_same_idempotency_key",
-  "description": "Search reads Idempotency-Key (dsp-backend DSP-449): the same key on the same request, from the same credential on the same UTC day, is charged once. So a search that may have reached the server is retried, carrying the key of its first attempt.",
+  "description": "Search reads Idempotency-Key: the same key on the same request, from the same credential on the same UTC day, is charged once. So a search that may have reached the server is retried, carrying the key of its first attempt.",
   "responses": [
     {
       "network": "read_timeout"

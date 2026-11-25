@@ -5,23 +5,26 @@
  *
  * - Returned, as `{ error: {...} }`: invalid model input, 404, 409, 422, 429, 5xx, timeouts and
  *   connection failures. The model can correct its arguments, wait, or tell the user.
- * - Thrown: 401, 403 and 402 ({@link APPLICATION_ERRORS}), and every error that is not the
- *   SDK's own. A model cannot fix a key or buy credits.
+ * - Thrown: 401, 403 and 402 ({@link APPLICATION_ERRORS}), a redirect (the base URL is not the
+ *   API's), and every error that is not the SDK's own. A model cannot fix a key, buy credits or
+ *   point the client elsewhere.
  *
  * Every returned error has the same six keys. `retryable` answers "would calling again,
  * unchanged, be both useful and safe?": all three tools are charged once the server has done
- * the work, so a request that may have reached the server is not retryable.
+ * the work, so a request that may have reached the server (a timeout, a dropped connection, a
+ * gateway's answer) is not retryable, and neither is an answer whose code says a repeat cannot
+ * help. Which answers are retryable is data: `shaping.json` `retryable_concepts`, read against
+ * the error's `concept`.
  */
 
-import { text } from './catalog.js';
+import { SHAPING, text } from './catalog.js';
 import { errorClasses, isApplicationError } from './connection.js';
 import type { ToolError } from './types.js';
 
 /** A returned error. */
 export type ErrorResult = ToolError;
 
-const RETRYABLE_STATUSES: ReadonlySet<number> = new Set([429, 500, 503, 504]);
-const GATEWAY_STATUSES: ReadonlySet<number> = new Set([408, 502]);
+const RETRYABLE_CONCEPTS: ReadonlySet<string> = new Set(SHAPING.retryable_concepts);
 
 interface ErrorFields {
   readonly retryable?: boolean;
@@ -58,6 +61,7 @@ export function refused(message: string): ErrorResult {
 interface StatusFailure {
   readonly status: number;
   readonly code: string | undefined;
+  readonly concept: string | undefined;
   readonly title: string | undefined;
   readonly detail: string | undefined;
   readonly nextStep: string | undefined;
@@ -78,6 +82,7 @@ function statusFailure(failure: object): StatusFailure {
   return {
     status: typeof status === 'number' ? status : 0,
     code: str(failure, 'code'),
+    concept: str(failure, 'concept'),
     title: str(failure, 'title'),
     detail: str(failure, 'detail'),
     nextStep: str(failure, 'nextStep'),
@@ -101,12 +106,12 @@ function located(entries: readonly unknown[]): string[] {
 function fromStatus(failure: StatusFailure): ErrorResult {
   const { status } = failure;
   const code = failure.code ?? `http.${String(status)}`;
-  if (GATEWAY_STATUSES.has(status)) {
+  if (failure.concept === 'gateway') {
     return error(code, text('errors', 'gateway_no_answer', { status }), { requestId: failure.requestId ?? null });
   }
   const said = failure.detail ?? failure.title ?? text('errors', 'http_status', { status });
   return error(code, failure.nextStep === undefined ? said : `${said} ${failure.nextStep}`, {
-    retryable: RETRYABLE_STATUSES.has(status),
+    retryable: failure.concept !== undefined && RETRYABLE_CONCEPTS.has(failure.concept),
     retryAfter: failure.retryAfter ?? null,
     fieldErrors: located(failure.fieldErrors),
     requestId: failure.requestId ?? null,

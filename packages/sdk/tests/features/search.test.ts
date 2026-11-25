@@ -32,7 +32,7 @@ describe('search', () => {
     assertValidRequest('search', r.body());
   });
 
-  it('S1: auto takes only query, mode, limit and cursor', async () => {
+  it('S1: auto takes only query, mode, fields, limit and cursor', async () => {
     const r = rig([recorded('search', 'auto')]);
     const answer = await new Search(r.transport).search({ category: 'auto', query: 'robotics in Germany', limit: 2 });
     expect(r.body()).toEqual({ category: 'auto', query: 'robotics in Germany', limit: 2 });
@@ -46,6 +46,49 @@ describe('search', () => {
     await refused({ category: 'company', filters: { nope: {} } }, 'filters.nope: not a field');
     await refused({ category: 'fish', query: 'x' }, 'category must be one of');
     await refused({ category: 'company', query: 'x', limit: 101 }, 'limit: must be at most 100');
+    await refused({ category: null, query: 'x' }, 'category must be one of');
+  });
+
+  it.each([
+    ['company', '   ', '`query` cannot be blank; send words, or leave it out'],
+    ['person', '\t\n', '`query` cannot be blank; send words, or leave it out'],
+    ['patent', ' ', '`query` cannot be blank; send words, or leave it out'],
+    ['company', '\u001c\u3000', '`query` cannot be blank; send words, or leave it out'],
+    ['auto', '  ', '`query` cannot be blank; send the question in words'],
+  ])('S2: a blank query is refused even beside filters (%s, %j)', async (category, query, message) => {
+    // Spaces alone name nothing: the API refuses them, and one that took them would answer (and
+    // charge for) the whole index. Blank means Python's whitespace, as the API strips it.
+    await refused({ category, query }, message);
+    if (category === 'company' || category === 'person') await refused({ category, query, filters: { revenue: { gte: 1 } } }, message);
+  });
+
+  it('S2: a zero-width no-break space is a word, as the API reads it', async () => {
+    const r = rig([recorded('search', 'company')]);
+    await new Search(r.transport).search({ query: '\ufeff' });
+    expect(r.body()).toEqual({ category: 'company', query: '\ufeff' });
+  });
+
+  it('S12: fields and lock_filters are sent as the server reads them', async () => {
+    const r = rig([recorded('search', 'company'), recorded('search', 'auto'), recorded('similar', 'company')]);
+    const search = new Search(r.transport);
+    await search.search({ query: 'x', lock_filters: true, fields: ['domain', 'account_name'] });
+    await search.search({ category: 'auto', query: 'robotics in Germany', fields: ['domain'] });
+    await search.similar({ anchors: ['stripe.com'], fields: ['domain'] });
+    expect(r.body(0)).toEqual({ category: 'company', query: 'x', lock_filters: true, fields: ['domain', 'account_name'] });
+    expect((r.body(1) as { fields: string[] }).fields).toEqual(['domain']);
+    expect((r.body(2) as { fields: string[] }).fields).toEqual(['domain']);
+    ['search', 'search', 'similar'].forEach((op, i) => {
+      assertValidRequest(op, r.body(i));
+    });
+    await refused({ category: 'auto', query: 'x', lock_filters: true }, "category 'auto' takes only");
+  });
+
+  it('a per-call timeout is a finite, positive number', async () => {
+    const r = rig([]);
+    for (const timeoutMs of [Number.NaN, Number.POSITIVE_INFINITY, 0]) {
+      await expect(new Search(r.transport).search({ query: 'x' }, { timeoutMs })).rejects.toThrow('timeoutMs must be a positive number of milliseconds');
+    }
+    expect(r.sent).toHaveLength(0);
   });
 
   it.each(['company', 'person', 'patent', 'auto'])('S2: deep is refused and says where its work went (%s)', async (category) => {
@@ -166,6 +209,16 @@ describe('search pages', () => {
     const rows = await collect(new Search(r.transport).iterSearch({ query: 'x', limit: 2 }));
     expect(rows.map((row) => row.id)).toEqual(['d-0.de', 'd-1.de', 'd-0.de']);
     expect(r.sent.map((s) => (s.body as { cursor?: string }).cursor)).toEqual([undefined, 'c1', 'c2']);
+  });
+
+  it("S11: a caller's key and request id go with the first page only", async () => {
+    const r = rig([respond('search', 200, page(2, 'c1')), respond('search', 200, page(1, null))]);
+    await collect(new Search(r.transport).iterSearch({ query: 'x', limit: 2 }, { idempotencyKey: 'k-1', requestId: 'req_1' }));
+    const [first, later] = r.sent;
+    expect([first?.headers.get('idempotency-key'), first?.headers.get('x-request-id')]).toEqual(['k-1', 'req_1']);
+    expect(later?.headers.get('idempotency-key')).not.toBe('k-1');
+    expect(later?.headers.get('idempotency-key')).toMatch(/^sdk-/);
+    expect(later?.headers.has('x-request-id')).toBe(false);
   });
 
   it('S11: maxResults asks the last page only for the rows still wanted', async () => {

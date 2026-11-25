@@ -13,7 +13,7 @@
   "expect": {
     "attempts": 1,
     "error": {
-      "concept": "api_status",
+      "concept": "gateway",
       "status": 502
     }
   }

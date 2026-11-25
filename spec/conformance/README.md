@@ -68,6 +68,9 @@ the CSV or 202 with a job to poll, and the SDK must say which it got.
 the value they read (`available_credits`). `expect.error.extra` asserts that the
 problem's `extra` survives onto the error: every key given must be present with
 exactly that value (other keys may be present too).
+`expect.error.message_contains` asserts that the error's message (`str(error)`
+in Python, `error.message` in JS) contains this text: how a case pins the note a
+call that was deliberately not repeated carries.
 
 `expect.sent` asserts on what went out — the pagination cases use it to prove the
 second request body matches the first:
@@ -134,8 +137,9 @@ that matches no route and sets no class fails rather than guessing.
 `expect.error` then names the concept `connection` or `timeout` (a timeout is
 also a connection error) and may assert `"reached_server": true | false`. The
 contract's retry table (`spec/retry-policy.json`) is what these cases pin: a
-`billed` or `once` call that may have reached the server is raised, never
-repeated.
+`billed` or `once` call that may have reached the server (a timeout or dropped
+connection after sending, or a gateway's 408, 502 or 504, concept `gateway`) is
+raised, never repeated.
 
 `Retry-After` values in `headers` may be seconds or an HTTP date. A date far in
 the future is how a case says "beyond the 60-second cap" without depending on

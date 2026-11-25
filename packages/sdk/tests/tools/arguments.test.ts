@@ -7,7 +7,9 @@ import { readFileSync } from 'node:fs';
 
 import { describe, expect, it } from 'vitest';
 
-import { AuthenticationError, InsufficientCreditsError, PermissionDeniedError } from '../../src/index.js';
+import { APIError, AuthenticationError, InsufficientCreditsError, PermissionDeniedError, RedirectRefusedError, SproutsData } from '../../src/index.js';
+import { Toolset } from '../../src/tools/index.js';
+import { BASE_URL, FIXTURE_KEY } from '../support/fakes.js';
 import type { ToolError, ToolResult } from '../../src/tools/index.js';
 import { problem, searchOk, toolset } from './support.js';
 
@@ -120,6 +122,8 @@ describe('failures', () => {
     [problem('conflict', 409), 'conflict', false],
     [problem('upstream.unavailable', 503), 'upstream.unavailable', true],
     [problem('upstream.timeout', 504), 'upstream.timeout', true],
+    [problem('credits.refused', 503), 'credits.refused', false],
+    [problem('quota.concurrency_exceeded', 429), 'quota.concurrency_exceeded', false],
     [problem('not_implemented', 501), 'not_implemented', false],
     [{ status: 500, raw_body: '<html>oops</html>' }, 'http.500', true],
   ])('come back as data with six keys (%#)', async (answer, code, retryable) => {
@@ -144,12 +148,25 @@ describe('failures', () => {
     expect([limited.retryable, limited.retry_after]).toEqual([true, 3]);
   });
 
-  it.each([[{ status: 502, raw_body: 'Bad Gateway' }], [problem('x', 408)]])('a gateway answer is not retryable, and says why (%#)', async (answer) => {
+  it.each([
+    [{ status: 502, raw_body: 'Bad Gateway' }],
+    [{ status: 504, raw_body: '' }],
+    [{ status: 504, raw_body: '<html>504 Gateway Time-out</html>' }],
+    [problem('x', 408)],
+  ])('a gateway answer is not retryable, and says why (%#)', async (answer) => {
     const { tools, sent } = toolset([answer]);
     const error = errorOf(await tools.run('sprouts_search', { query: 'acme' }));
     expect(error.retryable).toBe(false);
     expect(error.message).toContain('may have reached the service and been charged');
     expect(sent).toHaveLength(1);
+  });
+
+  it('a redirect is thrown, however the fetch reports it: the application must fix its base URL', async () => {
+    const answered = toolset([{ status: 302, headers: { location: 'https://elsewhere.example' } }]);
+    await expect(answered.tools.run('sprouts_search', { query: 'acme' })).rejects.toBeInstanceOf(APIError);
+    const refused = new TypeError('fetch failed', { cause: new Error('unexpected redirect') });
+    const client = new SproutsData({ apiKey: FIXTURE_KEY, baseUrl: BASE_URL, maxRetries: 0, fetch: () => Promise.reject(refused) });
+    await expect(new Toolset(client).run('sprouts_search', { query: 'acme' })).rejects.toBeInstanceOf(RedirectRefusedError);
   });
 
   it('a request that never left is retryable; one that may have is not', async () => {

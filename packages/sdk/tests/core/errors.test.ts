@@ -18,7 +18,8 @@ import {
   ResultsExpiredError,
   ServiceUnavailableError,
 } from '../../src/core/errors.js';
-import { conceptFor, decodeErrorBody, errorFromAnswer, parseRetryAfter } from '../../src/core/problem.js';
+import { conceptFor } from '../../src/core/errors.js';
+import { decodeErrorBody, errorFromAnswer, parseRetryAfter } from '../../src/core/problem.js';
 import { NOW } from '../support/fakes.js';
 
 const answer = (status: number, body: unknown, headers: Record<string, string> = {}) => ({ status, headers, body, retryAfter: undefined });
@@ -73,10 +74,14 @@ describe('errors', () => {
     expect(new APIError(answer(301, undefined)).message).toContain('with no Location');
   });
 
-  it('keeps only well-formed field errors, from the top-level errors', () => {
-    const errors = [{ loc: ['body', 'limit', 0, true], msg: 'too big', type: 'x' }, { loc: ['q'], msg: 'bad' }, { msg: 'no loc' }, 'junk'];
+  it('keeps every field error with a message, from the top-level errors', () => {
+    const errors = [{ loc: ['body', 'limit', 0, true], msg: 'too big', type: 'x' }, { loc: ['q'], msg: 'bad' }, { msg: 'no loc' }, { loc: ['q'], msg: 7 }, 'junk'];
     const error = new APIError(answer(422, { errors }));
-    expect(error.fieldErrors).toEqual([{ loc: ['body', 'limit', 0], msg: 'too big', type: 'x' }, { loc: ['q'], msg: 'bad' }]);
+    expect(error.fieldErrors).toEqual([
+      { loc: ['body', 'limit', 0], msg: 'too big', type: 'x' },
+      { loc: ['q'], msg: 'bad' },
+      { loc: [], msg: 'no loc' },
+    ]);
     expect(new APIError(answer(422, { errors: 'x' })).fieldErrors).toEqual([]);
   });
 
@@ -103,6 +108,20 @@ describe('errors', () => {
 });
 
 describe('problem documents', () => {
+  it.each([
+    [504, { status: 504, code: 'upstream.timeout' }, 'UpstreamTimeoutError', 'upstream_timeout'],
+    [504, undefined, 'GatewayError', 'gateway'],
+    [504, '<html>504 Gateway Time-out</html>', 'GatewayError', 'gateway'],
+    [504, { status: 504, code: 'gateway.invented_later' }, 'GatewayError', 'gateway'],
+    [502, '<html>Bad Gateway</html>', 'GatewayError', 'gateway'],
+    [408, undefined, 'GatewayError', 'gateway'],
+    [503, undefined, 'ServiceUnavailableError', 'service_unavailable'],
+    [418, undefined, 'APIError', undefined],
+  ])("makes only the API's own code a timeout an upstream timeout (%i, %j)", (status, body, name, concept) => {
+    const error = errorFromAnswer(status, {}, body, 0);
+    expect([error.name, error.concept]).toEqual([name, concept]);
+  });
+
   it('maps a code first, then its status, then nothing', () => {
     expect(conceptFor(409, 'lists.name_taken')).toBe('list_name_taken');
     expect(conceptFor(409, 'lists.invented_later')).toBe('conflict');

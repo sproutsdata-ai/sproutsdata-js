@@ -69,7 +69,11 @@ const singleSet: Rule = (part) => {
   return count === 1 ? undefined : `market reports take exactly one positive keyword set (got ${String(count)})`;
 };
 
-const anyField: Rule = (part) => (Object.values(part).some(set) ? undefined : 'filters, when provided, must contain at least one filter'); // be filters.py:120, documents/base.py:27
+const NO_FILTER = 'filters, when provided, must contain at least one filter';
+// The API counts a company or person filter only when it holds a value (null is no filter), and a
+// document filter whenever it is sent (null included); `undefined` is never sent.
+const anyField: Rule = (part) => (Object.values(part).some(set) ? undefined : NO_FILTER);
+const anyDocumentField: Rule = (part) => (Object.values(part).some((value) => value !== undefined) ? undefined : NO_FILTER);
 
 const companyKeywords: Rule = (part) => {
   // be filter_values.py:325
@@ -98,7 +102,7 @@ export const RULES: Readonly<Record<string, Rule>> = {
   KeywordQuery: either(['positive', 'negative'], 'keywords requires at least one of positive or negative'), // be document_values.py:115
   SingleSetKeywordQuery: singleSet,
   DiscoverFilters: anyField,
-  ...Object.fromEntries(DOCUMENT_FILTERS.map((name) => [name, anyField])),
+  ...Object.fromEntries(DOCUMENT_FILTERS.map((name) => [name, anyDocumentField])),
 };
 
 /** The field of a request type that holds a keyword tree, by the type's name. */

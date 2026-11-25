@@ -5,16 +5,18 @@
  * parse failure there would hide the real one.
  */
 
-import { ERROR_CODES, STATUS_FALLBACKS, type ErrorCode, type ErrorConcept } from '../generated/error-codes.js';
+import type { ErrorConcept } from '../generated/error-codes.js';
 import {
   APIError,
   AuthenticationError,
+  conceptFor,
   ConcurrencyLimitError,
   ConflictError,
   CreditsRefusedError,
   CursorExpiredError,
   CursorInvalidError,
   FeatureNotAvailableError,
+  GatewayError,
   InsufficientCreditsError,
   InternalServerError,
   InvalidRequestError,
@@ -54,18 +56,9 @@ export const CONCEPT_CLASSES: Readonly<Record<ErrorConcept, typeof APIError>> = 
   service_unavailable: ServiceUnavailableError,
   credits_refused: CreditsRefusedError,
   upstream_timeout: UpstreamTimeoutError,
+  gateway: GatewayError,
   internal: InternalServerError,
 };
-
-function isKnownCode(code: string): code is ErrorCode {
-  return Object.hasOwn(ERROR_CODES, code);
-}
-
-/** The concept a code (else its status) maps to, or `undefined` for neither. */
-export function conceptFor(status: number, code: string | undefined): ErrorConcept | undefined {
-  if (code !== undefined && isKnownCode(code)) return ERROR_CODES[code].concept;
-  return STATUS_FALLBACKS[status];
-}
 
 /** `Retry-After` as seconds from `now` (ms since the epoch): a delay, or an HTTP date. A past date is 0. */
 export function parseRetryAfter(raw: string | undefined, now: number): number | undefined {

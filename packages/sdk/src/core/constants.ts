@@ -1,5 +1,7 @@
 /** Names and limits every layer shares: headers, the User-Agent product, paging limits. */
 
+import { DEFAULTS } from '../generated/defaults.js';
+
 export const USER_AGENT_PRODUCT = 'sproutsdata-js';
 export const HEADER_API_KEY = 'X-API-Key';
 export const HEADER_REQUEST_ID = 'X-Request-Id';
@@ -21,20 +23,16 @@ export const DEFAULT_PAGE_SIZE = 10;
 
 /**
  * The server refuses an API key on any request carrying one of these (a key is a server's
- * credential; a browser cannot hold one safely), so the SDK never sends either.
+ * credential; a browser cannot hold one safely), so the SDK never sends either
+ * (`spec/defaults.json`, `forbidden_headers`).
  */
-export const FORBIDDEN_HEADERS: ReadonlySet<string> = new Set(['origin', 'referer']);
+export const FORBIDDEN_HEADERS: ReadonlySet<string> = new Set(DEFAULTS.forbiddenHeaders);
 
-/** Headers the SDK sets itself, per call: a default header may add others, never these. */
-export const OWNED_HEADERS: ReadonlySet<string> = new Set([
-  'x-api-key',
-  'idempotency-key',
-  'x-request-id',
-  'user-agent',
-  'accept',
-  'content-type',
-  'last-event-id',
-]);
+/**
+ * Headers the SDK sets itself, per call: a default header may add others, never these
+ * (`spec/defaults.json`, `owned_headers`).
+ */
+export const OWNED_HEADERS: ReadonlySet<string> = new Set(DEFAULTS.ownedHeaders);
 
 /**
  * `cause.code` values (anywhere in a failure's cause chain) proving a request never left the

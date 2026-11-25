@@ -1,5 +1,5 @@
 {
-  "description": "A company search with a filter few records hold. dsp-backend names it in a `sparse_filter` degradation (a caveat) and puts its numbers in `resolved_search.sparse_filters`, which `interpreted_as` carries as `sparse_filters`; an answer without thin filters has no such key.",
+  "description": "A company search with a filter few records hold. The API names it in a `sparse_filter` degradation (a caveat) and puts its numbers in `resolved_search.sparse_filters`, which `interpreted_as` carries as `sparse_filters`; an answer without thin filters has no such key.",
   "tool": "sprouts_search",
   "options": {},
   "arguments": {

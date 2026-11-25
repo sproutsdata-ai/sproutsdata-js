@@ -112,7 +112,7 @@ export const TOOL_SPECS: Readonly<Record<ToolName, ToolSpecFile>> = {
     "name": "sprouts_search",
     "description": "THE DEFAULT TOOL. Find companies, people or documents matching a DESCRIPTION of who to find. A natural-language `query` is the primary interface; `filters` is a vetted override, never a place to restate the query. \"Who works at X\" is this tool with `category: \"person\"`.\n\nRead the result before reporting it. `interpreted_as` shows the filters the engine actually applied (`source: \"parser\"` means it inferred them from your words), and `caveats` lists what it could not do. When `total_is_estimate` is true, `total` is a floor: say \"at least N\", never an exact count. `has_more` with a `next_cursor` means more rows exist. An empty result means nothing matched what was applied, not that the entity does not exist: the index does not hold every company or person, and some categories have no index in a given deployment. An empty result says why in `caveats` (`no_match`), and `suggestion` may say how to widen it: `kind: \"relax\"` lists in `without` the filters whose removal alone finds records, each with its `total`; drop one of them and search again. A `sparse_filter` caveat (with its numbers in `interpreted_as.sparse_filters`) means few records hold that field, so a small `total` reflects thin data rather than a narrow ask.\n\nFilter values must come from the live vocabulary. Seniority is exactly `C-Suite`, `VP`, `Director / Head`, `Manager`, `IC`, `Entry`, `In Training`. Industries look like `Software & Technology`; departments like `Marketing` or `Engineering / Software`. Founders, owners, partners, investors and advisors are `governance_level`, and consultants and freelancers are `employment_type`, not seniorities. An invented filter name or value fails the whole call: move that constraint into the `query` words instead.\n\nBilled by the results a search delivers: the first page costs a base price that covers its first results (`auto` costs a little more than `fast`), a later page costs only the results it adds, and a search that finds nothing is free.\n\nA document category (`patent`, `news_article`, ...) takes `query` and its own scope only: `filters` here are company and person filters, and are refused for documents.",
     "description_hints": {
-      "sprouts_entity_lookup": "To get a row's full record, call sprouts_entity_lookup with the row's `lookup` value: a company by its domain with `by: \"domain\"`, a person by their LinkedIn URL with `by: \"li_url\"`, a document by its `id` (a `d1_...` id is a lookup key). A person row's `id` is a hash that no lookup resolves."
+      "sprouts_entity_lookup": "To get a row's full record, call sprouts_entity_lookup with the row's `lookup` value: a company by its domain with `by: \"domain\"`, a person by their LinkedIn URL with `by: \"li_url\"`, a document by its `id` (a `d1_...` id is a lookup key). A company row's `id` (a sealed reference) and a person row's `id` (a hash) resolve through no lookup."
     },
     "refused_arguments": {
       "page": "This tool has no `page`. Pass `cursor` from the previous result's `next_cursor` instead.",
@@ -610,7 +610,7 @@ export const TOOL_SPECS: Readonly<Record<ToolName, ToolSpecFile>> = {
   },
   sprouts_entity_lookup: {
     "name": "sprouts_entity_lookup",
-    "description": "Full records for IDENTIFIERS YOU ALREADY HOLD: domains, LinkedIn URLs, names, or record ids. Do not search for something you can look up.\n\nSay what the ids are with `by`: a company by `domain` or `li_url`, a person by `li_url` (a person has no domain), `name` for either, or `auto` (the default for both) to classify each value. A row from a search or look-alike result carries a `lookup` value: pass its value, with its `by` when it has one. A document row's `id` (`d1_...`) is its lookup value; a person row's `id` is a hash that comes back not found.\n\nEvery id is answered, in order. `found: false` is a miss: we hold no record under that identifier, which is not proof the entity does not exist. `found: true` with empty `matches` means the record exists but none came back. `ambiguous: true` means several records matched (a name is not a unique key): show them rather than picking the first. At most 3 matches are shown per id. Company and person records are trimmed to a compact default set unless you name `fields`, which picks fields from the records returned.\n\nBatch ceilings: 50 ids for company and person, 100 for document categories (50 by name). Billed per record found; a miss is free.",
+    "description": "Full records for IDENTIFIERS YOU ALREADY HOLD: domains, LinkedIn URLs, names, or record ids. Do not search for something you can look up.\n\nSay what the ids are with `by`: a company by `domain` or `li_url`, a person by `li_url` (a person has no domain), `name` for either, or `auto` (the default for both) to classify each value. A row from a search or look-alike result carries a `lookup` value: pass its value, with its `by` when it has one. A document row's `id` (`d1_...`) is its lookup value; a company row's `id` (a sealed reference, also `d1_...`) and a person row's `id` (a hash) come back not found.\n\nEvery id is answered, in order. `found: false` is a miss: we hold no record under that identifier, which is not proof the entity does not exist. `found: true` with empty `matches` means the record exists but none came back. `ambiguous: true` means several records matched (a name is not a unique key): show them rather than picking the first. At most 3 matches are shown per id. Company and person records are trimmed to a compact default set unless you name `fields`, which picks fields from the records returned.\n\nBatch ceilings: 50 ids for company and person, 100 for document categories (50 by name). Billed per record found; a miss is free.",
     "description_hints": {},
     "refused_arguments": {
       "kind": "This tool takes `category`, not `kind`.",
@@ -787,7 +787,7 @@ export const SHAPING: ShapingSpec = {
       "default": "id"
     }
   },
-  "search_id_pattern": "^[0-9a-f]{16}$",
+  "search_id_pattern": "^(?:[0-9a-f]{16}|d1_[A-Za-z0-9_-]+)$",
   "document_categories": [
     "patent",
     "news_article",
@@ -800,6 +800,12 @@ export const SHAPING: ShapingSpec = {
   "resolved_filters_skipped": [
     "anchors",
     "combine"
+  ],
+  "retryable_concepts": [
+    "rate_limit",
+    "internal",
+    "service_unavailable",
+    "upstream_timeout"
   ]
 };
 
@@ -823,6 +829,7 @@ export const MESSAGES: MessagesSpec = {
   },
   "rules": {
     "needs_query_or_filters": "Provide `query`, `filters`, or both. A search with neither has nothing to match on.",
+    "query_blank": "`query` holds only spaces, which name nothing to search. Put words in it, or leave it out and search by `filters` alone.",
     "auto_needs_query": "`category: \"auto\"` asks the engine to classify your words, so it needs `query`. Name the category to search with filters alone.",
     "auto_needs_auto_mode": "`category: \"auto\"` requires `mode: \"auto\"`: classification is itself a model call, and `fast` runs none. Set both, or name the category and keep `fast`.",
     "auto_takes_query_only": "`category: \"auto\"` accepts only `query`: filters, domain lists and `sort` are category-specific. Name the category to use them.",
@@ -844,7 +851,7 @@ export const MESSAGES: MessagesSpec = {
     "anchors_by_name": "anchors_by_name: {names} — resolved by name with no disambiguation, so a same-named company may have been used. Prefer a domain.",
     "anchors_zero_weight": "anchors_zero_weight: {names} — weight 0, so no influence on the result.",
     "anchors_removed": "anchors_removed: {ids} — returned as a look-alike of itself and removed.",
-    "search_ids_not_found": "search_ids_not_found: {ids} — these look like the hash a search gives a person row, which no lookup resolves. Look the row up by its `lookup` value (its LinkedIn URL); this miss does not mean the record is not held.",
+    "search_ids_not_found": "search_ids_not_found: {ids} — these look like the id a search gives a company row (a sealed reference) or a person row (a hash), which no lookup resolves. Look the row up by its `lookup` value (a company's domain or LinkedIn page, a person's LinkedIn URL); this miss does not mean the record is not held.",
     "record_unavailable": "record_unavailable: {ids} — resolved, but no record came back. This is not a miss."
   },
   "errors": {

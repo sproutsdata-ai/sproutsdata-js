@@ -1,6 +1,6 @@
 {
-  "$comment": "Configuration defaults every SDK applies. Durations are in seconds here; the JS SDK takes milliseconds at its API surface and converts. Resolution order for a setting is always: the argument, then the environment variable, then the deprecated environment variable (with a warning naming its replacement), then the default below. The key rules mirror dsp-auth (keys are issued as sk_dsp_live_<secret>; it refuses the retired sk_dsp_test_ keys at exchange) and dsp-backend (it accepts the sk_dsp_ prefix, at most 200 characters, printable ASCII): a key that breaks them is refused locally, before any request, because the server would only answer a bare 401.",
-  "version": 3,
+  "$comment": "Configuration defaults every SDK applies. Durations are in seconds here; the JS SDK takes milliseconds at its API surface and converts. Resolution order for a setting is always: the argument, then the environment variable, then the deprecated environment variable (with a warning naming its replacement), then the default below. The key rules mirror the API's (keys are issued as sk_dsp_live_<secret>, and the retired sk_dsp_test_ keys are refused at exchange; a key has the sk_dsp_ prefix, at most 200 characters, printable ASCII): a key that breaks them is refused locally, before any request, because the server would only answer a bare 401.",
+  "version": 4,
   "base_url": "https://api.sproutsdata.ai",
   "base_url_rule": "https:// is required. Plain http:// is accepted only when the host is one of plain_http_hosts.",
   "plain_http_hosts": [
@@ -11,9 +11,24 @@
   "api_key_max_length": 200,
   "api_key_split": "A key's prefix is its first three '_'-separated parts (sk, dsp, live): split with a bounded split(\"_\", 3), since the secret may contain '_'.",
   "retired_api_key_prefix": "sk_dsp_test_",
-  "retired_api_key": "Test keys were retired on 2026-11-15 (dsp-auth #7): every key is a live key, charged from the workspace's credits. A key with the retired prefix is refused at construction with a message saying so, because the server would only answer a bare 401.",
+  "retired_api_key": "Test keys were retired on 2026-11-15: every key is a live key, charged from the workspace's credits. A key with the retired prefix is refused at construction with a message saying so, because the server would only answer a bare 401.",
   "missing_api_key": "Refused at construction.",
-  "browsers": "Not supported: dsp-backend refuses an API key on any request that carries an Origin header, which every browser sends. The JS SDK refuses to construct in a browser.",
+  "browsers": "Not supported: the API refuses an API key on any request that carries an Origin header, which every browser sends. The JS SDK refuses to construct in a browser.",
+  "forbidden_headers": [
+    "origin",
+    "referer"
+  ],
+  "forbidden_headers_rule": "Never sent, and refused as a default header: the API refuses an API key on any request that carries an Origin header (keys are for servers; a browser cannot hold one safely).",
+  "owned_headers": [
+    "x-api-key",
+    "idempotency-key",
+    "x-request-id",
+    "user-agent",
+    "accept",
+    "content-type",
+    "last-event-id"
+  ],
+  "owned_headers_rule": "Set by the client on each call. A default header may add others, never these: a caller's Content-Type would misdescribe the body, and a Last-Event-ID would resume an event stream from the wrong place.",
   "env": {
     "api_key": "SPROUTSDATA_API_KEY",
     "base_url": "SPROUTSDATA_BASE_URL",

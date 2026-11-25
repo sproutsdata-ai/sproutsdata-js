@@ -27,31 +27,55 @@ const TYPES: Readonly<Record<string, string>> = {
   funding_round: 'FundingSearchRequest',
   job_opening: 'JobOpeningSearchRequest',
 };
-const AUTO_FIELDS = new Set(['category', 'query', 'mode', 'limit', 'cursor']);
+const AUTO_FIELDS = new Set(['category', 'query', 'mode', 'fields', 'limit', 'cursor']);
 const DOMAIN_CATEGORIES = new Set(['company', 'person', 'job_opening']);
 // be search/schemas/sorts.py:69 (COMPANY_ONLY) and :90 (PERSON_ONLY), prism's split.
 const COMPANY_ONLY_SORTS = new Set(['domain', 'revenue', 'employee_count', 'employee_range', 'founded_year', 'linkedin_followers', 'total_funding', 'last_funding_amount', 'last_funding_date', 'funding_stage', 'industry', 'primary_industry', 'sub_industry', 'other_industries', 'global_presence']);
 const PERSON_ONLY_SORTS = new Set(['contact_name', 'job_title', 'title', 'department', 'division', 'sub_department', 'employment_type', 'linkedin_connections', 'tenure', 'seniority']);
 // be search/schemas/documents/patents.py:32: a patent's `status` defaults to every patent.
 const NOT_NARROWING: Readonly<Record<string, readonly string[]>> = { patent: ['status'] };
-// be search/schemas/request.py:80 (NO_DEEP): `deep` gets its own reason, not a list of modes.
+// Spaces alone name nothing to search, and the API refuses them (API: the `query` of every search
+// body), with these words. An unchecked one would be charged for the whole index.
+const BLANK_QUERY = '`query` cannot be blank; send words, or leave it out';
+const BLANK_AUTO_QUERY = '`query` cannot be blank; send the question in words';
+// The API trims a query as Python's `str.strip` does, so blank means Python's whitespace (U+001C to
+// U+001F and U+0085 included, U+FEFF not), not `String.prototype.trim`'s.
+const PYTHON_WHITESPACE: ReadonlySet<string> = new Set([
+  ...'\t\n\v\f\r \u001c\u001d\u001e\u001f\u0085\u00a0\u1680\u2028\u2029\u202f\u205f\u3000'.split(''),
+  ...Array.from({ length: 11 }, (_, i) => String.fromCharCode(0x2000 + i)),
+]);
+
+function isBlank(text: string): boolean {
+  for (const char of text) if (!PYTHON_WHITESPACE.has(char)) return false;
+  return true;
+}
+// `deep` gets its own reason, as the API gives it, not a list of the modes left.
 const NO_DEEP = '`deep` search is no longer offered: start an agent run (`runs.create`) to have an agent work a question out, or search with `mode` `fast` or `auto`';
 
 /** The search body for `params` (`category` defaults to `company`), checked locally. */
 export function searchBody(params: SearchParams): W.SearchBody {
   const body: W.SearchBody = params.category === undefined ? { ...params, category: 'company' } : params;
-  const category = body.category ?? 'auto';
-  const type = TYPES[category];
-  if (type === undefined) refuse(WHAT, `category must be one of ${Object.keys(TYPES).join(', ')} (got ${JSON.stringify(category)})`);
+  const [category, type] = categoryOf(body);
   const mode: unknown = body.mode; // a caller without types may still send the retired mode
   if (mode === 'deep') refuse(WHAT, NO_DEEP);
   const given = new Set(Object.entries(body).flatMap(([name, value]) => (value === undefined ? [] : [name])));
   if (category === 'auto') checkAutoFields(given, body.mode);
   else checkDocumentFields(category, given);
   checkShape(WHAT, body, type);
+  if (typeof body.query === 'string' && isBlank(body.query)) refuse(WHAT, category === 'auto' ? BLANK_AUTO_QUERY : BLANK_QUERY);
   if (body.category === 'company' || body.category === 'person') checkEntitySearch(body);
   else if (isDocument(body)) checkDocumentSearch(body);
   return body;
+}
+
+/** The body's category and the request type it picks; refused if it names none (null included). */
+function categoryOf(body: W.SearchBody): [string, string] {
+  const category: unknown = body.category; // a caller without types may send null, which the API refuses
+  const type = typeof category === 'string' ? TYPES[category] : undefined;
+  if (type === undefined || typeof category !== 'string') {
+    refuse(WHAT, `category must be one of ${Object.keys(TYPES).join(', ')} (got ${JSON.stringify(category)})`);
+  }
+  return [category, type];
 }
 
 /** The look-alike body for `params` (a bare-string anchor is a domain), checked locally. */
@@ -73,10 +97,10 @@ function anchor(value: AnchorParam): W.Anchor {
 function checkAutoFields(given: ReadonlySet<string>, mode: string | undefined): void {
   const extra = [...given].filter((name) => !AUTO_FIELDS.has(name)).sort();
   if (extra.length > 0) {
-    refuse(WHAT, `category 'auto' takes only query, mode, limit and cursor (got ${extra.join(', ')}): prism picks the category from the question, and filters, sort and domains belong to one category; name it to send them`);
+    refuse(WHAT, `category 'auto' takes only query, mode, fields, limit and cursor (got ${extra.join(', ')}): the API picks the category from the question, and filters, sort and domains belong to one category; name it to send them`);
   }
   if (mode !== undefined && mode !== 'auto') {
-    refuse(WHAT, 'a search with no category is read by prism, so it runs in `auto` mode only; send a `category` to search in `fast` mode'); // be search/schemas/auto.py:39
+    refuse(WHAT, 'a search with no category is read by the API, so it runs in `auto` mode only; send a `category` to search in `fast` mode'); // API: AutoSearchRequest.mode
   }
 }
 

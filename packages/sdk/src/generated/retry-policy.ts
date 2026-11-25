@@ -23,6 +23,22 @@ export const RETRY_AFTER_CAP_MS = 60000;
 /** Matched in order; the first row that matches a failed attempt decides. */
 export const OUTCOMES: readonly Outcome[] = [
   {
+    name: "never_retried_code",
+    network: [],
+    statuses: [],
+    codes: ["credits.refused","quota.concurrency_exceeded"],
+    retryAfter: null,
+    decisions: { safe: "raise", billed: "raise", keyed: "raise", once: "raise" },
+  },
+  {
+    name: "upstream_timeout",
+    network: [],
+    statuses: [],
+    codes: ["upstream.timeout"],
+    retryAfter: null,
+    decisions: { safe: "retry", billed: "retry", keyed: "retry", once: "raise" },
+  },
+  {
     name: "not_sent",
     network: ["connect_refused","dns_failure","connect_timeout"],
     statuses: [],
@@ -33,18 +49,10 @@ export const OUTCOMES: readonly Outcome[] = [
   {
     name: "sent_no_answer",
     network: ["read_timeout","reset_after_send"],
-    statuses: [408,502],
+    statuses: [408,502,504],
     codes: [],
     retryAfter: null,
     decisions: { safe: "retry", billed: "raise", keyed: "retry", once: "raise" },
-  },
-  {
-    name: "never_retried_code",
-    network: [],
-    statuses: [],
-    codes: ["credits.refused","quota.concurrency_exceeded"],
-    retryAfter: null,
-    decisions: { safe: "raise", billed: "raise", keyed: "raise", once: "raise" },
   },
   {
     name: "rate_limited",
@@ -81,7 +89,7 @@ export const OUTCOMES: readonly Outcome[] = [
   {
     name: "unavailable",
     network: [],
-    statuses: [503,504],
+    statuses: [503],
     codes: [],
     retryAfter: null,
     decisions: { safe: "retry", billed: "retry", keyed: "retry", once: "retry" },

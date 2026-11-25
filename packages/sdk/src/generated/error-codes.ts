@@ -73,6 +73,7 @@ export type ErrorConcept =
   | "service_unavailable"
   | "credits_refused"
   | "upstream_timeout"
+  | "gateway"
   | "internal";
 
 export const CONCEPTS: readonly ErrorConcept[] = [
@@ -96,6 +97,7 @@ export const CONCEPTS: readonly ErrorConcept[] = [
   "service_unavailable",
   "credits_refused",
   "upstream_timeout",
+  "gateway",
   "internal",
 ];
 
@@ -362,6 +364,7 @@ export const STATUS_FALLBACKS: Readonly<Record<number, ErrorConcept>> = {
   403: "permission_denied",
   404: "not_found",
   405: "invalid_request",
+  408: "gateway",
   409: "conflict",
   410: "results_expired",
   413: "invalid_request",
@@ -370,7 +373,7 @@ export const STATUS_FALLBACKS: Readonly<Record<number, ErrorConcept>> = {
   429: "rate_limit",
   500: "internal",
   501: "feature_not_available",
-  502: "service_unavailable",
+  502: "gateway",
   503: "service_unavailable",
-  504: "upstream_timeout",
+  504: "gateway",
 };

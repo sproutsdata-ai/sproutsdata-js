@@ -21,7 +21,7 @@ import {
   SproutsDataError,
 } from './errors.js';
 import { lowered } from './headers.js';
-import type { ResolvedOptions } from './options.js';
+import { checkRetries, checkTimeout, type ResolvedOptions } from './options.js';
 import { decodeErrorBody, errorFromAnswer } from './problem.js';
 import { redactKey } from './redact.js';
 import { buildHeaders, buildUrl, fillPath, type CallOptions, type Query } from './request.js';
@@ -78,7 +78,7 @@ export class Transport {
    */
   async send(operation: Operation, input: CallInput = {}, options: RequestOptions = {}): Promise<Answer> {
     const { url, headers, body } = this.#prepare(operation, input, options);
-    const maxRetries = options.maxRetries ?? this.#options.maxRetries;
+    const maxRetries = options.maxRetries === undefined ? this.#options.maxRetries : checkRetries(options.maxRetries);
     for (let attempt = 1; ; attempt++) {
       if (options.signal?.aborted === true) throw new APIUserAbortError();
       try {
@@ -113,7 +113,7 @@ export class Transport {
     body: string | undefined,
     options: RequestOptions,
   ): Promise<Answer> {
-    const timeoutMs = options.timeoutMs ?? this.#options.timeoutMs;
+    const timeoutMs = options.timeoutMs === undefined ? this.#options.timeoutMs : checkTimeout(options.timeoutMs);
     const attempt = new Attempt(timeoutMs, options.signal);
     try {
       const response = await this.#fetch(url, { method: operation.method, headers, body, signal: attempt.signal }, attempt, timeoutMs, options);
@@ -156,7 +156,7 @@ export class Transport {
    */
   async *stream(operation: Operation, input: CallInput = {}, options: RequestOptions = {}): AsyncGenerator<ServerSentEvent, void, undefined> {
     const { url, headers } = this.#prepare(operation, { ...input, body: undefined }, options);
-    const timeoutMs = options.timeoutMs ?? this.#options.timeoutMs;
+    const timeoutMs = options.timeoutMs === undefined ? this.#options.timeoutMs : checkTimeout(options.timeoutMs);
     const attempt = new Attempt(timeoutMs, options.signal);
     try {
       const response = await this.#fetch(url, { method: operation.method, headers, body: undefined, signal: attempt.signal }, attempt, timeoutMs, options);

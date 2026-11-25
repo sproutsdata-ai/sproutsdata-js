@@ -1,5 +1,5 @@
 {
-  "description": "A company search that matched nothing. The empty first page carries prism's reason as a `no_match` degradation, which becomes the first caveat verbatim, and a `relax` suggestion: `category` is null, so it is dropped, and `without` lists the filters whose removal alone finds records, each with its count.",
+  "description": "A company search that matched nothing. The empty first page carries the search service's reason as a `no_match` degradation, which becomes the first caveat verbatim, and a `relax` suggestion: `category` is null, so it is dropped, and `without` lists the filters whose removal alone finds records, each with its count.",
   "tool": "sprouts_search",
   "options": {},
   "arguments": {

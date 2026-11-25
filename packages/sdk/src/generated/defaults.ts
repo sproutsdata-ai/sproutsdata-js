@@ -17,6 +17,10 @@ export interface Defaults {
   readonly apiKeyMaxLength: number;
   /** A key with this prefix was retired: refused at construction, saying so. */
   readonly retiredApiKeyPrefix: string;
+  /** Never sent, and refused as a default header: the API refuses a key sent with either. */
+  readonly forbiddenHeaders: readonly string[];
+  /** Set by the client on each call; a default header may add others, never these. */
+  readonly ownedHeaders: readonly string[];
   readonly env: { readonly apiKey: string; readonly baseUrl: string };
   readonly deprecatedEnv: { readonly apiKey: string; readonly baseUrl: string };
   readonly timeoutMs: number;
@@ -36,6 +40,8 @@ export const DEFAULTS: Defaults = {
   apiKeyPattern: /^sk_dsp_live_[A-Za-z0-9_-]+$/,
   apiKeyMaxLength: 200,
   retiredApiKeyPrefix: "sk_dsp_test_",
+  forbiddenHeaders: ["origin","referer"],
+  ownedHeaders: ["x-api-key","idempotency-key","x-request-id","user-agent","accept","content-type","last-event-id"],
   env: { apiKey: "SPROUTSDATA_API_KEY", baseUrl: "SPROUTSDATA_BASE_URL" },
   deprecatedEnv: { apiKey: "DSP_API_KEY", baseUrl: "DSP_BASE_URL" },
   timeoutMs: 60000,

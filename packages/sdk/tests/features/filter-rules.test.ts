@@ -58,6 +58,12 @@ describe('filter rules', () => {
     }).toThrow(reason);
   });
 
+  it('S7: a company or person filter set to null is no filter; a document filter set to null is sent', () => {
+    expect(() => searchBody({ ...COMPANY, filters: { industry: null } })).toThrow('filters, when provided, must contain at least one filter');
+    expect((searchBody({ ...PATENT, filters: { topic: null } }) as { filters?: unknown }).filters).toEqual({ topic: null });
+    expect(() => searchBody({ ...PATENT, filters: { topic: undefined } as never })).toThrow('filters, when provided, must contain at least one filter');
+  });
+
   it('S7: bounds that hold pass', () => {
     const filters = {
       revenue: { lte: 5 },

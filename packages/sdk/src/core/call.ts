@@ -109,9 +109,13 @@ export async function* callPages<K extends OperationName>(
   }
 }
 
-/** A later page's options: the caller's, but its own request id. */
+/**
+ * A later page's options: the caller's, without the first page's request id and idempotency key.
+ * Each page is its own call, so it gets its own key (one shared would make a later page read as a
+ * repeat of the first), and sharing one id would merge the pages in the server's logs.
+ */
 function laterPage(options: RequestOptions): RequestOptions {
-  const { requestId: _first, ...rest } = options;
+  const { requestId: _firstId, idempotencyKey: _firstKey, ...rest } = options;
   return rest;
 }
 

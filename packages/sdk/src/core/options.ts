@@ -63,7 +63,7 @@ export function resolveOptions(options: ClientOptions = {}): ResolvedOptions {
   };
 }
 
-/** The key, if it is one dsp-auth could have issued; refused otherwise. The key is never echoed. */
+/** The key, if it is one the API could have issued; refused otherwise. The key is never echoed. */
 export function checkApiKey(key: unknown): string {
   if (typeof key !== 'string' || key === '') {
     throw new ClientValidationError(

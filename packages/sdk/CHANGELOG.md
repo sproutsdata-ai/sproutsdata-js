@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.1.0 — Unreleased
 
-The SDK realigned to the new Sprouts Data Platform backend. **Breaking** for
+The SDK realigned to the new Sprouts Data Platform API. **Breaking** for
 code written against the published `0.0.1`: [MIGRATION.md](MIGRATION.md) shows
 every changed call with its replacement.
 
@@ -12,8 +12,7 @@ every changed call with its replacement.
   server refuses any key sent with an `Origin` header.
 - The `integration` option and the `X-SproutsData-Client` and `X-Dsp-Source`
   headers, which the backend no longer reads.
-- `client.agents`, `credits.usage()` and `members.resolve()`, which the backend
-  does not serve; agent runs are `client.runs`.
+- `credits.usage()` and `members.resolve()`, which the API does not serve.
 - Test keys, which the backend retired: keys look like `sk_dsp_live_…`, and a
   `sk_dsp_test_…` key throws `ClientValidationError` saying so. Tool results no
   longer carry `environment`, and `meta.environment` is a deprecated constant
@@ -66,10 +65,27 @@ every changed call with its replacement.
 - **`credits.quote()`** takes `operation: 'enrichment'` with `fields` (each field at its
   own price, for up to 10,000 records); `fields` for another operation, an unknown or
   repeated field, and a `lookup` quote over 1,000 records are refused locally.
-- **Billed calls carry an idempotency key** (dsp-backend DSP-449): search, look-alikes,
-  entity lookups, relationships and org charts send a generated `Idempotency-Key`, so one
-  that timed out, lost its connection after sending, or met a 502 or 408 is retried with
-  the same key and charged once. It used to be thrown with `reachedServer: true`.
+- **Billed calls carry an idempotency key**: search, look-alikes, entity lookups,
+  relationships and org charts send a generated `Idempotency-Key` (or yours, in
+  `options.idempotencyKey`), so one that timed out, lost its connection after sending, or
+  met a gateway's 408, 502 or 504 is retried with the same key and charged once. It used to
+  be thrown with `reachedServer: true`. A page walk sends your key and request id with its
+  first page only: each later page is its own call, with its own key.
+- **A gateway's answer is not the API's**: a 408, 502 or 504 without the API's code
+  throws `GatewayError` (it used to be `ServiceUnavailableError` or `UpstreamTimeoutError`,
+  whose "nothing was charged" only the API can promise). It is repeated where a repeat is
+  free or carries its key; any other call throws with a note saying what may already have
+  happened. The API's own 504 (`upstream.timeout`) is still `UpstreamTimeoutError` and is
+  not repeated for a list create or delete.
+- **Tool errors** say `retryable` by the error's `concept`, so a refused credit hold and a
+  concurrency limit are no longer offered to a model as retryable. A redirect (the base URL
+  is not the API's) is thrown to the application however the fetch reports it, and invalid
+  `Toolset` settings throw `ClientValidationError`.
+- **Look-alike tool**: a result row is recognised as one of the anchors by its own
+  `domain` only (a company row's `id` is a sealed reference, not its domain), and
+  `anchors_removed` names it by that domain.
+- **Field errors** keep every entry the server gave a message; one without a `loc` reads
+  as the whole request (`loc: []`).
 
 ### Added
 
@@ -100,15 +116,21 @@ every changed call with its replacement.
   carries one, and a company search row's `id` is one). Billed per page that lists
   anyone.
 - `ResultsExpiredError` (410, a `NotFoundError`: a run's or an enrichment job's rows are no
-  longer kept), `ConcurrencyLimitError` (a `RateLimitError`) and `CreditsRefusedError` (a
-  `ServiceUnavailableError`).
-- The types of the API at dsp-backend sd-qa `ec23ad9`: the new document and trend filters,
+  longer kept), `ConcurrencyLimitError` (a `RateLimitError`), `CreditsRefusedError` (a
+  `ServiceUnavailableError`) and `GatewayError`.
+- `APIError.concept`: the kind of failure in the names both SDKs share (`rate_limit`,
+  `gateway`, ...), as the Python SDK's `APIStatusError.concept` gives it.
+- Refused locally, as the API refuses them: a `query` of only whitespace (an older API
+  charged it and answered with the whole index), `category: null`, and a per-call
+  `timeoutMs` or `maxRetries` the client itself would refuse. `category: 'auto'` takes
+  `fields`.
+- The types of the current API: the new document and trend filters,
   `lock_filters` and `fields` on the search bodies, `resolved_search.read_as` and
   `anchor_matches`, and the enrichment, org chart people and credit purchase types.
   Generic backend names carry their feature (`EnrichmentJob`, `OrgChartPlacement`,
   `CreditPurchase`, ...).
 
-## 0.0.1
+## 0.0.1 — 2026-10-14
 
 The first public release of `sproutsdata`, the official JavaScript / TypeScript
 SDK for the Sprouts Data API. Until 1.0, a minor version may include breaking

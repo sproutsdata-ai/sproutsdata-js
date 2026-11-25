@@ -130,14 +130,19 @@ definitions are available without a client from the module-level
 
 ## What a result looks like
 
+From `spec/tools/fixtures/search_company_parser_inferred.json`, one row of three shown and its
+fields shortened:
+
 ```json
 {
-  "caveats": ["vector_coverage_incomplete: … (impact: recall)"],
-  "environment": "test",
+  "caveats": [
+    "vector_coverage_incomplete: 12% of company records have no embedding and were matched lexically only. (impact: recall)",
+    "rows_without_lookup: 1 of 3 rows carry no domain or LinkedIn URL, so they have no `lookup` value and cannot be looked up."
+  ],
   "has_more": true,
   "interpreted_as": {
     "conflicts": [],
-    "filters": { "technology": { "include": ["hubspot"] } },
+    "filters": { "technology": { "include": ["hubspot"] }, "…": "…" },
     "source": "parser"
   },
   "next_cursor": "eyJvIjozfQ.c1a9",
@@ -147,7 +152,7 @@ definitions are available without a client from the module-level
       "account_name": "Brightloop",
       "category": "company",
       "domain": "brightloop.io",
-      "id": "brightloop.io",
+      "id": "d1_WMtEHkBEb68NgK1p035wCzgfKhx5wvrlQAnqihg3",
       "lookup": { "by": "domain", "value": "brightloop.io" },
       "technology": ["HubSpot", "Google Tag Manager", "…", "… +19 more"]
     }
@@ -163,7 +168,8 @@ definitions are available without a client from the module-level
   with a final `"… +N more"`. Values the request asked for come first.
 - **`lookup`** is how to fetch a row's full record with
   `sprouts_entity_lookup`: a company by its domain (or LinkedIn page), a person
-  by their LinkedIn URL, a document by its `d1_...` id. Rows carry `lookup`
+  by their LinkedIn URL, a document by its `d1_...` id. A company row's `id` is a
+  sealed reference and a person row's a hash: neither is a lookup key. Rows carry `lookup`
   only when the lookup tool is offered; a caveat counts the rows that have none.
 - **`interpreted_as`** shows the filters the engine applied; `source:
   "parser"` means it inferred them from the words. `sparse_filters`, present

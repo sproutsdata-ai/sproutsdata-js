@@ -9,7 +9,7 @@ import { collect } from '../support/rig.js';
 import { client, raw, setting, STACK } from './stack.js';
 
 /**
- * A report once the history has recorded its subject: dsp-backend writes history rows in
+ * A report once the history has recorded its subject: the API writes history rows in
  * background batches after the answer, so a report on a request made a moment ago answers
  * `feedback.subject_not_found` until the batch lands.
  */
@@ -94,7 +94,7 @@ describe.skipIf(STACK === undefined)('phase 7, live', () => {
   });
 
   it('a retired test key is refused by the server too', async () => {
-    // The SDK refuses `sk_dsp_test_` before sending (`checkApiKey`); dsp-auth refuses one at
+    // The SDK refuses `sk_dsp_test_` before sending (`checkApiKey`); the API refuses one at
     // exchange, which reaches the caller as a bare 401.
     const answer = await fetch(`${setting('SPROUTSDATA_E2E_BASE_URL')}/v1/credits`, {
       headers: { 'X-API-Key': 'sk_dsp_test_' + 'retired-e2e-key' },

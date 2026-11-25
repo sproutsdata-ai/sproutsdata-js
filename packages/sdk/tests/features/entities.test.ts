@@ -71,7 +71,7 @@ describe('entities', () => {
     expect(r.sent).toHaveLength(0);
   });
 
-  it('N3: a thousand prism ids and a hundred document ids are sent', async () => {
+  it('N3: a thousand internal record ids and a hundred document ids are sent', async () => {
     const r = rig([recorded('entities_companies', 'by_domain'), recorded('entities_news', 'by_name')]);
     const entities = new Entities(r.transport);
     await entities.companies({ ids: Array.from({ length: 1000 }, (_, i) => String(i)), by: null });

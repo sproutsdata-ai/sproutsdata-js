@@ -53,7 +53,7 @@ describe.skipIf(STACK === undefined)('phase 5, live', () => {
     expect((page.resolved_search?.filters['anchors'] as { value: string }[])[0]?.value).toBe('stripe.com');
   });
 
-  // Facts of the stack's fake prism index (sproutsdata-py e2e/fake_prism.py): no company in
+  // Facts of the stack's fake search index (sproutsdata-py e2e/): no company in
   // Iceland, `revenue` held by few records, and no Mining record mentions a topic.
   it('an empty search says why, and leaving out the suggested filter finds rows', async () => {
     const sdk = client();
@@ -179,6 +179,6 @@ describe.skipIf(STACK === undefined)('phase 5, live', () => {
     const first = (await (await raw('POST', '/v1/search', body, key)).json()) as { meta: { credits_charged: number } };
     const again = (await (await raw('POST', '/v1/search', body, key)).json()) as { meta: { credits_charged: number } };
     expect(first.meta.credits_charged).toBeGreaterThan(0);
-    expect(again.meta.credits_charged).toBe(0); // dsp-backend DSP-449
+    expect(again.meta.credits_charged).toBe(0); // the same key on the same search is charged once
   });
 });

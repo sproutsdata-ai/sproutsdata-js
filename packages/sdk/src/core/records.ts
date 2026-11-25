@@ -1,8 +1,8 @@
 /**
- * Prism's records, read as their types: each flexible list made a list (the index stores a
+ * The entity records, read as their types: each flexible list made a list (the index stores a
  * one-value list as the value, and an absent one as null), nested records alike.
  *
- * The record types are generated from prism's verified models (`records.schema.json`); the
+ * The record types are generated from the search service's verified models (`records.schema.json`); the
  * SDK does not validate at run time, so this is the one place a record is given its type.
  */
 

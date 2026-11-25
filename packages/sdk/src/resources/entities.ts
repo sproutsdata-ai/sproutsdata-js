@@ -17,7 +17,7 @@ type Projected = readonly string[] | undefined;
 export class Entities extends Resource {
   /**
    * Companies by domain, LinkedIn URL or name: up to 50 resolved by `by` (default `auto`, each
-   * value classified), or up to 1,000 prism ids with `by: null`. `fields` keeps only those
+   * value classified), or up to 1,000 internal record ids with `by: null`. `fields` keeps only those
    * fields of each record (and its `id`), applied by the SDK: the company lookup takes none.
    */
   async companies(params: CompanyLookupParams, options?: RequestOptions): Promise<W.EntitiesEnvelope> {

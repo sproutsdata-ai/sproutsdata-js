@@ -76,10 +76,10 @@ export interface ProjectionParams {
   readonly fields?: readonly string[];
 }
 
-/** A company lookup. `by` defaults to `auto`; `null` sends none (prism ids). */
+/** A company lookup. `by` defaults to `auto`; `null` sends none (internal record ids). */
 export type CompanyLookupParams = Omit<W.CompanyLookup, 'by'> & ProjectionParams & { readonly by?: W.CompanyBy | null };
 
-/** A person lookup. `by` defaults to `auto`; `null` sends none (prism ids). */
+/** A person lookup. `by` defaults to `auto`; `null` sends none (internal record ids). */
 export type PersonLookupParams = Omit<W.PersonLookup, 'by'> & ProjectionParams & { readonly by?: W.PersonBy | null };
 
 /** An effort tier by the name it had before: still accepted, sent as its new name. */

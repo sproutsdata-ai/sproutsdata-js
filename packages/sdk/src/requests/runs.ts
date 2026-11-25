@@ -6,7 +6,7 @@ import { checkLimit } from './build.js';
 import { currentEffort } from './effort.js';
 import { checkShape } from './shape.js';
 
-/** `limit` on the run list and on a run's results (be agents/api.py). */
+/** `limit` on the run list and on a run's results, as the API caps it. */
 export const MAX_PAGE_SIZE = 100;
 
 /** The states a run does not leave. */

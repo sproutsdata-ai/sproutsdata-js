@@ -1,4 +1,4 @@
-/** The query of each vocabulary call, checked as the server checks it (be search/schemas/vocabulary.py). */
+/** The query of each vocabulary call, checked as the server checks it (`spec/openapi.json`). */
 
 import type { FilterValuesParams } from '../types/index.js';
 import { checkLimit, checkText } from './build.js';

@@ -46,7 +46,7 @@ describe('request', () => {
 
   it('sends an idempotency key on keyed operations only', () => {
     expect(buildHeaders(creditsQuote, FIXTURE_KEY, {}, {}, false)['Idempotency-Key']).toBeUndefined();
-    // A billed read reads one too (dsp-backend DSP-449): a retry with it is charged once.
+    // A billed read reads one too: a retry with it is charged once.
     expect(buildHeaders(search, FIXTURE_KEY, {}, {}, false)['Idempotency-Key']).toMatch(/^sdk-/);
     expect(buildHeaders(runsCreate, FIXTURE_KEY, {}, {}, false)['Idempotency-Key']).toMatch(/^sdk-/);
     expect(buildHeaders(runsCreate, FIXTURE_KEY, {}, { idempotencyKey: 'mine' }, false)['Idempotency-Key']).toBe('mine');

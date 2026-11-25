@@ -1,6 +1,6 @@
 /**
  * The bodies of `POST /v1/entities/*`, checked as the server checks them. Companies and people
- * are looked up by domain, LinkedIn URL or name (`by`), or as prism ids with no `by`; documents
+ * are looked up by domain, LinkedIn URL or name (`by`), or by internal record id with no `by`; documents
  * by id, and news, market reports, funding rounds and job openings by name too. A search row's
  * `d1_...` id is a document id.
  */
@@ -10,7 +10,7 @@ import type { CompanyLookupParams, PersonLookupParams } from '../types/index.js'
 import { refuse } from './build.js';
 import { checkShape } from './shape.js';
 
-/** Values resolved by `by` are classified one by one (be search/schemas/entities.py:26). */
+/** Values resolved by `by` are classified one by one. */
 export const MAX_RESOLVED = 50;
 
 /** A company lookup's body: `by` defaults to `auto`, `fields` is applied by the SDK, not sent. */
@@ -40,7 +40,7 @@ export function namedDocumentBody(what: string, params: W.NamedDocumentLookup): 
 function checked<T extends { readonly ids: readonly string[] }>(what: string, body: T, type: string, resolving: boolean, reason: string): T {
   if (typeof body.ids === 'string') refuse(what, 'ids must be a list of values, not one string');
   checkShape(what, body, type);
-  // be search/schemas/entities.py:56 (_resolved_cap), applied at :75, :89 and :115.
+  // The API caps how many values it resolves one by one; ids it takes many more of.
   if (resolving && body.ids.length > MAX_RESOLVED) {
     refuse(what, `${reason} is capped at ${String(MAX_RESOLVED)} per call (got ${String(body.ids.length)}): each one is classified or can match several records`);
   }

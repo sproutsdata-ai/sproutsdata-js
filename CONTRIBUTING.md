@@ -89,7 +89,9 @@ code for a package this repository does not install) is preceded by the line
 ### Live checks
 
 The live suites need the local stack (sproutsdata-py's `make e2e-up`) or a
-deployment, so they are not part of `npm run check`:
+deployment, so they are not part of `npm run check`, and this repository's CI does not
+run them: the stack is built from the services behind the API, which are not public.
+sproutsdata-py's nightly `e2e.yml` runs them against that stack instead. Locally:
 
 ```bash
 npm run e2e            # each package's tests/e2e against the local stack
@@ -165,8 +167,8 @@ needs a test and a `CHANGELOG.md` entry in the package it touches.
 
 ## Releases
 
-Each package versions independently and releases from its own tag: `v0.0.1` for
-`sproutsdata`, `langchain-v0.0.1` and `ai-sdk-v0.0.1` for the adapters. An
+Each package versions independently and releases from its own tag: `v0.1.0` for
+`sproutsdata`, `langchain-v0.1.0` and `ai-sdk-v0.1.0` for the adapters. An
 adapter's peer range on `sproutsdata` must be satisfiable from npm, so the SDK
 always publishes first.
 

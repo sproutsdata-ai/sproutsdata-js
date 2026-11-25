@@ -3,8 +3,7 @@
  * and the queries of their pages. A request enriches `contacts` (people: `EMAIL`, `PHONE`) or
  * `accounts` (companies: `DOMAIN`, `PHONE`, `LINKEDIN_URL`).
  *
- * be = dsp-backend `src/dsp/features/enrichment/schemas.py` (`Ask._unique`,
- * `Ask._fits_the_entity`).
+ * Each rule is the API's own for `JobRequest` and `LookupRequest` (as in `spec/openapi.json`).
  */
 
 import type * as W from '../generated/wire.js';
@@ -14,7 +13,7 @@ import { checkShape } from './shape.js';
 
 type Entity = NonNullable<W.EnrichmentJobRequest['entity']>;
 
-/** The fields each entity is enriched for (be schemas.py `FIELDS`). */
+/** The fields each entity is enriched for, as the API lists them. */
 export const FIELDS: Readonly<Record<Entity, ReadonlySet<string>>> = {
   contacts: new Set(['EMAIL', 'PHONE']),
   accounts: new Set(['DOMAIN', 'PHONE', 'LINKEDIN_URL']),
@@ -25,7 +24,7 @@ const ACCOUNT_ONLY: readonly (keyof W.EnrichmentItem)[] = ['company_id'];
 export const MAX_JOBS_PAGE = 100;
 /** `limit` on a job's rows. */
 export const MAX_RESULTS_PAGE = 500;
-/** dsp-enrichment answers a lookup within no less than 100 ms (its `deadline_ms` minimum). */
+/** The enrichment service answers a lookup within no less than 100 ms (its shortest deadline). */
 const MIN_WAIT_SECONDS = 0.1;
 
 /** The states a job does not leave (`cancelling` is on its way to `cancelled`). */
@@ -37,7 +36,7 @@ export function jobBody(params: W.EnrichmentJobRequest): W.EnrichmentJobRequest 
   return checkAsk('enrichment.create', params);
 }
 
-/** A lookup's body (at most 20 items), checked locally, with a wait dsp-enrichment can keep. */
+/** A lookup's body (at most 20 items), checked locally, with a wait the enrichment service can keep. */
 export function lookupBody(params: W.EnrichmentLookupRequest): W.EnrichmentLookupRequest {
   const what = 'enrichment.lookup';
   checkShape(what, params, 'EnrichmentLookupRequest');
@@ -55,12 +54,12 @@ export function pageQuery<T extends PageParams>(what: string, params: T, maximum
 
 /** The rules every request shares, in the server's order and words. */
 function checkAsk<T extends W.EnrichmentJobRequest | W.EnrichmentLookupRequest>(what: string, body: T): T {
-  if (new Set(body.fields).size !== body.fields.length) refuse(what, 'fields: fields must not repeat'); // be Ask._unique
+  if (new Set(body.fields).size !== body.fields.length) refuse(what, 'fields: fields must not repeat');
   const entity = body.entity ?? 'contacts';
   const asked = new Set<string>(body.fields);
   const foreignKeys = entity === 'contacts' ? ACCOUNT_ONLY : CONTACT_ONLY;
   body.items.forEach((item, index) => {
-    // be Ask._fits_the_entity
+   
     const own = item.fields ?? [];
     for (const field of own) asked.add(field);
     const foreign = foreignKeys.filter((name) => Boolean(item[name])).sort();

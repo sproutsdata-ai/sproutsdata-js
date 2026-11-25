@@ -13,6 +13,7 @@ is now a string) are marked **Behaviour change**.
 
 - [Requirements](#requirements)
 - [The client](#the-client)
+- [API keys](#api-keys)
 - [Paging through results](#paging-through-results)
 - [Search and look-alikes](#search-and-look-alikes)
 - [Entity lookups](#entity-lookups)
@@ -26,6 +27,7 @@ is now a string) are marked **Behaviour change**.
 - [Relationships](#relationships)
 - [Agent runs](#agent-runs)
 - [Errors](#errors)
+- [Retired error codes](#retired-error-codes)
 - [Removed value exports](#removed-value-exports)
 - [Renamed types](#renamed-types)
 - [Tools and adapters](#tools-and-adapters)
@@ -33,6 +35,10 @@ is now a string) are marked **Behaviour change**.
 ## Requirements
 
 Node.js 22.12.0 or later (0.0.1 needed 18). The package still ships both ESM and CommonJS.
+
+The adapters, `@sproutsdata.ai/langchain` and `@sproutsdata.ai/ai-sdk` 0.1, need the same
+Node.js and `sproutsdata` 0.1 (`>=0.1.0 <0.2.0`): they import what 0.0.1 does not have, so
+upgrade the SDK and the adapter together.
 
 ## The client
 
@@ -62,7 +68,8 @@ const client = new SproutsData(); // reads SPROUTSDATA_API_KEY
 ### No `integration` option
 
 The `integration` option, the `client.integration` getter and the `X-SproutsData-Client` header
-they set are gone. The SDK no longer sends that header. Every request carries a `User-Agent` of
+they set are gone, and so is the `X-Dsp-Source: sdk/js` header 0.0.1 sent on every request: the
+API reads neither, and the SDK sends neither. Every request carries a `User-Agent` of
 the form `sproutsdata-js/<version> (<runtime>/<version>; <os>)`.
 
 <!-- snippet: skip -->
@@ -123,6 +130,25 @@ import SproutsData from 'sproutsdata';
 // Now
 import { SproutsData } from 'sproutsdata';
 ```
+
+## API keys
+
+Only live keys exist now: a key looks like `sk_dsp_live_…`, and every call with it is charged
+from the workspace's credits. Test keys (`sk_dsp_test_…`) were retired. The client refuses one
+when it is constructed, with a `ClientValidationError` that says so, because the API would only
+answer it with a bare `401`:
+
+<!-- snippet: skip -->
+```ts
+// 0.0.1: a test key's calls were free
+const client = new SproutsData({ apiKey: 'sk_dsp_test_…' });
+
+// Now: throws ClientValidationError ("Test keys ('sk_dsp_test_…') were retired …")
+```
+
+Create a live key in the dashboard, and use a workspace with few credits to try things out.
+`meta.environment` is still in every answer, as the constant `'live'`, and is deprecated; tool
+results no longer carry `environment` at all.
 
 ## Paging through results
 
@@ -686,6 +712,7 @@ New classes:
 
 | Class | When |
 |---|---|
+| `GatewayError` | 408, 502 or 504 from a gateway in front of the API, not the API itself: the work may still finish and be charged, so only a free or keyed call is repeated |
 | `WorkspaceRequiredError` | 403: the call needs a workspace (a subclass of `PermissionDeniedError`) |
 | `WalletFrozenError` | 402 `credits.wallet_frozen` (a subclass of `InsufficientCreditsError`) |
 | `ListNameTakenError` | 409 `lists.name_taken` (a subclass of `ConflictError`) |
@@ -706,6 +733,32 @@ Renamed and reshaped members:
 `RateLimitError` now has `limit`, `window`, `operation` and `scope` getters. Every key failure
 (missing, unknown, revoked, expired) is one `AuthenticationError` (401); a request carrying a
 key and an `Origin` header also answers 401.
+
+**Behaviour change:** a code-less 502 was a `ServiceUnavailableError` and a code-less 504 an
+`UpstreamTimeoutError`; both are now `GatewayError`. `UpstreamTimeoutError` is the API's own
+`upstream.timeout`, and `ServiceUnavailableError` a 503. Every `APIError` also has `concept`,
+the kind of failure in the names both SDKs share (`rate_limit`, `gateway`, …).
+
+## Retired error codes
+
+0.0.1 listed codes the API no longer sends. A check against one of these strings never matches
+now; here is what the caller receives instead.
+
+| 0.0.1 code | Now |
+|---|---|
+| `auth.missing_key`, `auth.invalid_key`, `auth.expired`, `auth.browser_origin` | `auth.unauthorized` (401, `AuthenticationError`): every key failure is one answer |
+| `auth.account_exists`, `auth.csrf`, `auth.invalid_credentials`, `auth.mfa_required`, `auth.session_required` | Not sent to an API key: they belong to the dashboard's sign-in |
+| `quota.daily_exhausted`, `quota.monthly_exhausted`, `quota.entity_ceiling` | No daily, monthly or per-entity quota: a call is limited per minute (`quota.burst_exceeded`, 429) and paid in credits (`credits.insufficient`, 402) |
+| `rate_limits.unavailable` | `service.unavailable` (503, `ServiceUnavailableError`) |
+| `idempotency.fingerprint_mismatch`, `idempotency.in_flight` | The feature's own `*.idempotency_key_reused` (409, `ConflictError`), such as `enrichment.idempotency_key_reused` |
+| `enrichment.unavailable`, `feedback.unavailable`, `journey.unavailable`, `lists.unavailable` | `service.unavailable` or `upstream.unavailable` (503, `ServiceUnavailableError`) |
+| `export.not_enabled` | Exports are on for every workspace |
+| `credits.unknown_action` | `request.invalid` (422): `credits.quote()` takes an `operation` from a fixed list |
+| `payment.declined`, `payment.forbidden`, `payment.invalid_amount`, `payment.no_method`, `payment.topup_not_found`, `payment.unavailable` | Buying credits is dashboard-only: an API key gets `credits.purchase_not_allowed` (403, `PermissionDeniedError`) |
+| `referral.already_claimed`, `referral.impersonation_cannot_claim` | Referrals are dashboard-only and not served to an API key |
+| `cohort.impersonation_cannot_answer`, `cohort.not_offered` | Not served: the feature is gone |
+
+Branch on `err.code` with the codes in `spec/error-codes.json`, or on the class.
 
 ## Removed value exports
 

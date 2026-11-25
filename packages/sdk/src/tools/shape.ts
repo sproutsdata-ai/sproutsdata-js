@@ -133,7 +133,7 @@ function parserSkipped(resolved: SearchEnvelope['resolved_search'], askedInWords
 export function interpretedAs(resolved: SearchEnvelope['resolved_search']): InterpretedAs {
   if (resolved === null) return { filters: {}, source: 'none', conflicts: [] };
   const shaped = { filters: resolvedFilters(resolved), source: resolved.filters_source, conflicts: resolved.conflicts };
-  // Answers are not validated, and one from a backend older than dsp-backend #179 has none.
+  // Answers are not validated, and one from an older API has none.
   const sparse: readonly SparseFilterNote[] = resolved.sparse_filters;
   return Array.isArray(sparse) && sparse.length > 0 ? { ...shaped, sparse_filters: sparse } : shaped;
 }

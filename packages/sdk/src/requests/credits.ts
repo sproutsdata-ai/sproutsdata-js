@@ -1,6 +1,6 @@
 /**
- * The body of `POST /v1/credits/quote`, checked as the server checks it (be
- * `src/dsp/features/billing/quote.py`).
+ * The body of `POST /v1/credits/quote`, checked as the server checks it: each rule is the API's
+ * own for `QuoteIn` (as in `spec/openapi.json`).
  */
 
 import type * as W from '../generated/wire.js';
@@ -9,15 +9,15 @@ import { currentEffort } from './effort.js';
 import { FIELDS } from './enrichment.js';
 import { checkShape } from './shape.js';
 
-/** The most rows a page holds (be billing/actions.py `MAX_PAGE`). */
+/** The most rows a page holds. */
 export const MAX_PAGE = 100;
-/** The most records a lookup takes (be billing/actions.py `MAX_LOOKUP`). */
+/** The most records a lookup takes. */
 export const MAX_LOOKUP = 1000;
-/** The most rows one enrichment job takes (be billing/actions.py `MAX_ENRICHMENT_ROWS`). */
+/** The most rows one enrichment job takes. */
 export const MAX_ENRICHMENT_ROWS = 10_000;
-/** The rows a quote prices when it names none (be quote.py `QuoteIn.rows`). */
+/** The rows a quote prices when it names none. */
 const DEFAULT_ROWS = 10;
-/** The operations charged by the page (be quote.py `_PAGED`). */
+/** The operations charged by the page. */
 const PAGED: ReadonlySet<string> = new Set(['search', 'search_auto', 'similar', 'relationships']);
 /** The fields enrichment finds, for a quote's `fields` (the shape table does not list them). */
 const ENRICHMENT_FIELDS: readonly string[] = [...new Set([...FIELDS.contacts, ...FIELDS.accounts])].sort();
@@ -36,7 +36,7 @@ export function quoteBody(what: string, params: W.QuoteIn): W.QuoteIn {
   return named;
 }
 
-/** Each rule the server checks, in its order (be quote.py `QuoteIn._fits`): broken, and its words. */
+/** Each rule the server checks, in its order: broken, and its words. */
 function quoteRules(params: W.QuoteIn): readonly (readonly [boolean, string])[] {
   const rows = params.rows ?? DEFAULT_ROWS;
   const fields = params.fields ?? undefined;

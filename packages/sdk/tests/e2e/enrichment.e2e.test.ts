@@ -1,7 +1,7 @@
 /**
  * Enrichment live: jobs, lookups and their refusals through the real backend and ledger.
  *
- * The stack's fake dsp-enrichment answers by its inputs (sproutsdata-py
+ * The stack's fake enrichment service answers by its inputs (sproutsdata-py
  * `e2e/fake_enrichment.py`): a name with `MISSING` is not found, a LinkedIn URL with `CACHED`
  * is already held (and free), an `external_id` with `SLOW` outlasts a lookup, and the cursor
  * `e2e-expired` reads rows that are no longer kept. Prices are the backend's defaults: an

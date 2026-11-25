@@ -31,7 +31,7 @@ describe('options', () => {
   });
 
   it.each([undefined, '', 'sk_other_live_abc', 'sk_dsp_prod_abc', `sk_dsp_live_${'x'.repeat(200)}`])(
-    'refuse a key dsp-auth could not have issued: %s',
+    'refuse a key the API could not have issued: %s',
     (apiKey) => {
       vi.stubEnv('SPROUTSDATA_API_KEY', '');
       expect(() => resolveOptions(apiKey === undefined ? {} : { apiKey })).toThrow(ClientValidationError);
@@ -39,7 +39,7 @@ describe('options', () => {
   );
 
   it('refuse a retired test key, saying why', () => {
-    // dsp-auth refuses it at exchange, which the caller would only see as a bare 401.
+    // The API refuses it at exchange, which the caller would only see as a bare 401.
     expect(() => resolveOptions({ apiKey: 'sk_dsp_test_' + 'retired' })).toThrow(/Test keys .* were retired/);
   });
 

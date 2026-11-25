@@ -149,8 +149,8 @@ describe('search', () => {
   });
 
   it('an empty answer reads why, what to leave out, and which filters are thin', async () => {
-    // dsp-backend #179 (no_match, relax, sparse filters), #180 (balance), #182 (environment
-    // deprecated, and absent from the builds before it).
+    // An empty answer says why (no_match, relax, sparse filters), the balance comes back, and
+    // `environment` is deprecated (and absent from older builds).
     const { environment: _dropped, ...meta } = COMPANY['meta'] as Record<string, unknown>;
     const body = {
       ...COMPANY,
@@ -191,7 +191,7 @@ describe('search', () => {
     const person = recordedBody<SearchEnvelope>('search', 'person').results[0];
     const patent = recordedBody<SearchEnvelope>('search', 'patent').results[0];
     if (company === undefined || person === undefined || patent === undefined) throw new Error('fixtures have rows');
-    // A company row's id is its sealed index id (dsp-backend 5e60c47); the lookup uses its domain.
+    // A company row's id is its sealed index id; the lookup uses its domain.
     expect(lookupRef(company)).toEqual({ category: 'company', by: 'domain', value: company['domain'] });
     expect(lookupRef(person)).toEqual({ category: 'person', by: 'li_url', value: 'https://www.linkedin.com/in/alex-example-0' });
     expect(lookupRef(patent)).toEqual({ category: 'patent', by: undefined, value: patent.id });

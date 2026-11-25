@@ -19,10 +19,12 @@ Everything the SDK throws is a `SproutsDataError`. The families:
 6. **`ExportFailedError`**: an export job ended `failed`; `job` is its last
    state and `job.error` says why.
 7. **`APIError`** and its subclasses: the server answered with an error. Every
-   instance carries `status`, `code`, `title`, `detail`, `nextStep`, `requestId`,
-   `fieldErrors`, `extra`, `retryAfter`, `headers` and the raw `body`. `detail`
-   says what went wrong; `nextStep`, when the server gave one, is one sentence on
-   what to do about it, and follows `detail` in `err.message`.
+   instance carries `status`, `code`, `concept`, `title`, `detail`, `nextStep`,
+   `requestId`, `fieldErrors`, `extra`, `retryAfter`, `headers` and the raw
+   `body`. `concept` is the kind of failure in the names both SDKs share
+   (`rate_limit`, `gateway`, …), by `code`, else by status. `detail` says what went
+   wrong; `nextStep`, when the server gave one, is one sentence on what to do about
+   it, and follows `detail` in `err.message`.
 
 The class of an `APIError` is chosen by `code` first, then by HTTP status, so a
 code this release has not seen still maps to a class, and mapping never throws,
@@ -98,7 +100,7 @@ search: filters.employee_count.gt: not a field this request takes
 
 What the server refuses after that is an `InvalidRequestError` (422). Its
 message carries the server's detail, and `err.fieldErrors` lists each problem
-as `{ loc, msg, type? }`:
+as `{ loc, msg, type? }` (`loc` is `[]` for a problem with the whole request):
 
 ```ts
 import { InvalidRequestError } from 'sproutsdata';
@@ -140,9 +142,10 @@ try {
 | `ConcurrencyLimitError` | 429 `quota.concurrency_exceeded` | The key already has as many agent runs going as it may (two), or the engine is full; a `RateLimitError`, thrown at once | Follow or cancel a run, then start again |
 | `InternalServerError` | 500 `internal` | An unexpected server error | Retried where safe; quote `requestId` if it persists |
 | `FeatureNotAvailableError` | 501 `not_implemented` | The server cannot do this yet (today: listing runs) | Not transient |
-| `ServiceUnavailableError` | 502, 503 `service.unavailable`, `service.overloaded`, `upstream.unavailable`, `auth.unavailable`, `credits.unavailable` | The API or a service behind it is unavailable; nothing was charged | Retried; try again later |
+| `ServiceUnavailableError` | 503 `service.unavailable`, `service.overloaded`, `upstream.unavailable`, `auth.unavailable`, `credits.unavailable` | The API or a service behind it is unavailable; the API answered before doing the work, so nothing was charged | Retried; try again later |
 | `CreditsRefusedError` | 503 `credits.refused` | The credits ledger refused to hold credits for a run or an enrichment job; nothing ran or was charged. A `ServiceUnavailableError`, never retried | Contact support with `requestId` |
-| `UpstreamTimeoutError` | 504 `upstream.timeout` | The work did not finish in time; abandoned and not charged | Retried; narrow the request if it recurs |
+| `UpstreamTimeoutError` | 504 `upstream.timeout` | The work did not finish in time; the API abandoned it before any charge | Retried (not a list create or delete); narrow the request if it recurs |
+| `GatewayError` | 408, 502, 504 without the API's code | A gateway in front of the API answered instead of the API: it gave up waiting, or the API's answer did not reach it. The work may still finish and be charged | Retried where a repeat is free or carries its key; otherwise the message says what may have happened |
 | `APITimeoutError` | | No answer within `timeoutMs` | Check the network; see below for billed calls |
 | `APIConnectionError` | | DNS, TCP or TLS failure, or a broken event stream (`lastEventId`) | Check `baseUrl` and the network |
 | `RedirectRefusedError` | 3xx | The server redirected | Set `baseUrl` to the API origin itself |
@@ -170,13 +173,14 @@ belongs to one class:
 
 | Failure | `safe` | `billed` | `keyed` | `once` |
 |---|---|---|---|---|
-| Never sent: connection refused, DNS failure, connect timeout | retry | retry | retry | retry |
-| Sent, no answer: a timeout, a dropped connection, a 408 or 502 | retry | **raise** | retry | **raise** |
 | 429 `quota.concurrency_exceeded`, 503 `credits.refused` | raise | raise | raise | raise |
+| 504 `upstream.timeout` | retry | retry | retry | **raise** |
+| Never sent: connection refused, DNS failure, connect timeout | retry | retry | retry | retry |
+| Sent, no answer: a timeout, a dropped connection, a gateway's 408, 502 or 504 | retry | **raise** | retry | **raise** |
 | 429 with `Retry-After` of 60 s or less | retry | retry | retry | retry |
 | 429 with a longer `Retry-After` | raise | raise | raise | raise |
 | 500 | retry | retry | retry | raise |
-| 503, 504 | retry | retry | retry | retry |
+| 503 | retry | retry | retry | retry |
 | 400, 401, 402, 403, 404, 405, 409, 410, 413, 415, 422, 501 | raise | raise | raise | raise |
 
 "Never sent" is known only when the runtime says so (`ECONNREFUSED`,
@@ -186,7 +190,8 @@ with the key it was first sent with: on a search, look-alike, lookup,
 relationships or org chart call, the same key on the same request, from the same
 credential, on the same UTC day, is charged once (the repeat answers
 `meta.credits_charged: 0`). A `once` call raised from the "sent, no answer" row
-has `reachedServer: true`, and its message says what may have happened. Check
+(`reachedServer: true`, or a `GatewayError`) has a message that says what may have
+happened. Check
 `client.lists.list()` before trying again. `maxRetries: 0` turns retrying off.
 
 **`timeoutMs` is per attempt.** With `maxRetries: 2`, an unresponsive network
@@ -228,7 +233,9 @@ call's options (1 to 255 printable characters; a billed call's server takes 1 to
 120 letters, digits or `._:-`), or generates `sdk-<32 hex>`, and resends the same
 key on every retry of that call. That is what makes them safe to retry after a
 lost answer. Pass your own key when a retry may come from somewhere the SDK
-cannot see, such as another process or a job queued again after a crash.
+cannot see, such as another process or a job queued again after a crash. A page walk
+(`iterSearch` and the other `iter*`) sends your key with its first page only: each
+later page is its own call, with a key of its own.
 
 Every other operation takes no key: passing `idempotencyKey` to one throws a
 `ClientValidationError`.

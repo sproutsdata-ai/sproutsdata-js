@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-24T09:06:07.547690Z",
+        "as_of": "2026-11-26T20:16:21.286656Z",
         "domain": null,
         "quote": null,
         "source_corpus": "gtm_index",
@@ -13,14 +13,14 @@
     "degradation": [],
     "has_more": true,
     "meta": {
-      "as_of": "2026-11-24T09:06:07.547690Z",
+      "as_of": "2026-11-26T20:16:21.286656Z",
       "credential": "api_key",
-      "credits_balance": 994.905,
+      "credits_balance": 993.93,
       "credits_charged": 2.0,
       "environment": "live",
-      "request_id": "a68a5a40469248668d8e83cf2d8f85a4"
+      "request_id": "80f64f4e916343979e07736437c3c02d"
     },
-    "next_cursor": "eyJmIjoiZjYxNTk2YWM5YjFkM2E2MDg5ZmNhYTA0Yjg2MjE3ZjQiLCJvIjoyLCJzIjoiODhmMzNhMTBhMWM0NDA4N2FiZWQwN2ExOWQ0ZTVmNWUiLCJ0IjoxNzk1NTExMTY3LCJ1IjoicHJpc218Y29tcGFueXwxIn0.732a0ac3b7a955c5dfa56dc409803fd4",
+    "next_cursor": "eyJmIjoiZjYxNTk2YWM5YjFkM2E2MDg5ZmNhYTA0Yjg2MjE3ZjQiLCJvIjoyLCJzIjoiNDIyMTdlODgwMDU2NDNjM2ExMjczMDNhMzkxYzRkMDUiLCJ0IjoxNzk1NzI0MTgxLCJ1IjoicHJpc218Y29tcGFueXwxIn0.b82c9cc73ea0d802640a3323e96a99e2",
     "resolved_search": {
       "anchor_matches": [],
       "category": "company",
@@ -97,6 +97,11 @@
         "linkedin_followers": 48210,
         "linkedin_url": "https://www.linkedin.com/company/example-0",
         "listing_status": "private",
+        "match_score": null,
+        "matched_filters": [
+          "geo",
+          "industry"
+        ],
         "naics": [
           "333249"
         ],
@@ -124,6 +129,7 @@
           "HubSpot"
         ],
         "total_funding": 85000000,
+        "unmet": null,
         "website": "https://example-0.de"
       },
       {
@@ -170,6 +176,11 @@
         "linkedin_followers": 48210,
         "linkedin_url": "https://www.linkedin.com/company/example-1",
         "listing_status": "private",
+        "match_score": null,
+        "matched_filters": [
+          "geo",
+          "industry"
+        ],
         "naics": [
           "333249"
         ],
@@ -197,19 +208,21 @@
           "HubSpot"
         ],
         "total_funding": 85000000,
+        "unmet": null,
         "website": "https://example-1.de"
       }
     ],
     "suggestion": null,
     "total": 12345,
+    "total_exact": null,
     "total_is_estimate": false
   },
   "headers": {
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "53",
-    "x-request-id": "a68a5a40469248668d8e83cf2d8f85a4"
+    "ratelimit-reset": "39",
+    "x-request-id": "80f64f4e916343979e07736437c3c02d"
   },
   "operation": "similar",
   "request": {

@@ -6,7 +6,7 @@ import { ClientValidationError, CursorExpiredError, PaginationDepthExceededError
 import { searchBody } from '../../src/requests/search.js';
 import { lookupRef } from '../../src/resources/helpers.js';
 import { Search } from '../../src/resources/search.js';
-import type { SearchEnvelope, SearchParams } from '../../src/types/index.js';
+import type { SearchEnvelope, SearchHit, SearchParams } from '../../src/types/index.js';
 import { assertValidRequest, recorded, recordedBody, respond } from '../support/answers.js';
 import { collect, rig } from '../support/rig.js';
 
@@ -16,6 +16,9 @@ function page(rows: number, cursor: string | null): Record<string, unknown> {
   const first = COMPANY.results[0];
   return { ...COMPANY, results: Array.from({ length: rows }, (_, i) => ({ ...first, id: `d-${String(i)}.de` })), next_cursor: cursor, has_more: cursor !== null };
 }
+
+/** A search row with only what a test names: no score, and none of the partial-match fields. */
+const row = (fields: Pick<SearchHit, 'id' | 'category'> & Record<string, unknown>): SearchHit => ({ score: null, matched_filters: null, match_score: null, unmet: null, ...fields });
 
 async function refused(params: unknown, match: RegExp | string): Promise<void> {
   const r = rig([]);
@@ -81,6 +84,26 @@ describe('search', () => {
       assertValidRequest(op, r.body(i));
     });
     await refused({ category: 'auto', query: 'x', lock_filters: true }, "category 'auto' takes only");
+  });
+
+  it('S13: partial_matches is sent as given, and read back on each row', async () => {
+    const r = rig([recorded('search', 'partial_matches'), recorded('search', 'auto')]);
+    const search = new Search(r.transport);
+    const page = await search.search({ query: 'payments', partial_matches: true });
+    await search.search({ category: 'auto', query: 'payments in Luxembourg', partial_matches: false });
+    expect((r.body(0) as { partial_matches: boolean }).partial_matches).toBe(true);
+    expect((r.body(1) as { partial_matches: boolean }).partial_matches).toBe(false);
+    [0, 1].forEach((i) => {
+      assertValidRequest('search', r.body(i));
+    });
+    const [exact, partial] = [page.results[0], page.results.at(-1)];
+    expect([exact?.match_score, exact?.unmet]).toEqual([1, null]);
+    expect(partial?.unmet).toEqual([{ filter: 'geo', state: 'near', matched: ['Belgium'] }]);
+    expect([page.total, page.total_exact]).toEqual([40, 2]);
+  });
+
+  it('S13: a document search cannot ask for partial matches', async () => {
+    await refused({ category: 'patent', query: 'solid state battery', partial_matches: false }, 'partial_matches is for company and person searches');
   });
 
   it('a per-call timeout is a finite, positive number', async () => {
@@ -195,11 +218,11 @@ describe('search', () => {
     expect(lookupRef(company)).toEqual({ category: 'company', by: 'domain', value: company['domain'] });
     expect(lookupRef(person)).toEqual({ category: 'person', by: 'li_url', value: 'https://www.linkedin.com/in/alex-example-0' });
     expect(lookupRef(patent)).toEqual({ category: 'patent', by: undefined, value: patent.id });
-    expect(lookupRef({ id: 'd1_abc', category: 'news_article', score: null })).toEqual({ category: 'news_article', by: 'id', value: 'd1_abc' });
-    expect(lookupRef({ id: 'c456', category: 'person', score: null })).toBeUndefined();
-    expect(lookupRef({ id: '0f7a39dd2e81c6b4', category: 'company', score: null, linkedin_url: 'https://www.linkedin.com/company/x' })).toEqual({ category: 'company', by: 'li_url', value: 'https://www.linkedin.com/company/x' });
-    expect(lookupRef({ id: '0f7a39dd2e81c6b4', category: 'company', score: null })).toBeUndefined();
-    expect(lookupRef({ id: '0123456789abcdef', category: 'trend', score: null })).toBeUndefined();
+    expect(lookupRef(row({ id: 'd1_abc', category: 'news_article' }))).toEqual({ category: 'news_article', by: 'id', value: 'd1_abc' });
+    expect(lookupRef(row({ id: 'c456', category: 'person' }))).toBeUndefined();
+    expect(lookupRef(row({ id: '0f7a39dd2e81c6b4', category: 'company', linkedin_url: 'https://www.linkedin.com/company/x' }))).toEqual({ category: 'company', by: 'li_url', value: 'https://www.linkedin.com/company/x' });
+    expect(lookupRef(row({ id: '0f7a39dd2e81c6b4', category: 'company' }))).toBeUndefined();
+    expect(lookupRef(row({ id: '0123456789abcdef', category: 'trend' }))).toBeUndefined();
   });
 });
 

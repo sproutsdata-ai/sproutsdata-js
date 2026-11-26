@@ -36,9 +36,12 @@ export async function raw(method: string, path: string, body?: unknown, headers:
   return fetch(`${setting('SPROUTSDATA_E2E_BASE_URL')}${path}`, body === undefined ? init : { ...init, body: JSON.stringify(body) });
 }
 
-/** Make the fault proxy answer `path` with `status`, `times` times. */
-export async function arm(path: string, status: number, times = 1): Promise<void> {
-  const answer = await fetch(`${setting('SPROUTSDATA_E2E_FAULT_URL')}/__fake/arm`, { method: 'POST', body: JSON.stringify({ path, status, times }) });
+/**
+ * Make the fault proxy answer `path` with `status`, `times` times. With `forward`, each request
+ * still reaches the server, and only its answer is lost.
+ */
+export async function arm(path: string, status: number, times = 1, { forward = false }: { readonly forward?: boolean } = {}): Promise<void> {
+  const answer = await fetch(`${setting('SPROUTSDATA_E2E_FAULT_URL')}/__fake/arm`, { method: 'POST', body: JSON.stringify({ path, status, times, forward }) });
   if (!answer.ok) throw new Error(`the fault proxy answered ${String(answer.status)}`);
 }
 

@@ -5,9 +5,9 @@
     "credits_charged": null,
     "environment": "live",
     "error_code": null,
-    "id": "34",
-    "latency_ms": 15,
-    "occurred_at": "2026-11-24T09:06:08.755396Z",
+    "id": "35",
+    "latency_ms": 20,
+    "occurred_at": "2026-11-26T20:16:22.670230Z",
     "query": null,
     "request": {
       "fields": [
@@ -31,14 +31,14 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "51",
-    "x-request-id": "b2b704168c5c442aa8adf7655d5318e6"
+    "ratelimit-reset": "37",
+    "x-request-id": "7e485cda1b91458f8bfe40a468d033fb"
   },
   "operation": "history_retrieve",
   "request": {
     "body": null,
     "method": "GET",
-    "path": "/v1/usage/history/34",
+    "path": "/v1/usage/history/35",
     "query": {}
   },
   "status": 200

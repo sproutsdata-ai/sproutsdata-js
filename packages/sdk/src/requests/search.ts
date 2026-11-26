@@ -27,7 +27,7 @@ const TYPES: Readonly<Record<string, string>> = {
   funding_round: 'FundingSearchRequest',
   job_opening: 'JobOpeningSearchRequest',
 };
-const AUTO_FIELDS = new Set(['category', 'query', 'mode', 'fields', 'limit', 'cursor']);
+const AUTO_FIELDS = new Set(['category', 'query', 'mode', 'partial_matches', 'fields', 'limit', 'cursor']);
 const DOMAIN_CATEGORIES = new Set(['company', 'person', 'job_opening']);
 // The sort fields that order only one of the two entity categories (API: `SortClause`).
 const COMPANY_ONLY_SORTS = new Set(['domain', 'revenue', 'employee_count', 'employee_range', 'founded_year', 'linkedin_followers', 'total_funding', 'last_funding_amount', 'last_funding_date', 'funding_stage', 'industry', 'primary_industry', 'sub_industry', 'other_industries', 'global_presence']);
@@ -97,7 +97,7 @@ function anchor(value: AnchorParam): W.Anchor {
 function checkAutoFields(given: ReadonlySet<string>, mode: string | undefined): void {
   const extra = [...given].filter((name) => !AUTO_FIELDS.has(name)).sort();
   if (extra.length > 0) {
-    refuse(WHAT, `category 'auto' takes only query, mode, fields, limit and cursor (got ${extra.join(', ')}): the API picks the category from the question, and filters, sort and domains belong to one category; name it to send them`);
+    refuse(WHAT, `category 'auto' takes only query, mode, partial_matches, fields, limit and cursor (got ${extra.join(', ')}): the API picks the category from the question, and filters, sort and domains belong to one category; name it to send them`);
   }
   if (mode !== undefined && mode !== 'auto') {
     refuse(WHAT, 'a search with no category is read by the API, so it runs in `auto` mode only; send a `category` to search in `fast` mode'); // API: AutoSearchRequest.mode
@@ -107,6 +107,10 @@ function checkAutoFields(given: ReadonlySet<string>, mode: string | undefined): 
 function checkDocumentFields(category: string, given: ReadonlySet<string>): void {
   if (category === 'company' || category === 'person') return;
   if (given.has('keyword_query')) refuse(WHAT, `keyword_query searches company text: set category 'company' (got ${JSON.stringify(category)})`);
+  if (given.has('partial_matches')) {
+    // API: the document search bodies have no `partial_matches`.
+    refuse(WHAT, `partial_matches is for company and person searches: a document matches its query or does not (got category ${JSON.stringify(category)})`);
+  }
   const domains = ['exclude_domains', 'include_domains'].filter((name) => given.has(name));
   if (domains.length > 0 && !DOMAIN_CATEGORIES.has(category)) {
     refuse(WHAT, `${domains.join(' and ')} narrow company, person and job_opening searches only (got category ${JSON.stringify(category)})`);

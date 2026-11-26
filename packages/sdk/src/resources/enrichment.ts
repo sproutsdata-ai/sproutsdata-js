@@ -24,7 +24,9 @@ export class Enrichment extends Resource {
    * each once) is required: nothing is looked up, or charged, that you did not ask for. Each
    * item carries what you know (a `linkedin_url`, a name with `company_domain` or
    * `company_name`, `email_hint`) and your own `external_id`, echoed back; its own `fields` is a
-   * subset of `fields`. `re_enrich` looks up values already known (each costs again);
+   * subset of `fields`. `re_enrich` looks up values already known (each costs again); without
+   * it, a value already found for the same LinkedIn profile or Sprouts record is free, while a row
+   * with only a name and a company is looked up, and charged, each time;
    * `verify_mode` is for contacts only. An Idempotency-Key is required: the SDK generates one
    * unless `options.idempotencyKey` gives it, and resends it on its own retries.
    *

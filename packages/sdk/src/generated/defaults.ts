@@ -21,6 +21,8 @@ export interface Defaults {
   readonly forbiddenHeaders: readonly string[];
   /** Set by the client on each call; a default header may add others, never these. */
   readonly ownedHeaders: readonly string[];
+  /** The headers a CSV answered at once says what it cost and holds in. */
+  readonly exportHeaders: { readonly creditsCharged: string; readonly fieldTier: string; readonly rows: string; readonly skipped: string };
   readonly env: { readonly apiKey: string; readonly baseUrl: string };
   readonly deprecatedEnv: { readonly apiKey: string; readonly baseUrl: string };
   readonly timeoutMs: number;
@@ -42,6 +44,7 @@ export const DEFAULTS: Defaults = {
   retiredApiKeyPrefix: "sk_dsp_test_",
   forbiddenHeaders: ["origin","referer"],
   ownedHeaders: ["x-api-key","idempotency-key","x-request-id","user-agent","accept","content-type","last-event-id"],
+  exportHeaders: { creditsCharged: "x-credits-charged", fieldTier: "x-export-field-tier", rows: "x-export-row-count", skipped: "x-export-skipped" },
   env: { apiKey: "SPROUTSDATA_API_KEY", baseUrl: "SPROUTSDATA_BASE_URL" },
   deprecatedEnv: { apiKey: "DSP_API_KEY", baseUrl: "DSP_BASE_URL" },
   timeoutMs: 60000,

@@ -155,7 +155,9 @@ describe('shaping', () => {
   const resolved = (changes: Record<string, unknown>) => ({ ...recordedBody<{ resolved_search: object }>('search', 'company').resolved_search, ...changes });
 
   it('say when fast mode parsed nothing, but not for a filters-only search', async () => {
-    const { tools } = toolset([searchOk([], { resolved_search: resolved({ filters: {} }) })]);
+    // What a `fast` search that took no filter from its words resolved to.
+    const unparsed = resolved({ filters: {}, parser_version: 'none' });
+    const { tools } = toolset([searchOk([], { resolved_search: unparsed })]);
     expect(caveatsOf(await tools.run('sprouts_search', { query: 'payments companies in Germany' }))[0]).toMatch(/^parser_not_run:/);
     expect(caveatsOf(await tools.run('sprouts_search', { filters: { industry: { include: ['Software & Technology'] } } }))).toEqual([]);
   });

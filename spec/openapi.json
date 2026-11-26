@@ -183,7 +183,7 @@
                 "type": "null"
               }
             ],
-            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "description": "Return only these fields of each row, plus `id`, `category`, `score`, `matched_filters`, `match_score` and `unmet`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
             "title": "Fields"
           },
           "filters": {
@@ -211,7 +211,7 @@
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
-            "default": "fast"
+            "default": "auto"
           },
           "query": {
             "anyOf": [
@@ -266,6 +266,12 @@
           "already_present": {
             "title": "Already Present",
             "type": "integer"
+          },
+          "credits_charged": {
+            "default": 0.0,
+            "description": "Credits this call charged: the lookup price for each record shown whole that the workspace had not unlocked in the last 90 days (LQ-001).",
+            "title": "Credits Charged",
+            "type": "number"
           },
           "not_found": {
             "default": 0,
@@ -658,7 +664,7 @@
                 "type": "null"
               }
             ],
-            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "description": "Return only these fields of each row, plus `id`, `category`, `score`, `matched_filters`, `match_score` and `unmet`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
             "title": "Fields"
           },
           "limit": {
@@ -671,6 +677,12 @@
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
             "default": "auto"
+          },
+          "partial_matches": {
+            "default": true,
+            "description": "When the question is answered with companies or people: also return the rows that match part of the search after every row that matches all of it (the category search's `partial_matches`). Ignored by the other categories.",
+            "title": "Partial Matches",
+            "type": "boolean"
           },
           "query": {
             "maxLength": 2000,
@@ -3512,7 +3524,7 @@
           {
             "category": "company",
             "limit": 10,
-            "mode": "fast",
+            "mode": "auto",
             "query": "industrial automation companies in Germany"
           },
           {
@@ -3634,7 +3646,7 @@
                 "type": "null"
               }
             ],
-            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "description": "Return only these fields of each row, plus `id`, `category`, `score`, `matched_filters`, `match_score` and `unmet`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
             "title": "Fields"
           },
           "filters": {
@@ -3717,7 +3729,13 @@
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
-            "default": "fast"
+            "default": "auto"
+          },
+          "partial_matches": {
+            "default": true,
+            "description": "After the rows that match every filter, also return the rows that match part of the search, ranked by how much of it they meet. Each such row has `match_score` below 1 and lists in `unmet` the filters it does not meet exactly; `total` counts both, `total_exact` only the rows meeting every filter. Only a search by filters alone has such rows. Every row returned is charged. Send `false` for exact matches only.",
+            "title": "Partial Matches",
+            "type": "boolean"
           },
           "query": {
             "anyOf": [
@@ -4436,7 +4454,7 @@
                 "type": "null"
               }
             ],
-            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "description": "Return only these fields of each row, plus `id`, `category`, `score`, `matched_filters`, `match_score` and `unmet`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
             "title": "Fields"
           },
           "filters": {
@@ -4464,7 +4482,7 @@
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
-            "default": "fast"
+            "default": "auto"
           },
           "query": {
             "anyOf": [
@@ -5376,7 +5394,7 @@
                 "type": "null"
               }
             ],
-            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "description": "Return only these fields of each row, plus `id`, `category`, `score`, `matched_filters`, `match_score` and `unmet`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
             "title": "Fields"
           },
           "filters": {
@@ -5413,7 +5431,7 @@
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
-            "default": "fast"
+            "default": "auto"
           },
           "query": {
             "anyOf": [
@@ -5511,7 +5529,7 @@
           },
           "re_enrich": {
             "default": false,
-            "description": "Look up values that are already known.",
+            "description": "Look up values that are already known. Off (the default), a value already found for the same LinkedIn profile or Sprouts record comes back at no charge. Rows sent with only a name and company are looked up, and charged, each time: send `linkedin_url` or `person_id` to get repeats free.",
             "title": "Re Enrich",
             "type": "boolean"
           },
@@ -5831,6 +5849,12 @@
       },
       "ListItemsResponse": {
         "properties": {
+          "credits_charged": {
+            "default": 0.0,
+            "description": "Credits this call charged: the lookup price for each record shown whole that the workspace had not unlocked in the last 90 days (LQ-001).",
+            "title": "Credits Charged",
+            "type": "number"
+          },
           "field_tier": {
             "enum": [
               "free",
@@ -6098,7 +6122,7 @@
           },
           "re_enrich": {
             "default": false,
-            "description": "Look up values that are already known.",
+            "description": "Look up values that are already known. Off (the default), a value already found for the same LinkedIn profile or Sprouts record comes back at no charge. Rows sent with only a name and company are looked up, and charged, each time: send `linkedin_url` or `person_id` to get repeats free.",
             "title": "Re Enrich",
             "type": "boolean"
           },
@@ -6364,7 +6388,7 @@
                 "type": "null"
               }
             ],
-            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "description": "Return only these fields of each row, plus `id`, `category`, `score`, `matched_filters`, `match_score` and `unmet`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
             "title": "Fields"
           },
           "filters": {
@@ -6392,7 +6416,7 @@
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
-            "default": "fast"
+            "default": "auto"
           },
           "query": {
             "anyOf": [
@@ -6900,7 +6924,7 @@
                 "type": "null"
               }
             ],
-            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "description": "Return only these fields of each row, plus `id`, `category`, `score`, `matched_filters`, `match_score` and `unmet`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
             "title": "Fields"
           },
           "filters": {
@@ -6928,7 +6952,7 @@
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
-            "default": "fast"
+            "default": "auto"
           },
           "query": {
             "anyOf": [
@@ -7600,7 +7624,7 @@
                 "type": "null"
               }
             ],
-            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "description": "Return only these fields of each row, plus `id`, `category`, `score`, `matched_filters`, `match_score` and `unmet`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
             "title": "Fields"
           },
           "filters": {
@@ -7628,7 +7652,7 @@
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
-            "default": "fast"
+            "default": "auto"
           },
           "query": {
             "anyOf": [
@@ -11037,6 +11061,19 @@
             "title": "Total",
             "type": "integer"
           },
+          "total_exact": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Company and person searches: the rows meeting every filter. Equal to `total` unless `partial_matches` adds rows meeting part of the search (then `total` counts both). Null on other searches.",
+            "title": "Total Exact"
+          },
           "total_is_estimate": {
             "title": "Total Is Estimate",
             "type": "boolean"
@@ -11094,6 +11131,35 @@
             "title": "Id",
             "type": "string"
           },
+          "match_score": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A company or person search with `partial_matches`: how much of the search this row meets, 0 to 1. 1 meets every filter; below 1 is a partial row, listed after every row meeting them all. Null on other searches.",
+            "title": "Match Score"
+          },
+          "matched_filters": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Company and person searches: the filters in `resolved_search.filters` this row meets in full (a `keyword_query` search names it `keyword_query`). A `keywords` filter set to `rank_first` is listed only on the rows holding its keywords. Null on other searches.",
+            "title": "Matched Filters"
+          },
           "score": {
             "anyOf": [
               {
@@ -11104,6 +11170,21 @@
               }
             ],
             "title": "Score"
+          },
+          "unmet": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/UnmetFilter"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "On a partial row: each filter it does not meet exactly; it meets every other filter in `resolved_search.filters`. Null on a row meeting them all and on other searches.",
+            "title": "Unmet"
           }
         },
         "required": [
@@ -11114,7 +11195,7 @@
         "type": "object"
       },
       "SearchMode": {
-        "description": "How a search with words is billed. Both modes read ``query`` the same way: an AI\nreading turns what the words ask into filters (the filters sent win), and the description\nleft over is matched by meaning.\n\n- ``fast``: billed as a basic search.\n- ``auto``: billed as an AI search.",
+        "description": "How ``query`` is read, and how the search is billed.\n\n- ``fast``: send what you want as words in ``query`` and every hard constraint in\n  ``filters``. One quick reading takes from the words only what they are about (for\n  companies and people: keywords, a description matched by meaning, and the people's titles\n  or skills; for documents: the topic) and sets no other filter. Billed as a basic search.\n- ``auto`` (the default): an AI reading turns everything the words ask into filters (the\n  filters sent win), and the description left over is matched by meaning. Billed as an AI\n  search.",
         "enum": [
           "fast",
           "auto"
@@ -11443,7 +11524,7 @@
                 "type": "null"
               }
             ],
-            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "description": "Return only these fields of each row, plus `id`, `category`, `score`, `matched_filters`, `match_score` and `unmet`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
             "title": "Fields"
           },
           "filters": {
@@ -12466,7 +12547,7 @@
                 "type": "null"
               }
             ],
-            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "description": "Return only these fields of each row, plus `id`, `category`, `score`, `matched_filters`, `match_score` and `unmet`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
             "title": "Fields"
           },
           "filters": {
@@ -12494,7 +12575,7 @@
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
-            "default": "fast"
+            "default": "auto"
           },
           "query": {
             "anyOf": [
@@ -12559,6 +12640,49 @@
         ],
         "title": "TrendTopicType",
         "type": "string"
+      },
+      "UnmetFilter": {
+        "description": "A filter a partial row does not meet exactly.",
+        "properties": {
+          "filter": {
+            "description": "The filter, named as in `resolved_search.filters`.",
+            "title": "Filter",
+            "type": "string"
+          },
+          "matched": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "When `close`, the close values the row holds; when `partly_met`, the values asked that it holds.",
+            "title": "Matched"
+          },
+          "state": {
+            "description": "`close`: a value next to one asked (a seniority one step up or down); `near`: a number or year just outside the range asked; `no_data`: the record holds no value for it; `partly_met`: some of the values asked together; `missed`: none of it.",
+            "enum": [
+              "close",
+              "near",
+              "no_data",
+              "partly_met",
+              "missed"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "filter",
+          "state"
+        ],
+        "title": "UnmetFilter",
+        "type": "object"
       },
       "ValidationError": {
         "properties": {

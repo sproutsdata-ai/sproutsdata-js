@@ -53,6 +53,8 @@ export interface ShapingSpec {
   readonly more_marker: string;
   readonly max_results_ceiling: number;
   readonly identity_fields: readonly string[];
+  /** Kept on a row meeting only part of the search, whatever the projection. */
+  readonly partial_row_fields: readonly string[];
   readonly default_projection: Readonly<Record<string, readonly string[]>>;
   readonly domain_categories: readonly string[];
   readonly lookup_by: Readonly<Record<string, { readonly accepts: readonly string[]; readonly default: string | null }>>;
@@ -172,7 +174,10 @@ export interface SparseFilterNote {
 export interface SearchToolResult {
   /** Projected, trimmed rows; a row a lookup can take carries `lookup: { by, value }`. */
   readonly results: readonly Readonly<Record<string, unknown>>[];
+  /** Every row found, partial matches included. */
   readonly total: number;
+  /** The rows meeting every filter, when partial matches are on (a company or person search). */
+  readonly total_exact?: number;
   /** When true, `total` is a floor. */
   readonly total_is_estimate: boolean;
   readonly has_more: boolean;

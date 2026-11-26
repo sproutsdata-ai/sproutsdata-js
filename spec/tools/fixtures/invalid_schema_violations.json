@@ -31,7 +31,7 @@
       "code": "invalid_arguments",
       "field_errors": [
         "page: This tool has no `page`. Pass `cursor` from the previous result's `next_cursor` instead.",
-        "country: unknown argument. Allowed here: query, category, mode, filters, sort, include_domains, exclude_domains, limit, cursor, fields.",
+        "country: unknown argument. Allowed here: query, category, mode, filters, sort, include_domains, exclude_domains, partial_matches, limit, cursor, fields.",
         "mode: must be one of fast, auto.",
         "filters.geo.places.0.level: required.",
         "filters.employee_count.gte: expected integer.",

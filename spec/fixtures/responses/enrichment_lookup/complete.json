@@ -2,14 +2,14 @@
   "body": {
     "complete": true,
     "credits_used": 10.0,
-    "job_id": "025a70b9-d852-4b7f-9acf-f043dc4bd865",
+    "job_id": "f3edc833-4800-4e49-ab8f-ae0585d7de82",
     "meta": {
-      "as_of": "2026-11-24T09:06:08.739224Z",
+      "as_of": "2026-11-26T20:16:22.648566Z",
       "credential": "api_key",
-      "credits_balance": 964.405,
+      "credits_balance": 963.43,
       "credits_charged": 10.0,
       "environment": "live",
-      "request_id": "2215df887ef344b7a40f1da1ec828608"
+      "request_id": "23f3491b13584348b1d3191d78469d5d"
     },
     "reason": null,
     "results": [
@@ -74,8 +74,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "52",
-    "x-request-id": "2215df887ef344b7a40f1da1ec828608"
+    "ratelimit-reset": "38",
+    "x-request-id": "23f3491b13584348b1d3191d78469d5d"
   },
   "operation": "enrichment_lookup",
   "request": {

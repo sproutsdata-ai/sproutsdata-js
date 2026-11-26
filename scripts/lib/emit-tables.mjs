@@ -64,6 +64,7 @@ function wait(spec) {
 /** generated/defaults.ts from defaults.json. Durations are milliseconds, as the JS API takes them. */
 export function renderDefaults(spec) {
   const env = spec.env;
+  const exportHeaders = spec.export_headers;
   return [
     ...HEADER('defaults.json'),
     '/** How long to wait for work to finish, and how often to look. */',
@@ -86,6 +87,8 @@ export function renderDefaults(spec) {
     '  readonly forbiddenHeaders: readonly string[];',
     '  /** Set by the client on each call; a default header may add others, never these. */',
     '  readonly ownedHeaders: readonly string[];',
+    '  /** The headers a CSV answered at once says what it cost and holds in. */',
+    '  readonly exportHeaders: { readonly creditsCharged: string; readonly fieldTier: string; readonly rows: string; readonly skipped: string };',
     '  readonly env: { readonly apiKey: string; readonly baseUrl: string };',
     '  readonly deprecatedEnv: { readonly apiKey: string; readonly baseUrl: string };',
     '  readonly timeoutMs: number;',
@@ -107,6 +110,7 @@ export function renderDefaults(spec) {
     `  retiredApiKeyPrefix: ${JSON.stringify(spec.retired_api_key_prefix)},`,
     `  forbiddenHeaders: ${JSON.stringify(spec.forbidden_headers)},`,
     `  ownedHeaders: ${JSON.stringify(spec.owned_headers)},`,
+    `  exportHeaders: { creditsCharged: ${JSON.stringify(exportHeaders.credits_charged)}, fieldTier: ${JSON.stringify(exportHeaders.field_tier)}, rows: ${JSON.stringify(exportHeaders.rows)}, skipped: ${JSON.stringify(exportHeaders.skipped)} },`,
     `  env: { apiKey: ${JSON.stringify(env.api_key)}, baseUrl: ${JSON.stringify(env.base_url)} },`,
     `  deprecatedEnv: { apiKey: ${JSON.stringify(env.deprecated.js.api_key)}, baseUrl: ${JSON.stringify(env.deprecated.js.base_url)} },`,
     `  timeoutMs: ${seconds(spec.timeout_seconds)},`,

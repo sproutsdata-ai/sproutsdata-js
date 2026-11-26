@@ -93,10 +93,11 @@ export interface AcademicReportSearchRequest {
    */
   readonly cursor?: string | null;
   /**
-   * Return only these fields of each row, plus `id`, `category` and `score`.
-   * Omit for every field. A name a row does not carry is left out, never added
-   * as null. It changes neither which rows come back nor what they cost, and a
-   * later page may ask for other fields with the same cursor.
+   * Return only these fields of each row, plus `id`, `category`, `score`,
+   * `matched_filters`, `match_score` and `unmet`. Omit for every field. A name
+   * a row does not carry is left out, never added as null. It changes neither
+   * which rows come back nor what they cost, and a later page may ask for other
+   * fields with the same cursor.
    */
   readonly fields?: readonly string[] | null;
   readonly filters?: AcademicReportFilters | null;
@@ -126,6 +127,11 @@ export type AcademicReportSortField =
 export interface AddItemsResponse {
   readonly added: number;
   readonly already_present: number;
+  /**
+   * Credits this call charged: the lookup price for each record shown whole
+   * that the workspace had not unlocked in the last 90 days (LQ-001).
+   */
+  readonly credits_charged: number;
   /**
    * Named nothing the search service could find.
    */
@@ -249,14 +255,21 @@ export interface AutoSearchRequest {
    */
   readonly cursor?: string | null;
   /**
-   * Return only these fields of each row, plus `id`, `category` and `score`.
-   * Omit for every field. A name a row does not carry is left out, never added
-   * as null. It changes neither which rows come back nor what they cost, and a
-   * later page may ask for other fields with the same cursor.
+   * Return only these fields of each row, plus `id`, `category`, `score`,
+   * `matched_filters`, `match_score` and `unmet`. Omit for every field. A name
+   * a row does not carry is left out, never added as null. It changes neither
+   * which rows come back nor what they cost, and a later page may ask for other
+   * fields with the same cursor.
    */
   readonly fields?: readonly string[] | null;
   readonly limit?: number;
   readonly mode?: SearchModeInput;
+  /**
+   * When the question is answered with companies or people: also return the
+   * rows that match part of the search after every row that matches all of it
+   * (the category search's `partial_matches`). Ignored by the other categories.
+   */
+  readonly partial_matches?: boolean;
   readonly query: string;
 }
 
@@ -1158,7 +1171,10 @@ export interface EnrichmentJobRequest {
    */
   readonly name?: string | null;
   /**
-   * Look up values that are already known.
+   * Look up values that are already known. Off (the default), a value already
+   * found for the same LinkedIn profile or Sprouts record comes back at no
+   * charge. Rows sent with only a name and company are looked up, and charged,
+   * each time: send `linkedin_url` or `person_id` to get repeats free.
    */
   readonly re_enrich?: boolean;
   /**
@@ -1245,7 +1261,10 @@ export interface EnrichmentLookupRequest {
   readonly fields: readonly ("EMAIL" | "PHONE" | "DOMAIN" | "LINKEDIN_URL")[];
   readonly items: readonly EnrichmentItem[];
   /**
-   * Look up values that are already known.
+   * Look up values that are already known. Off (the default), a value already
+   * found for the same LinkedIn profile or Sprouts record comes back at no
+   * charge. Rows sent with only a name and company are looked up, and charged,
+   * each time: send `linkedin_url` or `person_id` to get repeats free.
    */
   readonly re_enrich?: boolean;
   /**
@@ -1410,10 +1429,11 @@ export interface EntitySearchRequest {
    */
   readonly exclude_domains?: readonly string[];
   /**
-   * Return only these fields of each row, plus `id`, `category` and `score`.
-   * Omit for every field. A name a row does not carry is left out, never added
-   * as null. It changes neither which rows come back nor what they cost, and a
-   * later page may ask for other fields with the same cursor.
+   * Return only these fields of each row, plus `id`, `category`, `score`,
+   * `matched_filters`, `match_score` and `unmet`. Omit for every field. A name
+   * a row does not carry is left out, never added as null. It changes neither
+   * which rows come back nor what they cost, and a later page may ask for other
+   * fields with the same cursor.
    */
   readonly fields?: readonly string[] | null;
   readonly filters?: DiscoverFilters | null;
@@ -1438,6 +1458,15 @@ export interface EntitySearchRequest {
    */
   readonly lock_filters?: boolean;
   readonly mode?: SearchModeInput;
+  /**
+   * After the rows that match every filter, also return the rows that match
+   * part of the search, ranked by how much of it they meet. Each such row has
+   * `match_score` below 1 and lists in `unmet` the filters it does not meet
+   * exactly; `total` counts both, `total_exact` only the rows meeting every
+   * filter. Only a search by filters alone has such rows. Every row returned is
+   * charged. Send `false` for exact matches only.
+   */
+  readonly partial_matches?: boolean;
   readonly query?: string | null;
   /**
    * How to order the results, strongest key first. Omit for the engine's order.
@@ -1707,10 +1736,11 @@ export interface FundingSearchRequest {
    */
   readonly cursor?: string | null;
   /**
-   * Return only these fields of each row, plus `id`, `category` and `score`.
-   * Omit for every field. A name a row does not carry is left out, never added
-   * as null. It changes neither which rows come back nor what they cost, and a
-   * later page may ask for other fields with the same cursor.
+   * Return only these fields of each row, plus `id`, `category`, `score`,
+   * `matched_filters`, `match_score` and `unmet`. Omit for every field. A name
+   * a row does not carry is left out, never added as null. It changes neither
+   * which rows come back nor what they cost, and a later page may ask for other
+   * fields with the same cursor.
    */
   readonly fields?: readonly string[] | null;
   readonly filters?: FundingFilters | null;
@@ -1990,10 +2020,11 @@ export interface JobOpeningSearchRequest {
    */
   readonly exclude_domains?: readonly string[];
   /**
-   * Return only these fields of each row, plus `id`, `category` and `score`.
-   * Omit for every field. A name a row does not carry is left out, never added
-   * as null. It changes neither which rows come back nor what they cost, and a
-   * later page may ask for other fields with the same cursor.
+   * Return only these fields of each row, plus `id`, `category`, `score`,
+   * `matched_filters`, `match_score` and `unmet`. Omit for every field. A name
+   * a row does not carry is left out, never added as null. It changes neither
+   * which rows come back nor what they cost, and a later page may ask for other
+   * fields with the same cursor.
    */
   readonly fields?: readonly string[] | null;
   readonly filters?: JobOpeningFilters | null;
@@ -2074,6 +2105,11 @@ export interface ListExportRequest {
 }
 
 export interface ListItemsResponse {
+  /**
+   * Credits this call charged: the lookup price for each record shown whole
+   * that the workspace had not unlocked in the last 90 days (LQ-001).
+   */
+  readonly credits_charged: number;
   readonly field_tier: "free" | "unlocked" | (string & {});
   readonly items: readonly SavedItemView[];
   readonly next_cursor: string | null;
@@ -2196,10 +2232,11 @@ export interface MarketReportSearchRequest {
    */
   readonly cursor?: string | null;
   /**
-   * Return only these fields of each row, plus `id`, `category` and `score`.
-   * Omit for every field. A name a row does not carry is left out, never added
-   * as null. It changes neither which rows come back nor what they cost, and a
-   * later page may ask for other fields with the same cursor.
+   * Return only these fields of each row, plus `id`, `category`, `score`,
+   * `matched_filters`, `match_score` and `unmet`. Omit for every field. A name
+   * a row does not carry is left out, never added as null. It changes neither
+   * which rows come back nor what they cost, and a later page may ask for other
+   * fields with the same cursor.
    */
   readonly fields?: readonly string[] | null;
   readonly filters?: MarketReportFilters | null;
@@ -2413,10 +2450,11 @@ export interface NewsSearchRequest {
    */
   readonly cursor?: string | null;
   /**
-   * Return only these fields of each row, plus `id`, `category` and `score`.
-   * Omit for every field. A name a row does not carry is left out, never added
-   * as null. It changes neither which rows come back nor what they cost, and a
-   * later page may ask for other fields with the same cursor.
+   * Return only these fields of each row, plus `id`, `category`, `score`,
+   * `matched_filters`, `match_score` and `unmet`. Omit for every field. A name
+   * a row does not carry is left out, never added as null. It changes neither
+   * which rows come back nor what they cost, and a later page may ask for other
+   * fields with the same cursor.
    */
   readonly fields?: readonly string[] | null;
   readonly filters?: NewsFilters | null;
@@ -2842,10 +2880,11 @@ export interface PatentSearchRequest {
    */
   readonly cursor?: string | null;
   /**
-   * Return only these fields of each row, plus `id`, `category` and `score`.
-   * Omit for every field. A name a row does not carry is left out, never added
-   * as null. It changes neither which rows come back nor what they cost, and a
-   * later page may ask for other fields with the same cursor.
+   * Return only these fields of each row, plus `id`, `category`, `score`,
+   * `matched_filters`, `match_score` and `unmet`. Omit for every field. A name
+   * a row does not carry is left out, never added as null. It changes neither
+   * which rows come back nor what they cost, and a later page may ask for other
+   * fields with the same cursor.
    */
   readonly fields?: readonly string[] | null;
   readonly filters?: PatentFilters | null;
@@ -3738,6 +3777,12 @@ export interface SearchEnvelope {
   readonly results: readonly SearchHit[];
   readonly suggestion: SearchSuggestion | null;
   readonly total: number;
+  /**
+   * Company and person searches: the rows meeting every filter. Equal to
+   * `total` unless `partial_matches` adds rows meeting part of the search (then
+   * `total` counts both). Null on other searches.
+   */
+  readonly total_exact: number | null;
   readonly total_is_estimate: boolean;
 }
 
@@ -3755,15 +3800,38 @@ export interface SearchExportRequest {
 export interface SearchHit {
   readonly category: ResultCategory;
   readonly id: string;
+  /**
+   * A company or person search with `partial_matches`: how much of the search
+   * this row meets, 0 to 1. 1 meets every filter; below 1 is a partial row,
+   * listed after every row meeting them all. Null on other searches.
+   */
+  readonly match_score: number | null;
+  /**
+   * Company and person searches: the filters in `resolved_search.filters` this
+   * row meets in full (a `keyword_query` search names it `keyword_query`). A
+   * `keywords` filter set to `rank_first` is listed only on the rows holding
+   * its keywords. Null on other searches.
+   */
+  readonly matched_filters: readonly string[] | null;
   readonly score: number | null;
+  /**
+   * On a partial row: each filter it does not meet exactly; it meets every
+   * other filter in `resolved_search.filters`. Null on a row meeting them all
+   * and on other searches.
+   */
+  readonly unmet: readonly UnmetFilter[] | null;
   readonly [key: string]: unknown;
 }
 
 /**
- * How a search with words is billed. Both modes read ``query`` the same way: an
- * AI reading turns what the words ask into filters (the filters sent win), and
- * the description left over is matched by meaning. - ``fast``: billed as a
- * basic search. - ``auto``: billed as an AI search.
+ * How ``query`` is read, and how the search is billed. - ``fast``: send what
+ * you want as words in ``query`` and every hard constraint in ``filters``. One
+ * quick reading takes from the words only what they are about (for companies
+ * and people: keywords, a description matched by meaning, and the people's
+ * titles or skills; for documents: the topic) and sets no other filter. Billed
+ * as a basic search. - ``auto`` (the default): an AI reading turns everything
+ * the words ask into filters (the filters sent win), and the description left
+ * over is matched by meaning. Billed as an AI search.
  */
 export type SearchMode =
   | "fast"
@@ -3771,10 +3839,14 @@ export type SearchMode =
   | (string & {});
 
 /**
- * How a search with words is billed. Both modes read ``query`` the same way: an
- * AI reading turns what the words ask into filters (the filters sent win), and
- * the description left over is matched by meaning. - ``fast``: billed as a
- * basic search. - ``auto``: billed as an AI search.
+ * How ``query`` is read, and how the search is billed. - ``fast``: send what
+ * you want as words in ``query`` and every hard constraint in ``filters``. One
+ * quick reading takes from the words only what they are about (for companies
+ * and people: keywords, a description matched by meaning, and the people's
+ * titles or skills; for documents: the topic) and sets no other filter. Billed
+ * as a basic search. - ``auto`` (the default): an AI reading turns everything
+ * the words ask into filters (the filters sent win), and the description left
+ * over is matched by meaning. Billed as an AI search.
  */
 export type SearchModeInput =
   | "fast"
@@ -3853,10 +3925,11 @@ export interface SimilarRequest {
    */
   readonly cursor?: string | null;
   /**
-   * Return only these fields of each row, plus `id`, `category` and `score`.
-   * Omit for every field. A name a row does not carry is left out, never added
-   * as null. It changes neither which rows come back nor what they cost, and a
-   * later page may ask for other fields with the same cursor.
+   * Return only these fields of each row, plus `id`, `category`, `score`,
+   * `matched_filters`, `match_score` and `unmet`. Omit for every field. A name
+   * a row does not carry is left out, never added as null. It changes neither
+   * which rows come back nor what they cost, and a later page may ask for other
+   * fields with the same cursor.
    */
   readonly fields?: readonly string[] | null;
   readonly filters?: DiscoverFilters | null;
@@ -4313,10 +4386,11 @@ export interface TrendSearchRequest {
    */
   readonly cursor?: string | null;
   /**
-   * Return only these fields of each row, plus `id`, `category` and `score`.
-   * Omit for every field. A name a row does not carry is left out, never added
-   * as null. It changes neither which rows come back nor what they cost, and a
-   * later page may ask for other fields with the same cursor.
+   * Return only these fields of each row, plus `id`, `category`, `score`,
+   * `matched_filters`, `match_score` and `unmet`. Omit for every field. A name
+   * a row does not carry is left out, never added as null. It changes neither
+   * which rows come back nor what they cost, and a later page may ask for other
+   * fields with the same cursor.
    */
   readonly fields?: readonly string[] | null;
   readonly filters?: TrendFilters | null;
@@ -4378,6 +4452,28 @@ export interface TrendSummary {
 export type TrendTopicType =
   | "regular_topic"
   | "topic_cluster";
+
+/**
+ * A filter a partial row does not meet exactly.
+ */
+export interface UnmetFilter {
+  /**
+   * The filter, named as in `resolved_search.filters`.
+   */
+  readonly filter: string;
+  /**
+   * When `close`, the close values the row holds; when `partly_met`, the values
+   * asked that it holds.
+   */
+  readonly matched: readonly string[] | null;
+  /**
+   * `close`: a value next to one asked (a seniority one step up or down);
+   * `near`: a number or year just outside the range asked; `no_data`: the
+   * record holds no value for it; `partly_met`: some of the values asked
+   * together; `missed`: none of it.
+   */
+  readonly state: "close" | "near" | "no_data" | "partly_met" | "missed" | (string & {});
+}
 
 export interface ViaInstitution {
   readonly ended: string | null;

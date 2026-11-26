@@ -124,6 +124,7 @@ function categoryRefusal(args: SearchArguments): string | undefined {
   const { category } = args;
   if (hasDomains(args) && !SHAPING.domain_categories.includes(category)) return text('rules', 'domains_need_entity_category', { category });
   if (hasFilters(args) && DOCUMENTS.has(category)) return text('rules', 'documents_take_no_filters', { category });
+  if (args.partial_matches !== undefined && DOCUMENTS.has(category)) return text('rules', 'partial_matches_entities_only', { category });
   const duplicate = firstDuplicate(args.sort ?? []);
   return duplicate === undefined ? undefined : text('rules', 'sort_duplicate_field', { field: duplicate });
 }

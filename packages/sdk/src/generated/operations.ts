@@ -62,11 +62,11 @@ export interface Operations {
   readonly historyList: { readonly method: 'GET'; readonly path: '/v1/usage/history'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'query' } };
   readonly historyMetrics: { readonly method: 'GET'; readonly path: '/v1/usage/metrics'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
   readonly historyRetrieve: { readonly method: 'GET'; readonly path: '/v1/usage/history/{run_id}'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
-  readonly listsAddItems: { readonly method: 'POST'; readonly path: '/v1/lists/{list_id}/items'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
+  readonly listsAddItems: { readonly method: 'POST'; readonly path: '/v1/lists/{list_id}/items'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none' };
   readonly listsCreate: { readonly method: 'POST'; readonly path: '/v1/lists'; readonly routeClass: 'once'; readonly response: 'json'; readonly idempotency: 'none' };
   readonly listsDelete: { readonly method: 'DELETE'; readonly path: '/v1/lists/{list_id}'; readonly routeClass: 'once'; readonly response: 'empty'; readonly idempotency: 'none' };
-  readonly listsExport: { readonly method: 'POST'; readonly path: '/v1/lists/{list_id}/export'; readonly routeClass: 'safe'; readonly response: 'csv_or_job'; readonly idempotency: 'none' };
-  readonly listsItems: { readonly method: 'GET'; readonly path: '/v1/lists/{list_id}/items'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none'; readonly paging: { readonly style: 'cursor'; readonly items: 'items'; readonly cursorIn: 'query' } };
+  readonly listsExport: { readonly method: 'POST'; readonly path: '/v1/lists/{list_id}/export'; readonly routeClass: 'billed'; readonly response: 'csv_or_job'; readonly idempotency: 'none' };
+  readonly listsItems: { readonly method: 'GET'; readonly path: '/v1/lists/{list_id}/items'; readonly routeClass: 'billed'; readonly response: 'json'; readonly idempotency: 'none'; readonly paging: { readonly style: 'cursor'; readonly items: 'items'; readonly cursorIn: 'query' } };
   readonly listsList: { readonly method: 'GET'; readonly path: '/v1/lists'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
   readonly listsRemoveItems: { readonly method: 'DELETE'; readonly path: '/v1/lists/{list_id}/items'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
   readonly listsRename: { readonly method: 'PATCH'; readonly path: '/v1/lists/{list_id}'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
@@ -86,7 +86,7 @@ export interface Operations {
   readonly runsResults: { readonly method: 'GET'; readonly path: '/v1/agents/runs/{run_id}/results'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'query' } };
   readonly runsRetrieve: { readonly method: 'GET'; readonly path: '/v1/agents/runs/{run_id}'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
   readonly search: { readonly method: 'POST'; readonly path: '/v1/search'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'body' } };
-  readonly searchExport: { readonly method: 'POST'; readonly path: '/v1/search/export'; readonly routeClass: 'safe'; readonly response: 'csv_or_job'; readonly idempotency: 'none' };
+  readonly searchExport: { readonly method: 'POST'; readonly path: '/v1/search/export'; readonly routeClass: 'billed'; readonly response: 'csv_or_job'; readonly idempotency: 'none' };
   readonly similar: { readonly method: 'POST'; readonly path: '/v1/similar'; readonly routeClass: 'keyed'; readonly response: 'json'; readonly idempotency: 'optional'; readonly paging: { readonly style: 'cursor'; readonly items: 'results'; readonly cursorIn: 'body' } };
   readonly sorts: { readonly method: 'GET'; readonly path: '/v1/sorts/{category}'; readonly routeClass: 'safe'; readonly response: 'json'; readonly idempotency: 'none' };
 }
@@ -124,11 +124,11 @@ export const OPERATIONS: Operations = {
   historyList: { method: 'GET', path: '/v1/usage/history', routeClass: 'safe', response: 'json', idempotency: 'none', paging: { style: 'cursor', items: 'results', cursorIn: 'query' } },
   historyMetrics: { method: 'GET', path: '/v1/usage/metrics', routeClass: 'safe', response: 'json', idempotency: 'none' },
   historyRetrieve: { method: 'GET', path: '/v1/usage/history/{run_id}', routeClass: 'safe', response: 'json', idempotency: 'none' },
-  listsAddItems: { method: 'POST', path: '/v1/lists/{list_id}/items', routeClass: 'safe', response: 'json', idempotency: 'none' },
+  listsAddItems: { method: 'POST', path: '/v1/lists/{list_id}/items', routeClass: 'billed', response: 'json', idempotency: 'none' },
   listsCreate: { method: 'POST', path: '/v1/lists', routeClass: 'once', response: 'json', idempotency: 'none' },
   listsDelete: { method: 'DELETE', path: '/v1/lists/{list_id}', routeClass: 'once', response: 'empty', idempotency: 'none' },
-  listsExport: { method: 'POST', path: '/v1/lists/{list_id}/export', routeClass: 'safe', response: 'csv_or_job', idempotency: 'none' },
-  listsItems: { method: 'GET', path: '/v1/lists/{list_id}/items', routeClass: 'safe', response: 'json', idempotency: 'none', paging: { style: 'cursor', items: 'items', cursorIn: 'query' } },
+  listsExport: { method: 'POST', path: '/v1/lists/{list_id}/export', routeClass: 'billed', response: 'csv_or_job', idempotency: 'none' },
+  listsItems: { method: 'GET', path: '/v1/lists/{list_id}/items', routeClass: 'billed', response: 'json', idempotency: 'none', paging: { style: 'cursor', items: 'items', cursorIn: 'query' } },
   listsList: { method: 'GET', path: '/v1/lists', routeClass: 'safe', response: 'json', idempotency: 'none' },
   listsRemoveItems: { method: 'DELETE', path: '/v1/lists/{list_id}/items', routeClass: 'safe', response: 'json', idempotency: 'none' },
   listsRename: { method: 'PATCH', path: '/v1/lists/{list_id}', routeClass: 'safe', response: 'json', idempotency: 'none' },
@@ -148,7 +148,7 @@ export const OPERATIONS: Operations = {
   runsResults: { method: 'GET', path: '/v1/agents/runs/{run_id}/results', routeClass: 'safe', response: 'json', idempotency: 'none', paging: { style: 'cursor', items: 'results', cursorIn: 'query' } },
   runsRetrieve: { method: 'GET', path: '/v1/agents/runs/{run_id}', routeClass: 'safe', response: 'json', idempotency: 'none' },
   search: { method: 'POST', path: '/v1/search', routeClass: 'keyed', response: 'json', idempotency: 'optional', paging: { style: 'cursor', items: 'results', cursorIn: 'body' } },
-  searchExport: { method: 'POST', path: '/v1/search/export', routeClass: 'safe', response: 'csv_or_job', idempotency: 'none' },
+  searchExport: { method: 'POST', path: '/v1/search/export', routeClass: 'billed', response: 'csv_or_job', idempotency: 'none' },
   similar: { method: 'POST', path: '/v1/similar', routeClass: 'keyed', response: 'json', idempotency: 'optional', paging: { style: 'cursor', items: 'results', cursorIn: 'body' } },
   sorts: { method: 'GET', path: '/v1/sorts/{category}', routeClass: 'safe', response: 'json', idempotency: 'none' },
 };

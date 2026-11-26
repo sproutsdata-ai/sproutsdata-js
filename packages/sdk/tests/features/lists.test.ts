@@ -1,7 +1,11 @@
-/** Saved lists (L1-L7) and exports (X1-X6). */
+/**
+ * Saved lists (L1-L7) and exports (X1-X7). An export shows whole records only to a workspace that has
+ * bought credits, and charges each one it had not unlocked in the last 90 days; a file says so (X5, X7).
+ */
 
 import { describe, expect, it } from 'vitest';
 
+import { exportFile } from '../../src/core/call.js';
 import { APIResponseValidationError, ClientValidationError, ConflictError, ExportFailedError, InvalidRequestError, ListNameTakenError, NotFoundError, WaitTimeoutError } from '../../src/core/errors.js';
 import { Exports, SearchExport } from '../../src/resources/exports.js';
 import { Lists } from '../../src/resources/lists.js';
@@ -162,10 +166,26 @@ describe('exports', () => {
     expect((timeout as WaitTimeoutError).last).toMatchObject({ status: 'running' });
   });
 
-  it('X5: exports read no charge', async () => {
+  it('X5: a file says what it cost and which fields it holds', async () => {
     const r = rig([recorded('lists_export', 'file')]);
-    const result = await new Lists(r.transport).export('l1');
-    expect(result).not.toHaveProperty('credits_charged');
+    const result = await new Lists(r.transport).export('l1', { limit: 5 });
+    // Recorded for a paid workspace whose records were unlocked when they were added.
+    expect(result).toMatchObject({ kind: 'file', creditsCharged: 0, fieldTier: 'unlocked', rows: 5, skipped: 0 });
+  });
+
+  it.each([
+    [{}, [undefined, undefined, undefined, undefined]],
+    [{ 'x-credits-charged': '2.5', 'x-export-field-tier': 'free', 'x-export-row-count': '3', 'x-export-skipped': '0' }, [2.5, 'free', 3, 0]],
+    [{ 'x-credits-charged': 'lots', 'x-export-field-tier': ' ', 'x-export-row-count': '-1', 'x-export-skipped': '1.5' }, [undefined, undefined, undefined, undefined]],
+    [{ 'x-credits-charged': 'inf' }, [undefined, undefined, undefined, undefined]],
+    [{ 'x-credits-charged': '-1' }, [undefined, undefined, undefined, undefined]],
+    [{ 'x-credits-charged': '1_000' }, [undefined, undefined, undefined, undefined]],
+    [{ 'x-credits-charged': '0x10' }, [undefined, undefined, undefined, undefined]],
+    [{ 'x-credits-charged': '1e+06' }, [1_000_000, undefined, undefined, undefined]],
+  ])('X7: a header missing or unreadable reads as unknown (%o)', (headers, read) => {
+    const file = exportFile('a,b\n', headers);
+    expect([file.creditsCharged, file.fieldTier, file.rows, file.skipped]).toEqual(read);
+    expect(file.csv).toBe('a,b\n');
   });
 
   it('X6: a missing job and a too large export throw their classes', async () => {

@@ -59,6 +59,7 @@ export interface SearchArguments {
   })[];
   readonly include_domains?: readonly (string)[];
   readonly exclude_domains?: readonly (string)[];
+  readonly partial_matches?: boolean;
   readonly limit: number;
   readonly cursor?: string;
   readonly fields?: readonly (string)[];
@@ -110,7 +111,7 @@ export interface LookupArguments {
 export const TOOL_SPECS: Readonly<Record<ToolName, ToolSpecFile>> = {
   sprouts_search: {
     "name": "sprouts_search",
-    "description": "THE DEFAULT TOOL. Find companies, people or documents matching a DESCRIPTION of who to find. A natural-language `query` is the primary interface; `filters` is a vetted override, never a place to restate the query. \"Who works at X\" is this tool with `category: \"person\"`.\n\nRead the result before reporting it. `interpreted_as` shows the filters the engine actually applied (`source: \"parser\"` means it inferred them from your words), and `caveats` lists what it could not do. When `total_is_estimate` is true, `total` is a floor: say \"at least N\", never an exact count. `has_more` with a `next_cursor` means more rows exist. An empty result means nothing matched what was applied, not that the entity does not exist: the index does not hold every company or person, and some categories have no index in a given deployment. An empty result says why in `caveats` (`no_match`), and `suggestion` may say how to widen it: `kind: \"relax\"` lists in `without` the filters whose removal alone finds records, each with its `total`; drop one of them and search again. A `sparse_filter` caveat (with its numbers in `interpreted_as.sparse_filters`) means few records hold that field, so a small `total` reflects thin data rather than a narrow ask.\n\nFilter values must come from the live vocabulary. Seniority is exactly `C-Suite`, `VP`, `Director / Head`, `Manager`, `IC`, `Entry`, `In Training`. Industries look like `Software & Technology`; departments like `Marketing` or `Engineering / Software`. Founders, owners, partners, investors and advisors are `governance_level`, and consultants and freelancers are `employment_type`, not seniorities. An invented filter name or value fails the whole call: move that constraint into the `query` words instead.\n\nBilled by the results a search delivers: the first page costs a base price that covers its first results (`auto` costs a little more than `fast`), a later page costs only the results it adds, and a search that finds nothing is free.\n\nA document category (`patent`, `news_article`, ...) takes `query` and its own scope only: `filters` here are company and person filters, and are refused for documents.",
+    "description": "THE DEFAULT TOOL. Find companies, people or documents matching a DESCRIPTION of who to find. A natural-language `query` is the primary interface; `filters` is a vetted override, never a place to restate the query. \"Who works at X\" is this tool with `category: \"person\"`.\n\nRead the result before reporting it. `interpreted_as` shows the filters the engine actually applied (`source: \"parser\"` means it inferred them from your words), and `caveats` lists what it could not do. When `total_is_estimate` is true, `total` is a floor: say \"at least N\", never an exact count. `has_more` with a `next_cursor` means more rows exist. An empty result means nothing matched what was applied, not that the entity does not exist: the index does not hold every company or person, and some categories have no index in a given deployment. An empty result says why in `caveats` (`no_match`), and `suggestion` may say how to widen it: `kind: \"relax\"` lists in `without` the filters whose removal alone finds records, each with its `total`; drop one of them and search again. A `sparse_filter` caveat (with its numbers in `interpreted_as.sparse_filters`) means few records hold that field, so a small `total` reflects thin data rather than a narrow ask. A company or person search also returns, after the rows meeting every filter, rows meeting only part of the search: such a row carries `unmet` (each filter it misses, and how: `close`, `near`, `no_data`, `partly_met` or `missed`), `matched_filters` and `match_score`. `total` counts them and `total_exact` does not, so call them close matches, never matches, and never report `total` as the number of exact matches. Set `partial_matches: false` to get exact matches only.\n\nFilter values must come from the live vocabulary. Seniority is exactly `C-Suite`, `VP`, `Director / Head`, `Manager`, `IC`, `Entry`, `In Training`. Industries look like `Software & Technology`; departments like `Marketing` or `Engineering / Software`. Founders, owners, partners, investors and advisors are `governance_level`, and consultants and freelancers are `employment_type`, not seniorities. An invented filter name or value fails the whole call: move that constraint into the `query` words instead.\n\nBilled by the results a search delivers: the first page costs a base price that covers its first results (`auto` costs a little more than `fast`; partial rows are charged like any other), a later page costs only the results it adds, and a search that finds nothing is free.\n\nA document category (`patent`, `news_article`, ...) takes `query` and its own scope only: `filters` here are company and person filters, and are refused for documents.",
     "description_hints": {
       "sprouts_entity_lookup": "To get a row's full record, call sprouts_entity_lookup with the row's `lookup` value: a company by its domain with `by: \"domain\"`, a person by their LinkedIn URL with `by: \"li_url\"`, a document by its `id` (a `d1_...` id is a lookup key). A company row's `id` (a sealed reference) and a person row's `id` (a hash) resolve through no lookup."
     },
@@ -151,7 +152,7 @@ export const TOOL_SPECS: Readonly<Record<ToolName, ToolSpecFile>> = {
             "auto"
           ],
           "default": "fast",
-          "description": "`fast` (about 1-2 s) matches literally and does NO query parsing: a country, headcount or industry stated only in words is silently not applied. `auto` (about 12 s, more credits) has a model turn your words into filters. Use `fast` when the constraints are in `filters`, `auto` when they live in the sentence."
+          "description": "`fast` (about 1-2 s) reads your words only for what they are about (keywords, a description matched by meaning, people's titles or skills; a document's topic) and sets NO other filter: a country, headcount or industry stated only in words is silently not applied. `auto` (about 12 s, more credits) has a model turn everything your words ask into filters. Use `fast` when the constraints are in `filters`, `auto` when they live in the sentence."
         },
         "filters": {
           "type": "object",
@@ -401,6 +402,10 @@ export const TOOL_SPECS: Readonly<Record<ToolName, ToolSpecFile>> = {
           "items": {
             "type": "string"
           }
+        },
+        "partial_matches": {
+          "type": "boolean",
+          "description": "Company and person searches only. Left out, rows meeting part of the search follow the exact matches (each with `unmet`), and `total_exact` counts the exact ones. `false`: exact matches only."
         },
         "limit": {
           "type": "integer",
@@ -683,6 +688,11 @@ export const SHAPING: ShapingSpec = {
     "id",
     "category"
   ],
+  "partial_row_fields": [
+    "matched_filters",
+    "match_score",
+    "unmet"
+  ],
   "default_projection": {
     "company": [
       "id",
@@ -839,11 +849,13 @@ export const MESSAGES: MessagesSpec = {
     "by_not_accepted": "`{category}` accepts no `by`: its ids already are record ids.",
     "by_not_valid": "`by: \"{by}\"` is not valid for `{category}`. Allowed: {allowed}.",
     "person_has_no_domain": "`by: \"domain\"` is not valid for `person`: a person has no domain. Use `li_url` or `name`.",
-    "documents_take_no_filters": "`filters` are company and person filters; a `{category}` search takes `query` only here. Put the constraint in the words, or search `company` or `person`."
+    "documents_take_no_filters": "`filters` are company and person filters; a `{category}` search takes `query` only here. Put the constraint in the words, or search `company` or `person`.",
+    "partial_matches_entities_only": "`partial_matches` is for company and person searches: a `{category}` matches its query or does not. Leave it out."
   },
   "caveats": {
     "degradation": "{reason}: {detail} (impact: {impact})",
     "parser_not_run": "parser_not_run: `fast` mode did not parse the query, so a constraint stated only in words (a country, a headcount, an industry) was not applied. Use `mode: \"auto\"` or put it in `filters`.",
+    "partial_rows": "partial_rows: {count} of {shown} rows meet only part of the search; each lists what it misses in `unmet`. {exact} rows meet all of it (`total_exact`): report the others as close matches, not matches.",
     "application_filter": "application_filter: `filters.{path}` is fixed by this application to {value}; your {requested} was not applied.",
     "limit_capped": "limit_capped: you asked for {requested} rows; this application returns at most {limit} per call.",
     "rows_without_lookup": "rows_without_lookup: {count} of {shown} rows carry no domain or LinkedIn URL, so they have no `lookup` value and cannot be looked up.",

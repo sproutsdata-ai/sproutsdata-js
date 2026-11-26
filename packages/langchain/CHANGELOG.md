@@ -9,7 +9,13 @@
   settings beside a client throw `ClientValidationError`.
 - The retriever sends `mode: 'fast'` unless told otherwise, and no mode with
   `category: 'auto'`; its documents read the new rows and carry
-  `credits_charged`.
+  `credits_charged`. A search without a mode now runs in `auto` on the API, so
+  pinning `fast` keeps what a deployed retriever bills; `fast` reads the words only
+  for what they are about, so constraints belong in `filters`.
+- Partial matches: the retriever takes `partialMatches` (unset, the API's default:
+  on), and each document carries `match_score`, `unmet` (set on a row meeting only
+  part of the search) and the page's `total_exact`. The tools keep a partial row's
+  `unmet`, return `total_exact` and add a `partial_rows` caveat.
 - The `X-SproutsData-Client` header is no longer sent.
 - Documents and tool results no longer carry `environment`: test keys were
   retired, so every answer is a live one.

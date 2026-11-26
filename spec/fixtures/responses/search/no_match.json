@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-24T09:06:07.509407Z",
+        "as_of": "2026-11-26T20:16:21.252261Z",
         "domain": null,
         "quote": null,
         "source_corpus": "gtm_index",
@@ -20,12 +20,12 @@
     ],
     "has_more": false,
     "meta": {
-      "as_of": "2026-11-24T09:06:07.509407Z",
+      "as_of": "2026-11-26T20:16:21.252261Z",
       "credential": "api_key",
-      "credits_balance": 997.905,
+      "credits_balance": 997.12,
       "credits_charged": 0.0,
       "environment": "live",
-      "request_id": "c5d80fa0bd5f4bf28ea015e99692c5be"
+      "request_id": "8e34f4fc28124841b78dd89f39f4cb09"
     },
     "next_cursor": null,
     "resolved_search": {
@@ -39,11 +39,11 @@
           ]
         }
       },
-      "filters_source": "caller",
+      "filters_source": "caller+parser",
       "keyword_query": null,
-      "mode": "fast",
+      "mode": "auto",
       "overrides": [],
-      "parser_version": "none",
+      "parser_version": "prism-search-v10",
       "query": "enterprise software",
       "read_as": [],
       "semantic_query": "industrial automation",
@@ -65,14 +65,15 @@
       ]
     },
     "total": 0,
+    "total_exact": 0,
     "total_is_estimate": false
   },
   "headers": {
     "content-type": "application/json",
     "ratelimit-limit": "2000",
-    "ratelimit-remaining": "1995",
-    "ratelimit-reset": "53",
-    "x-request-id": "c5d80fa0bd5f4bf28ea015e99692c5be"
+    "ratelimit-remaining": "1994",
+    "ratelimit-reset": "39",
+    "x-request-id": "8e34f4fc28124841b78dd89f39f4cb09"
   },
   "operation": "search",
   "request": {

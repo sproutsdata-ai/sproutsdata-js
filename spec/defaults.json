@@ -1,6 +1,6 @@
 {
   "$comment": "Configuration defaults every SDK applies. Durations are in seconds here; the JS SDK takes milliseconds at its API surface and converts. Resolution order for a setting is always: the argument, then the environment variable, then the deprecated environment variable (with a warning naming its replacement), then the default below. The key rules mirror the API's (keys are issued as sk_dsp_live_<secret>, and the retired sk_dsp_test_ keys are refused at exchange; a key has the sk_dsp_ prefix, at most 200 characters, printable ASCII): a key that breaks them is refused locally, before any request, because the server would only answer a bare 401.",
-  "version": 4,
+  "version": 5,
   "base_url": "https://api.sproutsdata.ai",
   "base_url_rule": "https:// is required. Plain http:// is accepted only when the host is one of plain_http_hosts.",
   "plain_http_hosts": [
@@ -29,6 +29,13 @@
     "last-event-id"
   ],
   "owned_headers_rule": "Set by the client on each call. A default header may add others, never these: a caller's Content-Type would misdescribe the body, and a Last-Event-ID would resume an event stream from the wrong place.",
+  "export_headers": {
+    "credits_charged": "x-credits-charged",
+    "field_tier": "x-export-field-tier",
+    "rows": "x-export-row-count",
+    "skipped": "x-export-skipped"
+  },
+  "export_headers_rule": "What a CSV answered at once (`csv` and `csv_or_job` routes, 200) says about itself, read onto the SDK's export file: what making it cost, in credits (whole records the workspace had not unlocked in the last 90 days, at the lookup price), which fields its rows carry (`free`: the search-row fields; `unlocked`: whole records), how many rows it holds and how many were left out (Do-Not-Contact). A job's file carries no charge: the job is charged when its file is ready. A header that is missing or unreadable reads as unknown, never as an error: the CSV is already made and charged.",
   "env": {
     "api_key": "SPROUTSDATA_API_KEY",
     "base_url": "SPROUTSDATA_BASE_URL",

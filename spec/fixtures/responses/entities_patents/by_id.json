@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-24T09:06:07.636716Z",
+        "as_of": "2026-11-26T20:16:21.382232Z",
         "domain": null,
         "quote": null,
         "source_corpus": "patents",
@@ -14,12 +14,12 @@
     "degradation": [],
     "has_more": false,
     "meta": {
-      "as_of": "2026-11-24T09:06:07.636716Z",
+      "as_of": "2026-11-26T20:16:21.382232Z",
       "credential": "api_key",
-      "credits_balance": 991.905,
+      "credits_balance": 990.93,
       "credits_charged": 1.0,
       "environment": "live",
-      "request_id": "9c089df87e2e4554b399969c0dfded47"
+      "request_id": "aeedd6edeeee44ba83c8e78fd3f21a9f"
     },
     "next_cursor": null,
     "resolved_search": null,
@@ -71,8 +71,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "53",
-    "x-request-id": "9c089df87e2e4554b399969c0dfded47"
+    "ratelimit-reset": "39",
+    "x-request-id": "aeedd6edeeee44ba83c8e78fd3f21a9f"
   },
   "operation": "entities_patents",
   "request": {

@@ -16,10 +16,14 @@ import type { InterpretedAs, LookupToolResult, SearchToolResult, SparseFilterNot
 import { isObject } from './validate.js';
 
 const PROJECTIONS = SHAPING.default_projection;
+const PARTIAL_ROW = SHAPING.partial_row_fields;
 const SKIPPED: ReadonlySet<string> = new Set(SHAPING.resolved_filters_skipped);
 const SEARCH_ID = new RegExp(SHAPING.search_id_pattern, 'u');
 /** Rows whose lookup value comes from their record, and can be missing. */
 const ADDRESSABLE: ReadonlySet<string> = new Set(['company', 'person']);
+
+/** A row meeting only part of the search: it names what it misses. */
+const isPartial = (hit: SearchHit): boolean => (hit.unmet?.length ?? 0) > 0;
 
 /** Field name to the lower-cased values the request asked for, for list ordering. */
 export type Wanted = ReadonlyMap<string, ReadonlySet<string>>;
@@ -160,6 +164,14 @@ export function shapePage(page: SearchEnvelope, shaping: PageShaping): SearchToo
   let unaddressed = 0;
   const rows = shaping.hits.map((hit) => {
     const row = compactRecord(hit, hit.category, shaping.fields, shaping.wanted);
+    if (isPartial(hit)) {
+      // A partial row says how it falls short, whatever the projection: without it, a model reads
+      // a close match as a match. An exact row meets every filter in `interpreted_as`.
+      for (const key of PARTIAL_ROW) {
+        const value = compact(hit[key]);
+        if (!isEmpty(value)) row[key] = value;
+      }
+    }
     const lookup = shaping.withLookup ? lookupOf(hit) : undefined;
     if (lookup !== undefined) row['lookup'] = lookup;
     else if (shaping.withLookup && ADDRESSABLE.has(hit.category)) unaddressed += 1;
@@ -167,12 +179,15 @@ export function shapePage(page: SearchEnvelope, shaping: PageShaping): SearchToo
   });
   const notes = degradation(page.degradation);
   if (parserSkipped(page.resolved_search, shaping.askedInWords)) notes.push(text('caveats', 'parser_not_run'));
+  const partial = shaping.hits.filter(isPartial).length;
+  if (partial > 0) notes.push(text('caveats', 'partial_rows', { count: partial, shown: shaping.hits.length, exact: page.total_exact ?? 0 }));
   notes.push(...shaping.caveats);
   if (unaddressed > 0) notes.push(text('caveats', 'rows_without_lookup', { count: unaddressed, shown: shaping.hits.length }));
   const suggestion = page.suggestion ?? null;
   return {
     results: rows,
     total: page.total,
+    ...(typeof page.total_exact === 'number' ? { total_exact: page.total_exact } : {}),
     total_is_estimate: page.total_is_estimate,
     has_more: page.has_more,
     next_cursor: page.next_cursor ?? null,

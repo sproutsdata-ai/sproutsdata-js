@@ -175,6 +175,17 @@ fields shortened:
   "parser"` means it inferred them from the words. `sparse_filters`, present
   only when there are some, names applied filters whose field few records hold.
 - **`total_is_estimate: true`** makes `total` a floor: "at least N".
+- **Partial rows.** A company or person search also returns rows meeting only
+  part of the search, after the exact ones. Such a row keeps `unmet` (each filter
+  it misses, and how), `matched_filters` and `match_score` whatever the
+  projection; `total_exact` counts the exact rows (`total` counts both), and a
+  `partial_rows` caveat tells the model to report them as close matches
+  (`spec/tools/fixtures/search_partial_matches.json`). The model can send
+  `partial_matches: false` for exact matches only.
+- **`mode`** is `fast` unless the model asks for `auto`: the tool tells the model
+  to put constraints in `filters`, and `fast` reads the words only for what they
+  are about. A search sent to the API without a mode would run in `auto`, so the
+  tool always sends one.
 - **`caveats`** lists anything the server could not do, and anything the
   toolset changed (a row cap, an application filter that replaced the model's).
   An empty answer's first caveat is `no_match`, with the reason.

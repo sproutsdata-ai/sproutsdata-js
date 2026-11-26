@@ -111,6 +111,11 @@ A JSON string, compact and with sorted keys; or, when invoked with a model's
   offered.
 - `total` and `total_is_estimate`: when `total_is_estimate` is true, `total` is
   a floor, "at least N". The same holds in the retriever's metadata.
+- Partial rows: a company or person search also returns rows meeting only part
+  of the search, after the exact ones. Such a row keeps `unmet` (each filter it
+  misses, and how), `matched_filters` and `match_score`; `total_exact` counts the
+  exact rows (`total` counts both), and a `partial_rows` caveat tells the model to
+  report them as close matches. The model can send `partial_matches: false`.
 - `interpreted_as`: the filters the engine applied, and whether it inferred
   them from the words.
 - `caveats`: anything the server could not do, and anything your settings
@@ -167,23 +172,32 @@ for (const doc of docs) console.log(doc.pageContent, doc.metadata['request_id'])
 Each `Document` renders a short line per category as `pageContent` (lossy by
 design) and carries the complete raw row under `metadata.record`. Request-level
 fields (`request_id`, `as_of`, `credential`, `credits_charged`,
-`total`, `total_is_estimate`, `degradation`, `attribution` and
+`total`, `total_exact`, `total_is_estimate`, `degradation`, `attribution` and
 `resolved_search`) are copied onto every document, typed as
 `SproutsDataDocumentMetadata`, because a step deep in a chain sees one
 document, not the response. `contentFields: ['domain', 'industry']` renders
 those fields as `field: value` lines instead.
 
 Fields: `k` (the request's `limit`, default 10), `category` (default
-`'company'`, or `'auto'` to let the question pick it), `mode`, `filters`,
+`'company'`, or `'auto'` to let the question pick it), `mode`,
+`partialMatches`, `filters`,
 `includeDomains` / `excludeDomains`, `contentFields`, `includeResolvedSearch`
 (default true), and the connection settings above.
 
 **The mode.** With a category, the retriever sends `mode: 'fast'` unless you
 set another, so a change in the server's default can never change what a
-deployed retriever bills. A retriever in an agent loop can fire several times
-per turn, and `auto` runs a model on every first page. With
-`category: 'auto'`, no mode is sent: the server reads the question in `auto`,
-its only mode there.
+deployed retriever bills (a search sent without a mode now runs in `auto`, an AI
+search). A retriever in an agent loop can fire several times per turn, and
+`auto` runs a model on every first page. `fast` reads the words only for what
+they are about and sets no other filter: put hard constraints in `filters`, or
+set `mode: 'auto'`. With `category: 'auto'`, no mode is sent: the server reads
+the question in `auto`, its only mode there.
+
+**Partial matches.** A company or person search also returns, after the exact
+matches, rows meeting only part of the search. Their documents say so:
+`metadata.unmet` lists each filter a row misses (and how), `metadata.match_score`
+is under 1, and `metadata.total_exact` counts the exact matches. Set
+`partialMatches: false` for exact matches only.
 
 When a search returns nothing and the platform had inferred filters from the
 query, the retriever logs one `console.warn` naming them and the `request_id`.

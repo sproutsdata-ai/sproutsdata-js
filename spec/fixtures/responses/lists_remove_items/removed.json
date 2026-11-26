@@ -2,21 +2,21 @@
   "body": {
     "removed": 1,
     "saved_list": {
-      "created_at": "2026-11-24T09:06:08.763695Z",
-      "created_by": "user:1",
+      "created_at": "2026-11-26T20:16:22.679948Z",
+      "created_by": "user:2",
       "entity_category": "company",
-      "id": "7ac1c766-f61f-494d-a4c9-2b959bd26ee4",
+      "id": "8b226a26-943b-42f9-87ce-c242ececb798",
       "item_count": 49,
-      "name": "E2E prospects 433c0afd (renamed)",
-      "updated_at": "2026-11-24T09:06:09.434105Z"
+      "name": "E2E prospects 850eb46f (renamed)",
+      "updated_at": "2026-11-26T20:16:23.441231Z"
     }
   },
   "headers": {
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "51",
-    "x-request-id": "8e2b229a701443409b96a86859af3153"
+    "ratelimit-reset": "37",
+    "x-request-id": "caf3bd2eeee144a898c1e6f9799a9e0f"
   },
   "operation": "lists_remove_items",
   "request": {
@@ -29,7 +29,7 @@
       ]
     },
     "method": "DELETE",
-    "path": "/v1/lists/7ac1c766-f61f-494d-a4c9-2b959bd26ee4/items",
+    "path": "/v1/lists/8b226a26-943b-42f9-87ce-c242ececb798/items",
     "query": {}
   },
   "status": 200

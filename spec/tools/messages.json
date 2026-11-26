@@ -1,6 +1,6 @@
 {
   "$comment": "Every sentence the tools modules write to a model themselves — validation refusals, rule refusals, caveats, and the errors that have no problem document to quote. Shared so that the same failure reads the same in every language (fixtures/ compares results byte for byte). `{name}` is a placeholder, substituted verbatim; no other braces carry meaning. README.md documents when each one is used.",
-  "version": 4,
+  "version": 5,
   "validation": {
     "summary": "Invalid arguments: fix the listed fields and call again.",
     "not_json": "Arguments are not valid JSON. Send a JSON object.",
@@ -29,11 +29,13 @@
     "by_not_accepted": "`{category}` accepts no `by`: its ids already are record ids.",
     "by_not_valid": "`by: \"{by}\"` is not valid for `{category}`. Allowed: {allowed}.",
     "person_has_no_domain": "`by: \"domain\"` is not valid for `person`: a person has no domain. Use `li_url` or `name`.",
-    "documents_take_no_filters": "`filters` are company and person filters; a `{category}` search takes `query` only here. Put the constraint in the words, or search `company` or `person`."
+    "documents_take_no_filters": "`filters` are company and person filters; a `{category}` search takes `query` only here. Put the constraint in the words, or search `company` or `person`.",
+    "partial_matches_entities_only": "`partial_matches` is for company and person searches: a `{category}` matches its query or does not. Leave it out."
   },
   "caveats": {
     "degradation": "{reason}: {detail} (impact: {impact})",
     "parser_not_run": "parser_not_run: `fast` mode did not parse the query, so a constraint stated only in words (a country, a headcount, an industry) was not applied. Use `mode: \"auto\"` or put it in `filters`.",
+    "partial_rows": "partial_rows: {count} of {shown} rows meet only part of the search; each lists what it misses in `unmet`. {exact} rows meet all of it (`total_exact`): report the others as close matches, not matches.",
     "application_filter": "application_filter: `filters.{path}` is fixed by this application to {value}; your {requested} was not applied.",
     "limit_capped": "limit_capped: you asked for {requested} rows; this application returns at most {limit} per call.",
     "rows_without_lookup": "rows_without_lookup: {count} of {shown} rows carry no domain or LinkedIn URL, so they have no `lookup` value and cannot be looked up.",

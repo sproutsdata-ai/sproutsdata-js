@@ -26,8 +26,8 @@ every changed call with its replacement.
 ### Changed
 
 - **Search** covers every category (or `auto`, which lets the question choose)
-  and the `fast` and `auto` modes (both read the words into filters; `auto` is
-  billed as an AI search); document categories take their own
+  and the `auto` and `fast` modes (see below for what each reads); document
+  categories take their own
   filters and refuse company ones. Billing is per search session, and
   `meta.credits_charged` is what each page cost. `iterSearch()` walks the pages.
 - **Lookups** default to `by: 'auto'`; company and person lookups apply `fields`
@@ -86,6 +86,41 @@ every changed call with its replacement.
   `anchors_removed` names it by that domain.
 - **Field errors** keep every entry the server gave a message; one without a `loc` reads
   as the whole request (`loc: []`).
+
+### Changed because the API changed
+
+The API changed these after the rest of this release was written; the SDK follows it.
+
+- **A search without `mode` runs in `auto`**, the API's new default: a model turns
+  everything the words ask into filters, billed as an AI search (`search_auto` in
+  `credits.quote()`). `fast` now reads the words only for what they are about
+  (keywords, a description matched by meaning, people's titles or skills; a
+  document's topic) and sets no other filter, so hard constraints belong in
+  `filters`. The SDK sends no mode unless you pass one, so it follows the API; the
+  search tool and the LangChain retriever still send `fast` unless told otherwise.
+- **Partial matches.** A company or person search returns, after the rows meeting
+  every filter, the rows meeting part of it: each row has `matched_filters`,
+  `match_score` and, on a partial row, `unmet` (`UnmetFilter`); a page has
+  `total_exact`, and `total` counts both. `search()` and `iterSearch()` take
+  `partial_matches` (`false` for exact matches only; refused locally for document
+  categories, as the API refuses it). The search tool keeps the three fields on a
+  partial row whatever the projection, returns `total_exact`, adds a `partial_rows`
+  caveat, and takes `partial_matches`.
+- **Whole records are paid for once.** A workspace that has bought credits sees each
+  record whole in a lookup, a saved list or an export, and pays the lookup price the
+  first time, unlocked for 90 days by any of those routes; others see the search-row
+  fields, free. `AddItemsResponse` and `ListItemsResponse` carry `credits_charged`,
+  and an export file is an `ExportFile` with `creditsCharged`, `fieldTier`, `rows`
+  and `skipped`, read from the answer's headers (`ExportJob` names the other
+  variant). Adding list items, reading them and both exports are no longer repeated
+  after a gateway's answer (they read no `Idempotency-Key`, and a repeat while the
+  first still runs could charge the same records twice): they throw `GatewayError`,
+  and are still retried on the API's own 503, 500, 429 or `upstream.timeout`.
+- **Lists have their own scopes**: `dsp.lists.read` to read, `dsp.lists.write` to
+  change. Keys made without choosing scopes get both.
+- `re_enrich` says which repeats are free: a value already found for the same
+  LinkedIn profile or Sprouts record. A row sent with only a name and a company is
+  looked up, and charged, each time.
 
 ### Added
 

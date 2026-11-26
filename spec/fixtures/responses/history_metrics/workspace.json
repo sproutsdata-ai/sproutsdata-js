@@ -4,7 +4,7 @@
       {
         "action_type": "dsp.agents",
         "credits": "8.500",
-        "day": "2026-11-24",
+        "day": "2026-11-27",
         "failed": 0,
         "ok": 1,
         "pending": 0,
@@ -13,7 +13,7 @@
       {
         "action_type": "dsp.enrichment",
         "credits": "12.000",
-        "day": "2026-11-24",
+        "day": "2026-11-27",
         "failed": 1,
         "ok": 3,
         "pending": 1,
@@ -22,7 +22,7 @@
       {
         "action_type": "dsp.entities",
         "credits": "9.000",
-        "day": "2026-11-24",
+        "day": "2026-11-27",
         "failed": 0,
         "ok": 9,
         "pending": 0,
@@ -31,7 +31,7 @@
       {
         "action_type": "dsp.org_chart",
         "credits": "5.000",
-        "day": "2026-11-24",
+        "day": "2026-11-27",
         "failed": 2,
         "ok": 5,
         "pending": 0,
@@ -40,7 +40,7 @@
       {
         "action_type": "dsp.relationships",
         "credits": "8.000",
-        "day": "2026-11-24",
+        "day": "2026-11-27",
         "failed": 0,
         "ok": 4,
         "pending": 0,
@@ -48,37 +48,37 @@
       },
       {
         "action_type": "dsp.search",
-        "credits": "3.095",
-        "day": "2026-11-24",
+        "credits": "4.070",
+        "day": "2026-11-27",
         "failed": 0,
-        "ok": 7,
+        "ok": 8,
         "pending": 0,
-        "requests": 7
+        "requests": 8
       },
       {
         "action_type": "dsp.similar",
         "credits": "2.000",
-        "day": "2026-11-24",
+        "day": "2026-11-27",
         "failed": 0,
         "ok": 1,
         "pending": 0,
         "requests": 1
       }
     ],
-    "period_from": "2026-10-25T09:06:09.481145Z",
-    "period_to": "2026-11-24T09:06:09.481145Z",
-    "total_credits": "47.595",
+    "period_from": "2026-10-27T20:16:23.494852Z",
+    "period_to": "2026-11-26T20:16:23.494852Z",
+    "total_credits": "48.570",
     "total_failed": 3,
-    "total_ok": 30,
+    "total_ok": 31,
     "total_pending": 1,
-    "total_requests": 34
+    "total_requests": 35
   },
   "headers": {
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "51",
-    "x-request-id": "8448f3a1d7a04ff7b49319cc40e625b2"
+    "ratelimit-reset": "37",
+    "x-request-id": "063a84c8ce4c49d58f82b7d2fa2dc05f"
   },
   "operation": "history_metrics",
   "request": {

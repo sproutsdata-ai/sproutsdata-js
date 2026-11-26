@@ -63,8 +63,8 @@ export function consequence(error: SproutsDataError, routeClass: RouteClass): st
   if (routeClass === 'billed') {
     return (
       'The request may have reached the server, and a billed call is charged once its work is done, so it ' +
-      'may have been charged. It was not repeated (a repeated first page is charged again); check ' +
-      'client.history.list() before trying again.'
+      'may have been charged. It was not repeated, because a repeat could be charged again; check ' +
+      'client.credits.transactions() before trying again.'
     );
   }
   if (routeClass === 'once') {

@@ -41,6 +41,13 @@ export interface SproutsDataRetrieverFields extends BaseRetrieverInput, Connecti
    * `category: 'auto'` no mode is sent (`auto` is its only one).
    */
   mode?: SearchMode;
+  /**
+   * Company and person searches: whether rows meeting only part of the search
+   * follow the exact matches. Unset, nothing is sent and the API's default
+   * (on) applies; `false` returns exact matches only. A partial row's document
+   * says so in `metadata.unmet` and `metadata.match_score`.
+   */
+  partialMatches?: boolean;
   /** Filters sent verbatim on every retrieval, full Sprouts filter vocabulary. */
   filters?: DiscoverFilters | Record<string, unknown>;
   /** Restrict results to these domains. */
@@ -79,6 +86,7 @@ export class SproutsDataRetriever extends BaseRetriever {
   readonly k: number;
   readonly category: SearchCategory | 'auto';
   readonly mode: SearchMode | undefined;
+  readonly partialMatches: boolean | undefined;
   readonly filters: DiscoverFilters | Record<string, unknown> | undefined;
   readonly includeDomains: string[] | undefined;
   readonly excludeDomains: string[] | undefined;
@@ -95,6 +103,7 @@ export class SproutsDataRetriever extends BaseRetriever {
     this.k = rest.k ?? 10;
     this.category = rest.category ?? 'company';
     this.mode = rest.mode ?? (this.category === 'auto' ? undefined : 'fast');
+    this.partialMatches = rest.partialMatches;
     this.filters = rest.filters;
     this.includeDomains = rest.includeDomains;
     this.excludeDomains = rest.excludeDomains;
@@ -112,6 +121,7 @@ export class SproutsDataRetriever extends BaseRetriever {
       limit: this.k,
       category: this.category,
       ...(this.mode === undefined ? {} : { mode: this.mode }),
+      ...(this.partialMatches === undefined ? {} : { partial_matches: this.partialMatches }),
       ...(this.filters === undefined ? {} : { filters: this.filters }),
       // An empty domain list says nothing, and the server would refuse it.
       ...(this.includeDomains === undefined || this.includeDomains.length === 0 ? {} : { include_domains: this.includeDomains }),

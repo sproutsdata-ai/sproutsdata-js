@@ -19,6 +19,7 @@ import {
   fetchQueue,
   jsonResponse,
   problemResponse,
+  recordedBody,
   sentBody,
   sentHeaders,
 } from './helpers';
@@ -71,6 +72,15 @@ describe('request building', () => {
       include_domains: ['acme.com'],
       exclude_domains: ['spam.example'],
     });
+  });
+
+  it('sends partial_matches only when set', async () => {
+    const off = makeRetriever({ partialMatches: false });
+    await off.retriever.invoke('crm platforms');
+    expect(sentBody(off.fetchMock)).toMatchObject({ partial_matches: false });
+    const unset = makeRetriever();
+    await unset.retriever.invoke('crm platforms');
+    expect(sentBody(unset.fetchMock)).not.toHaveProperty('partial_matches');
   });
 
   it('sends no empty domain list', async () => {
@@ -216,6 +226,16 @@ describe('metadata', () => {
     some_future_field: { nested: true },
   };
 
+  it('a close match says so on its document', async () => {
+    const { retriever } = makeRetriever({}, [jsonResponse(recordedBody('search', 'partial_matches'))]);
+    const docs = await retriever.invoke('payments');
+    const [exact, partial] = [docs[0]!.metadata, docs.at(-1)!.metadata];
+    expect([exact['match_score'], exact['unmet']]).toEqual([1, null]);
+    expect(partial['unmet']).toEqual([{ filter: 'geo', state: 'near', matched: ['Belgium'] }]);
+    expect(partial['match_score']).toBeLessThan(1);
+    expect([partial['total'], partial['total_exact']]).toEqual([40, 2]);
+  });
+
   it('metadata.record is the complete raw hit, unknown fields included', async () => {
     const { retriever } = makeRetriever({}, [jsonResponse(envelope({ results: [RICH_HIT] }))]);
     const [doc] = await retriever.invoke('x');
@@ -341,8 +361,10 @@ describe('zero results', () => {
 
   it('does not warn on empty results the caller filtered themselves', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    // What the retriever's own `fast` search resolves to: the caller's filters, none taken from the words.
+    const resolved = { ...(recordedBody('search', 'company')['resolved_search'] as object), filters_source: 'caller', parser_version: 'none', mode: 'fast' };
     const { retriever } = makeRetriever({}, [
-      jsonResponse(envelope({ results: [], total: 0 })),
+      jsonResponse(envelope({ results: [], total: 0, resolved_search: resolved })),
     ]);
     await retriever.invoke('x');
     expect(warn).not.toHaveBeenCalled();

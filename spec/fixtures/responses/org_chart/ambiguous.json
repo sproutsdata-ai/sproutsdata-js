@@ -22,7 +22,7 @@
     },
     "instance": "/v1/org-chart",
     "next_step": "Name the company by its domain instead.",
-    "request_id": "9428d4053bbd4a718d13dd02c18bec91",
+    "request_id": "c4af52c9f05b4a878e0dd40f28329116",
     "status": 422,
     "title": "Ambiguous company",
     "type": "https://dashboard.sproutsdata.ai/errors/org-chart-company-ambiguous"
@@ -31,8 +31,8 @@
     "content-type": "application/problem+json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1998",
-    "ratelimit-reset": "52",
-    "x-request-id": "9428d4053bbd4a718d13dd02c18bec91"
+    "ratelimit-reset": "39",
+    "x-request-id": "c4af52c9f05b4a878e0dd40f28329116"
   },
   "operation": "org_chart",
   "request": {

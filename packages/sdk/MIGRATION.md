@@ -208,8 +208,18 @@ in `degradation` instead.
   before sending it: unknown fields, values out of range, closed vocabularies and the
   cross-field rules (for example `query` with `keyword_query`). A request the server would refuse
   throws `ClientValidationError` and nothing is sent.
-- `category: 'auto'` takes only `query`, `mode`, `limit` and `cursor`, and `auto` is its only
-  mode. The 0.0.1 docs asked for `mode: 'auto'` beside it; now you may leave `mode` out.
+- `category: 'auto'` takes only `query`, `mode`, `partial_matches`, `fields`, `limit` and
+  `cursor`, and `auto` is its only mode. The 0.0.1 docs asked for `mode: 'auto'` beside it; now
+  you may leave `mode` out.
+- **Behaviour change:** a search sent without `mode` now runs in `auto`, the API's default: a
+  model turns everything the words ask into filters, billed as an AI search (`search_auto` in
+  `credits.quote`). `fast` reads the words only for what they are about and sets no other
+  filter, so a country or headcount stated only in words is not applied. Code that relied on the
+  old default should pass `mode: 'fast'` and put its constraints in `filters`.
+- **Behaviour change:** a company or person search returns, after the rows meeting every
+  filter, rows meeting only part of it. Such a row has `unmet` and a `match_score` under 1;
+  `total_exact` counts the exact rows, and `total` counts both. Pass `partial_matches: false`
+  for the old behaviour, exact matches only.
 - An anchor for `similar` may be a bare domain string: `anchors: ['adyen.com']`.
 - Each document category's `filters` and `sort` are typed for that category.
 
@@ -359,7 +369,9 @@ removed. The SDK has no replacement.
 `filename`, `field_tier`, `row_count`, `skipped`, `credits_charged`, `request_id`). They now
 return an `ExportResult`, tagged by `kind`:
 
-- `{ kind: 'file', csv }`: the CSV text, at once;
+- `{ kind: 'file', csv, creditsCharged, fieldTier, rows, skipped }` (an `ExportFile`): the
+  CSV text, at once, with what 0.0.1 called `credits_charged`, `field_tier`, `row_count` and
+  `skipped` (each `undefined` when the answer did not say);
 - `{ kind: 'job', job }`: a larger export runs as a job. Wait for it with
   `exports.wait(job.job_id)`, then fetch the file with `exports.download(job.job_id)`.
 
@@ -402,7 +414,11 @@ What else changed:
 
 ## Saved lists
 
-The list calls now take objects, names are unique, and item batches are capped.
+The list calls now take objects, names are unique, and item batches are capped. Lists need
+their own scopes (`dsp.lists.read` to read, `dsp.lists.write` to change; keys made without
+choosing scopes have both), and a workspace that has bought credits pays the lookup price once
+for each record it sees whole: `addItems` and `items` say what they charged in
+`credits_charged`.
 
 | 0.0.1 | Now |
 |---|---|

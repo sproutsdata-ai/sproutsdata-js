@@ -9,8 +9,33 @@ import type * as W from '../generated/wire.js';
 export type * from '../generated/wire.js';
 export type { RateLimitInfo } from './rate-limit.js';
 
+/** An export answered at once: its CSV text, and what the answer said about it (`undefined` where it did not say). */
+export interface ExportFile {
+  readonly kind: 'file';
+  /** The CSV text, the byte-order mark removed. */
+  readonly csv: string;
+  /**
+   * What making the file cost, in credits: each record shown whole that the workspace had not unlocked in the
+   * last 90 days, at the lookup price (card fields are free). An export too big to answer at once is an
+   * `ExportJob` instead, charged when its file is ready.
+   */
+  readonly creditsCharged: number | undefined;
+  /** `'unlocked'` (whole records: a workspace that has bought credits, calling with `dsp.entities.read`) or `'free'` (the search-row fields). */
+  readonly fieldTier: string | undefined;
+  /** The rows in the file. */
+  readonly rows: number | undefined;
+  /** The records left out (on the Do-Not-Contact list). */
+  readonly skipped: number | undefined;
+}
+
+/** An export running server-side: `exports.wait(job.job_id)`, then `exports.download`. */
+export interface ExportJob {
+  readonly kind: 'job';
+  readonly job: W.ExportJobView;
+}
+
 /** An export's answer: the CSV at once (200), or a job to wait for (202). */
-export type ExportResult = { readonly kind: 'file'; readonly csv: string } | { readonly kind: 'job'; readonly job: W.ExportJobView };
+export type ExportResult = ExportFile | ExportJob;
 
 /** A company or person search. `category` defaults to `company`. */
 export type EntitySearchParams = Omit<W.EntitySearchRequest, 'category'> & { readonly category?: 'company' | 'person' };

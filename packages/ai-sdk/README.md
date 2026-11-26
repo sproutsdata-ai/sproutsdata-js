@@ -101,6 +101,11 @@ The toolset's result object; the model receives it as JSON.
   offered.
 - `total` and `total_is_estimate`: when `total_is_estimate` is true, `total` is
   a floor, "at least N".
+- Partial rows: a company or person search also returns rows meeting only part
+  of the search, after the exact ones. Such a row keeps `unmet` (each filter it
+  misses, and how), `matched_filters` and `match_score`; `total_exact` counts the
+  exact rows (`total` counts both), and a `partial_rows` caveat tells the model to
+  report them as close matches. The model can send `partial_matches: false`.
 - `interpreted_as`: the filters the engine applied, and whether it inferred
   them from the words.
 - `caveats`: anything the server could not do, and anything your settings

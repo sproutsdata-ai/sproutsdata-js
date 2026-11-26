@@ -1,14 +1,14 @@
 {
   "body": {
     "entity": "contacts",
-    "job_id": "95d0e24f-fab5-4c72-b7c8-1ab0f9e97222",
+    "job_id": "4497f5c1-17c5-48ef-b93e-08287874be7d",
     "meta": {
-      "as_of": "2026-11-24T09:06:08.085595Z",
+      "as_of": "2026-11-26T20:16:21.924604Z",
       "credential": "api_key",
-      "credits_balance": 964.405,
+      "credits_balance": 963.43,
       "credits_charged": null,
       "environment": "live",
-      "request_id": "8bf9862ccc7b42b491e7ebec0e0a4726"
+      "request_id": "58f3213bfa3248c98ca8edf7e9ca09fa"
     },
     "reused": false,
     "status": "queued",
@@ -19,8 +19,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "52",
-    "x-request-id": "8bf9862ccc7b42b491e7ebec0e0a4726"
+    "ratelimit-reset": "39",
+    "x-request-id": "58f3213bfa3248c98ca8edf7e9ca09fa"
   },
   "operation": "enrichment_create",
   "request": {
@@ -45,7 +45,7 @@
           "full_name": "MISSING Person"
         }
       ],
-      "name": "E2E 433c0afd"
+      "name": "E2E 850eb46f"
     },
     "method": "POST",
     "path": "/v1/enrichment/jobs",

@@ -13,6 +13,7 @@ import { expect } from 'vitest';
 
 import { OPERATIONS, type OperationName, type RouteClass } from '../../src/generated/operations.js';
 import type { Answer } from '../../src/core/answer.js';
+import { exportFile } from '../../src/core/call.js';
 import { APIConnectionError, APIError, APITimeoutError, SproutsDataError } from '../../src/core/errors.js';
 import { degraded, Pager, truncated, type SentPage } from '../../src/core/pagination.js';
 import { CONCEPT_CLASSES } from '../../src/core/problem.js';
@@ -25,7 +26,8 @@ const KEYS = {
   case: ['name', 'description', 'request', 'responses', 'expect', 'max_retries', 'paginate', 'next_page_limit', 'mutate_request_after_first_page', 'request_id', 'off_spec', 'route_class'],
   expect: ['attempts', 'error', 'success', 'sent', 'slept', 'no_sleep', 'no_next_page'],
   error: ['concept', 'not_concept', 'status', 'code', 'request_id', 'fields', 'extra', 'field_errors_length', 'reached_server', 'message_contains'],
-  success: ['results_length', 'has_more', 'request_id', 'truncated', 'degraded', 'first_category', 'first_degradation_reason', 'hit_extra_field', 'attribution_length', 'attribution_url_is_none', 'export_kind', 'job_id'],
+  success: ['results_length', 'has_more', 'request_id', 'truncated', 'degraded', 'first_category', 'first_degradation_reason', 'hit_extra_field', 'attribution_length', 'attribution_url_is_none', 'export_kind', 'job_id', 'export_file'],
+  exportFile: ['credits_charged', 'field_tier', 'rows', 'skipped'],
   sent: ['body_equals_index', 'except_keys', 'cursor', 'limit', 'headers_present', 'headers_absent', 'headers_equal', 'same_header_as_index'],
 } as const;
 
@@ -80,7 +82,9 @@ export function checkKeys(test: Case): void {
   expect(unknown(KEYS.case, Object.keys(test).filter((k) => k !== 'file')), test.file).toEqual([]);
   expect(unknown(KEYS.expect, Object.keys(test.expect)), test.file).toEqual([]);
   expect(unknown(KEYS.error, Object.keys((test.expect['error'] ?? {}) as Json)), test.file).toEqual([]);
-  expect(unknown(KEYS.success, Object.keys((test.expect['success'] ?? {}) as Json)), test.file).toEqual([]);
+  const success = (test.expect['success'] ?? {}) as Json;
+  expect(unknown(KEYS.success, Object.keys(success)), test.file).toEqual([]);
+  expect(unknown(KEYS.exportFile, Object.keys((success['export_file'] ?? {}) as Json)), test.file).toEqual([]);
   expect(unknown(KEYS.sent, sentKeys), test.file).toEqual([]);
 }
 
@@ -193,6 +197,11 @@ function checkProblem(spec: Json, error: APIError): void {
 function checkSuccess(spec: Json, answer: Answer | undefined): void {
   if (answer === undefined) throw new Error('expected an answer');
   if (spec['export_kind'] !== undefined) expect(answer.kind === 'csv' ? 'file' : 'job').toBe(spec['export_kind']);
+  if (spec['export_file'] !== undefined) {
+    if (answer.kind !== 'csv') throw new Error('expected a CSV file');
+    const file = exportFile(answer.text, answer.meta.headers) as unknown as Json;
+    for (const [name, value] of Object.entries(spec['export_file'] as Json)) expect(file[camel(name)], name).toEqual(value);
+  }
   if (spec['request_id'] !== undefined) expect(answer.meta.requestId).toBe(spec['request_id']);
   checkEnvelope(spec, answer.kind === 'json' ? (answer.json as Json) : {});
 }

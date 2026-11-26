@@ -68,10 +68,14 @@ describe.skipIf(STACK === undefined)('phase 7, live', () => {
     expect(canAfford(balance, 0.5)).toBe(true);
   });
 
-  it('a quote is what the meter then charges', async () => {
+  // A search sent without `mode` is read in `auto` mode, and quoted as `search_auto`.
+  it.each([
+    ['search_auto', undefined],
+    ['search', 'fast'],
+  ] as const)('a quote is what the meter then charges (%s)', async (operation, mode) => {
     const sdk = client();
-    const quote = await sdk.credits.quote({ operation: 'search', rows: 1 });
-    const page = await sdk.search({ query: 'robotics', limit: 1 });
+    const quote = await sdk.credits.quote({ operation, rows: 1 });
+    const page = await sdk.search({ query: 'robotics', category: 'company', limit: 1, ...(mode === undefined ? {} : { mode }) });
     expect(quote.basis).toBe('page');
     // `available` and `covered` rest on a balance read moments ago: null on a cold cache.
     if (quote.available !== null) expect(quote.covered).toBe(quote.available >= quote.credits);

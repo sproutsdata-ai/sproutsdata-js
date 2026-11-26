@@ -10,6 +10,32 @@ in `tools/` and the behavioural cases in `conformance/`.
 
 ---
 
+## 2026-11-27 — partial matches; search defaults to `auto`; whole records are paid for once
+
+- **openapi.json**: a company or person search (and an `auto` search answered with companies
+  or people) returns, after the rows meeting every filter, the rows meeting part of it,
+  ranked by how much they meet. It is on by default; `partial_matches: false` asks for exact
+  matches only. Each row says which filters it meets in full (`matched_filters`), how much it
+  meets (`match_score`, 1 for every filter) and, on a partial row, each filter it misses and
+  how (`unmet`, new schema `UnmetFilter`). A page gains `total_exact`, the rows meeting every
+  filter; `total` counts both. Partial rows are charged like any other row.
+- **openapi.json**: a search sent without `mode` is now read in `auto` mode and billed as
+  an AI search (it was `fast`). `fast` now reads the words only for what they are about
+  (keywords, a description matched by meaning, people's titles or skills; a document's
+  topic) and sets no other filter, so hard constraints go in `filters`.
+- **openapi.json**: `AddItemsResponse` and `ListItemsResponse` gain `credits_charged`. The
+  first time a workspace sees a record whole (through a lookup, a saved list or an export)
+  it pays the lookup price, and the record stays unlocked for 90 days by any of those
+  routes. What is due is checked first: too few credits is a `402` and nothing is added,
+  shown or exported. Card fields stay free.
+- **openapi.json**: `re_enrich` says which repeats are free: a value already found for the
+  same LinkedIn profile or Sprouts record. A row sent with only a name and company is
+  looked up, and charged, each time.
+- Not in the document, but part of the contract: reading saved lists and their exports
+  needs the `dsp.lists.read` scope, and changing them `dsp.lists.write`. Keys made without
+  choosing scopes now get both. Whole records go only to a paid workspace calling with
+  `dsp.entities.read`; anything else gets the search-row fields.
+
 ## 2026-11-25 — blank queries, protected headers, sealed company ids
 
 - **defaults.json** (version 4): `owned_headers` and `forbidden_headers`, the headers a

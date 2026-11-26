@@ -57,7 +57,7 @@ if (run.covered === false) console.warn(`An agent run at detailed effort costs $
 
 | Field | Meaning |
 |---|---|
-| `operation` | `search`, `search_auto` (an `auto` search), `similar`, `relationships`, `institutions`, `lookup`, `org_chart`, `agent_run` or `enrichment`. |
+| `operation` | `search` (a `fast` search), `search_auto` (an `auto` search, which is what a search without `mode` runs), `similar`, `relationships`, `institutions`, `lookup`, `org_chart`, `agent_run` or `enrichment`. |
 | `rows` | Rows on the page (up to 100), records found for `lookup` (up to 1,000), or the records to enrich with `enrichment` and `fields` (up to 10,000). Default 10; flat operations and agent runs ignore it. |
 | `start` | Rows of the same search already paid for (the next page's offset): only the rows beyond them are charged. |
 | `effort` | Required for `agent_run`, and refused for any other operation. The earlier tier names are still accepted and sent as the new ones. |

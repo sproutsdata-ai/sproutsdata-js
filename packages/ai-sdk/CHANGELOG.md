@@ -14,6 +14,9 @@
 - Tool results no longer carry `environment`: test keys were retired, so every
   answer is a live one.
 - Requires Node.js 22.12.0 or later.
+- Partial matches: the search tool takes `partial_matches`, keeps a partial row's
+  `unmet`, `matched_filters` and `match_score`, returns `total_exact`, and adds a
+  `partial_rows` caveat so a model reports close matches as such.
 - The tools inherit the SDK's error and look-alike changes: a gateway's answer is not
   retryable, nor are a refused credit hold and a concurrency limit, a redirect is thrown to
   the application, and an anchor among the look-alikes is recognised by its domain.

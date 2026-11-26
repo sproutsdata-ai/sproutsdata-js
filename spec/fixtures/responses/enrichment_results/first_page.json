@@ -2,12 +2,12 @@
   "body": {
     "has_more": true,
     "meta": {
-      "as_of": "2026-11-24T09:06:08.648584Z",
+      "as_of": "2026-11-26T20:16:22.531913Z",
       "credential": "api_key",
-      "credits_balance": 964.405,
+      "credits_balance": 963.43,
       "credits_charged": null,
       "environment": "live",
-      "request_id": "8053ba434b7f4778bca72ea32a429e87"
+      "request_id": "f5c707dae0334e31a1b1757b1ba5161a"
     },
     "next_cursor": "Mg==",
     "results": [
@@ -56,14 +56,14 @@
     "content-type": "application/json",
     "ratelimit-limit": "600",
     "ratelimit-remaining": "599",
-    "ratelimit-reset": "52",
-    "x-request-id": "8053ba434b7f4778bca72ea32a429e87"
+    "ratelimit-reset": "38",
+    "x-request-id": "f5c707dae0334e31a1b1757b1ba5161a"
   },
   "operation": "enrichment_results",
   "request": {
     "body": null,
     "method": "GET",
-    "path": "/v1/enrichment/jobs/95d0e24f-fab5-4c72-b7c8-1ab0f9e97222/results",
+    "path": "/v1/enrichment/jobs/4497f5c1-17c5-48ef-b93e-08287874be7d/results",
     "query": {
       "limit": 2
     }

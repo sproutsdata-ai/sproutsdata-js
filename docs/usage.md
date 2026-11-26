@@ -71,18 +71,26 @@ and is charged only for the values newly found), the `rate_card` it was priced f
 
 ## The ledger
 
-`credits.transactions` is the ledger, newest first. Each row has a `kind`
-(`charge`, `grant`, ...), signed `credits` (negative for a charge),
-`balance_after`, and the `action` or `source` behind it. An agent run's charge keeps the
-tier's earlier name in its action (`dsp.agent.run.medium` for a `standard` run).
+`credits.transactions` is the ledger, newest first. Each row has a `kind`, signed
+`credits` (negative for spend), `balance_after`, and the `action` or `source` behind
+it. An agent run's charge keeps the tier's earlier name in its action
+(`dsp.agent.run.medium` for a `standard` run).
+
+What the workspace spent is two kinds of row: `charge`, billed as a call answers, and
+`hold_capture`, what an agent run or an enrichment lookup or job cost when it settled
+(they hold credits first). A `refund` returns one of them in full. Count all three when
+you reconcile spend. Credits also come in as `topup` (bought) and `grant` (sign-up,
+referral); the ledger can also hold `adjustment`, `expiry`, `clawback` and
+`clawback_reversal` rows.
 
 ```ts
 const page = await client.credits.transactions({ limit: 20 });
 for (const row of page.results) console.log(row.created_at, row.kind, row.credits, row.balance_after, row.action ?? row.source);
 
 // Every row, page after page
+let spent = 0;
 for await (const row of client.credits.iterTransactions({ maxResults: 500 })) {
-  if (row.kind === 'charge') console.log(row.action, row.credits);
+  if (row.kind === 'charge' || row.kind === 'hold_capture' || row.kind === 'refund') spent -= row.credits;
 }
 ```
 

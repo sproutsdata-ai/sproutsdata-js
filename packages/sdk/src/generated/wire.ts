@@ -129,7 +129,7 @@ export interface AddItemsResponse {
   readonly already_present: number;
   /**
    * Credits this call charged: the lookup price for each record shown whole
-   * that the workspace had not unlocked in the last 90 days (LQ-001).
+   * that the workspace had not unlocked in the last 90 days.
    */
   readonly credits_charged: number;
   /**
@@ -2107,7 +2107,7 @@ export interface ListExportRequest {
 export interface ListItemsResponse {
   /**
    * Credits this call charged: the lookup price for each record shown whole
-   * that the workspace had not unlocked in the last 90 days (LQ-001).
+   * that the workspace had not unlocked in the last 90 days.
    */
   readonly credits_charged: number;
   readonly field_tier: "free" | "unlocked" | (string & {});

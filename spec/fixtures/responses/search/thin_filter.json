@@ -27,7 +27,7 @@
       "environment": "live",
       "request_id": "a370a3e9f42841be90b119492a7d6598"
     },
-    "next_cursor": "eyJmIjoiZjM0OWM0NDBhZGVkMTdmYTVlZGFmMTdmYzUxMjg4N2UiLCJvIjoyLCJzIjoiOWRjM2VmMDU5OTg0NGFhMjhhZTZlYjdkYjY2YzI2MjQiLCJ0IjoxNzk1NzI0MTgxLCJ1IjoicHJpc218Y29tcGFueXwxIn0.8e13ac6e21dffb97f5f1ea8754f898f1",
+    "next_cursor": "cursor-534c965174b25ab1c66b6bc1",
     "resolved_search": {
       "anchor_matches": [],
       "category": "company",
@@ -43,7 +43,7 @@
       "keyword_query": null,
       "mode": "auto",
       "overrides": [],
-      "parser_version": "prism-search-v10",
+      "parser_version": "internal-search-v10",
       "query": "robotics",
       "read_as": [],
       "semantic_query": "industrial automation",

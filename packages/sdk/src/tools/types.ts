@@ -63,6 +63,8 @@ export interface ShapingSpec {
   readonly resolved_filters_skipped: readonly string[];
   /** The error concepts (`spec/error-codes.json`) a tool error calls retryable. */
   readonly retryable_concepts: readonly string[];
+  /** The error concepts whose work may have run: their message says a repeat can be charged. */
+  readonly may_have_run_concepts: readonly string[];
 }
 
 /** `spec/tools/messages.json`, without its `$comment` and `version`: sections of `{placeholder}` templates. */

@@ -5,6 +5,7 @@ import { callAnswer, callJson, callPages, callStream, operation } from '../../sr
 import { sleep, SYSTEM_CLOCK } from '../../src/core/clock.js';
 import {
   APIConnectionError,
+  type APIError,
   APIResponseValidationError,
   APIUserAbortError,
   ClientValidationError,
@@ -76,6 +77,30 @@ describe('the transport', () => {
     const { transport: t, sent } = transport([{ status: 200, body: {} }]);
     await expect(t.send(search, { body: { n: 1n } })).rejects.toBeInstanceOf(ClientValidationError);
     expect(sent).toHaveLength(0);
+  });
+
+  it('puts the key a keyed call sent on whatever it throws, and says how to repeat it safely', async () => {
+    const refused = { status: 422, body: { status: 422, code: 'request.invalid', title: 'Invalid' } };
+    const once = transport([refused]);
+    const error: unknown = await once.transport.send(search, { body: { query: 'x' } }, { idempotencyKey: 'mine-1' }).catch((err: unknown) => err);
+    expect((error as APIError).idempotencyKey).toBe('mine-1');
+    expect((error as Error).message).not.toContain('may have run'); // a refusal ran nothing
+
+    const lost = { network: 'reset_after_send' };
+    const spent = transport([lost, lost, lost], { maxRetries: 2 });
+    const exhausted: unknown = await spent.transport.send(search, { body: { query: 'x' } }).catch((err: unknown) => err);
+    const key = spent.sent[0]?.headers.get('Idempotency-Key');
+    expect(new Set(spent.sent.map((s) => s.headers.get('Idempotency-Key')))).toEqual(new Set([key]));
+    expect((exhausted as APIConnectionError).idempotencyKey).toBe(key);
+    expect((exhausted as Error).message).toContain(`idempotencyKey: ${JSON.stringify(key)}`);
+  });
+
+  it('puts no key on what a call that reads none throws', async () => {
+    const listAdd = { ...OPERATIONS.listsAddItems, name: 'listsAddItems' };
+    const { transport: t } = transport([{ status: 500, body: { status: 500, code: 'internal' } }]);
+    const error: unknown = await t.send(listAdd, { path: { list_id: 'l1' }, body: { items: [] } }).catch((err: unknown) => err);
+    expect((error as APIError).idempotencyKey).toBeUndefined();
+    expect((error as Error).message).toContain('may have been charged');
   });
 
   it('passes a non-SDK failure through unchanged', async () => {

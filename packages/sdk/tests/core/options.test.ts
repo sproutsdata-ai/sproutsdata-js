@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { ClientValidationError } from '../../src/core/errors.js';
-import { checkBaseUrl, checkHeaders, checkRetries, checkTimeout, resolveOptions } from '../../src/core/options.js';
+import { checkBaseUrl, checkHeaders, checkRetries, checkTimeout, checkWait, resolveOptions } from '../../src/core/options.js';
 import { isBrowserLike, newIdempotencyKey, readEnv, readEnvWithFallback, userAgent, warnOnce } from '../../src/core/runtime.js';
 import { redactKey } from '../../src/core/redact.js';
 import { FIXTURE_KEY } from '../support/fakes.js';
@@ -52,6 +52,25 @@ describe('options', () => {
     for (const bad of [-1, 1.5, '1']) expect(() => checkRetries(bad)).toThrow(ClientValidationError);
     for (const name of ['Origin', 'referer', 'X-API-Key', 'accept']) expect(() => checkHeaders({ [name]: 'x' })).toThrow(ClientValidationError);
     expect(checkHeaders({ 'X-Team': 'a' })).toEqual({ 'X-Team': 'a' });
+  });
+
+  it('refuse a wait that could never work, and take one that polls once or waits for ever', () => {
+    for (const bad of [0, -1, Number.NaN, Number.POSITIVE_INFINITY, '2000', true]) {
+      expect(() => {
+        checkWait(bad, 10_000);
+      }).toThrow(/pollIntervalMs/);
+    }
+    for (const bad of [-1, Number.NaN, Number.POSITIVE_INFINITY, '10', undefined]) {
+      expect(() => {
+        checkWait(2_000, bad);
+      }).toThrow(/maxWaitMs/);
+    }
+    expect(() => {
+      checkWait(2_000, 0);
+    }).not.toThrow();
+    expect(() => {
+      checkWait(500, null);
+    }).not.toThrow();
   });
 
   it('refuse to construct in a browser', () => {

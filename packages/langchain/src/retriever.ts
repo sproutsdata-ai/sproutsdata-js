@@ -42,10 +42,12 @@ export interface SproutsDataRetrieverFields extends BaseRetrieverInput, Connecti
    */
   mode?: SearchMode;
   /**
-   * Company and person searches: whether rows meeting only part of the search
-   * follow the exact matches. Unset, nothing is sent and the API's default
-   * (on) applies; `false` returns exact matches only. A partial row's document
-   * says so in `metadata.unmet` and `metadata.match_score`.
+   * Company, person and `auto` searches: whether rows meeting only part of the
+   * search follow the exact matches. Unset, `false` is sent, so every document
+   * meets the whole search whatever the server's default. `true` adds the close
+   * matches: each one's `pageContent` starts with a line saying so, and
+   * `metadata.unmet` and `metadata.match_score` say how it falls short.
+   * Document categories take no such setting.
    */
   partialMatches?: boolean;
   /** Filters sent verbatim on every retrieval, full Sprouts filter vocabulary. */
@@ -64,6 +66,9 @@ export interface SproutsDataRetrieverFields extends BaseRetrieverInput, Connecti
   includeResolvedSearch?: boolean;
 }
 
+
+/** The categories that can return close matches: a document matches its query or does not. */
+const PARTIAL_MATCH_CATEGORIES: ReadonlySet<string> = new Set(['company', 'person', 'auto']);
 /**
  * Sprouts search as a LangChain retriever.
  *
@@ -103,7 +108,7 @@ export class SproutsDataRetriever extends BaseRetriever {
     this.k = rest.k ?? 10;
     this.category = rest.category ?? 'company';
     this.mode = rest.mode ?? (this.category === 'auto' ? undefined : 'fast');
-    this.partialMatches = rest.partialMatches;
+    this.partialMatches = rest.partialMatches ?? (PARTIAL_MATCH_CATEGORIES.has(this.category) ? false : undefined);
     this.filters = rest.filters;
     this.includeDomains = rest.includeDomains;
     this.excludeDomains = rest.excludeDomains;

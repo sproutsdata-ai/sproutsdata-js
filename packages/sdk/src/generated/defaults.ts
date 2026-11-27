@@ -17,6 +17,8 @@ export interface Defaults {
   readonly apiKeyMaxLength: number;
   /** A key with this prefix was retired: refused at construction, saying so. */
   readonly retiredApiKeyPrefix: string;
+  /** What the API takes as an Idempotency-Key; a caller's key that breaks it is refused locally. */
+  readonly idempotencyKeyPattern: RegExp;
   /** Never sent, and refused as a default header: the API refuses a key sent with either. */
   readonly forbiddenHeaders: readonly string[];
   /** Set by the client on each call; a default header may add others, never these. */
@@ -28,8 +30,6 @@ export interface Defaults {
   readonly timeoutMs: number;
   readonly maxRetries: number;
   readonly backoff: { readonly initialMs: number; readonly capMs: number };
-  readonly retryAfterCapMs: number;
-  readonly followRedirects: boolean;
   readonly streamIdleTimeoutMs: number;
   readonly runWait: WaitDefaults;
   readonly exportWait: WaitDefaults;
@@ -42,6 +42,7 @@ export const DEFAULTS: Defaults = {
   apiKeyPattern: /^sk_dsp_live_[A-Za-z0-9_-]+$/,
   apiKeyMaxLength: 200,
   retiredApiKeyPrefix: "sk_dsp_test_",
+  idempotencyKeyPattern: /^[A-Za-z0-9._:-]{1,120}$/,
   forbiddenHeaders: ["origin","referer"],
   ownedHeaders: ["x-api-key","idempotency-key","x-request-id","user-agent","accept","content-type","last-event-id"],
   exportHeaders: { creditsCharged: "x-credits-charged", fieldTier: "x-export-field-tier", rows: "x-export-row-count", skipped: "x-export-skipped" },
@@ -50,8 +51,6 @@ export const DEFAULTS: Defaults = {
   timeoutMs: 60000,
   maxRetries: 2,
   backoff: { initialMs: 500, capMs: 8000 },
-  retryAfterCapMs: 60000,
-  followRedirects: false,
   streamIdleTimeoutMs: 60000,
   runWait: { deadlineMs: 900000, pollInitialMs: 3000, pollMultiplier: 1.5, pollMaxMs: 15000 },
   exportWait: { deadlineMs: 900000, pollInitialMs: 2000, pollMultiplier: 1.5, pollMaxMs: 10000 },

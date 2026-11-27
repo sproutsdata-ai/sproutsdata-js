@@ -10,6 +10,49 @@ in `tools/` and the behavioural cases in `conformance/`.
 
 ---
 
+## 2026-11-28 — work that may have run is not repeated where a repeat could pay twice
+
+- **retry-policy.json** (version 5): every row says whether the work may have run although
+  no success came back (`may_have_run`): a request sent with no answer, a `500`, and the
+  API's own `504` (`upstream.timeout`), which can come after a charge. Where it may have
+  run, a `billed` call is now raised, not repeated: those routes (adding a list's items,
+  reading them, both exports) charge for the records they show before they unlock them and
+  read no key, so a repeat could charge again. A `503` or a `429` is still retried. The
+  comment's billing facts are corrected: a billed call is not always charged as its last
+  step, and the API's timeout does not mean nothing was charged.
+- **retry-policy.json**: once a `keyed` call's retries run out on work that may have run,
+  the error carries the key it sent, so a repeat the caller sends is charged once too.
+  `conformance/` gains `expect.error.idempotency_key` and four cases (a billed `500` and
+  `upstream.timeout` raised, a billed `429` retried, a keyed call's key on its error); the
+  case retrying a billed call after the API's timeout is gone.
+- **routes.json** (version 4) and **error-codes.json** (version 4): the `billed` class and
+  the `internal` and `upstream.timeout` codes say what is now true.
+- **tools/shaping.json** (version 5): `internal` and `upstream_timeout` are no longer
+  `retryable_concepts`: every tool is charged, and calling one again sends a new request with
+  a new key. `may_have_run_concepts` names them, and their message gains
+  `errors.may_have_run` (**tools/messages.json**, version 6), which also rewords
+  `timeout_sent` and `connection_sent`: the client's own retries are spent by then, so "it
+  was not repeated" was not true.
+- **defaults.json** (version 6): `idempotency_key_pattern`, what the API takes as an
+  Idempotency-Key: 1 to 120 letters, digits or `._:-` (the SDKs took 1 to 255 printable
+  characters, so a key the API refuses, or one outside ASCII that cannot be sent in a header,
+  failed only on the wire).
+- **tools/messages.json** and **tools/README.md**: a row is partial when its `unmet` is not
+  empty **or** its `match_score` is below 1. `caveats.partial_rows_unknown_exact` is the
+  caveat when the response has no `total_exact`, which used to read "0 rows meet all of it".
+  `fixtures/search_partial_by_score.json` is new.
+- **public-text.json** (version 2): the hashed words are gone (a short list of hashed words
+  is easy to reverse); each SDK reads the denied words from a secret, and a word matches
+  inside longer words too. `ticket` is any project key, not two named ones (a licence's id,
+  `MPL-2.0`, is not one);
+  `service source path` also takes the form with backquotes.
+- **openapi.json** and **models.json**: re-exported at the same backend commit; the only
+  change is a ticket key dropped from two descriptions (`credits_charged`).
+- **fixtures**: a recorded `next_cursor` (and the `cursor` a request sends back) is an
+  opaque `cursor-<hash>`, the same for the same cursor, and a recorded `parser_version`
+  names no service: the server's cursors carry a readable payload that did. The
+  enrichment test inputs' `external_id` markers are `CACHED_<n>` and `SLOW_<n>`.
+
 ## 2026-11-27 — partial matches; search defaults to `auto`; whole records are paid for once
 
 - **openapi.json**: a company or person search (and an `auto` search answered with companies

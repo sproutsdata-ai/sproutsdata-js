@@ -19,7 +19,7 @@
         "total": 2,
         "total_is_estimate": false,
         "has_more": true,
-        "next_cursor": "cur_2",
+        "next_cursor": "cursor-64e42c175eceda7ac485e27b",
         "resolved_search": null,
         "attribution": [],
         "degradation": [],
@@ -75,7 +75,7 @@
         "except_keys": [
           "cursor"
         ],
-        "cursor": "cur_2",
+        "cursor": "cursor-64e42c175eceda7ac485e27b",
         "headers_absent": [
           "X-Request-Id"
         ]

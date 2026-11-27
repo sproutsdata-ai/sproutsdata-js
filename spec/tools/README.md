@@ -127,8 +127,8 @@ Search and look-alike:
   stable partition. "Asked for" is every literal in the effective filters and in
   `resolved_search.filters` under the same field name: a string, a list of
   strings, or an object's `include` list.
-- **A partial row** (one with a non-empty `unmet`: it meets only part of the
-  search) keeps the fields in `shaping.json` → `partial_row_fields`
+- **A partial row** (one with a non-empty `unmet`, or a `match_score` below 1: it
+  meets only part of the search) keeps the fields in `shaping.json` → `partial_row_fields`
   (`matched_filters`, `match_score`, `unmet`) whatever the projection, compacted
   like any other, after its projected fields. An exact row keeps none of them: it
   meets every filter in `interpreted_as`.
@@ -152,7 +152,9 @@ Search and look-alike:
 - **`caveats`**, in order: each degradation as `"<reason>: <detail> (impact:
   <impact>)"`; `parser_not_run` when the call sent a `query` and `resolved_search` has
   `parser_version` `"none"` (or empty) and no filters; `partial_rows` when any row
-  shown is partial (how many, of how many shown, and `total_exact`, 0 when absent);
+  shown is partial (how many, of how many shown, and `total_exact`; when the response
+  has no `total_exact`, `partial_rows_unknown_exact`, which leaves the exact count out
+  rather than claim none);
   then the call's own, in
   this order — `application_filter` (one per replaced key), `anchors_unreported`
   (more than one anchor), `anchors_by_name`, `anchors_zero_weight`,
@@ -200,15 +202,18 @@ to do now) after a space when it has one; `field_errors` its `errors` as `path: 
 with a leading `body` or `query` segment dropped (`msg` defaults to `invalid`);
 `retry_after` in seconds. `retryable` is true when the answer's concept
 (`error-codes.json`: by its code, else by its status) is in `shaping.json` →
-`retryable_concepts`: a rate limit, an internal error, an unavailable service or
-the API's own `upstream.timeout`. A code that says a repeat cannot help
-(`quota.concurrency_exceeded`, `credits.refused`) has its own concept and is not
-retryable. A gateway's answer (concept `gateway`: a 408, a 502, or a 504 without
-the API's code) is `gateway_no_answer`, and a timeout (`timeout`) or dropped
-connection (`connection_error`) after the request was sent is not retryable
-either: all three tools are charged once the server has done the work, so a
-repeat may be a second charge (the SDK's own retries
-resend the call's `Idempotency-Key` and are charged once; a new call is a new charge). A request that never left is
+`retryable_concepts`: a rate limit or an unavailable service, which the API
+answers before any work begins. Every tool here is charged, and calling a tool
+again sends a new request with a new `Idempotency-Key`, so nothing that may have
+run is retryable: an internal error or the API's own `upstream.timeout` (concepts
+in `may_have_run_concepts`, whose message gains `errors.may_have_run`), a gateway's
+answer (concept `gateway`: a 408, a 502, or a 504 without the API's code;
+`gateway_no_answer`), and a timeout (`timeout`) or dropped connection
+(`connection_error`) after the request was sent. The SDK's own retries resend the
+call's key and are charged once; by the time a tool reports one of these, those
+retries are spent. A code that says a repeat cannot help (`quota.concurrency_exceeded`,
+`credits.refused`) has its own concept and is not retryable. A free tool would need
+its own list. A request that never left is
 retryable. An unreadable success is `response_invalid`.
 
 Raised to the application: 401, 403 and 402 (a frozen wallet included), a

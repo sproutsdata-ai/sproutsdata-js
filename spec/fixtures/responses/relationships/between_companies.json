@@ -105,7 +105,7 @@
       "environment": "live",
       "request_id": "7d791eeae5cf417d93aaa7f454eeeb04"
     },
-    "next_cursor": "eyJmIjoiNGVhOWRiZTBjMDMwM2Y3NWZkNDBjMDAyY2MwZTI1N2IiLCJvIjoxMCwicyI6Ijg4MDQyYjk5ZTZkNDRlODQ4MDM3MzRhZGE3YTA5NTI3IiwidCI6MTc5NTcyNDE4MSwidSI6IntcImNvbXBhbmllc1wiOlt7XCJ2YWx1ZVwiOlwic3RyaXBlLmNvbVwiLFwiYnlcIjpcImRvbWFpblwifSx7XCJ2YWx1ZVwiOlwiYWR5ZW4uY29tXCIsXCJieVwiOlwiZG9tYWluXCJ9XSxcInBhZ2VcIjoyLFwicGFnZV9zaXplXCI6MTAsXCJvdXRwdXRcIjp7XCJ0b3BfaW5zdGl0dXRpb25zXCI6MTAwMH19In0.f29f9c22baf4dfea74ff1f3aed2220b8",
+    "next_cursor": "cursor-29e6a8270440f79593fb0b99",
     "resolved_search": {
       "anchor_matches": [],
       "category": "person",

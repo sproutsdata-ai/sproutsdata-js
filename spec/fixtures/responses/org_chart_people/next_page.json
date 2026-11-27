@@ -27,7 +27,7 @@
       "environment": "live",
       "request_id": "dd029daf38814c27938941c427109d91"
     },
-    "next_cursor": "eyJmIjoiYzk3YWE2NjM2NzQ2Mzk4YjAxOGRhZDM3ZTkwMzhlYTQiLCJvIjo0LCJzIjoiMDUwMzhkNTc1OTgyNDEwZmJiMGViNmRkNWI5NzZjOTkiLCJ0IjoxNzk1NzI0MTgxLCJ1IjoiNCJ9.3a2aea865556ab0d534edca7f7326251",
+    "next_cursor": "cursor-04a96947fec8f4adccdd662c",
     "results": [
       {
         "account_name": "acme.com Inc",
@@ -113,7 +113,7 @@
         "seniority": "senior"
       },
       "company_ref": "d1_cxClVTpId3XUN3Qkbk7Dx1jQddd-NYikABazRw",
-      "cursor": "eyJmIjoiYzk3YWE2NjM2NzQ2Mzk4YjAxOGRhZDM3ZTkwMzhlYTQiLCJvIjoyLCJzIjoiMDUwMzhkNTc1OTgyNDEwZmJiMGViNmRkNWI5NzZjOTkiLCJ0IjoxNzk1NzI0MTgxLCJ1IjoiMiJ9.9218560198885234d370b4f2812b5b15",
+      "cursor": "cursor-3101a7c02db069ac874ce224",
       "limit": 2
     },
     "method": "POST",

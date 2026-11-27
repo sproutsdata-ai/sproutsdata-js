@@ -27,7 +27,7 @@
       "environment": "live",
       "request_id": "224d429c677f4ebb969661593eafe486"
     },
-    "next_cursor": "eyJmIjoiYTNjMmMxMjUxZjhjMmJkZTYwNDg0MDcwYzgzNDQwNTIiLCJvIjoyLCJzIjoiNzE4Y2EwZTQ0ZmE0NGE1ZWI4ZDMwMTZlMjRmNThkYjYiLCJ0IjoxNzk1NzI0MTgxLCJ1IjoicHJpc218Y29tcGFueXwxIn0.445fbc28ccb27607d6c0e55376af3dd2",
+    "next_cursor": "cursor-18392c5171d606b71f2aa59e",
     "resolved_search": {
       "anchor_matches": [],
       "category": "company",
@@ -43,7 +43,7 @@
       "keyword_query": null,
       "mode": "auto",
       "overrides": [],
-      "parser_version": "prism-search-v10",
+      "parser_version": "internal-search-v10",
       "query": "quantum sensing",
       "read_as": [],
       "semantic_query": "industrial automation",

@@ -20,7 +20,7 @@
       "environment": "live",
       "request_id": "eca37fe943a44193a8c0bcf67231dc27"
     },
-    "next_cursor": "eyJmIjoiYmU1OTZjZWU2ZTI4ZmMyMTg4Nzk0NjA5OTYyMzU2MWIiLCJvIjoyLCJzIjoiNWZlYjVhODcyMjI0NGU0NTk4MTE3NmMwMzNiYjk4YjMiLCJ0IjoxNzk1NzI0MTgxLCJ1IjoicHJpc218cGVyc29ufDEifQ.3cdd2cbd39b0f16d59987b5648f0a9b0",
+    "next_cursor": "cursor-1931b4490dca023b7845febb",
     "resolved_search": {
       "anchor_matches": [],
       "category": "person",
@@ -36,7 +36,7 @@
       "keyword_query": null,
       "mode": "auto",
       "overrides": [],
-      "parser_version": "prism-search-v10",
+      "parser_version": "internal-search-v10",
       "query": "security leaders",
       "read_as": [],
       "semantic_query": "industrial automation",

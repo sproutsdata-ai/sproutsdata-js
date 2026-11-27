@@ -12,6 +12,7 @@ import { DEFAULTS } from '../generated/defaults.js';
 import type { OperationSpec } from '../generated/operations.js';
 import { readAnswer, type Answer, type AnswerMeta } from './answer.js';
 import { SYSTEM_CLOCK, type Clock } from './clock.js';
+import { HEADER_IDEMPOTENCY_KEY } from './constants.js';
 import {
   APIConnectionError,
   APITimeoutError,
@@ -86,7 +87,7 @@ export class Transport {
         this.#report(answer, options);
         return answer;
       } catch (err) {
-        if (!retryable(err, attempt, maxRetries, operation)) throw withConsequence(err, operation);
+        if (!retryable(err, attempt, maxRetries, operation)) throw withConsequence(err, operation, headers[HEADER_IDEMPOTENCY_KEY]);
         const wait = backoffMs(attempt, retryAfterOf(err), () => this.#clock.random());
         await this.#clock.sleep(wait, options.signal);
       }
@@ -239,10 +240,11 @@ function refusedRedirect(err: unknown): boolean {
   return err instanceof Error && err.cause instanceof Error && /redirect/i.test(err.cause.message);
 }
 
-/** The error to throw, told what it means that it was not repeated. */
-function withConsequence(err: unknown, operation: Operation): unknown {
+/** The error to throw: the key it was sent with, and what it means if its work may have run. */
+function withConsequence(err: unknown, operation: Operation, idempotencyKey: string | undefined): unknown {
   if (!(err instanceof SproutsDataError)) return err;
-  const note = consequence(err, operation.routeClass);
+  err.idempotencyKey = idempotencyKey;
+  const note = consequence(err, operation.routeClass, idempotencyKey);
   if (note !== undefined && !err.message.endsWith(note)) err.message = `${err.message} ${note}`;
   return err;
 }

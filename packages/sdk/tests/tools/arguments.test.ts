@@ -11,7 +11,7 @@ import { APIError, AuthenticationError, InsufficientCreditsError, PermissionDeni
 import { Toolset } from '../../src/tools/index.js';
 import { BASE_URL, FIXTURE_KEY } from '../support/fakes.js';
 import type { ToolError, ToolResult } from '../../src/tools/index.js';
-import { problem, searchOk, toolset } from './support.js';
+import { client, problem, searchOk, toolset } from './support.js';
 
 const SPEC = new URL('../../../../spec/tools/sprouts_search.json', import.meta.url).pathname;
 const errorOf = (result: ToolResult): ToolError['error'] => {
@@ -118,14 +118,14 @@ describe('failures', () => {
 
   it.each([
     [problem('history.not_found', 404, { detail: 'No such run.' }), 'history.not_found', false],
-    [problem('internal', 500), 'internal', true],
+    [problem('internal', 500), 'internal', false],
     [problem('conflict', 409), 'conflict', false],
     [problem('upstream.unavailable', 503), 'upstream.unavailable', true],
-    [problem('upstream.timeout', 504), 'upstream.timeout', true],
+    [problem('upstream.timeout', 504), 'upstream.timeout', false],
     [problem('credits.refused', 503), 'credits.refused', false],
     [problem('quota.concurrency_exceeded', 429), 'quota.concurrency_exceeded', false],
     [problem('not_implemented', 501), 'not_implemented', false],
-    [{ status: 500, raw_body: '<html>oops</html>' }, 'http.500', true],
+    [{ status: 500, raw_body: '<html>oops</html>' }, 'http.500', false],
   ])('come back as data with six keys (%#)', async (answer, code, retryable) => {
     const { tools } = toolset([answer]);
     const error = errorOf(await tools.run('sprouts_search', { query: 'acme' }));
@@ -173,7 +173,31 @@ describe('failures', () => {
     const unsent = errorOf(await toolset([{ network: 'connect_refused' }]).tools.run('sprouts_search', { query: 'acme' }));
     expect([unsent.code, unsent.retryable]).toEqual(['connection_error', true]);
     const reset = errorOf(await toolset([{ network: 'reset_after_send' }]).tools.run('sprouts_similar', { anchors: [{ value: 'acme.com' }] }));
-    expect([reset.code, reset.retryable, reset.message.includes('a charge may already have happened')]).toEqual(['connection_error', false, true]);
+    expect([reset.code, reset.retryable, reset.message.includes('may have run and been charged')]).toEqual(['connection_error', false, true]);
+  });
+
+  it.each([
+    [problem('internal', 500, { detail: 'Something failed.' }), 'Something failed.'],
+    [problem('upstream.timeout', 504), 'upstream.timeout'],
+    [{ status: 500, raw_body: '<html>oops</html>' }, 'HTTP 500'],
+  ])('work that may have run is not retryable and says a repeat may be charged (%#)', async (answer, said) => {
+    const error = errorOf(await toolset([answer]).tools.run('sprouts_search', { query: 'acme' }));
+    expect(error.retryable).toBe(false);
+    expect(error.message.startsWith(said)).toBe(true);
+    expect(error.message.endsWith(
+      'It may have run and been charged before it failed. Calling the tool again sends a new request, which can be ' +
+        'charged again. Do not retry it automatically.',
+    )).toBe(true);
+  });
+
+  it("by the time a tool reports a lost connection, the client's keyed retries are spent", async () => {
+    const lost = { network: 'reset_after_send' };
+    const made = client([lost, lost, lost], 2);
+    const error = errorOf(await new Toolset(made.client).run('sprouts_search', { query: 'acme' }));
+    const keys = new Set(made.sent.map((request) => request.headers.get('Idempotency-Key')));
+    expect([made.sent.length, keys.size]).toEqual([3, 1]);
+    expect([error.code, error.retryable]).toEqual(['connection_error', false]);
+    expect(error.message).toContain('Calling the tool again sends a new request');
   });
 
   it('an unreadable success comes back as data', async () => {

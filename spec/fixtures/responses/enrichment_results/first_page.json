@@ -9,7 +9,7 @@
       "environment": "live",
       "request_id": "f5c707dae0334e31a1b1757b1ba5161a"
     },
-    "next_cursor": "Mg==",
+    "next_cursor": "cursor-f89e2c9910647a4ce8252341",
     "results": [
       {
         "credits": 1.0,
@@ -44,7 +44,7 @@
         "idx": 1,
         "incomplete": null,
         "input": {
-          "external_id": "CACHED-3",
+          "external_id": "CACHED_3",
           "linkedin_url": "https://www.linkedin.com/in/e2e-cached"
         },
         "outcome": "found",

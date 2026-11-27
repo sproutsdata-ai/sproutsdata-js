@@ -36,7 +36,8 @@
   "expect": {
     "attempts": 1,
     "error": {
-      "concept": "internal"
+      "concept": "internal",
+      "message_contains": "may already be done"
     }
   }
 }

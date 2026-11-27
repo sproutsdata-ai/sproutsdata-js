@@ -16,7 +16,7 @@
       "items": [
         {
           "company_domain": "example-5.de",
-          "external_id": "SLOW-5",
+          "external_id": "SLOW_5",
           "full_name": "Grace Example"
         }
       ]

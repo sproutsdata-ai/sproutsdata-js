@@ -33,7 +33,7 @@
         "total": 5,
         "total_is_estimate": false,
         "has_more": true,
-        "next_cursor": "CURSOR_1",
+        "next_cursor": "cursor-375600e9d34d545ec104a547",
         "resolved_search": null,
         "attribution": [],
         "degradation": [],
@@ -86,7 +86,7 @@
         "except_keys": [
           "cursor"
         ],
-        "cursor": "CURSOR_1"
+        "cursor": "cursor-375600e9d34d545ec104a547"
       }
     ],
     "success": {

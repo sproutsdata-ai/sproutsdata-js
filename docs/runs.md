@@ -40,7 +40,7 @@ run is billed when it settles (`credits_charged` on the result). A run
 cancelled before it finishes is not billed.
 
 **Every create carries an `Idempotency-Key`.** The server requires one on this
-route. The SDK sends the `idempotencyKey` you pass (1 to 255 characters), or
+route. The SDK sends the `idempotencyKey` you pass (1 to 120 letters, digits or `._:-`), or
 generates one, and resends it on its own retries, which is what makes retrying
 a timed-out create safe. Pass your own key when a retry may come from somewhere
 else, such as another process or a job queued again after a crash. Use a new

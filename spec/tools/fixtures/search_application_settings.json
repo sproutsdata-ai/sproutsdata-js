@@ -58,7 +58,7 @@
       "total": 4210,
       "total_is_estimate": false,
       "has_more": true,
-      "next_cursor": "eyJvIjoxfQ.f0d3",
+      "next_cursor": "cursor-dee23b5fce485db4b805d513",
       "resolved_search": {
         "parser_version": "none",
         "mode": "fast",
@@ -154,7 +154,7 @@
       },
       "source": "caller"
     },
-    "next_cursor": "eyJvIjoxfQ.f0d3",
+    "next_cursor": "cursor-dee23b5fce485db4b805d513",
     "request_id": "req_31aa8c0e5f",
     "results": [
       {

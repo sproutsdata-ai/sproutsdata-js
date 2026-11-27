@@ -44,7 +44,7 @@ describe('entities', () => {
     await entities.companies({ ids: ['stripe.com'] });
     await entities.persons({ ids: ['https://www.linkedin.com/in/x'] });
     await entities.fundings({ ids: ['Stripe'] });
-    await entities.companies({ ids: ['prism-id'], by: null });
+    await entities.companies({ ids: ['record-id'], by: null });
     expect(r.sent.map((s) => (s.body as { by?: string }).by)).toEqual(['auto', 'auto', undefined, undefined]);
     await expect(entities.persons({ ids: ['x'], by: 'domain' as 'li_url' })).rejects.toThrow('by: must be one of');
     await expect(entities.patents({ ids: ['d1_x'], by: 'id' } as never)).rejects.toThrow('by: not a field this request takes');

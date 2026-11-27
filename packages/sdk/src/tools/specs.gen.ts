@@ -813,8 +813,10 @@ export const SHAPING: ShapingSpec = {
   ],
   "retryable_concepts": [
     "rate_limit",
+    "service_unavailable"
+  ],
+  "may_have_run_concepts": [
     "internal",
-    "service_unavailable",
     "upstream_timeout"
   ]
 };
@@ -855,7 +857,8 @@ export const MESSAGES: MessagesSpec = {
   "caveats": {
     "degradation": "{reason}: {detail} (impact: {impact})",
     "parser_not_run": "parser_not_run: `fast` mode did not parse the query, so a constraint stated only in words (a country, a headcount, an industry) was not applied. Use `mode: \"auto\"` or put it in `filters`.",
-    "partial_rows": "partial_rows: {count} of {shown} rows meet only part of the search; each lists what it misses in `unmet`. {exact} rows meet all of it (`total_exact`): report the others as close matches, not matches.",
+    "partial_rows": "partial_rows: {count} of {shown} rows meet only part of the search; each says what it misses in `unmet`, or by a `match_score` below 1. {exact} rows meet all of it (`total_exact`): report the others as close matches, not matches.",
+    "partial_rows_unknown_exact": "partial_rows: {count} of {shown} rows meet only part of the search; each says what it misses in `unmet`, or by a `match_score` below 1. Report them as close matches, not matches.",
     "application_filter": "application_filter: `filters.{path}` is fixed by this application to {value}; your {requested} was not applied.",
     "limit_capped": "limit_capped: you asked for {requested} rows; this application returns at most {limit} per call.",
     "rows_without_lookup": "rows_without_lookup: {count} of {shown} rows carry no domain or LinkedIn URL, so they have no `lookup` value and cannot be looked up.",
@@ -868,10 +871,11 @@ export const MESSAGES: MessagesSpec = {
   },
   "errors": {
     "unknown_tool": "No tool named `{name}` is available here. Available: {available}.",
-    "timeout_sent": "The request timed out after it was sent. This call is charged once the server has done the work, so a charge may already have happened; it was not repeated. Do not retry it automatically.",
-    "connection_sent": "The connection failed after the request was sent. This call is charged once the server has done the work, so a charge may already have happened; it was not repeated. Do not retry it automatically.",
+    "timeout_sent": "The request timed out after it was sent, so it may have run and been charged. Calling the tool again sends a new request, which can be charged again. Do not retry it automatically.",
+    "connection_sent": "The connection failed after the request was sent, so it may have run and been charged. Calling the tool again sends a new request, which can be charged again. Do not retry it automatically.",
     "connection_unsent": "Could not reach the Sprouts API. The request was never sent and nothing was charged; retrying later may succeed.",
     "gateway_no_answer": "A gateway answered {status} without a result. The request may have reached the service and been charged. Do not retry it automatically.",
+    "may_have_run": "It may have run and been charged before it failed. Calling the tool again sends a new request, which can be charged again. Do not retry it automatically.",
     "response_invalid": "The API answered in a shape this SDK version cannot read. The call may have been charged; do not retry it.",
     "http_status": "HTTP {status}"
   }

@@ -43,7 +43,7 @@
       "keyword_query": null,
       "mode": "auto",
       "overrides": [],
-      "parser_version": "prism-search-v10",
+      "parser_version": "internal-search-v10",
       "query": "enterprise software",
       "read_as": [],
       "semantic_query": "industrial automation",

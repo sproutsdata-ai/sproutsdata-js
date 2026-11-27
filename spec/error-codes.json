@@ -1,6 +1,6 @@
 {
   "$comment": "The error taxonomy every SDK maps: every code the API can send an API-key caller, at the version spec/openapi.json describes. Staff-only and internal codes (privacy.*), and the Tools API's (tools.*: /tools/v1, outside the published /v1/* paths), are left out. `concept` is the language-neutral name conformance cases use; each SDK maps it to an idiomatic class. `retry` is normative: an SDK that retries a code marked false is a bug. A code may be sent with a status other than its usual one (request.invalid on a 400, 404 or 405): map by code, and by status only when the code is unknown.",
-  "version": 3,
+  "version": 4,
   "problem_media_type": "application/problem+json",
   "docs_base": "https://dashboard.sproutsdata.ai/errors/",
   "type_uri_rule": "docs_base + code with '.' and '_' replaced by '-'",
@@ -220,7 +220,7 @@
       "status": 500,
       "concept": "internal",
       "retry": true,
-      "meaning": "An unexpected server error. Bounded retry is reasonable; a billed call is charged only as its last step."
+      "meaning": "An unexpected server error after the work began. A keyed call is retried with its key, which the server charges once; a call that charges without reading a key (adding or reading a list's items, an export) may have been charged, so it is not repeated."
     },
     {
       "code": "lists.category_mismatch",
@@ -365,7 +365,7 @@
       "status": 504,
       "concept": "upstream_timeout",
       "retry": true,
-      "meaning": "The work did not finish within the request's time budget. It is abandoned and not charged."
+      "meaning": "The work did not finish within the request's time budget. It may have run part of the way: a keyed call is retried with its key, which the server charges once; a call that charges without reading a key may have been charged, so it is not repeated."
     },
     {
       "code": "upstream.unavailable",

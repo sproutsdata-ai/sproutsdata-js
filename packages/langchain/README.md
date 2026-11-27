@@ -193,11 +193,14 @@ they are about and sets no other filter: put hard constraints in `filters`, or
 set `mode: 'auto'`. With `category: 'auto'`, no mode is sent: the server reads
 the question in `auto`, its only mode there.
 
-**Partial matches.** A company or person search also returns, after the exact
-matches, rows meeting only part of the search. Their documents say so:
-`metadata.unmet` lists each filter a row misses (and how), `metadata.match_score`
-is under 1, and `metadata.total_exact` counts the exact matches. Set
-`partialMatches: false` for exact matches only.
+**Partial matches.** A company or person search can also return, after the exact
+matches, rows meeting only part of the search. The retriever asks for exact matches
+only (`partial_matches: false` is sent unless you set `partialMatches`, for a company,
+person or `auto` search), so every document meets the whole search. Set
+`partialMatches: true` to add the close matches: each one's `pageContent` starts with
+a line saying so ("Close match, not an exact one: misses geo."), `metadata.unmet`
+lists each filter it misses (and how), `metadata.match_score` is under 1, and
+`metadata.total_exact` counts the exact matches.
 
 When a search returns nothing and the platform had inferred filters from the
 query, the retriever logs one `console.warn` naming them and the `request_id`.

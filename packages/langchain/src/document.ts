@@ -93,6 +93,23 @@ export function envelopeToDocuments(envelope: SearchEnvelope, options: EnvelopeT
       attribution: envelope.attribution,
     };
     if (options.includeResolvedSearch) metadata.resolved_search = envelope.resolved_search;
-    return new Document({ pageContent: renderPageContent(hit, options.contentFields), metadata });
+    const content = renderPageContent(hit, options.contentFields);
+    const close = closeMatch(hit);
+    return new Document({ pageContent: close === undefined ? content : `${close}\n${content}`, metadata });
   });
+}
+
+/**
+ * The first line of a row meeting only part of the search, else `undefined`. Without it, a
+ * chain reading `pageContent` alone takes a close match for a match.
+ */
+function closeMatch(hit: SearchHit): string | undefined {
+  const unmet: readonly UnmetFilter[] = hit.unmet ?? [];
+  if (unmet.length > 0) {
+    return `Close match, not an exact one: misses ${unmet.map((missed) => missed.filter).join(', ')}.`;
+  }
+  if (typeof hit.match_score === 'number' && hit.match_score < 1) {
+    return `Close match, not an exact one: match score ${String(hit.match_score)}.`;
+  }
+  return undefined;
 }

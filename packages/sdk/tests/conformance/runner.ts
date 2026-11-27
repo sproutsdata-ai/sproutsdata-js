@@ -25,7 +25,7 @@ export const CASES_DIR = new URL('../../../../spec/conformance/cases/', import.m
 const KEYS = {
   case: ['name', 'description', 'request', 'responses', 'expect', 'max_retries', 'paginate', 'next_page_limit', 'mutate_request_after_first_page', 'request_id', 'off_spec', 'route_class'],
   expect: ['attempts', 'error', 'success', 'sent', 'slept', 'no_sleep', 'no_next_page'],
-  error: ['concept', 'not_concept', 'status', 'code', 'request_id', 'fields', 'extra', 'field_errors_length', 'reached_server', 'message_contains'],
+  error: ['concept', 'not_concept', 'status', 'code', 'request_id', 'fields', 'extra', 'field_errors_length', 'reached_server', 'message_contains', 'idempotency_key'],
   success: ['results_length', 'has_more', 'request_id', 'truncated', 'degraded', 'first_category', 'first_degradation_reason', 'hit_extra_field', 'attribution_length', 'attribution_url_is_none', 'export_kind', 'job_id', 'export_file'],
   exportFile: ['credits_charged', 'field_tier', 'rows', 'skipped'],
   sent: ['body_equals_index', 'except_keys', 'cursor', 'limit', 'headers_present', 'headers_absent', 'headers_equal', 'same_header_as_index'],
@@ -158,7 +158,10 @@ export function check(test: Case, result: Run): void {
   if (want['no_sleep'] === true) expect(result.clock.sleeps).toEqual([]);
   if (want['slept'] !== undefined) expect(result.clock.sleeps).toEqual((want['slept'] as number[]).map((s) => s * 1_000));
   if (want['error'] === undefined) expect(result.raised, `${test.file}: unexpected error`).toBeUndefined();
-  else checkError(test, want['error'] as Json, result.raised);
+  else {
+    checkError(test, want['error'] as Json, result.raised);
+    checkKey(want['error'] as Json, result);
+  }
   if (want['success'] !== undefined) checkSuccess(want['success'] as Json, result.answers.at(-1));
   ((want['sent'] ?? []) as Json[]).forEach((spec, index) => {
     checkSent(result.sent, index, spec);
@@ -174,6 +177,15 @@ function checkError(test: Case, spec: Json, raised: unknown): void {
     expect(raised).toBeInstanceOf(APIError);
     checkProblem(spec, raised as APIError);
   }
+}
+
+/** The key the error carries: `"sent"`, the one every attempt sent; `null`, none. */
+function checkKey(spec: Json, result: Run): void {
+  if (!('idempotency_key' in spec)) return;
+  const want = spec['idempotency_key'];
+  const sent = result.sent[0]?.headers.get('Idempotency-Key') ?? undefined;
+  if (want === 'sent') expect(sent, 'the call sent no key').toBeDefined();
+  expect((result.raised as SproutsDataError).idempotencyKey).toBe(want === 'sent' ? sent : undefined);
 }
 
 function checkConcept(spec: Json, raised: unknown): void {

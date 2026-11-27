@@ -45,7 +45,7 @@
         "environment": "live",
         "request_id": "9c33cb94c2094967bdff88546cf3e7a8"
       },
-      "next_cursor": "eyJmIjoiOGEyNGFhYjMzZjE4ZTNkMmQ5NzdkY2U1ODE1ZWY3NjYiLCJvIjo0LCJzIjoiMzY4MzJiODJlY2Y0NDhiNWEzYzVjNTdkYWRiZjIwN2UiLCJ0IjoxNzk1NzI0MTgxLCJ1IjoicHJpc218Y29tcGFueXwxIn0.24ed0342e4e74f34d1db4f08b3a154e1",
+      "next_cursor": "cursor-531d273adb46614f6ebeedbb",
       "resolved_search": {
         "anchor_matches": [],
         "category": "company",
@@ -438,7 +438,7 @@
   },
   "expected_output": {
     "caveats": [
-      "partial_rows: 2 of 4 rows meet only part of the search; each lists what it misses in `unmet`. 2 rows meet all of it (`total_exact`): report the others as close matches, not matches."
+      "partial_rows: 2 of 4 rows meet only part of the search; each says what it misses in `unmet`, or by a `match_score` below 1. 2 rows meet all of it (`total_exact`): report the others as close matches, not matches."
     ],
     "has_more": true,
     "interpreted_as": {
@@ -458,7 +458,7 @@
       },
       "source": "caller"
     },
-    "next_cursor": "eyJmIjoiOGEyNGFhYjMzZjE4ZTNkMmQ5NzdkY2U1ODE1ZWY3NjYiLCJvIjo0LCJzIjoiMzY4MzJiODJlY2Y0NDhiNWEzYzVjNTdkYWRiZjIwN2UiLCJ0IjoxNzk1NzI0MTgxLCJ1IjoicHJpc218Y29tcGFueXwxIn0.24ed0342e4e74f34d1db4f08b3a154e1",
+    "next_cursor": "cursor-531d273adb46614f6ebeedbb",
     "request_id": "9c33cb94c2094967bdff88546cf3e7a8",
     "results": [
       {

@@ -71,6 +71,10 @@ exactly that value (other keys may be present too).
 `expect.error.message_contains` asserts that the error's message (`str(error)`
 in Python, `error.message` in JS) contains this text: how a case pins the note a
 call that was deliberately not repeated carries.
+`expect.error.idempotency_key` asserts on the key the error carries
+(`idempotency_key` in Python, `idempotencyKey` in JS): `"sent"` means the
+`Idempotency-Key` the first attempt sent (every retry resends it), `null` means none,
+as on a route that reads no key.
 
 `expect.sent` asserts on what went out — the pagination cases use it to prove the
 second request body matches the first:

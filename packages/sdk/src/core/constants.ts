@@ -12,9 +12,6 @@ export const IDEMPOTENCY_KEY_PREFIX = 'sdk-';
 /** The server keeps a caller's request id only if it matches this (else it substitutes its own). */
 export const REQUEST_ID_PATTERN: RegExp = /^[A-Za-z0-9_.:-]{1,128}$/;
 
-/** The server refuses a longer `Idempotency-Key` with `400 request.invalid`. */
-export const IDEMPOTENCY_KEY_MAX_LENGTH = 255;
-
 /** The server pages no further than this many results into one request. */
 export const MAX_PAGINATION_DEPTH = 10_000;
 

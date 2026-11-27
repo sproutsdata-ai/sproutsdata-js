@@ -1,6 +1,6 @@
 {
-  "$comment": "The retry decision both SDKs make, as data. Each outcome row gives, per route class (routes.json), `retry` or `raise`. A retry is bounded by defaults.json `max_retries` and waits per its `backoff`, unless a Retry-After of at most `retry_after_cap_seconds` is present, which wins. Rows are checked in order and the first match decides. A `codes` row matches on the problem document's `code` alone, whatever the status, and comes before every row matching those codes' statuses; any other row matches on its `network` outcomes or its `status` codes and, where it says so, on whether the answer's Retry-After is `within_cap` or `beyond_cap` (none counts as within). Normative: an SDK whose decision differs from this table has a bug. The billing facts it rests on: the API charges a billed call after its work succeeds, as the last step that can fail, so an error answer from the API itself means nothing was charged. A gateway in front of the API (its 408, 502 or 504, which carry no API code) says nothing about the work behind it, which may still finish and be charged. So a request that may have reached the API without an answer from it is repeated only where a repeat is free (`safe`) or recognised by its Idempotency-Key and charged once (`keyed`, every billed route since the API began reading the key).",
-  "version": 4,
+  "$comment": "The retry decision both SDKs make, as data. Each outcome row gives, per route class (routes.json), `retry` or `raise`. A retry is bounded by defaults.json `max_retries` and waits per its `backoff`, unless a Retry-After of at most `retry_after_cap_seconds` is present, which wins. Rows are checked in order and the first match decides. A `codes` row matches on the problem document's `code` alone, whatever the status, and comes before every row matching those codes' statuses; any other row matches on its `network` outcomes or its `status` codes and, where it says so, on whether the answer's Retry-After is `within_cap` or `beyond_cap` (none counts as within). `may_have_run` says whether the work may have run, and so been charged or taken effect, although the caller got no success: true for a request that may have reached the API without its answer, for the API's own 504 upstream.timeout (its time budget ran out, possibly after a charge) and for a 500 (an error after the work began). Where it is true, a `billed` or `once` call is raised, never repeated, and the error says what may have happened; a `keyed` call is repeated with its Idempotency-Key, and once its retries run out the error carries that key, so that a repeat the caller sends is recognised too. Normative: an SDK whose decision differs from this table has a bug. The billing facts it rests on: `keyed` routes read Idempotency-Key, and the same key on the same request from the same credential on the same UTC day is charged once and starts nothing twice; `billed` routes (adding a list's items, reading them, and the two CSV exports) charge for the records they show whole before they unlock them and read no key, so after a charge any failure that follows could be charged again by a repeat; an error the API answers before the work begins (a 4xx, a 503, a 429) means nothing was charged. A gateway in front of the API (its 408, 502 or 504, which carry no API code) says nothing about the work behind it, which may still finish and be charged.",
+  "version": 5,
   "classes": [
     "safe",
     "billed",
@@ -12,6 +12,7 @@
     {
       "outcome": "never_retried_code",
       "description": "Answers whose code says a repeat cannot help, though their status is otherwise retried. 429 quota.concurrency_exceeded: the credential already has as many agent runs going as it may, and a run takes minutes, so its Retry-After rarely frees a slot; follow or cancel a run instead. 503 credits.refused: the credit ledger refused to hold for this work, nothing ran, and only support can change it. Raised at once, never slept on.",
+      "may_have_run": false,
       "codes": [
         "credits.refused",
         "quota.concurrency_exceeded"
@@ -23,18 +24,20 @@
     },
     {
       "outcome": "upstream_timeout",
-      "description": "504 upstream.timeout, sent by the API itself: the work did not finish within the request's time budget and was abandoned before any charge, so repeating a billed or keyed call cannot pay twice. A `once` call is raised: a write may have landed before the budget ran out.",
+      "description": "504 upstream.timeout, sent by the API itself: the work did not finish within the request's time budget. It may have run part of the way, and a `billed` call may have been charged before the budget ran out (those routes charge, then unlock), so a `billed` call is raised. A `keyed` call is repeated with its key, which the server charges once. A `once` call is raised: a write may have landed before the budget ran out.",
+      "may_have_run": true,
       "codes": [
         "upstream.timeout"
       ],
       "safe": "retry",
-      "billed": "retry",
+      "billed": "raise",
       "keyed": "retry",
       "once": "raise"
     },
     {
       "outcome": "not_sent",
       "description": "The request provably never reached the server: connection refused, DNS failure, connect timeout.",
+      "may_have_run": false,
       "network": [
         "connect_refused",
         "dns_failure",
@@ -47,7 +50,8 @@
     },
     {
       "outcome": "sent_no_answer",
-      "description": "The request may have been processed, and nothing says whether: a read timeout, a connection reset after send, or a gateway's answer instead of the API's (408: it gave up waiting; 502: the API's answer did not reach it; 504 without the API's upstream.timeout code: it stopped waiting while the API may still be working). Repeated where a repeat is free or recognised by its key.",
+      "description": "The request may have been processed, and nothing says whether: a read timeout, a connection reset after send, or a gateway's answer instead of the API's (408: it gave up waiting; 502: the API's answer did not reach it; 504 without the API's upstream.timeout code: it stopped waiting while the API may still be working). Repeated where a repeat is free (`safe`) or recognised by its key (`keyed`).",
+      "may_have_run": true,
       "network": [
         "read_timeout",
         "reset_after_send"
@@ -70,6 +74,7 @@
     {
       "outcome": "rate_limited",
       "description": "429 with a Retry-After of at most retry_after_cap_seconds, or none.",
+      "may_have_run": false,
       "status": [
         429
       ],
@@ -82,6 +87,7 @@
     {
       "outcome": "rate_limited_long",
       "description": "429 with a Retry-After above retry_after_cap_seconds. Raised at once with the value attached; never slept through.",
+      "may_have_run": false,
       "status": [
         429
       ],
@@ -94,6 +100,7 @@
     {
       "outcome": "never_retried",
       "description": "Deterministic answers: repeating the request cannot change them.",
+      "may_have_run": false,
       "status": [
         400,
         401,
@@ -115,18 +122,20 @@
     },
     {
       "outcome": "internal_error",
-      "description": "500. A billed call is charged only as its last step, so its error answer was not charged and a retry cannot pay twice; a `once` call may have taken effect, so it is raised.",
+      "description": "500: the API failed after the work began. A `billed` call charges before it unlocks what it charged for, so the failure may have come after the charge and a repeat could pay twice: raised. A `keyed` call is repeated with its key, which the server charges once. A `once` call may have taken effect, so it is raised.",
+      "may_have_run": true,
       "status": [
         500
       ],
       "safe": "retry",
-      "billed": "retry",
+      "billed": "raise",
       "keyed": "retry",
       "once": "raise"
     },
     {
       "outcome": "unavailable",
-      "description": "503: the API refused the work before any charge, so a retry cannot pay twice. It carries Retry-After (1 s, or 30 s for credits.unavailable), which is honoured.",
+      "description": "503: the API refused the work before it began, so nothing was charged and a retry cannot pay twice. It carries Retry-After (1 s, or 30 s for credits.unavailable), which is honoured.",
+      "may_have_run": false,
       "status": [
         503
       ],

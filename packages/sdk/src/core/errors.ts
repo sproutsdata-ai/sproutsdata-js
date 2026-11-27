@@ -24,6 +24,13 @@ export function conceptFor(status: number, code: string | undefined): ErrorConce
 
 /** Base class for every error this SDK throws. */
 export class SproutsDataError extends Error {
+  /**
+   * The `Idempotency-Key` a keyed call (search, lookups, starting a run or an enrichment job...)
+   * sent on every attempt, else `undefined`. Send it again to repeat the call: the server
+   * recognises it, charges once and starts nothing twice. A new key is a new request.
+   */
+  idempotencyKey: string | undefined;
+
   constructor(message: string, options?: { readonly cause?: unknown }) {
     super(message, options);
     this.name = new.target.name;
@@ -364,7 +371,9 @@ export class CreditsRefusedError extends ServiceUnavailableError {}
 
 /**
  * 504 `upstream.timeout`: the work did not finish within the request's time budget. Sent by the
- * API itself, which abandoned the work before any charge. A 504 without this code comes from a
+ * API itself; the work may have run part of the way. A keyed call is repeated with its key
+ * (charged once); a call that charges without reading a key (adding or reading a list's items,
+ * an export) is thrown, since it may have been charged. A 504 without this code comes from a
  * gateway and is a {@link GatewayError}.
  */
 export class UpstreamTimeoutError extends APIError {}
@@ -378,5 +387,9 @@ export class UpstreamTimeoutError extends APIError {}
  */
 export class GatewayError extends APIError {}
 
-/** 500: an unexpected server error. */
+/**
+ * 500: an unexpected server error, after the work began. A free or keyed call is repeated (a
+ * keyed one with its key, charged once); a call that charges without reading a key is thrown,
+ * since it may have been charged.
+ */
 export class InternalServerError extends APIError {}

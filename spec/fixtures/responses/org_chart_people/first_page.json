@@ -27,7 +27,7 @@
       "environment": "live",
       "request_id": "c05a9e374a0947de9f0e1199ddcec750"
     },
-    "next_cursor": "eyJmIjoiYzk3YWE2NjM2NzQ2Mzk4YjAxOGRhZDM3ZTkwMzhlYTQiLCJvIjoyLCJzIjoiMDUwMzhkNTc1OTgyNDEwZmJiMGViNmRkNWI5NzZjOTkiLCJ0IjoxNzk1NzI0MTgxLCJ1IjoiMiJ9.9218560198885234d370b4f2812b5b15",
+    "next_cursor": "cursor-3101a7c02db069ac874ce224",
     "results": [
       {
         "account_name": "acme.com Inc",

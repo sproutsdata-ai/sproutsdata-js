@@ -1,6 +1,6 @@
 {
   "$comment": "Configuration defaults every SDK applies. Durations are in seconds here; the JS SDK takes milliseconds at its API surface and converts. Resolution order for a setting is always: the argument, then the environment variable, then the deprecated environment variable (with a warning naming its replacement), then the default below. The key rules mirror the API's (keys are issued as sk_dsp_live_<secret>, and the retired sk_dsp_test_ keys are refused at exchange; a key has the sk_dsp_ prefix, at most 200 characters, printable ASCII): a key that breaks them is refused locally, before any request, because the server would only answer a bare 401.",
-  "version": 5,
+  "version": 6,
   "base_url": "https://api.sproutsdata.ai",
   "base_url_rule": "https:// is required. Plain http:// is accepted only when the host is one of plain_http_hosts.",
   "plain_http_hosts": [
@@ -12,6 +12,8 @@
   "api_key_split": "A key's prefix is its first three '_'-separated parts (sk, dsp, live): split with a bounded split(\"_\", 3), since the secret may contain '_'.",
   "retired_api_key_prefix": "sk_dsp_test_",
   "retired_api_key": "Test keys were retired on 2026-11-15: every key is a live key, charged from the workspace's credits. A key with the retired prefix is refused at construction with a message saying so, because the server would only answer a bare 401.",
+  "idempotency_key_pattern": "^[A-Za-z0-9._:-]{1,120}$",
+  "idempotency_key_rule": "What the API takes as an Idempotency-Key: 1 to 120 letters, digits or `._:-`. A key that breaks it is refused locally, before any request: the API would refuse it, and a character outside ASCII cannot be sent in a header at all.",
   "missing_api_key": "Refused at construction.",
   "browsers": "Not supported: the API refuses an API key on any request that carries an Origin header, which every browser sends. The JS SDK refuses to construct in a browser.",
   "forbidden_headers": [

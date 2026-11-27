@@ -17,7 +17,7 @@ import { collect } from '../support/rig.js';
 import { client, raw, setting, STACK } from './stack.js';
 
 const ADA = { full_name: 'Ada Example', company_domain: 'example-1.de', external_id: 'row-1' };
-const FOUND = [ADA, { linkedin_url: 'https://www.linkedin.com/in/e2e-cached', external_id: 'CACHED-2' }];
+const FOUND = [ADA, { linkedin_url: 'https://www.linkedin.com/in/e2e-cached', external_id: 'CACHED_2' }];
 const MISSED = { full_name: 'MISSING Person', company_domain: 'example-3.de' };
 const QUICK = { pollIntervalMs: 100 };
 
@@ -42,7 +42,7 @@ describe.skipIf(STACK === undefined)('enrichment, live', () => {
   it('a lookup answers in the call, and one that did not finish becomes a job', async () => {
     const sdk = client();
     const found = await sdk.enrichment.lookup({ items: [ADA, MISSED], fields: ['EMAIL'] });
-    const cut = await sdk.enrichment.lookup({ items: [{ ...ADA, external_id: 'SLOW-1' }], fields: ['EMAIL'] });
+    const cut = await sdk.enrichment.lookup({ items: [{ ...ADA, external_id: 'SLOW_1' }], fields: ['EMAIL'] });
     const ended = await sdk.enrichment.wait(cut.job_id, QUICK);
     expect(found.complete).toBe(true);
     expect(found.results.map((row) => row.outcome)).toEqual(['found', 'not_found']);

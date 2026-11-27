@@ -17,7 +17,7 @@ export class Runs extends Resource {
    * Start a run. Answers at once with its id; the work goes on server-side. The run is billed
    * when it settles (`credits_charged` on the result); a run cancelled before it finishes is
    * not. An Idempotency-Key is required: the SDK generates one unless `options.idempotencyKey`
-   * gives it (1 to 255 characters), and resends it on its own retries.
+   * gives it (1 to 120 letters, digits or `._:-`), and resends it on its own retries.
    *
    * @throws {PermissionDeniedError} The key lacks the `dsp.agents.*` scopes (a key made with
    *   the default scopes has none).

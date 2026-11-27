@@ -38,10 +38,17 @@ export async function raw(method: string, path: string, body?: unknown, headers:
 
 /**
  * Make the fault proxy answer `path` with `status`, `times` times. With `forward`, each request
- * still reaches the server, and only its answer is lost.
+ * still reaches the server, and only its answer is lost. With `problem`, the answer is that
+ * problem document (the API failing after the work began) instead of a gateway's page.
  */
-export async function arm(path: string, status: number, times = 1, { forward = false }: { readonly forward?: boolean } = {}): Promise<void> {
-  const answer = await fetch(`${setting('SPROUTSDATA_E2E_FAULT_URL')}/__fake/arm`, { method: 'POST', body: JSON.stringify({ path, status, times, forward }) });
+export async function arm(
+  path: string,
+  status: number,
+  times = 1,
+  { forward = false, problem }: { readonly forward?: boolean; readonly problem?: Readonly<Record<string, string>> } = {},
+): Promise<void> {
+  const fault = { path, status, times, forward, ...(problem === undefined ? {} : { problem }) };
+  const answer = await fetch(`${setting('SPROUTSDATA_E2E_FAULT_URL')}/__fake/arm`, { method: 'POST', body: JSON.stringify(fault) });
   if (!answer.ok) throw new Error(`the fault proxy answered ${String(answer.status)}`);
 }
 

@@ -1,0 +1,52 @@
+{
+  "name": "a_search_export_is_retried_after_a_rate_limit",
+  "description": "A 429 is answered before any work begins, so nothing was charged and a pay-once route is retried after its Retry-After like any other.",
+  "request": {
+    "method": "POST",
+    "path": "/v1/search/export",
+    "body": {
+      "items": [
+        {
+          "entity_category": "company",
+          "entity_id": "acme.com"
+        }
+      ]
+    }
+  },
+  "responses": [
+    {
+      "status": 429,
+      "headers": {
+        "Retry-After": "1"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/quota-burst-exceeded",
+        "title": "Rate limit exceeded",
+        "status": 429,
+        "code": "quota.burst_exceeded"
+      }
+    },
+    {
+      "status": 200,
+      "headers": {
+        "X-Request-Id": "req_csv",
+        "X-Credits-Charged": "0",
+        "X-Export-Field-Tier": "free",
+        "X-Export-Row-Count": "1",
+        "X-Export-Skipped": "0"
+      },
+      "raw_body": "name,domain\nAcme,acme.com\n",
+      "content_type": "text/csv; charset=utf-8"
+    }
+  ],
+  "expect": {
+    "attempts": 2,
+    "slept": [
+      1.0
+    ],
+    "success": {
+      "export_kind": "file",
+      "request_id": "req_csv"
+    }
+  }
+}

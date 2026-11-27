@@ -51,8 +51,15 @@ describe('request', () => {
     expect(buildHeaders(runsCreate, FIXTURE_KEY, {}, {}, false)['Idempotency-Key']).toMatch(/^sdk-/);
     expect(buildHeaders(runsCreate, FIXTURE_KEY, {}, { idempotencyKey: 'mine' }, false)['Idempotency-Key']).toBe('mine');
     expect(() => buildHeaders(creditsQuote, FIXTURE_KEY, {}, { idempotencyKey: 'k' }, false)).toThrow(/does not take/);
-    for (const bad of ['', 'x'.repeat(256), 'line\nbreak']) {
-      expect(() => buildHeaders(runsCreate, FIXTURE_KEY, {}, { idempotencyKey: bad }, false)).toThrow(ClientValidationError);
+  });
+
+  it('takes a key the API takes, and refuses any other before sending', () => {
+    for (const good of ['k', 'x'.repeat(120), 'nightly-2026-11-28', 'job:7.retry_1', 'sdk-0f']) {
+      expect(buildHeaders(runsCreate, FIXTURE_KEY, {}, { idempotencyKey: good }, false)['Idempotency-Key']).toBe(good);
+    }
+    // Non-ASCII could not even be written into a header: the error is the SDK's, not fetch's.
+    for (const bad of ['', 'x'.repeat(121), 'line\nbreak', 'two words', 'a/b', 'caf\u00e9', 'k\u2028', 'key\n', 7]) {
+      expect(() => buildHeaders(runsCreate, FIXTURE_KEY, {}, { idempotencyKey: bad as string }, false)).toThrow(/1 to 120 letters/);
     }
   });
 

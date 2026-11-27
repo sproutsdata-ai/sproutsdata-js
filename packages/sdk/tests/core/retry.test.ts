@@ -21,7 +21,9 @@ describe('retry', () => {
     ['429 beyond the cap', status(429, 3600), 'safe', 'raise'],
     ['402', status(402), 'safe', 'raise'],
     ['500 once', status(500), 'once', 'raise'],
-    ['500 billed', status(500), 'billed', 'retry'],
+    ['500 billed', status(500), 'billed', 'raise'],
+    ['500 keyed', status(500), 'keyed', 'retry'],
+    ['503 billed', status(503, 1), 'billed', 'retry'],
     ['503 once', status(503, 30), 'once', 'retry'],
     ['418', status(418), 'safe', 'raise'],
     ['503 service.unavailable, billed', coded(503, 'service.unavailable'), 'billed', 'retry'],
@@ -37,7 +39,7 @@ describe('retry', () => {
     ["a gateway's 408, billed", gateway(408), 'billed', 'raise'],
     ["the API's 504, safe", upstream(), 'safe', 'retry'],
     ["the API's 504, keyed", upstream(), 'keyed', 'retry'],
-    ["the API's 504, billed", upstream(), 'billed', 'retry'],
+    ["the API's 504, billed", upstream(), 'billed', 'raise'],
     ["the API's 504, once", upstream(), 'once', 'raise'],
     ['local', new ClientValidationError('x'), 'safe', 'raise'],
   ])('decides as the policy says: %s', (_, error, routeClass, decision) => {
@@ -49,11 +51,19 @@ describe('retry', () => {
     expect(outcomeFor(status(504))?.name).toBe('sent_no_answer');
   });
 
-  it("gives a gateway's answer the same note as a timeout after sending", () => {
-    expect(consequence(gateway(504), 'billed')).toMatch(/may have been charged/);
-    expect(consequence(gateway(504), 'once')).toMatch(/may already be done/);
-    expect(consequence(gateway(504), 'keyed')).toBeUndefined();
-    expect(consequence(upstream(), 'once')).toBeUndefined();
+  it.each<[string, SproutsDataError]>([
+    ["a gateway's 504", gateway(504)],
+    ['a 500', status(500)],
+    ["the API's 504", upstream()],
+  ])('notes that the work may have run after %s', (_, error) => {
+    expect(consequence(error, 'billed')).toMatch(/may have been charged/);
+    expect(consequence(error, 'once')).toMatch(/may already be done/);
+  });
+
+  it('tells a keyed call the key that lets a repeat be charged once', () => {
+    expect(consequence(new APIConnectionError('x'), 'keyed', 'sdk-1')).toContain('idempotencyKey: "sdk-1"');
+    expect(consequence(new APIConnectionError('x'), 'keyed')).toBeUndefined();
+    expect(consequence(status(422), 'keyed', 'sdk-1')).toBeUndefined();
   });
 
   it('decides a code the policy names by its own row, whatever its status', () => {
@@ -71,12 +81,13 @@ describe('retry', () => {
     expect(backoffMs(5, 3600, () => 1)).toBe(8_000);
   });
 
-  it('notes a consequence only where a repeat would do harm', () => {
+  it('notes a consequence only where the work may have run', () => {
     expect(consequence(new APIConnectionError('x'), 'billed')).toMatch(/may have been charged/);
     expect(consequence(new APIConnectionError('x'), 'once')).toMatch(/may already be done/);
-    expect(consequence(new APIConnectionError('x'), 'keyed')).toBeUndefined();
+    expect(consequence(new APIConnectionError('x'), 'safe')).toBeUndefined();
     expect(consequence(new APIConnectionError('x', { reachedServer: false }), 'billed')).toBeUndefined();
-    expect(consequence(status(500), 'billed')).toBeUndefined();
+    expect(consequence(status(503), 'billed')).toBeUndefined();
+    expect(consequence(status(422), 'once')).toBeUndefined();
   });
 
   it('finds proof a request was never sent anywhere in the cause chain', () => {

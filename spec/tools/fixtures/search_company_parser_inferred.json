@@ -124,7 +124,7 @@
       "total": 13137,
       "total_is_estimate": false,
       "has_more": true,
-      "next_cursor": "eyJvIjozfQ.c1a9",
+      "next_cursor": "cursor-6d1aed14ad1859e5defeccae",
       "resolved_search": {
         "parser_version": "2026-08-30",
         "mode": "auto",
@@ -218,7 +218,7 @@
       },
       "source": "parser"
     },
-    "next_cursor": "eyJvIjozfQ.c1a9",
+    "next_cursor": "cursor-6d1aed14ad1859e5defeccae",
     "request_id": "req_9f2c41d07a",
     "results": [
       {

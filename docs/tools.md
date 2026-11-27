@@ -176,10 +176,12 @@ fields shortened:
   only when there are some, names applied filters whose field few records hold.
 - **`total_is_estimate: true`** makes `total` a floor: "at least N".
 - **Partial rows.** A company or person search also returns rows meeting only
-  part of the search, after the exact ones. Such a row keeps `unmet` (each filter
-  it misses, and how), `matched_filters` and `match_score` whatever the
-  projection; `total_exact` counts the exact rows (`total` counts both), and a
-  `partial_rows` caveat tells the model to report them as close matches
+  part of the search, after the exact ones: a row with a non-empty `unmet`, or a
+  `match_score` below 1. Such a row keeps `unmet` (each filter it misses, and how),
+  `matched_filters` and `match_score` whatever the projection; `total_exact` counts
+  the exact rows (`total` counts both), and a `partial_rows` caveat tells the model
+  to report them as close matches (without the exact count when the response has
+  no `total_exact`)
   (`spec/tools/fixtures/search_partial_matches.json`). The model can send
   `partial_matches: false` for exact matches only.
 - **`mode`** is `fast` unless the model asks for `auto`: the tool tells the model
@@ -213,9 +215,13 @@ API does.
 Every returned error has the same six keys: `code`, `message`, `retryable`,
 `retry_after` (seconds), `field_errors` and `request_id`. `retryable` answers
 "would the same call, unchanged, be both useful and safe?". All three tools are
-charged once the server has done the work, so a call that may have reached the
-server without an answer is not retryable, and the message tells the model not
-to repeat it.
+charged, and calling one again sends a new request with a new idempotency key. So
+nothing whose work may have run is retryable: a call that timed out or lost its
+connection after it was sent, a gateway's answer, a 500, or the API's own timeout. It
+may already have been charged, and the message tells the model not to repeat it. By
+then the client's own retries, which resend the call's key and are charged once, are
+spent. A rate limit or an unavailable service, answered before any work began, is
+retryable.
 
 What is thrown is what only the application can fix: a key, a scope, or
 credits. `isApplicationError(err)` tells those three apart, whichever copy of

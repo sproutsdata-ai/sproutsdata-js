@@ -44,7 +44,7 @@
         "environment": "live",
         "request_id": "1eba56061d814472b4e5e056d4baa4b8"
       },
-      "next_cursor": "eyJvIjoxfQ.e2e",
+      "next_cursor": "cursor-1a509a5ccf53e897782a819e",
       "resolved_search": {
         "category": "company",
         "conflicts": [],
@@ -124,7 +124,7 @@
     "total": 37,
     "total_is_estimate": false,
     "has_more": true,
-    "next_cursor": "eyJvIjoxfQ.e2e",
+    "next_cursor": "cursor-1a509a5ccf53e897782a819e",
     "interpreted_as": {
       "filters": {
         "last_funding_date": {

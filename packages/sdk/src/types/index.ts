@@ -124,11 +124,15 @@ export interface PageParams {
 /** How a `wait` polls, and gives up. */
 export interface WaitOptions {
   /**
-   * Milliseconds before the second poll (runs 3,000, exports 2,000); each later wait is half
-   * again longer, to 15 s for runs and 10 s for exports.
+   * Milliseconds before the second poll (runs 3,000, exports and enrichment jobs 2,000); each
+   * later wait is half again longer, to 15 s for runs, 10 s for exports and 30 s for enrichment
+   * jobs. A positive number: anything else throws `ClientValidationError` before the first poll.
    */
   readonly pollIntervalMs?: number;
-  /** Give up after this long (default 900,000 ms); `null` waits for as long as it takes. */
+  /**
+   * Give up after this long (default 900,000 ms; 1,800,000 for an enrichment job); `null`
+   * waits for as long as it takes. Zero or more: anything else throws `ClientValidationError`.
+   */
   readonly maxWaitMs?: number | null;
 }
 

@@ -54,10 +54,10 @@ describe('generated tables', () => {
 
   it('maps every error code as the spec does', () => {
     const errors = spec('error-codes.json') as {
-      codes: { code: string; status: number; concept: string; retry: boolean }[];
+      codes: { code: string; status: number; concept: string }[];
       status_fallbacks: Record<string, string>;
     };
-    expect(ERROR_CODES).toEqual(Object.fromEntries(errors.codes.map((c) => [c.code, { status: c.status, concept: c.concept, retry: c.retry }])));
+    expect(ERROR_CODES).toEqual(Object.fromEntries(errors.codes.map((c) => [c.code, { status: c.status, concept: c.concept }])));
     const fallbacks = Object.entries(errors.status_fallbacks).filter(([status]) => /^\d+$/.test(status));
     expect(STATUS_FALLBACKS).toEqual(Object.fromEntries(fallbacks.map(([status, concept]) => [Number(status), concept])));
   });
@@ -75,6 +75,7 @@ describe('generated tables', () => {
       expect(outcome?.statuses).toEqual(row['status'] ?? []);
       expect(outcome?.codes).toEqual(row['codes'] ?? []);
       expect(outcome?.retryAfter).toBe(row['retry_after'] ?? null);
+      expect(outcome?.mayHaveRun).toBe(row['may_have_run']);
       expect(outcome?.decisions).toEqual(Object.fromEntries(policy.classes.map((c) => [c, row[c]])));
     }
   });

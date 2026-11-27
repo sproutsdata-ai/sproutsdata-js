@@ -1,20 +1,20 @@
 /**
- * Whether a failed attempt is retried, and how long to wait first.
+ * Whether a failed attempt is retried, how long to wait first, and what a raise means.
  *
  * The decision is `spec/retry-policy.json`, row for row (`OUTCOMES`): what may be repeated
  * depends on what the operation costs, so each operation carries a route class and the
  * first row matching the failure decides for that class. In short: a call that provably
- * never arrived is always retried; one that may have arrived (a timeout after sending, a
- * gateway's answer instead of the API's) only where a repeat is free (`safe`) or recognised by
- * its key (`keyed`); a deterministic answer never, nor one whose code says a repeat cannot help
- * (too many runs at once, a refused credit hold).
+ * never arrived is always retried; one whose work may have run (a timeout after sending, a
+ * gateway's answer instead of the API's, a 500, the API's own timeout) only where a repeat is
+ * free (`safe`) or recognised by its key (`keyed`); a deterministic answer never, nor one whose
+ * code says a repeat cannot help (too many runs at once, a refused credit hold).
  */
 
 import { DEFAULTS } from '../generated/defaults.js';
 import type { RouteClass } from '../generated/operations.js';
 import { OUTCOMES, RETRY_AFTER_CAP_MS, type Decision, type NetworkOutcome, type Outcome } from '../generated/retry-policy.js';
 import { NOT_SENT_ERROR_CODES } from './constants.js';
-import { APIConnectionError, APIError, GatewayError, isRecord, type SproutsDataError } from './errors.js';
+import { APIConnectionError, APIError, isRecord, type SproutsDataError } from './errors.js';
 
 // A connection failure is either provably unsent or possibly sent: the two groups the
 // policy distinguishes, each matched by one representative of its group.
@@ -53,24 +53,31 @@ export function backoffMs(attempt: number, retryAfter: number | undefined, rando
 }
 
 /**
- * What a caller must know about a call that may have reached the API without an answer from it (a
- * timeout or dropped connection after sending, or a gateway's answer) and was deliberately not
- * repeated.
+ * What a caller must know about a thrown call whose work may have run: where the matching row
+ * says so (`mayHaveRun`: a request that may have reached the API without its answer, a 500, or
+ * the API's own timeout). A `billed` or `once` call was not repeated, because a repeat could
+ * charge or act twice; a `keyed` call was repeated with its key until its retries ran out, and
+ * the same key is what lets a repeat the caller sends be recognised too.
  */
-export function consequence(error: SproutsDataError, routeClass: RouteClass): string | undefined {
-  const unanswered = error instanceof GatewayError || (error instanceof APIConnectionError && error.reachedServer);
-  if (!unanswered) return undefined;
+export function consequence(error: SproutsDataError, routeClass: RouteClass, idempotencyKey?: string): string | undefined {
+  if (outcomeFor(error)?.mayHaveRun !== true) return undefined;
   if (routeClass === 'billed') {
     return (
-      'The request may have reached the server, and a billed call is charged once its work is done, so it ' +
-      'may have been charged. It was not repeated, because a repeat could be charged again; check ' +
+      'Its work may have run, and this call charges for the records it shows before it unlocks them, so it may ' +
+      'have been charged. It was not repeated, because a repeat could be charged again; check ' +
       'client.credits.transactions() before trying again.'
     );
   }
   if (routeClass === 'once') {
     return (
-      'The request may have reached the server, so what it asked for may already be done. It was not ' +
-      'repeated (a second list create answers 409, a second delete 404); check client.lists.list() first.'
+      'Its work may have run, so what it asked for may already be done. It was not repeated (a second list ' +
+      'create answers 409, a second delete 404); check client.lists.list() first.'
+    );
+  }
+  if (routeClass === 'keyed' && idempotencyKey !== undefined) {
+    return (
+      'Its work may have run. To repeat it without a second charge or a second job, send the same key: ' +
+      `idempotencyKey: ${JSON.stringify(idempotencyKey)} (also on error.idempotencyKey).`
     );
   }
   return undefined;

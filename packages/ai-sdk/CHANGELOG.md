@@ -17,9 +17,11 @@
 - Partial matches: the search tool takes `partial_matches`, keeps a partial row's
   `unmet`, `matched_filters` and `match_score`, returns `total_exact`, and adds a
   `partial_rows` caveat so a model reports close matches as such.
-- The tools inherit the SDK's error and look-alike changes: a gateway's answer is not
-  retryable, nor are a refused credit hold and a concurrency limit, a redirect is thrown to
-  the application, and an anchor among the look-alikes is recognised by its domain.
+- The tools inherit the SDK's error and look-alike changes: nothing whose work may have run
+  is retryable (a gateway's answer, a timeout after sending, a 500, the API's own timeout:
+  every tool is charged, and a new call is a new request), nor are a refused credit hold and
+  a concurrency limit, a redirect is thrown to the application, and an anchor among the
+  look-alikes is recognised by its domain.
 
 ## 0.0.1 — 2026-10-14
 

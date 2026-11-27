@@ -9,7 +9,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { GatewayError, PermissionDeniedError } from '../../src/core/errors.js';
+import { GatewayError, InternalServerError, PermissionDeniedError, UpstreamTimeoutError } from '../../src/core/errors.js';
 import type { ItemRef } from '../../src/types/index.js';
 import { arm, client, setting, STACK } from './stack.js';
 
@@ -73,6 +73,52 @@ describe.skipIf(STACK === undefined)('whole records are paid for once, live', ()
     expect([ledger.results[0]?.kind, ledger.results[0]?.credits]).toEqual(['charge', -2 * price]);
     expect([again.already_present, again.credits_charged]).toEqual([2, 0]);
     await sdk.lists.delete(listId);
+  });
+
+  // The API's own 500 or upstream.timeout, after the add charged: were it retried, as these
+  // answers used to be, the repeat would run as a new request and could charge again.
+  it.each([
+    [67, 500, { code: 'internal', title: 'Internal error' }, InternalServerError],
+    [69, 504, { code: 'upstream.timeout', title: 'Upstream timed out' }, UpstreamTimeoutError],
+  ] as const)('an add that fails after its charge (%s) is not repeated, and was charged once', async (from, status, problem, raised) => {
+    const key = setting('SPROUTSDATA_E2E_PAID_KEY');
+    const sdk = client({ key });
+    const records = companies(from, 2);
+    const price = (await sdk.credits.quote({ operation: 'lookup', rows: 1 })).credits;
+    const listId = await newList(key);
+    await arm(`/v1/lists/${listId}/items`, status, 1, { forward: true, problem });
+    const behindTheProxy = client({ key, baseUrl: setting('SPROUTSDATA_E2E_FAULT_URL') });
+    const error = await behindTheProxy.lists.addItems(listId, { items: records }).catch((err: unknown) => err);
+    expect(error).toBeInstanceOf(raised);
+    expect((error as Error).message).toContain('may have been charged');
+    expect((error as InternalServerError).idempotencyKey).toBeUndefined(); // the route reads no key
+    const ledger = await sdk.credits.transactions({ limit: 1 });
+    const again = await sdk.lists.addItems(listId, { items: records });
+    expect([ledger.results[0]?.kind, ledger.results[0]?.credits]).toEqual(['charge', -2 * price]);
+    expect([again.already_present, again.credits_charged]).toEqual([2, 0]);
+    await sdk.lists.delete(listId);
+  });
+
+  it('a search whose retries run out is repeated with its key, and charged once', async () => {
+    const key = setting('SPROUTSDATA_E2E_PAID_KEY');
+    const sdk = client({ key });
+    const query = `robotics companies js ${crypto.randomUUID().slice(0, 6)}`;
+    const newest = (await sdk.credits.transactions({ limit: 1 })).results[0]?.id;
+    await arm('/v1/search', 502, 3, { forward: true }); // every attempt runs; every answer is lost
+    const behindTheGateway = client({ key, baseUrl: setting('SPROUTSDATA_E2E_FAULT_URL') });
+    const lost = await behindTheGateway.search({ query, mode: 'fast', limit: 1 }).catch((err: unknown) => err);
+    expect(lost).toBeInstanceOf(GatewayError);
+    expect((lost as GatewayError).message).toContain('send the same key');
+    const sent = (lost as GatewayError).idempotencyKey;
+    if (sent === undefined) throw new Error('the error carries no key');
+    const page = await sdk.search({ query, mode: 'fast', limit: 1 }, { idempotencyKey: sent });
+    const ledger = (await sdk.credits.transactions({ limit: 10 })).results;
+    const end = ledger.findIndex((row) => row.id === newest);
+    expect(end).toBeGreaterThanOrEqual(0);
+    const fresh = ledger.slice(0, end);
+    // Three attempts behind the gateway and the caller's own repeat: one search, charged once.
+    expect(fresh.filter((row) => row.kind === 'charge')).toHaveLength(1);
+    expect(page.meta.credits_charged).toBe(0);
   });
 
   it('a key without the list scopes is refused by the server', async () => {

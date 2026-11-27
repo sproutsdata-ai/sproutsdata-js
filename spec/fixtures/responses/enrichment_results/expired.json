@@ -22,7 +22,7 @@
     "method": "GET",
     "path": "/v1/enrichment/jobs/4497f5c1-17c5-48ef-b93e-08287874be7d/results",
     "query": {
-      "cursor": "e2e-expired"
+      "cursor": "cursor-8188f9e10bdd8ef0a34a4393"
     }
   },
   "status": 410

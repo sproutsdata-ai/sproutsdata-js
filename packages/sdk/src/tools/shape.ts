@@ -22,8 +22,18 @@ const SEARCH_ID = new RegExp(SHAPING.search_id_pattern, 'u');
 /** Rows whose lookup value comes from their record, and can be missing. */
 const ADDRESSABLE: ReadonlySet<string> = new Set(['company', 'person']);
 
-/** A row meeting only part of the search: it names what it misses. */
-const isPartial = (hit: SearchHit): boolean => (hit.unmet?.length ?? 0) > 0;
+/**
+ * A row meeting only part of the search: it names what it misses (`unmet`), or its `match_score`
+ * (1 for a row meeting every filter) says so even where `unmet` is empty.
+ */
+const isPartial = (hit: SearchHit): boolean =>
+  (hit.unmet?.length ?? 0) > 0 || (typeof hit.match_score === 'number' && hit.match_score < 1);
+
+/** The caveat for `count` partial rows, naming the exact total only when the API gave it. */
+function partialRows(count: number, shown: number, exact: number | null | undefined): string {
+  if (typeof exact !== 'number') return text('caveats', 'partial_rows_unknown_exact', { count, shown });
+  return text('caveats', 'partial_rows', { count, shown, exact });
+}
 
 /** Field name to the lower-cased values the request asked for, for list ordering. */
 export type Wanted = ReadonlyMap<string, ReadonlySet<string>>;
@@ -180,7 +190,7 @@ export function shapePage(page: SearchEnvelope, shaping: PageShaping): SearchToo
   const notes = degradation(page.degradation);
   if (parserSkipped(page.resolved_search, shaping.askedInWords)) notes.push(text('caveats', 'parser_not_run'));
   const partial = shaping.hits.filter(isPartial).length;
-  if (partial > 0) notes.push(text('caveats', 'partial_rows', { count: partial, shown: shaping.hits.length, exact: page.total_exact ?? 0 }));
+  if (partial > 0) notes.push(partialRows(partial, shaping.hits.length, page.total_exact));
   notes.push(...shaping.caveats);
   if (unaddressed > 0) notes.push(text('caveats', 'rows_without_lookup', { count: unaddressed, shown: shaping.hits.length }));
   const suggestion = page.suggestion ?? null;

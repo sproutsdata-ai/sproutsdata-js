@@ -70,15 +70,21 @@ every changed call with its replacement.
   `options.idempotencyKey`), so one that timed out, lost its connection after sending, or
   met a gateway's 408, 502 or 504 is retried with the same key and charged once. It used to
   be thrown with `reachedServer: true`. A page walk sends your key and request id with its
-  first page only: each later page is its own call, with its own key.
+  first page only: each later page is its own call, with its own key. Your key must be 1 to
+  120 letters, digits or `._:-`, as the API takes it (0.0.1 took 1 to 255 printable
+  characters); anything else throws `ClientValidationError` before sending.
 - **A gateway's answer is not the API's**: a 408, 502 or 504 without the API's code
   throws `GatewayError` (it used to be `ServiceUnavailableError` or `UpstreamTimeoutError`,
   whose "nothing was charged" only the API can promise). It is repeated where a repeat is
   free or carries its key; any other call throws with a note saying what may already have
-  happened. The API's own 504 (`upstream.timeout`) is still `UpstreamTimeoutError` and is
-  not repeated for a list create or delete.
+  happened. The API's own 504 (`upstream.timeout`) is still `UpstreamTimeoutError`; like a
+  500, it is not repeated for a list create or delete, nor for a call that charges before it
+  unlocks (see "Whole records are paid for once" below).
 - **Tool errors** say `retryable` by the error's `concept`, so a refused credit hold and a
-  concurrency limit are no longer offered to a model as retryable. A redirect (the base URL
+  concurrency limit are no longer offered to a model as retryable. Every tool is charged and
+  calling one again sends a new request with a new key, so nothing whose work may have run is
+  retryable either: a timeout or dropped connection after sending, a gateway's answer, a 500
+  or the API's own timeout. Their message says a repeat can be charged again. A redirect (the base URL
   is not the API's) is thrown to the application however the fetch reports it, and invalid
   `Toolset` settings throw `ClientValidationError`.
 - **Look-alike tool**: a result row is recognised as one of the anchors by its own
@@ -98,24 +104,34 @@ The API changed these after the rest of this release was written; the SDK follow
   document's topic) and sets no other filter, so hard constraints belong in
   `filters`. The SDK sends no mode unless you pass one, so it follows the API; the
   search tool and the LangChain retriever still send `fast` unless told otherwise.
+  **Price:** with the API's built-in prices, `auto` costs 0.595 credits for a page of up
+  to 10 rows against 0.5 in `fast` (19% more), and 0.085 a row beyond that against 0.08
+  (6% more): a full page of 25 rows is 1.87 credits against 1.7. Pass `mode: 'fast'` to
+  keep the old price; `credits.quote({ operation: 'search_auto' })` says what a deployment
+  charges.
 - **Partial matches.** A company or person search returns, after the rows meeting
   every filter, the rows meeting part of it: each row has `matched_filters`,
   `match_score` and, on a partial row, `unmet` (`UnmetFilter`); a page has
   `total_exact`, and `total` counts both. `search()` and `iterSearch()` take
   `partial_matches` (`false` for exact matches only; refused locally for document
-  categories, as the API refuses it). The search tool keeps the three fields on a
-  partial row whatever the projection, returns `total_exact`, adds a `partial_rows`
-  caveat, and takes `partial_matches`.
+  categories, as the API refuses it). Partial rows are charged like any other row, so a
+  search that returns them costs more: send `partial_matches: false` to pay only for
+  exact matches. The search tool keeps the three fields on a partial row (one with
+  `unmet`, or a `match_score` below 1) whatever the projection, returns `total_exact`,
+  adds a `partial_rows` caveat (without the exact count when the API gave none), and
+  takes `partial_matches`.
 - **Whole records are paid for once.** A workspace that has bought credits sees each
   record whole in a lookup, a saved list or an export, and pays the lookup price the
   first time, unlocked for 90 days by any of those routes; others see the search-row
   fields, free. `AddItemsResponse` and `ListItemsResponse` carry `credits_charged`,
   and an export file is an `ExportFile` with `creditsCharged`, `fieldTier`, `rows`
   and `skipped`, read from the answer's headers (`ExportJob` names the other
-  variant). Adding list items, reading them and both exports are no longer repeated
-  after a gateway's answer (they read no `Idempotency-Key`, and a repeat while the
-  first still runs could charge the same records twice): they throw `GatewayError`,
-  and are still retried on the API's own 503, 500, 429 or `upstream.timeout`.
+  variant). Adding list items, reading them and both exports read no
+  `Idempotency-Key` and charge before they unlock the records, so they are not
+  repeated when their work may have run: a gateway's answer throws `GatewayError`, a
+  500 `InternalServerError` and the API's own timeout `UpstreamTimeoutError`, each
+  saying the call may have been charged (a repeat could charge the same records
+  again). A 503 or a 429, answered before any work begins, is still retried.
 - **Lists have their own scopes**: `dsp.lists.read` to read, `dsp.lists.write` to
   change. Keys made without choosing scopes get both.
 - `re_enrich` says which repeats are free: a value already found for the same
@@ -155,9 +171,14 @@ The API changed these after the rest of this release was written; the SDK follow
   `ServiceUnavailableError`) and `GatewayError`.
 - `APIError.concept`: the kind of failure in the names both SDKs share (`rate_limit`,
   `gateway`, ...), as the Python SDK's `APIStatusError.concept` gives it.
+- `SproutsDataError.idempotencyKey`: the key a keyed call sent, on whatever it throws. When
+  its retries run out on work that may have run, the message says so; send the same key to
+  repeat the call, charged once and starting nothing twice (a new key is a new request).
 - Refused locally, as the API refuses them: a `query` of only whitespace (an older API
-  charged it and answered with the whole index), `category: null`, and a per-call
-  `timeoutMs` or `maxRetries` the client itself would refuse. `category: 'auto'` takes
+  charged it and answered with the whole index), `category: null`, a per-call
+  `timeoutMs` or `maxRetries` the client itself would refuse, and a `wait` whose
+  `pollIntervalMs` is not a positive number or whose `maxWaitMs` is negative or not
+  finite (a zero interval polled without pause, a negative one for ever). `category: 'auto'` takes
   `fields`.
 - The types of the current API: the new document and trend filters,
   `lock_filters` and `fields` on the search bodies, `resolved_search.read_as` and

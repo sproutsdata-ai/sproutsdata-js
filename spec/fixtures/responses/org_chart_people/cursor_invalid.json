@@ -24,7 +24,7 @@
         "seniority": "manager"
       },
       "company_ref": "d1_cxClVTpId3XUN3Qkbk7Dx1jQddd-NYikABazRw",
-      "cursor": "eyJmIjoiYzk3YWE2NjM2NzQ2Mzk4YjAxOGRhZDM3ZTkwMzhlYTQiLCJvIjoyLCJzIjoiMDUwMzhkNTc1OTgyNDEwZmJiMGViNmRkNWI5NzZjOTkiLCJ0IjoxNzk1NzI0MTgxLCJ1IjoiMiJ9.9218560198885234d370b4f2812b5b15"
+      "cursor": "cursor-3101a7c02db069ac874ce224"
     },
     "method": "POST",
     "path": "/v1/org-chart/people",

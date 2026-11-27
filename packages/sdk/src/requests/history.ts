@@ -1,4 +1,4 @@
-/** The queries of the usage history, metrics and the credit ledger (be `history/api.py`, `billing/credits_api.py`). */
+/** The queries of the usage history, metrics and the credit ledger. */
 
 import type { HistoryParams, PageParams, TimeWindow } from '../types/index.js';
 import { checkLimit, checkText, refuse } from './build.js';

@@ -1,0 +1,25 @@
+{
+  "description": "A `query` of only whitespace beside filters is refused, not dropped: the API refuses a blank query whatever comes with it, and one that sent it unchecked would charge for the whole index.",
+  "tool": "sprouts_search",
+  "options": {},
+  "arguments": {
+    "query": " \t ",
+    "filters": {
+      "last_funding_date": {
+        "gte": "now-90d"
+      }
+    }
+  },
+  "response": null,
+  "expected_request": null,
+  "expected_output": {
+    "error": {
+      "code": "invalid_arguments",
+      "field_errors": [],
+      "message": "`query` holds only spaces, which name nothing to search. Put words in it, or leave it out and search by `filters` alone.",
+      "request_id": null,
+      "retry_after": null,
+      "retryable": false
+    }
+  }
+}

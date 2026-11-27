@@ -10,8 +10,27 @@
  *   has not seen still maps, and mapping never throws.
  */
 
+import { ERROR_CODES, STATUS_FALLBACKS, type ErrorCode, type ErrorConcept } from '../generated/error-codes.js';
+
+function isKnownCode(code: string): code is ErrorCode {
+  return Object.hasOwn(ERROR_CODES, code);
+}
+
+/** The concept a code (else its status) maps to, or `undefined` for neither (`spec/error-codes.json`). */
+export function conceptFor(status: number, code: string | undefined): ErrorConcept | undefined {
+  if (code !== undefined && isKnownCode(code)) return ERROR_CODES[code].concept;
+  return STATUS_FALLBACKS[status];
+}
+
 /** Base class for every error this SDK throws. */
 export class SproutsDataError extends Error {
+  /**
+   * The `Idempotency-Key` a keyed call (search, lookups, starting a run or an enrichment job...)
+   * sent on every attempt, else `undefined`. Send it again to repeat the call: the server
+   * recognises it, charges once and starts nothing twice. A new key is a new request.
+   */
+  idempotencyKey: string | undefined;
+
   constructor(message: string, options?: { readonly cause?: unknown }) {
     super(message, options);
     this.name = new.target.name;
@@ -141,6 +160,12 @@ export class APIError extends SproutsDataError {
   readonly retryAfter: number | undefined;
   readonly headers: Readonly<Record<string, string>>;
   readonly body: unknown;
+  /**
+   * The kind of failure in the language-neutral names of `spec/error-codes.json` (`rate_limit`,
+   * `gateway`, ...): by `code`, else by status; `undefined` for a status the table does not name.
+   * The same names both SDKs use, and what decides whether a tool calls an error retryable.
+   */
+  readonly concept: ErrorConcept | undefined;
   /** An answer came back, so the request was sent (mirrors `APIConnectionError`). */
   readonly reachedServer = true as const;
 
@@ -151,6 +176,7 @@ export class APIError extends SproutsDataError {
     super(describe(answer.status, answer.headers, text('code'), text('title'), [text('detail'), text('next_step')], requestId));
     this.status = answer.status;
     this.code = text('code');
+    this.concept = conceptFor(answer.status, this.code);
     this.title = text('title');
     this.detail = text('detail');
     this.nextStep = text('next_step');
@@ -190,12 +216,18 @@ function describe(
   return parts.join(' - ');
 }
 
+/**
+ * The problem's field errors, each a `msg` with its `loc` (`[]`: the whole request). An entry
+ * without a message (a proxy's body, a truncated one) is dropped rather than half-read, so a caller
+ * can rely on both keys, and on `loc` holding only names and indexes.
+ */
 function fieldErrors(raw: unknown): FieldError[] {
   if (!Array.isArray(raw)) return [];
   const out: FieldError[] = [];
   for (const entry of raw as unknown[]) {
-    if (!isRecord(entry) || !Array.isArray(entry['loc']) || typeof entry['msg'] !== 'string') continue;
-    const loc = (entry['loc'] as unknown[]).filter((p): p is string | number => typeof p === 'string' || typeof p === 'number');
+    if (!isRecord(entry) || typeof entry['msg'] !== 'string') continue;
+    const where: unknown = entry['loc'];
+    const loc = (Array.isArray(where) ? (where as unknown[]) : []).filter((p): p is string | number => typeof p === 'string' || typeof p === 'number');
     out.push(typeof entry['type'] === 'string' ? { loc, msg: entry['msg'], type: entry['type'] } : { loc, msg: entry['msg'] });
   }
   return out;
@@ -324,7 +356,10 @@ export class ConcurrencyLimitError extends RateLimitError {}
 /** 501: the server cannot do this yet; the request is not the problem. */
 export class FeatureNotAvailableError extends APIError {}
 
-/** 503: the API or a service behind it is unavailable. Nothing was charged. */
+/**
+ * 503: the API refused the work because it, or a service behind it, is unavailable. The API
+ * answered before doing the work, so nothing was charged. Retried by the client.
+ */
 export class ServiceUnavailableError extends APIError {}
 
 /**
@@ -334,8 +369,27 @@ export class ServiceUnavailableError extends APIError {}
  */
 export class CreditsRefusedError extends ServiceUnavailableError {}
 
-/** 504: the work did not finish in time; abandoned and not charged. */
+/**
+ * 504 `upstream.timeout`: the work did not finish within the request's time budget. Sent by the
+ * API itself; the work may have run part of the way. A keyed call is repeated with its key
+ * (charged once); a call that charges without reading a key (adding or reading a list's items,
+ * an export) is thrown, since it may have been charged. A 504 without this code comes from a
+ * gateway and is a {@link GatewayError}.
+ */
 export class UpstreamTimeoutError extends APIError {}
 
-/** 500: an unexpected server error. */
+/**
+ * 408, 502 or 504 from a gateway in front of the API, not from the API itself. The gateway gave
+ * up waiting, or the API's answer did not reach it, so whether the work ran is unknown: it may
+ * still finish and be charged. The client repeats a free call, and a keyed one with the same
+ * Idempotency-Key (the API recognises the repeat and charges once); any other call is thrown
+ * with a note saying what may already have happened.
+ */
+export class GatewayError extends APIError {}
+
+/**
+ * 500: an unexpected server error, after the work began. A free or keyed call is repeated (a
+ * keyed one with its key, charged once); a call that charges without reading a key is thrown,
+ * since it may have been charged.
+ */
 export class InternalServerError extends APIError {}

@@ -1,4 +1,8 @@
-/** Export jobs, and exporting search rows. Exports are free. */
+/**
+ * Export jobs, and exporting search rows. Following a job and downloading its file are free; an
+ * export charges the lookup price for each record it shows whole that the workspace has not
+ * unlocked in the last 90 days, as a saved list does.
+ */
 
 import { ExportFailedError } from '../core/errors.js';
 import type { RequestOptions } from '../core/transport.js';
@@ -55,8 +59,11 @@ export class SearchExport extends Resource {
   /**
    * Export search rows (up to 50,000), each `{ entity_category, entity_id }`, with the
    * `request_id` of the search they came from: `{ kind: 'file', csv }` at once, or
-   * `{ kind: 'job', job }` for a larger export. Free.
+   * `{ kind: 'job', job }` for a larger export. Charged once per record shown whole and not yet
+   * unlocked; a file says what it cost (`creditsCharged`). It reads no `Idempotency-Key`, so it is
+   * thrown, not repeated, when its work may have run.
    *
+   * @throws {InsufficientCreditsError} Too few credits for the records it would show whole.
    * @throws {InvalidRequestError} Too many rows for one export (`export.too_large`).
    */
   async searchExport(params: SearchExportParams, options?: RequestOptions): Promise<ExportResult> {

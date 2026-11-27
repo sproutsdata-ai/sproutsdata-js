@@ -1,7 +1,7 @@
 /**
  * Enrichment live: jobs, lookups and their refusals through the real backend and ledger.
  *
- * The stack's fake dsp-enrichment answers by its inputs (sproutsdata-py
+ * The stack's fake enrichment service answers by its inputs (sproutsdata-py
  * `e2e/fake_enrichment.py`): a name with `MISSING` is not found, a LinkedIn URL with `CACHED`
  * is already held (and free), an `external_id` with `SLOW` outlasts a lookup, and the cursor
  * `e2e-expired` reads rows that are no longer kept. Prices are the backend's defaults: an
@@ -17,7 +17,7 @@ import { collect } from '../support/rig.js';
 import { client, raw, setting, STACK } from './stack.js';
 
 const ADA = { full_name: 'Ada Example', company_domain: 'example-1.de', external_id: 'row-1' };
-const FOUND = [ADA, { linkedin_url: 'https://www.linkedin.com/in/e2e-cached', external_id: 'CACHED-2' }];
+const FOUND = [ADA, { linkedin_url: 'https://www.linkedin.com/in/e2e-cached', external_id: 'CACHED_2' }];
 const MISSED = { full_name: 'MISSING Person', company_domain: 'example-3.de' };
 const QUICK = { pollIntervalMs: 100 };
 
@@ -42,7 +42,7 @@ describe.skipIf(STACK === undefined)('enrichment, live', () => {
   it('a lookup answers in the call, and one that did not finish becomes a job', async () => {
     const sdk = client();
     const found = await sdk.enrichment.lookup({ items: [ADA, MISSED], fields: ['EMAIL'] });
-    const cut = await sdk.enrichment.lookup({ items: [{ ...ADA, external_id: 'SLOW-1' }], fields: ['EMAIL'] });
+    const cut = await sdk.enrichment.lookup({ items: [{ ...ADA, external_id: 'SLOW_1' }], fields: ['EMAIL'] });
     const ended = await sdk.enrichment.wait(cut.job_id, QUICK);
     expect(found.complete).toBe(true);
     expect(found.results.map((row) => row.outcome)).toEqual(['found', 'not_found']);

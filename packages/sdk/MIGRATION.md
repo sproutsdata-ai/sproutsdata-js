@@ -13,6 +13,7 @@ is now a string) are marked **Behaviour change**.
 
 - [Requirements](#requirements)
 - [The client](#the-client)
+- [API keys](#api-keys)
 - [Paging through results](#paging-through-results)
 - [Search and look-alikes](#search-and-look-alikes)
 - [Entity lookups](#entity-lookups)
@@ -26,6 +27,7 @@ is now a string) are marked **Behaviour change**.
 - [Relationships](#relationships)
 - [Agent runs](#agent-runs)
 - [Errors](#errors)
+- [Retired error codes](#retired-error-codes)
 - [Removed value exports](#removed-value-exports)
 - [Renamed types](#renamed-types)
 - [Tools and adapters](#tools-and-adapters)
@@ -33,6 +35,10 @@ is now a string) are marked **Behaviour change**.
 ## Requirements
 
 Node.js 22.12.0 or later (0.0.1 needed 18). The package still ships both ESM and CommonJS.
+
+The adapters, `@sproutsdata.ai/langchain` and `@sproutsdata.ai/ai-sdk` 0.1, need the same
+Node.js and `sproutsdata` 0.1 (`>=0.1.0 <0.2.0`): they import what 0.0.1 does not have, so
+upgrade the SDK and the adapter together.
 
 ## The client
 
@@ -62,7 +68,8 @@ const client = new SproutsData(); // reads SPROUTSDATA_API_KEY
 ### No `integration` option
 
 The `integration` option, the `client.integration` getter and the `X-SproutsData-Client` header
-they set are gone. The SDK no longer sends that header. Every request carries a `User-Agent` of
+they set are gone, and so is the `X-Dsp-Source: sdk/js` header 0.0.1 sent on every request: the
+API reads neither, and the SDK sends neither. Every request carries a `User-Agent` of
 the form `sproutsdata-js/<version> (<runtime>/<version>; <os>)`.
 
 <!-- snippet: skip -->
@@ -100,6 +107,10 @@ The per-call options (`RequestOptions`) no longer take `headers`. They take `sig
 `timeoutMs`, `maxRetries`, `requestId` (sent as `X-Request-Id`), `idempotencyKey` (for the
 calls that send one), `lastEventId` (for an event stream) and `onResponse`.
 
+**Behaviour change:** `idempotencyKey` must be 1 to 120 letters, digits or `._:-`, as the API
+takes it (0.0.1 took 1 to 255 printable characters, so a key the API refuses failed only on the
+wire); anything else throws `ClientValidationError` before sending.
+
 `onResponse` is new, on the client and per call. It receives the status, the request id, the
 response headers and the rate limit of every successful answer:
 
@@ -123,6 +134,25 @@ import SproutsData from 'sproutsdata';
 // Now
 import { SproutsData } from 'sproutsdata';
 ```
+
+## API keys
+
+Only live keys exist now: a key looks like `sk_dsp_live_…`, and every call with it is charged
+from the workspace's credits. Test keys (`sk_dsp_test_…`) were retired. The client refuses one
+when it is constructed, with a `ClientValidationError` that says so, because the API would only
+answer it with a bare `401`:
+
+<!-- snippet: skip -->
+```ts
+// 0.0.1: a test key's calls were free
+const client = new SproutsData({ apiKey: 'sk_dsp_test_…' });
+
+// Now: throws ClientValidationError ("Test keys ('sk_dsp_test_…') were retired …")
+```
+
+Create a live key in the dashboard, and use a workspace with few credits to try things out.
+`meta.environment` is still in every answer, as the constant `'live'`, and is deprecated; tool
+results no longer carry `environment` at all.
 
 ## Paging through results
 
@@ -182,8 +212,23 @@ in `degradation` instead.
   before sending it: unknown fields, values out of range, closed vocabularies and the
   cross-field rules (for example `query` with `keyword_query`). A request the server would refuse
   throws `ClientValidationError` and nothing is sent.
-- `category: 'auto'` takes only `query`, `mode`, `limit` and `cursor`, and `auto` is its only
-  mode. The 0.0.1 docs asked for `mode: 'auto'` beside it; now you may leave `mode` out.
+- `category: 'auto'` takes only `query`, `mode`, `partial_matches`, `fields`, `limit` and
+  `cursor`, and `auto` is its only mode. The 0.0.1 docs asked for `mode: 'auto'` beside it; now
+  you may leave `mode` out.
+- **Behaviour change:** a search sent without `mode` now runs in `auto`, the API's default: a
+  model turns everything the words ask into filters, billed as an AI search (`search_auto` in
+  `credits.quote`). `fast` reads the words only for what they are about and sets no other
+  filter, so a country or headcount stated only in words is not applied. Code that relied on the
+  old default should pass `mode: 'fast'` and put its constraints in `filters`. **Price:** with the
+  API's built-in prices, `auto` costs 0.595 credits for a page of up to 10 rows against 0.5 in
+  `fast` (19% more), and 0.085 a row beyond that against 0.08 (6% more): a full page of 25 rows is
+  1.87 credits against 1.7. `credits.quote({ operation: 'search_auto' })` says what a deployment
+  charges.
+- **Behaviour change:** a company or person search returns, after the rows meeting every
+  filter, rows meeting only part of it. Such a row has `unmet` and a `match_score` under 1;
+  `total_exact` counts the exact rows, and `total` counts both. Partial rows are charged like any
+  other row, so a search that returns them costs more. Pass `partial_matches: false` for the old
+  behaviour, exact matches only, at the old price.
 - An anchor for `similar` may be a bare domain string: `anchors: ['adyen.com']`.
 - Each document category's `filters` and `sort` are typed for that category.
 
@@ -333,7 +378,9 @@ removed. The SDK has no replacement.
 `filename`, `field_tier`, `row_count`, `skipped`, `credits_charged`, `request_id`). They now
 return an `ExportResult`, tagged by `kind`:
 
-- `{ kind: 'file', csv }`: the CSV text, at once;
+- `{ kind: 'file', csv, creditsCharged, fieldTier, rows, skipped }` (an `ExportFile`): the
+  CSV text, at once, with what 0.0.1 called `credits_charged`, `field_tier`, `row_count` and
+  `skipped` (each `undefined` when the answer did not say);
 - `{ kind: 'job', job }`: a larger export runs as a job. Wait for it with
   `exports.wait(job.job_id)`, then fetch the file with `exports.download(job.job_id)`.
 
@@ -368,15 +415,26 @@ What else changed:
   or `failed`). `exports.wait(jobId, { pollIntervalMs, maxWaitMs }, options)` polls it until it
   is `done`; a failed job throws `ExportFailedError` (`error.job` is its last state), and a
   wait that runs out throws `WaitTimeoutError` (`error.last`). The job goes on server-side
-  either way.
+  either way. A `pollIntervalMs` that is not a positive number, or a `maxWaitMs` that is
+  negative or not finite, throws `ClientValidationError` before the first poll (0.0.1 polled
+  without pause on 0, and for ever on a negative interval); so do `runs.wait` and
+  `enrichment.wait`.
 - `exports.download(jobId)` returns the CSV as a string, with the byte-order mark removed.
 - `lists.export(listId, { offset, limit })` exports part of a list, newest rows first.
 - `searchExport` takes up to 50,000 rows (0.0.1: 1,000).
-- Exports are free.
+- **Behaviour change:** exports charge, as saved lists do (below): a paid workspace pays the
+  lookup price once for each record shown whole that it has not unlocked in the last 90 days. A
+  file says what it cost (`creditsCharged`). An export reads no `Idempotency-Key` and charges
+  before it unlocks the records, so one whose work may have run (a gateway's 502 or 504, a 500,
+  the API's own timeout) is thrown, not repeated: its message says it may have been charged.
 
 ## Saved lists
 
-The list calls now take objects, names are unique, and item batches are capped.
+The list calls now take objects, names are unique, and item batches are capped. Lists need
+their own scopes (`dsp.lists.read` to read, `dsp.lists.write` to change; keys made without
+choosing scopes have both), and a workspace that has bought credits pays the lookup price once
+for each record it sees whole: `addItems` and `items` say what they charged in
+`credits_charged`.
 
 | 0.0.1 | Now |
 |---|---|
@@ -686,12 +744,16 @@ New classes:
 
 | Class | When |
 |---|---|
+| `GatewayError` | 408, 502 or 504 from a gateway in front of the API, not the API itself: the work may still finish and be charged, so only a free or keyed call is repeated |
 | `WorkspaceRequiredError` | 403: the call needs a workspace (a subclass of `PermissionDeniedError`) |
 | `WalletFrozenError` | 402 `credits.wallet_frozen` (a subclass of `InsufficientCreditsError`) |
 | `ListNameTakenError` | 409 `lists.name_taken` (a subclass of `ConflictError`) |
 | `OrgChartCompanyAmbiguousError` | 422 `org_chart.company_ambiguous`, with `candidates` (a subclass of `InvalidRequestError`) |
 | `ExportFailedError` | An export job ended `failed`; `job` is its last state |
 | `RedirectRefusedError` | The server answered with a redirect, which the SDK never follows |
+| `ResultsExpiredError` | 410: a run's or an enrichment job's rows are no longer kept (a subclass of `NotFoundError`) |
+| `ConcurrencyLimitError` | 429 `quota.concurrency_exceeded`: the key already has as many agent runs going as it may (a subclass of `RateLimitError`) |
+| `CreditsRefusedError` | 503 `credits.refused`: the credits ledger refused to hold credits for the work; nothing ran (a subclass of `ServiceUnavailableError`) |
 
 Renamed and reshaped members:
 
@@ -706,6 +768,44 @@ Renamed and reshaped members:
 `RateLimitError` now has `limit`, `window`, `operation` and `scope` getters. Every key failure
 (missing, unknown, revoked, expired) is one `AuthenticationError` (401); a request carrying a
 key and an `Origin` header also answers 401.
+
+**Behaviour change:** a concurrency 429 (`quota.concurrency_exceeded`) and a refused credit
+hold (503 `credits.refused`) are no longer retried: they throw at once, since a repeat cannot help
+(a run takes minutes, so its `Retry-After` rarely frees a slot). 0.0.1 slept the 429's
+`Retry-After` twice before failing.
+
+**Behaviour change:** every error a keyed call throws carries the key it sent
+(`err.idempotencyKey`), and when its retries ran out on work that may have run (no answer, a
+500, the API's own timeout), its message says to send that key again: the server charges a
+repeat with the same key once. A call that reads no key (adding or reading a list's items, an
+export) is not repeated after a 500 or the API's own timeout either, since it charges before it
+unlocks the records.
+
+**Behaviour change:** a code-less 502 was a `ServiceUnavailableError` and a code-less 504 an
+`UpstreamTimeoutError`; both are now `GatewayError`. `UpstreamTimeoutError` is the API's own
+`upstream.timeout`, and `ServiceUnavailableError` a 503. Every `APIError` also has `concept`,
+the kind of failure in the names both SDKs share (`rate_limit`, `gateway`, …).
+
+## Retired error codes
+
+0.0.1 listed codes the API no longer sends. A check against one of these strings never matches
+now; here is what the caller receives instead.
+
+| 0.0.1 code | Now |
+|---|---|
+| `auth.missing_key`, `auth.invalid_key`, `auth.expired`, `auth.browser_origin` | `auth.unauthorized` (401, `AuthenticationError`): every key failure is one answer |
+| `auth.account_exists`, `auth.csrf`, `auth.invalid_credentials`, `auth.mfa_required`, `auth.session_required` | Not sent to an API key: they belong to the dashboard's sign-in |
+| `quota.daily_exhausted`, `quota.monthly_exhausted`, `quota.entity_ceiling` | No daily, monthly or per-entity quota: a call is limited per minute (`quota.burst_exceeded`, 429) and paid in credits (`credits.insufficient`, 402) |
+| `rate_limits.unavailable` | `service.unavailable` (503, `ServiceUnavailableError`) |
+| `idempotency.fingerprint_mismatch`, `idempotency.in_flight` | The feature's own `*.idempotency_key_reused` (409, `ConflictError`), such as `enrichment.idempotency_key_reused` |
+| `enrichment.unavailable`, `feedback.unavailable`, `journey.unavailable`, `lists.unavailable` | `service.unavailable` or `upstream.unavailable` (503, `ServiceUnavailableError`) |
+| `export.not_enabled` | Exports are on for every workspace |
+| `credits.unknown_action` | `request.invalid` (422): `credits.quote()` takes an `operation` from a fixed list |
+| `payment.declined`, `payment.forbidden`, `payment.invalid_amount`, `payment.no_method`, `payment.topup_not_found`, `payment.unavailable` | Buying credits is dashboard-only: an API key gets `credits.purchase_not_allowed` (403, `PermissionDeniedError`) |
+| `referral.already_claimed`, `referral.impersonation_cannot_claim` | Referrals are dashboard-only and not served to an API key |
+| `cohort.impersonation_cannot_answer`, `cohort.not_offered` | Not served: the feature is gone |
+
+Branch on `err.code` with the codes in `spec/error-codes.json`, or on the class.
 
 ## Removed value exports
 
@@ -772,6 +872,17 @@ The type names now follow the API's own models. Where an old name has a clear re
 | `MemberResolveResponse`, `MemberState` | Removed with `members` |
 | `Problem` | Removed: read `APIError.extra` and `APIError.body` |
 | `Entities`, `Credits`, `History`, `Runs`, `Feedback`, `FeedbackVotes`, `Lists`, `Members`, `Relationships`, `OrgChart` (resource classes) | No longer exported as types; use the client's properties |
+
+Also removed, with no single replacement (the API no longer has what they described, or now
+types it as a plain string or an inline object on the model that uses it): `AgentRunCategory`,
+`AgentRunEventType`, `AgentRunRow`, `AgentRunStatus`, `AskRoute`, `ColumnSource`,
+`ComparisonSideEnvelope`, `DiscoverSortField`, `DocumentCategory`, `DrillDownEnvelope`,
+`EnvelopeColumn`, `FeedbackListParams`, `FeedbackSentiment`, `FeedbackStatus`,
+`FeedbackSubject`, `FeedbackSubjectKind`, `FeedbackTag`, `FeedbackTargetKind`, `FieldTier`,
+`FilterValueItem`, `FilterValuesLevel`, `HistoryActionType`, `HistoryRunStatus`,
+`InstitutionType`, `OrgChartCity`, `OrgChartCountry`, `OrgChartDepartment`, `OrgChartState`,
+`OrgChartSubDepartment`, `ParseSseOptions`, `RelationKind`, `SnapshotState`, `SseMessage`,
+`VoteLevel` and `VoteValue`. Read the field from the response model instead.
 
 ## Tools and adapters
 

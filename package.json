@@ -12,7 +12,7 @@
   ],
   "//": "`npm run check` is the whole gate CI runs. The live suites (`e2e`, `e2e:examples`) and `smoke:live` need the local stack or a deployment, so they are not part of it.",
   "scripts": {
-    "check": "npm run build && npm run lint && npm run lint:layers && npm run check:generated && npm run typecheck && npm run test && npm run check:package && npm run check:consumer && npm run check:size && npm run smoke:dist && npm run smoke:edge && npm run check:docs && npm run check:links && npm run audit",
+    "check": "npm run build && npm run lint && npm run lint:layers && npm run check:generated && npm run typecheck && npm run test && npm run check:package && npm run check:consumer && npm run check:size && npm run smoke:dist && npm run smoke:edge && npm run check:docs && npm run check:links && npm run check:public-text && npm run audit",
     "lint": "eslint .",
     "lint:layers": "depcruise packages --config .dependency-cruiser.cjs",
     "typecheck": "npm run typecheck -w packages/sdk -w packages/langchain -w packages/ai-sdk && tsc -p examples/tsconfig.json",
@@ -24,6 +24,7 @@
     "check:size": "size-limit",
     "check:links": "node scripts/check-links.mjs",
     "check:docs": "node scripts/check-doc-snippets.mjs",
+    "check:public-text": "node scripts/check-public-text.mjs",
     "smoke:dist": "node scripts/smoke-dist.mjs",
     "smoke:edge": "node scripts/smoke-edge.mjs",
     "audit": "npm audit --omit=dev",

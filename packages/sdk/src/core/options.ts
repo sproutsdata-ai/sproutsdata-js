@@ -63,7 +63,7 @@ export function resolveOptions(options: ClientOptions = {}): ResolvedOptions {
   };
 }
 
-/** The key, if it is one dsp-auth could have issued; refused otherwise. The key is never echoed. */
+/** The key, if it is one the API could have issued; refused otherwise. The key is never echoed. */
 export function checkApiKey(key: unknown): string {
   if (typeof key !== 'string' || key === '') {
     throw new ClientValidationError(
@@ -113,6 +113,31 @@ export function checkTimeout(timeoutMs: unknown): number {
     throw new ClientValidationError(`timeoutMs must be a positive number of milliseconds: ${String(timeoutMs)}.`);
   }
   return timeoutMs;
+}
+
+/**
+ * A wait's pacing: a finite, positive poll interval, and a limit of zero or more milliseconds,
+ * or `null` for none. A poll interval of zero or less would poll without pause, and a limit that
+ * is not a finite number would never be reached.
+ */
+export function checkWait(pollIntervalMs: unknown, maxWaitMs: unknown): void {
+  if (!isFiniteNumber(pollIntervalMs) || pollIntervalMs <= 0) {
+    throw new ClientValidationError(`pollIntervalMs must be a positive number of milliseconds: ${shown(pollIntervalMs)}.`);
+  }
+  if (maxWaitMs !== null && (!isFiniteNumber(maxWaitMs) || maxWaitMs < 0)) {
+    throw new ClientValidationError(
+      `maxWaitMs must be zero or more milliseconds, or null to wait for as long as it takes: ${shown(maxWaitMs)}.`,
+    );
+  }
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
+/** A refused value as a message shows it: a number as it prints, anything else as JSON. */
+function shown(value: unknown): string {
+  return typeof value === 'number' || value === undefined ? String(value) : JSON.stringify(value);
 }
 
 /** Zero or more retries. */

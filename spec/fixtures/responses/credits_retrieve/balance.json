@@ -1,7 +1,7 @@
 {
   "body": {
-    "available": 951.405,
-    "balance": 952.405,
+    "available": 950.43,
+    "balance": 951.43,
     "debt": 0.0,
     "has_paid": false,
     "rate_card": "2026-10-model-a",
@@ -13,8 +13,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1998",
-    "ratelimit-reset": "51",
-    "x-request-id": "af83cd8d7b5b498e961851f15856b793"
+    "ratelimit-reset": "37",
+    "x-request-id": "539a2d588d2c41e589f7e544336f5264"
   },
   "operation": "credits_retrieve",
   "request": {

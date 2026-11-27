@@ -10,7 +10,7 @@
 //   are open (`'a' | 'b' | (string & {})`): a member this release does not know still
 //   type-checks, as it still parses. An object the schema leaves open gets an
 //   `unknown` index signature.
-// - Response form, from prism's records (origin `records`): any property may be absent,
+// - Response form, from the entity records (origin `records`): any property may be absent,
 //   except `id` and the flexible lists, which the SDK normalises to arrays.
 // - Request form: optional unless the schema requires it, closed enums, and readonly
 //   everywhere, so a caller can pass a frozen value.

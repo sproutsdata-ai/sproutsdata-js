@@ -32,14 +32,14 @@
     "body": {
       "results": [
         {
-          "id": "stripe.com",
+          "id": "d1_8DCBNquClQgKBYcJXLUFngybKsuBobzCiyY0fBY7",
           "category": "company",
           "score": 0.97,
           "account_name": "Stripe",
           "domain": "stripe.com"
         },
         {
-          "id": "mollie.com",
+          "id": "d1_xGMgcFFK7UsoMiE3-ueilTh2Qix3DQlD5_Usq50i",
           "category": "company",
           "score": 0.874,
           "account_name": "Mollie",
@@ -50,7 +50,7 @@
           "linkedin_url": "https://www.linkedin.com/company/mollie"
         },
         {
-          "id": "unzer.com",
+          "id": "d1_2BLXp-1KxDYBMvL4w_qDj58A3yoMJEBhENzjPtgT",
           "category": "company",
           "score": 0.861,
           "account_name": "Unzer",
@@ -63,7 +63,7 @@
       "total": 214,
       "total_is_estimate": true,
       "has_more": true,
-      "next_cursor": "eyJvIjozfQ.s2b7",
+      "next_cursor": "cursor-f52e91895b2dc8502335e160",
       "resolved_search": null,
       "suggestion": null,
       "attribution": [
@@ -128,7 +128,7 @@
       "filters": {},
       "source": "none"
     },
-    "next_cursor": "eyJvIjozfQ.s2b7",
+    "next_cursor": "cursor-f52e91895b2dc8502335e160",
     "request_id": "req_77d2b9e104",
     "results": [
       {
@@ -137,7 +137,7 @@
         "country": "Netherlands",
         "domain": "mollie.com",
         "employee_count": 870,
-        "id": "mollie.com",
+        "id": "d1_xGMgcFFK7UsoMiE3-ueilTh2Qix3DQlD5_Usq50i",
         "industry": "Financial Services",
         "linkedin_url": "https://www.linkedin.com/company/mollie",
         "lookup": {
@@ -152,7 +152,7 @@
         "country": "Germany",
         "domain": "unzer.com",
         "employee_count": 1100,
-        "id": "unzer.com",
+        "id": "d1_2BLXp-1KxDYBMvL4w_qDj58A3yoMJEBhENzjPtgT",
         "industry": "Financial Services",
         "lookup": {
           "by": "domain",

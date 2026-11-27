@@ -1,12 +1,14 @@
 /**
- * Waiting for work that runs server-side (an agent run, an export job): poll until it
- * settles, waiting longer between polls up to a cap, and give up in time. The multiplier, the
- * cap and the defaults are the route's entry in `spec/defaults.json` (`runWait`, `exportWait`),
- * as the Python SDK paces the same waits.
+ * Waiting for work that runs server-side (an agent run, an export or enrichment job): poll
+ * until it settles, waiting longer between polls up to a cap, and give up in time. The
+ * multiplier, the cap and the defaults are the route's entry in `spec/defaults.json`
+ * (`runWait`, `exportWait`, `enrichmentWait`), as the Python SDK paces the same waits. A
+ * caller's poll interval and limit are checked before the first poll.
  */
 
 import type { Clock } from './clock.js';
 import { WaitTimeoutError } from './errors.js';
+import { checkWait } from './options.js';
 
 /** One wait: how to read the work, when it has settled, and how long to keep at it. */
 export interface Polling<T> {
@@ -26,6 +28,7 @@ export interface Polling<T> {
 
 /** Poll until `settled`, and return that state; throw `WaitTimeoutError` (with `last`) at the limit. */
 export async function waitFor<T>(clock: Clock, polling: Polling<T>): Promise<T> {
+  checkWait(polling.pollIntervalMs, polling.maxWaitMs);
   const started = clock.now();
   let delay = polling.pollIntervalMs;
   for (;;) {

@@ -6,7 +6,7 @@ import { ClientValidationError, CursorExpiredError, PaginationDepthExceededError
 import { searchBody } from '../../src/requests/search.js';
 import { lookupRef } from '../../src/resources/helpers.js';
 import { Search } from '../../src/resources/search.js';
-import type { SearchEnvelope, SearchParams } from '../../src/types/index.js';
+import type { SearchEnvelope, SearchHit, SearchParams } from '../../src/types/index.js';
 import { assertValidRequest, recorded, recordedBody, respond } from '../support/answers.js';
 import { collect, rig } from '../support/rig.js';
 
@@ -16,6 +16,9 @@ function page(rows: number, cursor: string | null): Record<string, unknown> {
   const first = COMPANY.results[0];
   return { ...COMPANY, results: Array.from({ length: rows }, (_, i) => ({ ...first, id: `d-${String(i)}.de` })), next_cursor: cursor, has_more: cursor !== null };
 }
+
+/** A search row with only what a test names: no score, and none of the partial-match fields. */
+const row = (fields: Pick<SearchHit, 'id' | 'category'> & Record<string, unknown>): SearchHit => ({ score: null, matched_filters: null, match_score: null, unmet: null, ...fields });
 
 async function refused(params: unknown, match: RegExp | string): Promise<void> {
   const r = rig([]);
@@ -32,7 +35,7 @@ describe('search', () => {
     assertValidRequest('search', r.body());
   });
 
-  it('S1: auto takes only query, mode, limit and cursor', async () => {
+  it('S1: auto takes only query, mode, fields, limit and cursor', async () => {
     const r = rig([recorded('search', 'auto')]);
     const answer = await new Search(r.transport).search({ category: 'auto', query: 'robotics in Germany', limit: 2 });
     expect(r.body()).toEqual({ category: 'auto', query: 'robotics in Germany', limit: 2 });
@@ -46,6 +49,69 @@ describe('search', () => {
     await refused({ category: 'company', filters: { nope: {} } }, 'filters.nope: not a field');
     await refused({ category: 'fish', query: 'x' }, 'category must be one of');
     await refused({ category: 'company', query: 'x', limit: 101 }, 'limit: must be at most 100');
+    await refused({ category: null, query: 'x' }, 'category must be one of');
+  });
+
+  it.each([
+    ['company', '   ', '`query` cannot be blank; send words, or leave it out'],
+    ['person', '\t\n', '`query` cannot be blank; send words, or leave it out'],
+    ['patent', ' ', '`query` cannot be blank; send words, or leave it out'],
+    ['company', '\u001c\u3000', '`query` cannot be blank; send words, or leave it out'],
+    ['auto', '  ', '`query` cannot be blank; send the question in words'],
+  ])('S2: a blank query is refused even beside filters (%s, %j)', async (category, query, message) => {
+    // Spaces alone name nothing: the API refuses them, and one that took them would answer (and
+    // charge for) the whole index. Blank means Python's whitespace, as the API strips it.
+    await refused({ category, query }, message);
+    if (category === 'company' || category === 'person') await refused({ category, query, filters: { revenue: { gte: 1 } } }, message);
+  });
+
+  it('S2: a zero-width no-break space is a word, as the API reads it', async () => {
+    const r = rig([recorded('search', 'company')]);
+    await new Search(r.transport).search({ query: '\ufeff' });
+    expect(r.body()).toEqual({ category: 'company', query: '\ufeff' });
+  });
+
+  it('S12: fields and lock_filters are sent as the server reads them', async () => {
+    const r = rig([recorded('search', 'company'), recorded('search', 'auto'), recorded('similar', 'company')]);
+    const search = new Search(r.transport);
+    await search.search({ query: 'x', lock_filters: true, fields: ['domain', 'account_name'] });
+    await search.search({ category: 'auto', query: 'robotics in Germany', fields: ['domain'] });
+    await search.similar({ anchors: ['stripe.com'], fields: ['domain'] });
+    expect(r.body(0)).toEqual({ category: 'company', query: 'x', lock_filters: true, fields: ['domain', 'account_name'] });
+    expect((r.body(1) as { fields: string[] }).fields).toEqual(['domain']);
+    expect((r.body(2) as { fields: string[] }).fields).toEqual(['domain']);
+    ['search', 'search', 'similar'].forEach((op, i) => {
+      assertValidRequest(op, r.body(i));
+    });
+    await refused({ category: 'auto', query: 'x', lock_filters: true }, "category 'auto' takes only");
+  });
+
+  it('S13: partial_matches is sent as given, and read back on each row', async () => {
+    const r = rig([recorded('search', 'partial_matches'), recorded('search', 'auto')]);
+    const search = new Search(r.transport);
+    const page = await search.search({ query: 'payments', partial_matches: true });
+    await search.search({ category: 'auto', query: 'payments in Luxembourg', partial_matches: false });
+    expect((r.body(0) as { partial_matches: boolean }).partial_matches).toBe(true);
+    expect((r.body(1) as { partial_matches: boolean }).partial_matches).toBe(false);
+    [0, 1].forEach((i) => {
+      assertValidRequest('search', r.body(i));
+    });
+    const [exact, partial] = [page.results[0], page.results.at(-1)];
+    expect([exact?.match_score, exact?.unmet]).toEqual([1, null]);
+    expect(partial?.unmet).toEqual([{ filter: 'geo', state: 'near', matched: ['Belgium'] }]);
+    expect([page.total, page.total_exact]).toEqual([40, 2]);
+  });
+
+  it('S13: a document search cannot ask for partial matches', async () => {
+    await refused({ category: 'patent', query: 'solid state battery', partial_matches: false }, 'partial_matches is for company and person searches');
+  });
+
+  it('a per-call timeout is a finite, positive number', async () => {
+    const r = rig([]);
+    for (const timeoutMs of [Number.NaN, Number.POSITIVE_INFINITY, 0]) {
+      await expect(new Search(r.transport).search({ query: 'x' }, { timeoutMs })).rejects.toThrow('timeoutMs must be a positive number of milliseconds');
+    }
+    expect(r.sent).toHaveLength(0);
   });
 
   it.each(['company', 'person', 'patent', 'auto'])('S2: deep is refused and says where its work went (%s)', async (category) => {
@@ -106,8 +172,8 @@ describe('search', () => {
   });
 
   it('an empty answer reads why, what to leave out, and which filters are thin', async () => {
-    // dsp-backend #179 (no_match, relax, sparse filters), #180 (balance), #182 (environment
-    // deprecated, and absent from the builds before it).
+    // An empty answer says why (no_match, relax, sparse filters), the balance comes back, and
+    // `environment` is deprecated (and absent from older builds).
     const { environment: _dropped, ...meta } = COMPANY['meta'] as Record<string, unknown>;
     const body = {
       ...COMPANY,
@@ -148,15 +214,15 @@ describe('search', () => {
     const person = recordedBody<SearchEnvelope>('search', 'person').results[0];
     const patent = recordedBody<SearchEnvelope>('search', 'patent').results[0];
     if (company === undefined || person === undefined || patent === undefined) throw new Error('fixtures have rows');
-    // A company row's id is its sealed index id (dsp-backend 5e60c47); the lookup uses its domain.
+    // A company row's id is its sealed index id; the lookup uses its domain.
     expect(lookupRef(company)).toEqual({ category: 'company', by: 'domain', value: company['domain'] });
     expect(lookupRef(person)).toEqual({ category: 'person', by: 'li_url', value: 'https://www.linkedin.com/in/alex-example-0' });
     expect(lookupRef(patent)).toEqual({ category: 'patent', by: undefined, value: patent.id });
-    expect(lookupRef({ id: 'd1_abc', category: 'news_article', score: null })).toEqual({ category: 'news_article', by: 'id', value: 'd1_abc' });
-    expect(lookupRef({ id: 'c456', category: 'person', score: null })).toBeUndefined();
-    expect(lookupRef({ id: '0f7a39dd2e81c6b4', category: 'company', score: null, linkedin_url: 'https://www.linkedin.com/company/x' })).toEqual({ category: 'company', by: 'li_url', value: 'https://www.linkedin.com/company/x' });
-    expect(lookupRef({ id: '0f7a39dd2e81c6b4', category: 'company', score: null })).toBeUndefined();
-    expect(lookupRef({ id: '0123456789abcdef', category: 'trend', score: null })).toBeUndefined();
+    expect(lookupRef(row({ id: 'd1_abc', category: 'news_article' }))).toEqual({ category: 'news_article', by: 'id', value: 'd1_abc' });
+    expect(lookupRef(row({ id: 'c456', category: 'person' }))).toBeUndefined();
+    expect(lookupRef(row({ id: '0f7a39dd2e81c6b4', category: 'company', linkedin_url: 'https://www.linkedin.com/company/x' }))).toEqual({ category: 'company', by: 'li_url', value: 'https://www.linkedin.com/company/x' });
+    expect(lookupRef(row({ id: '0f7a39dd2e81c6b4', category: 'company' }))).toBeUndefined();
+    expect(lookupRef(row({ id: '0123456789abcdef', category: 'trend' }))).toBeUndefined();
   });
 });
 
@@ -166,6 +232,16 @@ describe('search pages', () => {
     const rows = await collect(new Search(r.transport).iterSearch({ query: 'x', limit: 2 }));
     expect(rows.map((row) => row.id)).toEqual(['d-0.de', 'd-1.de', 'd-0.de']);
     expect(r.sent.map((s) => (s.body as { cursor?: string }).cursor)).toEqual([undefined, 'c1', 'c2']);
+  });
+
+  it("S11: a caller's key and request id go with the first page only", async () => {
+    const r = rig([respond('search', 200, page(2, 'c1')), respond('search', 200, page(1, null))]);
+    await collect(new Search(r.transport).iterSearch({ query: 'x', limit: 2 }, { idempotencyKey: 'k-1', requestId: 'req_1' }));
+    const [first, later] = r.sent;
+    expect([first?.headers.get('idempotency-key'), first?.headers.get('x-request-id')]).toEqual(['k-1', 'req_1']);
+    expect(later?.headers.get('idempotency-key')).not.toBe('k-1');
+    expect(later?.headers.get('idempotency-key')).toMatch(/^sdk-/);
+    expect(later?.headers.has('x-request-id')).toBe(false);
   });
 
   it('S11: maxResults asks the last page only for the rows still wanted', async () => {

@@ -57,7 +57,7 @@ else its LinkedIn page; a person by their LinkedIn URL; a document by its
 
 | | |
 |---|---|
-| `search`, `iterSearch` | Companies, people and seven document corpora; `fast` or `auto`. [Quickstart](docs/quickstart.md), [Filters](docs/filters.md), [Pagination](docs/pagination.md) |
+| `search`, `iterSearch` | Companies, people and seven document corpora; `auto` (the default) or `fast`; exact and partial matches. [Quickstart](docs/quickstart.md), [Filters](docs/filters.md), [Pagination](docs/pagination.md) |
 | `similar`, `iterSimilar` | Look-alike companies from one or more anchors |
 | `filterValues`, `documentFilterValues`, `sorts`, `coverage` | The filter vocabularies, the sort catalogue and what the index holds; free. [Sorting](docs/sorting.md) |
 | `entities.*` | Full records, one method per category; values that matched nothing are reported, not dropped |
@@ -65,7 +65,7 @@ else its LinkedIn page; a person by their LinkedIn URL; a document by its
 | `orgChart.*` | A company's people counted by department, seniority and place, and the people one count holds. [Org charts](docs/org-chart.md) |
 | `enrichment.*` | Emails and phones for people, domains, phones and LinkedIn pages for companies: a lookup in the call, or a job. [Enrichment](docs/enrichment.md) |
 | `runs.*` | Agents: start an agent run, follow it, read it. [Agent runs](docs/runs.md) |
-| `lists.*`, `searchExport`, `exports.*` | Saved lists, and CSV export as a file or a job. [Saved lists](docs/lists.md) |
+| `lists.*`, `searchExport`, `exports.*` | Saved lists, and CSV export as a file or a job; whole records are paid for once. [Saved lists](docs/lists.md) |
 | `credits.*`, `history.*` | The balance, the ledger, the call history and daily totals; free. [Credits and usage](docs/usage.md) |
 | `feedback.*` | Reports and votes on answers; free. [Feedback](docs/feedback.md) |
 

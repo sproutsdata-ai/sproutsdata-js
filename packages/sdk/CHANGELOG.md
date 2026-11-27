@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.1.0 — Unreleased
 
-The SDK realigned to the new Sprouts Data Platform backend. **Breaking** for
+The SDK realigned to the new Sprouts Data Platform API. **Breaking** for
 code written against the published `0.0.1`: [MIGRATION.md](MIGRATION.md) shows
 every changed call with its replacement.
 
@@ -12,8 +12,7 @@ every changed call with its replacement.
   server refuses any key sent with an `Origin` header.
 - The `integration` option and the `X-SproutsData-Client` and `X-Dsp-Source`
   headers, which the backend no longer reads.
-- `client.agents`, `credits.usage()` and `members.resolve()`, which the backend
-  does not serve; agent runs are `client.runs`.
+- `credits.usage()` and `members.resolve()`, which the API does not serve.
 - Test keys, which the backend retired: keys look like `sk_dsp_live_…`, and a
   `sk_dsp_test_…` key throws `ClientValidationError` saying so. Tool results no
   longer carry `environment`, and `meta.environment` is a deprecated constant
@@ -27,8 +26,8 @@ every changed call with its replacement.
 ### Changed
 
 - **Search** covers every category (or `auto`, which lets the question choose)
-  and the `fast` and `auto` modes (both read the words into filters; `auto` is
-  billed as an AI search); document categories take their own
+  and the `auto` and `fast` modes (see below for what each reads); document
+  categories take their own
   filters and refuse company ones. Billing is per search session, and
   `meta.credits_charged` is what each page cost. `iterSearch()` walks the pages.
 - **Lookups** default to `by: 'auto'`; company and person lookups apply `fields`
@@ -66,10 +65,78 @@ every changed call with its replacement.
 - **`credits.quote()`** takes `operation: 'enrichment'` with `fields` (each field at its
   own price, for up to 10,000 records); `fields` for another operation, an unknown or
   repeated field, and a `lookup` quote over 1,000 records are refused locally.
-- **Billed calls carry an idempotency key** (dsp-backend DSP-449): search, look-alikes,
-  entity lookups, relationships and org charts send a generated `Idempotency-Key`, so one
-  that timed out, lost its connection after sending, or met a 502 or 408 is retried with
-  the same key and charged once. It used to be thrown with `reachedServer: true`.
+- **Billed calls carry an idempotency key**: search, look-alikes, entity lookups,
+  relationships and org charts send a generated `Idempotency-Key` (or yours, in
+  `options.idempotencyKey`), so one that timed out, lost its connection after sending, or
+  met a gateway's 408, 502 or 504 is retried with the same key and charged once. It used to
+  be thrown with `reachedServer: true`. A page walk sends your key and request id with its
+  first page only: each later page is its own call, with its own key. Your key must be 1 to
+  120 letters, digits or `._:-`, as the API takes it (0.0.1 took 1 to 255 printable
+  characters); anything else throws `ClientValidationError` before sending.
+- **A gateway's answer is not the API's**: a 408, 502 or 504 without the API's code
+  throws `GatewayError` (it used to be `ServiceUnavailableError` or `UpstreamTimeoutError`,
+  whose "nothing was charged" only the API can promise). It is repeated where a repeat is
+  free or carries its key; any other call throws with a note saying what may already have
+  happened. The API's own 504 (`upstream.timeout`) is still `UpstreamTimeoutError`; like a
+  500, it is not repeated for a list create or delete, nor for a call that charges before it
+  unlocks (see "Whole records are paid for once" below).
+- **Tool errors** say `retryable` by the error's `concept`, so a refused credit hold and a
+  concurrency limit are no longer offered to a model as retryable. Every tool is charged and
+  calling one again sends a new request with a new key, so nothing whose work may have run is
+  retryable either: a timeout or dropped connection after sending, a gateway's answer, a 500
+  or the API's own timeout. Their message says a repeat can be charged again. A redirect (the base URL
+  is not the API's) is thrown to the application however the fetch reports it, and invalid
+  `Toolset` settings throw `ClientValidationError`.
+- **Look-alike tool**: a result row is recognised as one of the anchors by its own
+  `domain` only (a company row's `id` is a sealed reference, not its domain), and
+  `anchors_removed` names it by that domain.
+- **Field errors** keep every entry the server gave a message; one without a `loc` reads
+  as the whole request (`loc: []`).
+
+### Changed because the API changed
+
+The API changed these after the rest of this release was written; the SDK follows it.
+
+- **A search without `mode` runs in `auto`**, the API's new default: a model turns
+  everything the words ask into filters, billed as an AI search (`search_auto` in
+  `credits.quote()`). `fast` now reads the words only for what they are about
+  (keywords, a description matched by meaning, people's titles or skills; a
+  document's topic) and sets no other filter, so hard constraints belong in
+  `filters`. The SDK sends no mode unless you pass one, so it follows the API; the
+  search tool and the LangChain retriever still send `fast` unless told otherwise.
+  **Price:** with the API's built-in prices, `auto` costs 0.595 credits for a page of up
+  to 10 rows against 0.5 in `fast` (19% more), and 0.085 a row beyond that against 0.08
+  (6% more): a full page of 25 rows is 1.87 credits against 1.7. Pass `mode: 'fast'` to
+  keep the old price; `credits.quote({ operation: 'search_auto' })` says what a deployment
+  charges.
+- **Partial matches.** A company or person search returns, after the rows meeting
+  every filter, the rows meeting part of it: each row has `matched_filters`,
+  `match_score` and, on a partial row, `unmet` (`UnmetFilter`); a page has
+  `total_exact`, and `total` counts both. `search()` and `iterSearch()` take
+  `partial_matches` (`false` for exact matches only; refused locally for document
+  categories, as the API refuses it). Partial rows are charged like any other row, so a
+  search that returns them costs more: send `partial_matches: false` to pay only for
+  exact matches. The search tool keeps the three fields on a partial row (one with
+  `unmet`, or a `match_score` below 1) whatever the projection, returns `total_exact`,
+  adds a `partial_rows` caveat (without the exact count when the API gave none), and
+  takes `partial_matches`.
+- **Whole records are paid for once.** A workspace that has bought credits sees each
+  record whole in a lookup, a saved list or an export, and pays the lookup price the
+  first time, unlocked for 90 days by any of those routes; others see the search-row
+  fields, free. `AddItemsResponse` and `ListItemsResponse` carry `credits_charged`,
+  and an export file is an `ExportFile` with `creditsCharged`, `fieldTier`, `rows`
+  and `skipped`, read from the answer's headers (`ExportJob` names the other
+  variant). Adding list items, reading them and both exports read no
+  `Idempotency-Key` and charge before they unlock the records, so they are not
+  repeated when their work may have run: a gateway's answer throws `GatewayError`, a
+  500 `InternalServerError` and the API's own timeout `UpstreamTimeoutError`, each
+  saying the call may have been charged (a repeat could charge the same records
+  again). A 503 or a 429, answered before any work begins, is still retried.
+- **Lists have their own scopes**: `dsp.lists.read` to read, `dsp.lists.write` to
+  change. Keys made without choosing scopes get both.
+- `re_enrich` says which repeats are free: a value already found for the same
+  LinkedIn profile or Sprouts record. A row sent with only a name and a company is
+  looked up, and charged, each time.
 
 ### Added
 
@@ -100,15 +167,26 @@ every changed call with its replacement.
   carries one, and a company search row's `id` is one). Billed per page that lists
   anyone.
 - `ResultsExpiredError` (410, a `NotFoundError`: a run's or an enrichment job's rows are no
-  longer kept), `ConcurrencyLimitError` (a `RateLimitError`) and `CreditsRefusedError` (a
-  `ServiceUnavailableError`).
-- The types of the API at dsp-backend sd-qa `ec23ad9`: the new document and trend filters,
+  longer kept), `ConcurrencyLimitError` (a `RateLimitError`), `CreditsRefusedError` (a
+  `ServiceUnavailableError`) and `GatewayError`.
+- `APIError.concept`: the kind of failure in the names both SDKs share (`rate_limit`,
+  `gateway`, ...), as the Python SDK's `APIStatusError.concept` gives it.
+- `SproutsDataError.idempotencyKey`: the key a keyed call sent, on whatever it throws. When
+  its retries run out on work that may have run, the message says so; send the same key to
+  repeat the call, charged once and starting nothing twice (a new key is a new request).
+- Refused locally, as the API refuses them: a `query` of only whitespace (an older API
+  charged it and answered with the whole index), `category: null`, a per-call
+  `timeoutMs` or `maxRetries` the client itself would refuse, and a `wait` whose
+  `pollIntervalMs` is not a positive number or whose `maxWaitMs` is negative or not
+  finite (a zero interval polled without pause, a negative one for ever). `category: 'auto'` takes
+  `fields`.
+- The types of the current API: the new document and trend filters,
   `lock_filters` and `fields` on the search bodies, `resolved_search.read_as` and
   `anchor_matches`, and the enrichment, org chart people and credit purchase types.
   Generic backend names carry their feature (`EnrichmentJob`, `OrgChartPlacement`,
   `CreditPurchase`, ...).
 
-## 0.0.1
+## 0.0.1 — 2026-10-14
 
 The first public release of `sproutsdata`, the official JavaScript / TypeScript
 SDK for the Sprouts Data API. Until 1.0, a minor version may include breaking

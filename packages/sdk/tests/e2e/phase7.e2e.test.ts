@@ -9,7 +9,7 @@ import { collect } from '../support/rig.js';
 import { client, raw, setting, STACK } from './stack.js';
 
 /**
- * A report once the history has recorded its subject: dsp-backend writes history rows in
+ * A report once the history has recorded its subject: the API writes history rows in
  * background batches after the answer, so a report on a request made a moment ago answers
  * `feedback.subject_not_found` until the batch lands.
  */
@@ -68,10 +68,14 @@ describe.skipIf(STACK === undefined)('phase 7, live', () => {
     expect(canAfford(balance, 0.5)).toBe(true);
   });
 
-  it('a quote is what the meter then charges', async () => {
+  // A search sent without `mode` is read in `auto` mode, and quoted as `search_auto`.
+  it.each([
+    ['search_auto', undefined],
+    ['search', 'fast'],
+  ] as const)('a quote is what the meter then charges (%s)', async (operation, mode) => {
     const sdk = client();
-    const quote = await sdk.credits.quote({ operation: 'search', rows: 1 });
-    const page = await sdk.search({ query: 'robotics', limit: 1 });
+    const quote = await sdk.credits.quote({ operation, rows: 1 });
+    const page = await sdk.search({ query: 'robotics', category: 'company', limit: 1, ...(mode === undefined ? {} : { mode }) });
     expect(quote.basis).toBe('page');
     // `available` and `covered` rest on a balance read moments ago: null on a cold cache.
     if (quote.available !== null) expect(quote.covered).toBe(quote.available >= quote.credits);
@@ -94,7 +98,7 @@ describe.skipIf(STACK === undefined)('phase 7, live', () => {
   });
 
   it('a retired test key is refused by the server too', async () => {
-    // The SDK refuses `sk_dsp_test_` before sending (`checkApiKey`); dsp-auth refuses one at
+    // The SDK refuses `sk_dsp_test_` before sending (`checkApiKey`); the API refuses one at
     // exchange, which reaches the caller as a bare 401.
     const answer = await fetch(`${setting('SPROUTSDATA_E2E_BASE_URL')}/v1/credits`, {
       headers: { 'X-API-Key': 'sk_dsp_test_' + 'retired-e2e-key' },

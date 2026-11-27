@@ -25,7 +25,7 @@
             "latency_ms": 840
           }
         ],
-        "next_cursor": "CURSOR_H"
+        "next_cursor": "cursor-c0830234cb4b67b1e17854ac"
       }
     },
     {
@@ -57,7 +57,7 @@
     "sent": [
       {},
       {
-        "cursor": "CURSOR_H"
+        "cursor": "cursor-c0830234cb4b67b1e17854ac"
       }
     ]
   }

@@ -1,27 +1,27 @@
 {
   "body": {
-    "created_at": "2026-11-24T09:06:08.763695Z",
-    "created_by": "user:1",
+    "created_at": "2026-11-26T20:16:22.679948Z",
+    "created_by": "user:2",
     "entity_category": "company",
-    "id": "7ac1c766-f61f-494d-a4c9-2b959bd26ee4",
+    "id": "8b226a26-943b-42f9-87ce-c242ececb798",
     "item_count": 0,
-    "name": "E2E prospects 433c0afd (renamed)",
-    "updated_at": "2026-11-24T09:06:08.795971Z"
+    "name": "E2E prospects 850eb46f (renamed)",
+    "updated_at": "2026-11-26T20:16:22.714727Z"
   },
   "headers": {
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "52",
-    "x-request-id": "65f4535bc3ff431f9bac3b5305257f7e"
+    "ratelimit-reset": "38",
+    "x-request-id": "e53deeedf7da487889d555415ed63e40"
   },
   "operation": "lists_rename",
   "request": {
     "body": {
-      "name": "E2E prospects 433c0afd (renamed)"
+      "name": "E2E prospects 850eb46f (renamed)"
     },
     "method": "PATCH",
-    "path": "/v1/lists/7ac1c766-f61f-494d-a4c9-2b959bd26ee4",
+    "path": "/v1/lists/8b226a26-943b-42f9-87ce-c242ececb798",
     "query": {}
   },
   "status": 200

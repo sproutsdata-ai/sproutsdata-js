@@ -1,7 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.1.0 — Unreleased
 
+- Requires `sproutsdata` 0.1 (`>=0.1.0 <0.2.0`): the adapter imports what 0.0.1 does not
+  have, so it no longer installs beside it.
 - Built on the realigned `sproutsdata` client: `sproutsDataTools()` resolves its
   client with `sproutsdata/tools`' `resolveClient`, so a client you pass is used
   as it is, and connection settings beside it throw `ClientValidationError`.
@@ -12,8 +14,16 @@
 - Tool results no longer carry `environment`: test keys were retired, so every
   answer is a live one.
 - Requires Node.js 22.12.0 or later.
+- Partial matches: the search tool takes `partial_matches`, keeps a partial row's
+  `unmet`, `matched_filters` and `match_score`, returns `total_exact`, and adds a
+  `partial_rows` caveat so a model reports close matches as such.
+- The tools inherit the SDK's error and look-alike changes: nothing whose work may have run
+  is retryable (a gateway's answer, a timeout after sending, a 500, the API's own timeout:
+  every tool is charged, and a new call is a new request), nor are a refused credit hold and
+  a concurrency limit, a redirect is thrown to the application, and an anchor among the
+  look-alikes is recognised by its domain.
 
-## 0.0.1
+## 0.0.1 — 2026-10-14
 
 The first public release of `@sproutsdata.ai/ai-sdk`: the Sprouts tools for the
 Vercel AI SDK. Until 1.0, a minor version may include breaking changes; each

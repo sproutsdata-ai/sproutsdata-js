@@ -15,7 +15,7 @@
     "body": {
       "results": [
         {
-          "id": "brightloop.io",
+          "id": "d1_WMtEHkBEb68NgK1p035wCzgfKhx5wvrlQAnqihg3",
           "category": "company",
           "score": 0.8731,
           "account_name": "Brightloop",
@@ -74,7 +74,7 @@
           "avatar": null
         },
         {
-          "id": "9c41e2a07b3d5f18",
+          "id": "d1_hWqR2a_5C3Ot8gmg_hUq0EeGQ1qXonKtVK2CIemO",
           "category": "company",
           "score": 0.8612,
           "account_name": "Quillstack",
@@ -107,7 +107,7 @@
           "revenue": null
         },
         {
-          "id": "0f7a39dd2e81c6b4",
+          "id": "d1_Gvnn-WwWHGG8FRQcbPOueC7e5Aot5LTXaPSOuVVg",
           "category": "company",
           "score": 0.8507,
           "account_name": "Northwind Analytics",
@@ -124,7 +124,7 @@
       "total": 13137,
       "total_is_estimate": false,
       "has_more": true,
-      "next_cursor": "eyJvIjozfQ.c1a9",
+      "next_cursor": "cursor-6d1aed14ad1859e5defeccae",
       "resolved_search": {
         "parser_version": "2026-08-30",
         "mode": "auto",
@@ -218,7 +218,7 @@
       },
       "source": "parser"
     },
-    "next_cursor": "eyJvIjozfQ.c1a9",
+    "next_cursor": "cursor-6d1aed14ad1859e5defeccae",
     "request_id": "req_9f2c41d07a",
     "results": [
       {
@@ -230,7 +230,7 @@
         "employee_count": 240,
         "founded_year": 2016,
         "funding_stage": "Series B",
-        "id": "brightloop.io",
+        "id": "d1_WMtEHkBEb68NgK1p035wCzgfKhx5wvrlQAnqihg3",
         "industry": "Software & Technology",
         "linkedin_url": "https://www.linkedin.com/company/brightloop",
         "location": "Austin, Texas, United States",
@@ -267,7 +267,7 @@
         "country": "Germany",
         "description": "Document automation for legal operations teams.",
         "employee_count": 58,
-        "id": "9c41e2a07b3d5f18",
+        "id": "d1_hWqR2a_5C3Ot8gmg_hUq0EeGQ1qXonKtVK2CIemO",
         "industry": "Software & Technology",
         "linkedin_url": "https://www.linkedin.com/company/quillstack",
         "lookup": {
@@ -299,7 +299,7 @@
         "category": "company",
         "country": "United Kingdom",
         "employee_count": 12,
-        "id": "0f7a39dd2e81c6b4",
+        "id": "d1_Gvnn-WwWHGG8FRQcbPOueC7e5Aot5LTXaPSOuVVg",
         "industry": "Software & Technology",
         "score": 0.8507,
         "technology": [

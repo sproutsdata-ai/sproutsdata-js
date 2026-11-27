@@ -1,6 +1,6 @@
 /**
  * The bodies of `POST /v1/feedback` and `PUT /v1/feedback/votes`, checked as the server checks
- * them (be `src/dsp/features/feedback/schemas.py`). The tag and reason vocabulary is the
+ * them: each rule is the API's own for the request schema it names. The tag and reason vocabulary is the
  * server's (`feedback.tags()` lists it), so an unknown tag is left to the server to name.
  */
 
@@ -8,7 +8,7 @@ import type * as W from '../generated/wire.js';
 import { checkLimit, checkText, refuse } from './build.js';
 import { checkShape } from './shape.js';
 
-/** Tags that need a comment saying what went wrong (be feedback/vocabulary.py:56). */
+/** Tags that need a comment saying what went wrong. */
 const NEEDS_COMMENT = new Set(['other']);
 const MAX_PAGE_SIZE = 100;
 
@@ -16,12 +16,12 @@ const MAX_PAGE_SIZE = 100;
 export function reportBody(params: W.ReportRequest): W.ReportRequest {
   checkShape('feedback.create', params, 'ReportRequest');
   if ((params.tags ?? []).some((tag) => NEEDS_COMMENT.has(tag)) && (params.comment ?? '').trim() === '') {
-    refuse('feedback.create', '`other` needs a comment saying what went wrong'); // be :55
+    refuse('feedback.create', '`other` needs a comment saying what went wrong');
   }
   return params;
 }
 
-/** A like or dislike on a result set, or a flag on one result (be schemas.py:103-116). */
+/** A like or dislike on a result set, or a flag on one result (API: `VoteRequest`). */
 export function voteBody(params: W.VoteRequest): W.VoteRequest {
   const what = 'feedback.votes.cast';
   checkShape(what, params, 'VoteRequest');

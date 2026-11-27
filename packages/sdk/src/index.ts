@@ -27,6 +27,7 @@ export {
   CursorInvalidError,
   ExportFailedError,
   FeatureNotAvailableError,
+  GatewayError,
   InsufficientCreditsError,
   InternalServerError,
   InvalidRequestError,

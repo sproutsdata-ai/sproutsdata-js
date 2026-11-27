@@ -61,8 +61,17 @@ that capability.
 | `dsp.agents.read` or `dsp.agents.write` | `runs.retrieve`, `runs.wait`, `runs.list`, `runs.results`, `runs.events` |
 | `dsp.enrichment.write` | `enrichment.create`, `enrichment.cancel`, `enrichment.lookup` |
 | `dsp.enrichment.read` or `dsp.enrichment.write` | `enrichment.retrieve`, `enrichment.wait`, `enrichment.list`, `enrichment.results` |
-| `dsp.search.read` or `dsp.entities.read` | `lists.*`, `exports.*`, `searchExport` |
+| `dsp.lists.read` | `lists.list`, `lists.items`, `lists.iterItems`, `lists.export` |
+| `dsp.lists.write` | `lists.create`, `lists.rename`, `lists.delete`, `lists.addItems`, `lists.removeItems` |
+| `dsp.search.read` or `dsp.entities.read` | `searchExport` |
+| `dsp.search.read`, `dsp.entities.read` or `dsp.lists.read` | `exports.*` |
 | `dsp.search.read` or `dsp.usage.read` | `feedback.*`, including `feedback.tags` and `feedback.votes.*` |
+
+A key made with the default scopes has `dsp.search.read`, `dsp.entities.read`,
+`dsp.lists.read`, `dsp.lists.write` and `dsp.usage.read`; keys made before the list
+scopes existed were granted both. Whole records (in a lookup, a saved list or an
+export) need `dsp.entities.read` and a workspace that has bought credits: any other
+key or workspace sees the fields a search row has.
 
 A key made with the default scopes has no `dsp.agents.*` or
 `dsp.enrichment.*` scope. [Agent runs](runs.md) and

@@ -3,7 +3,9 @@
  *
  * A list belongs to the workspace, and its name is unique there. Records are saved by their own
  * id (a company's domain), never by a search row's `id`. An export comes back as a file when it
- * is small, or as a job to wait for when it is not. Every call here is free.
+ * is small, or as a job to wait for when it is not. Making, renaming and deleting a list are
+ * free; adding records, reading them and exporting them charge a paid workspace the lookup price
+ * once for each record it sees whole (a free workspace sees the card fields, free).
  *
  *   export SPROUTSDATA_API_KEY=sk_dsp_live_<your-key>
  *   node examples/saved-lists.ts

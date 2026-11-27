@@ -1,12 +1,13 @@
 {
-  "description": "A company lookup without `by` (so `auto`), fed a person row's search id and a domain the index does not hold. Both miss; the caveat says the search id is a hash no lookup resolves.",
+  "description": "A company lookup without `by` (so `auto`), fed a company row's search id (a sealed reference), a person row's search id (a hash) and a domain the index does not hold. All three miss; the caveat names the two search ids, which no lookup resolves.",
   "tool": "sprouts_entity_lookup",
   "options": {},
   "arguments": {
     "category": "company",
     "ids": [
+      "d1_WMtEHkBEb68NgK1p035wCzgfKhx5wvrlQAnqihg3",
       "9c41e2a07b3d5f18",
-      "brightloop.io"
+      "unheld-example.io"
     ]
   },
   "response": {
@@ -17,19 +18,25 @@
     "body": {
       "results": [
         {
+          "id": "d1_WMtEHkBEb68NgK1p035wCzgfKhx5wvrlQAnqihg3",
+          "category": "company",
+          "found": false,
+          "matches": []
+        },
+        {
           "id": "9c41e2a07b3d5f18",
           "category": "company",
           "found": false,
           "matches": []
         },
         {
-          "id": "brightloop.io",
+          "id": "unheld-example.io",
           "category": "company",
           "found": false,
           "matches": []
         }
       ],
-      "total": 2,
+      "total": 3,
       "total_is_estimate": false,
       "has_more": false,
       "next_cursor": null,
@@ -61,18 +68,25 @@
     "path": "/v1/entities/companies",
     "body": {
       "ids": [
+        "d1_WMtEHkBEb68NgK1p035wCzgfKhx5wvrlQAnqihg3",
         "9c41e2a07b3d5f18",
-        "brightloop.io"
+        "unheld-example.io"
       ],
       "by": "auto"
     }
   },
   "expected_output": {
     "caveats": [
-      "search_ids_not_found: 9c41e2a07b3d5f18 — these look like the hash a search gives a person row, which no lookup resolves. Look the row up by its `lookup` value (its LinkedIn URL); this miss does not mean the record is not held."
+      "search_ids_not_found: d1_WMtEHkBEb68NgK1p035wCzgfKhx5wvrlQAnqihg3, 9c41e2a07b3d5f18 — these look like the id a search gives a company row (a sealed reference) or a person row (a hash), which no lookup resolves. Look the row up by its `lookup` value (a company's domain or LinkedIn page, a person's LinkedIn URL); this miss does not mean the record is not held."
     ],
     "request_id": "req_b85f1d2a60",
     "results": [
+      {
+        "ambiguous": false,
+        "found": false,
+        "id": "d1_WMtEHkBEb68NgK1p035wCzgfKhx5wvrlQAnqihg3",
+        "matches": []
+      },
       {
         "ambiguous": false,
         "found": false,
@@ -82,7 +96,7 @@
       {
         "ambiguous": false,
         "found": false,
-        "id": "brightloop.io",
+        "id": "unheld-example.io",
         "matches": []
       }
     ]

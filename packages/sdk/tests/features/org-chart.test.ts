@@ -66,6 +66,13 @@ describe('org chart', () => {
     expect(r.sent).toHaveLength(0);
   });
 
+  it('O4: a retired field left undefined is never sent, so it is not refused; one set to null is', async () => {
+    const r = rig([recorded('org_chart', 'grid')]);
+    await new OrgChart(r.transport).retrieve({ domain: 'a.de', ...{ search: undefined } });
+    expect(r.body()).not.toHaveProperty('search');
+    await expect(new OrgChart(rig([]).transport).retrieve({ domain: 'a.de', ...{ search: null } })).rejects.toThrow('`search` is now');
+  });
+
   it('O5: all three answers read from the generated types', async () => {
     const r = rig([recorded('org_chart', 'grid'), recorded('org_chart_departments', 'departments'), recorded('org_chart_locations', 'locations')]);
     const chart = new OrgChart(r.transport);

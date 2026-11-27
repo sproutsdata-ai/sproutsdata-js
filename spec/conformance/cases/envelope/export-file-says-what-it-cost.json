@@ -1,0 +1,51 @@
+{
+  "name": "an_export_file_says_what_it_cost_and_which_fields_it_holds",
+  "description": "A CSV answered at once is charged for the whole records it shows that the workspace had not unlocked, and says so in its headers, with its field tier, rows and skipped rows. The export routes are billed, so the API's own 503 (nothing ran, nothing charged) is still retried.",
+  "request": {
+    "method": "POST",
+    "path": "/v1/lists/5f0c9a52-1d1e-4f61-9a43-1b3c8a1d7e10/export",
+    "body": {
+      "limit": 3
+    }
+  },
+  "responses": [
+    {
+      "status": 503,
+      "headers": {
+        "Retry-After": "0"
+      },
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/service-unavailable",
+        "title": "Service unavailable",
+        "status": 503,
+        "code": "service.unavailable",
+        "next_step": "Retry shortly."
+      }
+    },
+    {
+      "status": 200,
+      "headers": {
+        "X-Request-Id": "req_csv",
+        "X-Credits-Charged": "2",
+        "X-Export-Field-Tier": "unlocked",
+        "X-Export-Row-Count": "3",
+        "X-Export-Skipped": "1"
+      },
+      "raw_body": "name,domain\nAcme,acme.com\nGlobex,globex.com\nInitech,initech.com\n",
+      "content_type": "text/csv; charset=utf-8"
+    }
+  ],
+  "expect": {
+    "attempts": 2,
+    "success": {
+      "export_kind": "file",
+      "request_id": "req_csv",
+      "export_file": {
+        "credits_charged": 2,
+        "field_tier": "unlocked",
+        "rows": 3,
+        "skipped": 1
+      }
+    }
+  }
+}

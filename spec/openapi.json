@@ -183,7 +183,7 @@
                 "type": "null"
               }
             ],
-            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "description": "Return only these fields of each row, plus `id`, `category`, `score`, `matched_filters`, `match_score` and `unmet`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
             "title": "Fields"
           },
           "filters": {
@@ -211,7 +211,7 @@
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
-            "default": "fast"
+            "default": "auto"
           },
           "query": {
             "anyOf": [
@@ -267,9 +267,15 @@
             "title": "Already Present",
             "type": "integer"
           },
+          "credits_charged": {
+            "default": 0.0,
+            "description": "Credits this call charged: the lookup price for each record shown whole that the workspace had not unlocked in the last 90 days.",
+            "title": "Credits Charged",
+            "type": "number"
+          },
           "not_found": {
             "default": 0,
-            "description": "Named nothing prism could find.",
+            "description": "Named nothing the search service could find.",
             "title": "Not Found",
             "type": "integer"
           },
@@ -524,7 +530,7 @@
       },
       "AskRequest": {
         "additionalProperties": false,
-        "description": "A relationship question in words; prism decides which kind of answer it needs.",
+        "description": "A relationship question in words; the search service decides which kind of answer it needs.",
         "properties": {
           "cursor": {
             "anyOf": [
@@ -620,7 +626,7 @@
       },
       "AutoSearchRequest": {
         "additionalProperties": false,
-        "description": "A question, with the category left to prism.",
+        "description": "A question, with the category left to the search service.",
         "properties": {
           "category": {
             "const": "auto",
@@ -658,7 +664,7 @@
                 "type": "null"
               }
             ],
-            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "description": "Return only these fields of each row, plus `id`, `category`, `score`, `matched_filters`, `match_score` and `unmet`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
             "title": "Fields"
           },
           "limit": {
@@ -671,6 +677,12 @@
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
             "default": "auto"
+          },
+          "partial_matches": {
+            "default": true,
+            "description": "When the question is answered with companies or people: also return the rows that match part of the search after every row that matches all of it (the category search's `partial_matches`). Ignored by the other categories.",
+            "title": "Partial Matches",
+            "type": "boolean"
           },
           "query": {
             "maxLength": 2000,
@@ -1179,7 +1191,7 @@
         "type": "string"
       },
       "CompanyItem": {
-        "description": "One company in the ``company`` picker. Identified by its domain; prism's own id for it\nnever leaves this service.",
+        "description": "One company in the ``company`` picker. Identified by its domain; its internal record id\nnever leaves this service.",
         "properties": {
           "domain": {
             "anyOf": [
@@ -1330,7 +1342,7 @@
                 "type": "null"
               }
             ],
-            "description": "Omit for prism ids; `domain`, `li_url` or `name`, or `auto` to classify each."
+            "description": "Omit for internal record ids; `domain`, `li_url` or `name`, or `auto` to classify each."
           },
           "ids": {
             "items": {
@@ -1776,7 +1788,7 @@
         "type": "object"
       },
       "CoverageSegmentName": {
-        "description": "One corpus, named as prism's search path names it.",
+        "description": "One corpus, named as the search service's search path names it.",
         "enum": [
           "companies",
           "people",
@@ -2182,7 +2194,7 @@
       },
       "DiscoverFilters": {
         "additionalProperties": false,
-        "description": "Every filter accepted for `category: company` and `category: person`.\n\nNames match prism's filter vocabulary exactly — this is a contract mirror,\nnot a re-design, so a name that reads oddly (`gov_nongov`) stays as it is\nrather than being prettied up into something prism would reject.\n\nWhich side a filter applies to is not encoded here: prism routes a\nperson-side filter through `has_child` when the search targets companies\n(and vice versa), so `seniority` is meaningful on a company search. The one\nhonest statement this model can make is which filters *exist*.",
+        "description": "Every filter accepted for `category: company` and `category: person`.\n\nNames match the search service's filter vocabulary exactly — this is a contract mirror,\nnot a re-design, so a name that reads oddly (`gov_nongov`) stays as it is\nrather than being prettied up into something the search service would reject.\n\nWhich side a filter applies to is not encoded here: the search service routes a\nperson-side filter through `has_child` when the search targets companies\n(and vice versa), so `seniority` is meaningful on a company search. The one\nhonest statement this model can make is which filters *exist*.",
         "properties": {
           "b2b_b2c": {
             "anyOf": [
@@ -3097,7 +3109,7 @@
       },
       "EmploymentHistoryGroup": {
         "additionalProperties": false,
-        "description": "One independently-scoped past job.\n\nMirrors `prism.schema.search.discover.EmploymentHistoryGroup` (filters\nv3, replaces the old `prior_company` field plus `title`/`tenure`'s\n`previous_*` sugar) — matched against its own `p_comp` array entry\nserver-side, so naming two groups requires two different entries, not\none shared row.",
+        "description": "One independently-scoped past job.\n\nMirrors the search service's `EmploymentHistoryGroup` (filters\nv3, replaces the old `prior_company` field plus `title`/`tenure`'s\n`previous_*` sugar) — matched against its own `p_comp` array entry\nserver-side, so naming two groups requires two different entries, not\none shared row.",
         "properties": {
           "company": {
             "anyOf": [
@@ -3507,12 +3519,12 @@
       },
       "EntitySearchRequest": {
         "additionalProperties": false,
-        "description": "Companies and people, through prism's discover route.",
+        "description": "Companies and people, through the search service's discover route.",
         "examples": [
           {
             "category": "company",
             "limit": 10,
-            "mode": "fast",
+            "mode": "auto",
             "query": "industrial automation companies in Germany"
           },
           {
@@ -3634,7 +3646,7 @@
                 "type": "null"
               }
             ],
-            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "description": "Return only these fields of each row, plus `id`, `category`, `score`, `matched_filters`, `match_score` and `unmet`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
             "title": "Fields"
           },
           "filters": {
@@ -3717,7 +3729,13 @@
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
-            "default": "fast"
+            "default": "auto"
+          },
+          "partial_matches": {
+            "default": true,
+            "description": "After the rows that match every filter, also return the rows that match part of the search, ranked by how much of it they meet. Each such row has `match_score` below 1 and lists in `unmet` the filters it does not meet exactly; `total` counts both, `total_exact` only the rows meeting every filter. Only a search by filters alone has such rows. Every row returned is charged. Send `false` for exact matches only.",
+            "title": "Partial Matches",
+            "type": "boolean"
           },
           "query": {
             "anyOf": [
@@ -4436,7 +4454,7 @@
                 "type": "null"
               }
             ],
-            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "description": "Return only these fields of each row, plus `id`, `category`, `score`, `matched_filters`, `match_score` and `unmet`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
             "title": "Fields"
           },
           "filters": {
@@ -4464,7 +4482,7 @@
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
-            "default": "fast"
+            "default": "auto"
           },
           "query": {
             "anyOf": [
@@ -4584,7 +4602,7 @@
       },
       "GlobalPresenceFilter": {
         "additionalProperties": false,
-        "description": "Country-footprint filter: where a company has people, not where it is headquartered.\n\n`countries` names the places: a country (\"germany\", ISO3 \"deu\") or a region (\"EU\", \"APAC\",\n\"Nordics\"), which any one of its member countries satisfies. A company matches with at least\n`gte` (default 1) people in ANY place named, or in EVERY place with `match_all` (\"offices in\nGermany and France\"). With `min_countries` instead, it matches companies present in at least\nthat many countries. Prism refuses a place it does not know with `request.invalid`.",
+        "description": "Country-footprint filter: where a company has people, not where it is headquartered.\n\n`countries` names the places: a country (\"germany\", ISO3 \"deu\") or a region (\"EU\", \"APAC\",\n\"Nordics\"), which any one of its member countries satisfies. A company matches with at least\n`gte` (default 1) people in ANY place named, or in EVERY place with `match_all` (\"offices in\nGermany and France\"). With `min_countries` instead, it matches companies present in at least\nthat many countries. The search service refuses a place it does not know with `request.invalid`.",
         "properties": {
           "countries": {
             "description": "Countries (names or ISO3 codes) or regions (EU, APAC, Nordics, DACH, LATAM, ...).",
@@ -4856,7 +4874,7 @@
             "$ref": "#/components/schemas/ResultCategory"
           },
           "entity_id": {
-            "description": "A company's `company_ref`, domain or LinkedIn page; a person's LinkedIn profile URL; a document's `id` from search (or prism's own id).",
+            "description": "A company's `company_ref`, domain or LinkedIn page; a person's LinkedIn profile URL; a document's `id` from search (or its internal record id).",
             "maxLength": 255,
             "minLength": 1,
             "title": "Entity Id",
@@ -5376,7 +5394,7 @@
                 "type": "null"
               }
             ],
-            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "description": "Return only these fields of each row, plus `id`, `category`, `score`, `matched_filters`, `match_score` and `unmet`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
             "title": "Fields"
           },
           "filters": {
@@ -5413,7 +5431,7 @@
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
-            "default": "fast"
+            "default": "auto"
           },
           "query": {
             "anyOf": [
@@ -5511,7 +5529,7 @@
           },
           "re_enrich": {
             "default": false,
-            "description": "Look up values that are already known.",
+            "description": "Look up values that are already known. Off (the default), a value already found for the same LinkedIn profile or Sprouts record comes back at no charge. Rows sent with only a name and company are looked up, and charged, each time: send `linkedin_url` or `person_id` to get repeats free.",
             "title": "Re Enrich",
             "type": "boolean"
           },
@@ -5831,6 +5849,12 @@
       },
       "ListItemsResponse": {
         "properties": {
+          "credits_charged": {
+            "default": 0.0,
+            "description": "Credits this call charged: the lookup price for each record shown whole that the workspace had not unlocked in the last 90 days.",
+            "title": "Credits Charged",
+            "type": "number"
+          },
           "field_tier": {
             "enum": [
               "free",
@@ -5932,7 +5956,7 @@
       },
       "LocationFilter": {
         "additionalProperties": false,
-        "description": "OR within a level, AND across levels; an excluded place removes everyone holding it.\nPlaces are matched as prism stores them, lower case (``united states``, ``san francisco``).",
+        "description": "OR within a level, AND across levels; an excluded place removes everyone holding it.\nPlaces are matched as the search service stores them, lower case (``united states``, ``san francisco``).",
         "properties": {
           "exclude": {
             "$ref": "#/components/schemas/Places"
@@ -6098,7 +6122,7 @@
           },
           "re_enrich": {
             "default": false,
-            "description": "Look up values that are already known.",
+            "description": "Look up values that are already known. Off (the default), a value already found for the same LinkedIn profile or Sprouts record comes back at no charge. Rows sent with only a name and company are looked up, and charged, each time: send `linkedin_url` or `person_id` to get repeats free.",
             "title": "Re Enrich",
             "type": "boolean"
           },
@@ -6364,7 +6388,7 @@
                 "type": "null"
               }
             ],
-            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "description": "Return only these fields of each row, plus `id`, `category`, `score`, `matched_filters`, `match_score` and `unmet`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
             "title": "Fields"
           },
           "filters": {
@@ -6392,7 +6416,7 @@
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
-            "default": "fast"
+            "default": "auto"
           },
           "query": {
             "anyOf": [
@@ -6900,7 +6924,7 @@
                 "type": "null"
               }
             ],
-            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "description": "Return only these fields of each row, plus `id`, `category`, `score`, `matched_filters`, `match_score` and `unmet`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
             "title": "Fields"
           },
           "filters": {
@@ -6928,7 +6952,7 @@
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
-            "default": "fast"
+            "default": "auto"
           },
           "query": {
             "anyOf": [
@@ -7056,7 +7080,7 @@
             "type": "array"
           },
           "employment_types": {
-            "description": "As prism stores them: `Full Time`.",
+            "description": "As the search service stores them: `Full Time`.",
             "items": {
               "maxLength": 200,
               "minLength": 1,
@@ -7067,7 +7091,7 @@
             "type": "array"
           },
           "governance_levels": {
-            "description": "As prism stores them: `Co Founder`.",
+            "description": "As the search service stores them: `Co Founder`.",
             "items": {
               "maxLength": 200,
               "minLength": 1,
@@ -7600,7 +7624,7 @@
                 "type": "null"
               }
             ],
-            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "description": "Return only these fields of each row, plus `id`, `category`, `score`, `matched_filters`, `match_score` and `unmet`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
             "title": "Fields"
           },
           "filters": {
@@ -7628,7 +7652,7 @@
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
-            "default": "fast"
+            "default": "auto"
           },
           "query": {
             "anyOf": [
@@ -7986,7 +8010,7 @@
                 "type": "null"
               }
             ],
-            "description": "Omit for prism ids; `li_url` or `name`, or `auto`."
+            "description": "Omit for internal record ids; `li_url` or `name`, or `auto`."
           },
           "ids": {
             "items": {
@@ -10442,7 +10466,7 @@
         "type": "object"
       },
       "RunResult": {
-        "description": "A run's state and outcome, as prism last recorded it.",
+        "description": "A run's state and outcome, as the search service last recorded it.",
         "properties": {
           "coverage": {
             "anyOf": [
@@ -10646,7 +10670,7 @@
         "type": "object"
       },
       "RunStatus": {
-        "description": "A run's state in this API's words. Prism's ``succeeded`` is ``completed`` here; a state\nprism adds later reads as ``pending`` until this list names it.",
+        "description": "A run's state in this API's words. The search service's ``succeeded`` is ``completed`` here; a state\nthe search service adds later reads as ``pending`` until this list names it.",
         "enum": [
           "pending",
           "running",
@@ -10940,7 +10964,7 @@
         "title": "SearchBody"
       },
       "SearchCategory": {
-        "description": "What to search. Each is a route of prism's (see ``features/search/categories.py``).",
+        "description": "What to search. Each is a route of the search service's.",
         "enum": [
           "company",
           "person",
@@ -11037,6 +11061,19 @@
             "title": "Total",
             "type": "integer"
           },
+          "total_exact": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Company and person searches: the rows meeting every filter. Equal to `total` unless `partial_matches` adds rows meeting part of the search (then `total` counts both). Null on other searches.",
+            "title": "Total Exact"
+          },
           "total_is_estimate": {
             "title": "Total Is Estimate",
             "type": "boolean"
@@ -11085,7 +11122,7 @@
       },
       "SearchHit": {
         "additionalProperties": true,
-        "description": "One row: its public id, its kind and score, then the record's own fields, flattened.\n\nThe record fields are prism's and grow as the index grows, so they are passed through\nrather than enumerated here: a field we did not list must not disappear from the answer.",
+        "description": "One row: its public id, its kind and score, then the record's own fields, flattened.\n\nThe record fields are the search service's and grow as the index grows, so they are passed through\nrather than enumerated here: a field we did not list must not disappear from the answer.",
         "properties": {
           "category": {
             "$ref": "#/components/schemas/ResultCategory"
@@ -11093,6 +11130,35 @@
           "id": {
             "title": "Id",
             "type": "string"
+          },
+          "match_score": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A company or person search with `partial_matches`: how much of the search this row meets, 0 to 1. 1 meets every filter; below 1 is a partial row, listed after every row meeting them all. Null on other searches.",
+            "title": "Match Score"
+          },
+          "matched_filters": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Company and person searches: the filters in `resolved_search.filters` this row meets in full (a `keyword_query` search names it `keyword_query`). A `keywords` filter set to `rank_first` is listed only on the rows holding its keywords. Null on other searches.",
+            "title": "Matched Filters"
           },
           "score": {
             "anyOf": [
@@ -11104,6 +11170,21 @@
               }
             ],
             "title": "Score"
+          },
+          "unmet": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/UnmetFilter"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "On a partial row: each filter it does not meet exactly; it meets every other filter in `resolved_search.filters`. Null on a row meeting them all and on other searches.",
+            "title": "Unmet"
           }
         },
         "required": [
@@ -11114,7 +11195,7 @@
         "type": "object"
       },
       "SearchMode": {
-        "description": "How a search with words is billed. Both modes read ``query`` the same way: an AI\nreading turns what the words ask into filters (the filters sent win), and the description\nleft over is matched by meaning.\n\n- ``fast``: billed as a basic search.\n- ``auto``: billed as an AI search.",
+        "description": "How ``query`` is read, and how the search is billed.\n\n- ``fast``: send what you want as words in ``query`` and every hard constraint in\n  ``filters``. One quick reading takes from the words only what they are about (for\n  companies and people: keywords, a description matched by meaning, and the people's titles\n  or skills; for documents: the topic) and sets no other filter. Billed as a basic search.\n- ``auto`` (the default): an AI reading turns everything the words ask into filters (the\n  filters sent win), and the description left over is matched by meaning. Billed as an AI\n  search.",
         "enum": [
           "fast",
           "auto"
@@ -11443,7 +11524,7 @@
                 "type": "null"
               }
             ],
-            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "description": "Return only these fields of each row, plus `id`, `category`, `score`, `matched_filters`, `match_score` and `unmet`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
             "title": "Fields"
           },
           "filters": {
@@ -12466,7 +12547,7 @@
                 "type": "null"
               }
             ],
-            "description": "Return only these fields of each row, plus `id`, `category` and `score`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
+            "description": "Return only these fields of each row, plus `id`, `category`, `score`, `matched_filters`, `match_score` and `unmet`. Omit for every field. A name a row does not carry is left out, never added as null. It changes neither which rows come back nor what they cost, and a later page may ask for other fields with the same cursor.",
             "title": "Fields"
           },
           "filters": {
@@ -12494,7 +12575,7 @@
           },
           "mode": {
             "$ref": "#/components/schemas/SearchMode",
-            "default": "fast"
+            "default": "auto"
           },
           "query": {
             "anyOf": [
@@ -12559,6 +12640,49 @@
         ],
         "title": "TrendTopicType",
         "type": "string"
+      },
+      "UnmetFilter": {
+        "description": "A filter a partial row does not meet exactly.",
+        "properties": {
+          "filter": {
+            "description": "The filter, named as in `resolved_search.filters`.",
+            "title": "Filter",
+            "type": "string"
+          },
+          "matched": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "When `close`, the close values the row holds; when `partly_met`, the values asked that it holds.",
+            "title": "Matched"
+          },
+          "state": {
+            "description": "`close`: a value next to one asked (a seniority one step up or down); `near`: a number or year just outside the range asked; `no_data`: the record holds no value for it; `partly_met`: some of the values asked together; `missed`: none of it.",
+            "enum": [
+              "close",
+              "near",
+              "no_data",
+              "partly_met",
+              "missed"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "filter",
+          "state"
+        ],
+        "title": "UnmetFilter",
+        "type": "object"
       },
       "ValidationError": {
         "properties": {
@@ -13288,7 +13412,7 @@
     },
     "/v1/agents/runs/{run_id}": {
       "get": {
-        "description": "The run's status, coverage, summary and insights, as prism last recorded them.",
+        "description": "The run's status, coverage, summary and insights, as the search service last recorded them.",
         "operationId": "agent_run_get",
         "parameters": [
           {
@@ -15316,7 +15440,7 @@
     },
     "/v1/entities/academic-reports": {
       "post": {
-        "description": "Documents by id: prism's, or the sealed `id` search returned.",
+        "description": "Documents by id: the search service's, or the sealed `id` search returned.",
         "operationId": "entities_academic_report",
         "parameters": [
           {
@@ -15423,7 +15547,7 @@
     },
     "/v1/entities/companies": {
       "post": {
-        "description": "Companies by prism id, or `by` domain, LinkedIn URL or name (best match each).",
+        "description": "Companies by internal record id, or `by` domain, LinkedIn URL or name (best match each).",
         "operationId": "entities_companies",
         "parameters": [
           {
@@ -15958,7 +16082,7 @@
     },
     "/v1/entities/patents": {
       "post": {
-        "description": "Documents by id: prism's, or the sealed `id` search returned.",
+        "description": "Documents by id: the search service's, or the sealed `id` search returned.",
         "operationId": "entities_patent",
         "parameters": [
           {
@@ -16065,7 +16189,7 @@
     },
     "/v1/entities/persons": {
       "post": {
-        "description": "People by prism id, or `by` LinkedIn URL or name (best match each).",
+        "description": "People by internal record id, or `by` LinkedIn URL or name (best match each).",
         "operationId": "entities_persons",
         "parameters": [
           {
@@ -16172,7 +16296,7 @@
     },
     "/v1/entities/trends": {
       "post": {
-        "description": "Documents by id: prism's, or the sealed `id` search returned.",
+        "description": "Documents by id: the search service's, or the sealed `id` search returned.",
         "operationId": "entities_trend",
         "parameters": [
           {
@@ -17567,7 +17691,7 @@
         ]
       },
       "get": {
-        "description": "Newest first, each read again from prism with the fields this workspace may see.",
+        "description": "Newest first, each read again from the search service with the fields this workspace may see.",
         "operationId": "items_v1_lists__list_id__items_get",
         "parameters": [
           {
@@ -17695,7 +17819,7 @@
         ]
       },
       "post": {
-        "description": "Each record is looked up in prism and saved by its stable id. Records on the\nDo-Not-Contact list are refused (``suppressed``); unknown ones counted (``not_found``).",
+        "description": "Each record is looked up in the search service and saved by its stable id. Records on the\nDo-Not-Contact list are refused (``suppressed``); unknown ones counted (``not_found``).",
         "operationId": "add_items_v1_lists__list_id__items_post",
         "parameters": [
           {
@@ -19957,10 +20081,5 @@
         ]
       }
     }
-  },
-  "x-source": {
-    "commit": "ec23ad95c867281565be2d1558752564513fe079",
-    "ref": "ec23ad9",
-    "repo": "dsp-backend"
   }
 }

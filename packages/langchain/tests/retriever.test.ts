@@ -19,6 +19,7 @@ import {
   fetchQueue,
   jsonResponse,
   problemResponse,
+  recordedBody,
   sentBody,
   sentHeaders,
 } from './helpers';
@@ -46,11 +47,11 @@ describe('a LangChain retriever', () => {
 });
 
 describe('request building', () => {
-  it('sends the defaults: category company, mode fast, limit 10', async () => {
+  it('sends the defaults: category company, mode fast, limit 10, exact matches only', async () => {
     const { retriever, fetchMock } = makeRetriever();
     await retriever.invoke('fintech in Berlin');
     expect(String(fetchMock.mock.calls[0]![0])).toBe(`${BASE_URL}/v1/search`);
-    expect(sentBody(fetchMock)).toEqual({ query: 'fintech in Berlin', category: 'company', mode: 'fast', limit: 10 });
+    expect(sentBody(fetchMock)).toEqual({ query: 'fintech in Berlin', category: 'company', mode: 'fast', limit: 10, partial_matches: false });
   });
 
   it('passes k, category, filters and domain lists through as given', async () => {
@@ -67,10 +68,20 @@ describe('request building', () => {
       category: 'person',
       mode: 'fast',
       limit: 3,
+      partial_matches: false,
       filters: { seniority: { include: ['VP'] } },
       include_domains: ['acme.com'],
       exclude_domains: ['spam.example'],
     });
+  });
+
+  it('asks for close matches only when told to, and never for a document category', async () => {
+    const on = makeRetriever({ partialMatches: true, category: 'person' });
+    await on.retriever.invoke('vp marketing');
+    expect(sentBody(on.fetchMock)).toMatchObject({ partial_matches: true });
+    const news = makeRetriever({ category: 'news_article' });
+    await news.retriever.invoke('acquisitions');
+    expect(sentBody(news.fetchMock)).not.toHaveProperty('partial_matches');
   });
 
   it('sends no empty domain list', async () => {
@@ -83,7 +94,7 @@ describe('request building', () => {
   it('sends no mode with an auto category, where auto is the only one', async () => {
     const { retriever, fetchMock } = makeRetriever({ category: 'auto' });
     await retriever.invoke('who raised a Series B');
-    expect(sentBody(fetchMock)).toEqual({ query: 'who raised a Series B', limit: 10, category: 'auto' });
+    expect(sentBody(fetchMock)).toEqual({ query: 'who raised a Series B', limit: 10, category: 'auto', partial_matches: false });
   });
 
   it('uses the caller’s client as it is, naming no integration', async () => {
@@ -216,6 +227,26 @@ describe('metadata', () => {
     some_future_field: { nested: true },
   };
 
+  it('a close match says so on its document', async () => {
+    const { retriever } = makeRetriever({ partialMatches: true }, [jsonResponse(recordedBody('search', 'partial_matches'))]);
+    const docs = await retriever.invoke('payments');
+    const [exact, partial] = [docs[0]!, docs.at(-1)!];
+    expect([exact.metadata['match_score'], exact.metadata['unmet']]).toEqual([1, null]);
+    expect(exact.pageContent.startsWith('Close match')).toBe(false);
+    expect(partial.metadata['unmet']).toEqual([{ filter: 'geo', state: 'near', matched: ['Belgium'] }]);
+    expect(partial.metadata['match_score']).toBeLessThan(1);
+    expect(partial.pageContent.startsWith('Close match, not an exact one: misses geo.\n')).toBe(true);
+    expect([partial.metadata['total'], partial.metadata['total_exact']]).toEqual([40, 2]);
+  });
+
+  it('a close match without unmet is told by its score', async () => {
+    const body = recordedBody('search', 'partial_matches') as { results: Record<string, unknown>[] };
+    body.results.at(-1)!['unmet'] = [];
+    const { retriever } = makeRetriever({ partialMatches: true }, [jsonResponse(body)]);
+    const docs = await retriever.invoke('payments');
+    expect(docs.at(-1)!.pageContent.startsWith('Close match, not an exact one: match score 0.')).toBe(true);
+  });
+
   it('metadata.record is the complete raw hit, unknown fields included', async () => {
     const { retriever } = makeRetriever({}, [jsonResponse(envelope({ results: [RICH_HIT] }))]);
     const [doc] = await retriever.invoke('x');
@@ -224,7 +255,7 @@ describe('metadata', () => {
 
   it('copies every request-level field onto each document', async () => {
     const resolved = {
-      parser_version: 'prism-search-v2',
+      parser_version: 'internal-search-v2',
       mode: 'fast' as const,
       category: 'company' as const,
       query: 'x',
@@ -318,7 +349,7 @@ describe('zero results', () => {
           results: [],
           total: 0,
           resolved_search: {
-            parser_version: 'prism-search-v2',
+            parser_version: 'internal-search-v2',
             mode: 'auto',
             category: 'company',
             query: 'x',
@@ -341,8 +372,10 @@ describe('zero results', () => {
 
   it('does not warn on empty results the caller filtered themselves', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    // What the retriever's own `fast` search resolves to: the caller's filters, none taken from the words.
+    const resolved = { ...(recordedBody('search', 'company')['resolved_search'] as object), filters_source: 'caller', parser_version: 'none', mode: 'fast' };
     const { retriever } = makeRetriever({}, [
-      jsonResponse(envelope({ results: [], total: 0 })),
+      jsonResponse(envelope({ results: [], total: 0, resolved_search: resolved })),
     ]);
     await retriever.invoke('x');
     expect(warn).not.toHaveBeenCalled();

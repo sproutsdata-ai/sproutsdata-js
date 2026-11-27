@@ -1,0 +1,44 @@
+{
+  "name": "creating_a_list_is_not_repeated_after_the_apis_own_timeout",
+  "description": "upstream.timeout says the API ran out of time, but a write may have landed before it did, so a `once` call is raised rather than repeated.",
+  "request": {
+    "method": "POST",
+    "path": "/v1/lists",
+    "body": {
+      "name": "Fintech targets"
+    }
+  },
+  "responses": [
+    {
+      "status": 504,
+      "headers": {},
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/upstream-timeout",
+        "title": "Upstream timed out",
+        "status": 504,
+        "code": "upstream.timeout",
+        "next_step": "Retry, or narrow the request so it finishes sooner."
+      }
+    },
+    {
+      "status": 201,
+      "headers": {},
+      "body": {
+        "id": "5f0c9a52-1d1e-4f61-9a43-1b3c8a1d7e10",
+        "name": "Prospects",
+        "entity_category": null,
+        "created_by": "user:12",
+        "created_at": "2026-11-11T00:00:00Z",
+        "updated_at": "2026-11-11T00:00:00Z",
+        "item_count": 0
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "error": {
+      "concept": "upstream_timeout",
+      "code": "upstream.timeout"
+    }
+  }
+}

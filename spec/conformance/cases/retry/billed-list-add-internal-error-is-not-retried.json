@@ -1,0 +1,57 @@
+{
+  "name": "adding_list_items_is_not_repeated_after_a_server_error",
+  "description": "Adding records to a saved list charges each one shown whole that the workspace has not unlocked, then unlocks them, and the route reads no Idempotency-Key. A 500 may come after the charge, and a repeat would then charge the same records again, so it is raised with a note that it may have been charged. The call sent no key, so the error carries none.",
+  "request": {
+    "method": "POST",
+    "path": "/v1/lists/5f0c9a52-1d1e-4f61-9a43-1b3c8a1d7e10/items",
+    "body": {
+      "items": [
+        {
+          "entity_category": "company",
+          "entity_id": "acme.com"
+        }
+      ]
+    }
+  },
+  "responses": [
+    {
+      "status": 500,
+      "headers": {},
+      "body": {
+        "type": "https://dashboard.sproutsdata.ai/errors/internal",
+        "title": "Internal error",
+        "status": 500,
+        "code": "internal"
+      }
+    },
+    {
+      "status": 200,
+      "headers": {},
+      "body": {
+        "added": 1,
+        "already_present": 0,
+        "credits_charged": 1.0,
+        "not_found": 0,
+        "suppressed": 0,
+        "saved_list": {
+          "id": "5f0c9a52-1d1e-4f61-9a43-1b3c8a1d7e10",
+          "name": "Prospects",
+          "entity_category": "company",
+          "created_by": "user:12",
+          "created_at": "2026-11-27T00:00:00Z",
+          "updated_at": "2026-11-27T00:00:00Z",
+          "item_count": 1
+        }
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "error": {
+      "concept": "internal",
+      "status": 500,
+      "message_contains": "may have been charged",
+      "idempotency_key": null
+    }
+  }
+}

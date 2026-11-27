@@ -61,6 +61,7 @@ npm run check
 | `smoke:edge` | The built SDK runs in workerd (Miniflare), with no Node globals |
 | `check:docs` | `scripts/check-doc-snippets.mjs` (below) |
 | `check:links` | `scripts/check-links.mjs`: every relative Markdown link, and every `#heading` it names, resolves |
+| `check:public-text` | `scripts/check-public-text.mjs` (below): nothing in the repository or the packed packages names a service behind the API |
 | `audit` | `npm audit --omit=dev` |
 
 To work on one package: `npm test -w packages/sdk`, or `npx vitest` inside the
@@ -89,7 +90,9 @@ code for a package this repository does not install) is preceded by the line
 ### Live checks
 
 The live suites need the local stack (sproutsdata-py's `make e2e-up`) or a
-deployment, so they are not part of `npm run check`:
+deployment, so they are not part of `npm run check`, and this repository's CI does not
+run them: the stack is built from the services behind the API, which are not public.
+sproutsdata-py's nightly `e2e.yml` runs them against that stack instead. Locally:
 
 ```bash
 npm run e2e            # each package's tests/e2e against the local stack
@@ -100,6 +103,17 @@ npm run smoke:live     # scripts/smoke-live.mjs: the checks in spec/smoke/checks
 `smoke:live` reads `SPROUTSDATA_API_KEY` (and `SPROUTSDATA_BASE_URL`, if set).
 Several checks are billed, and every key is charged, so the script ends by
 printing the credits the run spent.
+
+### Public text
+
+This repository is public, and so are the packages: nothing in them may name a service
+behind the API, a ticket or a backend source path. `spec/public-text.json` (vendored)
+holds the patterns. The services' names, the denied words, are kept out of the
+repository: the `SPROUTSDATA_DENIED_WORDS` secret in CI (one per line), or `denied_words`
+in the stack profile `SPROUTSDATA_STACK_PROFILE` points to (sproutsdata-py's
+CONTRIBUTING.md, "The stack profile"). A word matches anywhere in a line, inside longer
+words too. Without the words the check reads the patterns only and warns; a release runs
+it with `--require-words`, which fails instead.
 
 ## Design rules
 
@@ -165,13 +179,15 @@ needs a test and a `CHANGELOG.md` entry in the package it touches.
 
 ## Releases
 
-Each package versions independently and releases from its own tag: `v0.0.1` for
-`sproutsdata`, `langchain-v0.0.1` and `ai-sdk-v0.0.1` for the adapters. An
+Each package versions independently and releases from its own tag: `v0.1.0` for
+`sproutsdata`, `langchain-v0.1.0` and `ai-sdk-v0.1.0` for the adapters. An
 adapter's peer range on `sproutsdata` must be satisfiable from npm, so the SDK
 always publishes first.
 
 1. Open a pull request that bumps `version` in the package's `package.json` and
-   `src/version.ts`, and adds its `CHANGELOG.md` entry. Merge it after review.
+   `src/version.ts`, and dates the version's `CHANGELOG.md` heading
+   (`## 0.1.0 — 2026-12-01`; the release refuses a tag whose heading still says
+   "Unreleased", `scripts/check-changelog.mjs`). Merge it after review.
 2. Tag the merge commit on `main` and push the tag:
    `git tag v0.0.2 && git push origin v0.0.2`.
 3. The release workflow runs the gate again and waits for approval in the `npm`

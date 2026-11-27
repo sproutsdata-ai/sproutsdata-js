@@ -18,7 +18,9 @@ export function checkShape(what: string, body: unknown, type: string, path = '')
   if (!isObject(body)) refuse(what, `${path || 'body'}: must be an object`);
   const missing = shape.required.find((name) => body[name] === undefined || body[name] === null);
   if (missing !== undefined) refuse(what, `${at(path, missing)}: Field required`);
-  for (const [name, value] of Object.entries(body)) checkMember(what, shape, name, value, path);
+  // A member left `undefined` is never sent (JSON drops it), so it is not judged: what the server
+  // reads is what is checked.
+  for (const [name, value] of Object.entries(body)) if (value !== undefined) checkMember(what, shape, name, value, path);
   checkRules(what, body, type, path);
 }
 

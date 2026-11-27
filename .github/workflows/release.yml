@@ -55,8 +55,10 @@ concurrency:
 
 jobs:
   gate:
-    # The whole CI gate (ci.yml), unchanged: what merges is what publishes.
+    # The whole CI gate (ci.yml), unchanged: what merges is what publishes. It gets the
+    # secrets so its public-text check reads the denied words.
     uses: ./.github/workflows/ci.yml
+    secrets: inherit
 
   verify:
     needs: gate
@@ -117,8 +119,21 @@ jobs:
             exit 1
           fi
 
+      - name: The CHANGELOG dates this version
+        if: github.ref_type == 'tag'
+        env:
+          DIR: ${{ steps.resolve.outputs.dir }}
+          VERSION: ${{ steps.resolve.outputs.version }}
+        run: node scripts/check-changelog.mjs "$VERSION" "$DIR/CHANGELOG.md"
+
       - run: npm ci
       - run: npm run build
+
+      - name: Nothing in the repository or the packages names a service behind the API
+        # The gate warns and checks the patterns alone without the words; a release does not.
+        env:
+          SPROUTSDATA_DENIED_WORDS: ${{ secrets.SPROUTSDATA_DENIED_WORDS }}
+        run: node scripts/check-public-text.mjs --require-words
 
       - name: What would be published
         env:
@@ -160,6 +175,11 @@ jobs:
         # The adapters' prepublishOnly runs their tests, which import the sdk
         # from its workspace build.
         run: npm run build
+      - name: Nothing in what is published names a service behind the API
+        # The build above is what is uploaded, so it is checked again here.
+        env:
+          SPROUTSDATA_DENIED_WORDS: ${{ secrets.SPROUTSDATA_DENIED_WORDS }}
+        run: node scripts/check-public-text.mjs --require-words
       - name: Publish
         env:
           DIR: ${{ needs.verify.outputs.dir }}

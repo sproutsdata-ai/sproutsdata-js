@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { SproutsData } from '../../src/index.js';
+import { ClientValidationError, SproutsData } from '../../src/index.js';
 import { isSproutsData, resolveClient, Toolset, type ToolResult, type ToolsetOptions } from '../../src/tools/index.js';
 import { recordedBody, respond } from '../support/answers.js';
 import { BASE_URL, FIXTURE_KEY } from '../support/fakes.js';
@@ -62,7 +62,9 @@ describe('settings', () => {
     [{ baselineFilters: { industry: [] } }, /non-empty filter object/],
     [{ baselineFilters: { industry: {} } }, /non-empty filter object/],
   ])('refuse invalid options when built (%#)', (options, match) => {
-    expect(() => new Toolset(client([]).client, options as unknown as ToolsetOptions)).toThrow(match);
+    const build = (): Toolset => new Toolset(client([]).client, options as unknown as ToolsetOptions);
+    expect(build).toThrow(match);
+    expect(build).toThrow(ClientValidationError);
   });
 
   it('need a SproutsData client, recognised by its brand across copies of the package', () => {
@@ -153,7 +155,9 @@ describe('shaping', () => {
   const resolved = (changes: Record<string, unknown>) => ({ ...recordedBody<{ resolved_search: object }>('search', 'company').resolved_search, ...changes });
 
   it('say when fast mode parsed nothing, but not for a filters-only search', async () => {
-    const { tools } = toolset([searchOk([], { resolved_search: resolved({ filters: {} }) })]);
+    // What a `fast` search that took no filter from its words resolved to.
+    const unparsed = resolved({ filters: {}, parser_version: 'none' });
+    const { tools } = toolset([searchOk([], { resolved_search: unparsed })]);
     expect(caveatsOf(await tools.run('sprouts_search', { query: 'payments companies in Germany' }))[0]).toMatch(/^parser_not_run:/);
     expect(caveatsOf(await tools.run('sprouts_search', { filters: { industry: { include: ['Software & Technology'] } } }))).toEqual([]);
   });

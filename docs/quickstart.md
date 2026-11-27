@@ -29,8 +29,9 @@ charged again. Every billed answer says what it cost in `meta.credits_charged`.
 
 Look-alikes and relationships are billed by session in the same way. Lookups
 are billed per record returned, org charts per call, and agent runs when
-they settle. Coverage, sorts, filter values, credits, history, feedback, lists
-and exports are free.
+they settle. A record shown whole (a lookup, a saved list, an export) is paid
+for once and then free for 90 days; see [Lists and exports](lists.md). Coverage,
+sorts, filter values, credits, history and feedback are free.
 
 ## Install
 
@@ -80,9 +81,11 @@ for (const hit of page.results) {
 
 | Mode | What it does |
 |---|---|
-| `fast` (the default with a category) | What the words ask becomes filters (the filters you send win), and the description left over is matched by meaning. Billed as a basic search. |
-| `auto` | The same reading, billed as an AI search. The only mode of `category: 'auto'`. |
+| `auto` (the default) | A model turns everything the words ask into filters (the filters you send win), and the description left over is matched by meaning. Billed as an AI search, and slower. The only mode of `category: 'auto'`. |
+| `fast` | The words are read only for what they are about (keywords, a description matched by meaning, people's titles or skills; a document's topic), and set no other filter: put hard constraints such as a country or a headcount in `filters`. Billed as a basic search. |
 
+A search sent without `mode` runs in `auto`. Pass `mode: 'fast'` when your
+constraints are already in `filters`: it is quicker and costs less.
 `resolved_search` reports what the reading inferred. `deep` is no longer offered:
 `mode: 'deep'` throws `ClientValidationError` before anything is sent. To have an agent
 work a question out and check every row against it, start an [agent run](runs.md).
@@ -257,7 +260,8 @@ The answer carries fields that say how far to trust it:
 
 | Field | What it tells you |
 |---|---|
-| `total`, `total_is_estimate` | How many matched. When `total_is_estimate` is true, `total` is a floor: show "1,200+", not "1,200". |
+| `total`, `total_is_estimate` | How many matched. When `total_is_estimate` is true, `total` is a floor: show "1,200+", not "1,200". With partial matches on, `total` counts them too. |
+| `total_exact`, and each row's `unmet`, `match_score`, `matched_filters` | A company or person search also returns, after the rows meeting every filter, rows meeting only part of the search. Such a row lists what it misses in `unmet` (each filter, and how: `close`, `near`, `no_data`, `partly_met` or `missed`), and its `match_score` is under 1. `total_exact` counts the exact rows. Partial rows are charged like any other; pass `partial_matches: false` for exact matches only. |
 | `has_more`, `next_cursor` | Whether another page exists, and the cursor to fetch it. See [Pagination](pagination.md). |
 | `degradation` | What the server could not do for this request, each with a `reason`, a `detail` and an `impact` (`recall`, `precision`, `freshness`, `fields`). Empty means checked and nothing degraded. |
 | `resolved_search` | What the server decided the request meant: the filters an `auto` reading inferred (`filters_source`), the sort applied, any conflicts. |

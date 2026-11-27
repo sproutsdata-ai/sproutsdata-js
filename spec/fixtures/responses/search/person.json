@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-24T09:06:07.470487Z",
+        "as_of": "2026-11-26T20:16:21.202192Z",
         "domain": null,
         "quote": null,
         "source_corpus": "gtm_index",
@@ -13,14 +13,14 @@
     "degradation": [],
     "has_more": true,
     "meta": {
-      "as_of": "2026-11-24T09:06:07.470487Z",
+      "as_of": "2026-11-26T20:16:21.202192Z",
       "credential": "api_key",
-      "credits_balance": 999.0,
-      "credits_charged": 0.5,
+      "credits_balance": 998.81,
+      "credits_charged": 0.595,
       "environment": "live",
-      "request_id": "cf4fb5dc84f3449fa67aa521de0a6c64"
+      "request_id": "eca37fe943a44193a8c0bcf67231dc27"
     },
-    "next_cursor": "eyJmIjoiMTgyNjU4ODMxNWQ5NDZlYTI3MmYyMmJiYzU3N2FiNDIiLCJvIjoyLCJzIjoiYzY1ODQ0MzBjNjg2NDMxZDljOTMwOTIxOGFlYmU0OWMiLCJ0IjoxNzk1NTExMTY3LCJ1IjoicHJpc218cGVyc29ufDEifQ.84987144411a49d012ea81e981088cbe",
+    "next_cursor": "cursor-1931b4490dca023b7845febb",
     "resolved_search": {
       "anchor_matches": [],
       "category": "person",
@@ -32,11 +32,11 @@
           ]
         }
       },
-      "filters_source": "none",
+      "filters_source": "parser",
       "keyword_query": null,
-      "mode": "fast",
+      "mode": "auto",
       "overrides": [],
-      "parser_version": "none",
+      "parser_version": "internal-search-v10",
       "query": "security leaders",
       "read_as": [],
       "semantic_query": "industrial automation",
@@ -75,6 +75,10 @@
         "last_name": "Example 0",
         "linkedin_connections": 500,
         "linkedin_url": "https://www.linkedin.com/in/alex-example-0",
+        "match_score": 1.0,
+        "matched_filters": [
+          "industry"
+        ],
         "region": "Europe",
         "score": 0.9,
         "seniority": "Head",
@@ -88,7 +92,8 @@
         ],
         "state": "Berlin",
         "sub_department": "Data",
-        "tenure": 3.4
+        "tenure": 3.4,
+        "unmet": null
       },
       {
         "account_name": "Example Fintech 1",
@@ -120,6 +125,10 @@
         "last_name": "Example 1",
         "linkedin_connections": 500,
         "linkedin_url": "https://www.linkedin.com/in/alex-example-1",
+        "match_score": 1.0,
+        "matched_filters": [
+          "industry"
+        ],
         "region": "Europe",
         "score": 0.89,
         "seniority": "Head",
@@ -133,19 +142,21 @@
         ],
         "state": "Berlin",
         "sub_department": "Data",
-        "tenure": 3.4
+        "tenure": 3.4,
+        "unmet": null
       }
     ],
     "suggestion": null,
     "total": 12345,
+    "total_exact": 12345,
     "total_is_estimate": false
   },
   "headers": {
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1998",
-    "ratelimit-reset": "53",
-    "x-request-id": "cf4fb5dc84f3449fa67aa521de0a6c64"
+    "ratelimit-reset": "39",
+    "x-request-id": "eca37fe943a44193a8c0bcf67231dc27"
   },
   "operation": "search",
   "request": {

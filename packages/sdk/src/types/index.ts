@@ -9,8 +9,33 @@ import type * as W from '../generated/wire.js';
 export type * from '../generated/wire.js';
 export type { RateLimitInfo } from './rate-limit.js';
 
+/** An export answered at once: its CSV text, and what the answer said about it (`undefined` where it did not say). */
+export interface ExportFile {
+  readonly kind: 'file';
+  /** The CSV text, the byte-order mark removed. */
+  readonly csv: string;
+  /**
+   * What making the file cost, in credits: each record shown whole that the workspace had not unlocked in the
+   * last 90 days, at the lookup price (card fields are free). An export too big to answer at once is an
+   * `ExportJob` instead, charged when its file is ready.
+   */
+  readonly creditsCharged: number | undefined;
+  /** `'unlocked'` (whole records: a workspace that has bought credits, calling with `dsp.entities.read`) or `'free'` (the search-row fields). */
+  readonly fieldTier: string | undefined;
+  /** The rows in the file. */
+  readonly rows: number | undefined;
+  /** The records left out (on the Do-Not-Contact list). */
+  readonly skipped: number | undefined;
+}
+
+/** An export running server-side: `exports.wait(job.job_id)`, then `exports.download`. */
+export interface ExportJob {
+  readonly kind: 'job';
+  readonly job: W.ExportJobView;
+}
+
 /** An export's answer: the CSV at once (200), or a job to wait for (202). */
-export type ExportResult = { readonly kind: 'file'; readonly csv: string } | { readonly kind: 'job'; readonly job: W.ExportJobView };
+export type ExportResult = ExportFile | ExportJob;
 
 /** A company or person search. `category` defaults to `company`. */
 export type EntitySearchParams = Omit<W.EntitySearchRequest, 'category'> & { readonly category?: 'company' | 'person' };
@@ -76,10 +101,10 @@ export interface ProjectionParams {
   readonly fields?: readonly string[];
 }
 
-/** A company lookup. `by` defaults to `auto`; `null` sends none (prism ids). */
+/** A company lookup. `by` defaults to `auto`; `null` sends none (internal record ids). */
 export type CompanyLookupParams = Omit<W.CompanyLookup, 'by'> & ProjectionParams & { readonly by?: W.CompanyBy | null };
 
-/** A person lookup. `by` defaults to `auto`; `null` sends none (prism ids). */
+/** A person lookup. `by` defaults to `auto`; `null` sends none (internal record ids). */
 export type PersonLookupParams = Omit<W.PersonLookup, 'by'> & ProjectionParams & { readonly by?: W.PersonBy | null };
 
 /** An effort tier by the name it had before: still accepted, sent as its new name. */
@@ -99,11 +124,15 @@ export interface PageParams {
 /** How a `wait` polls, and gives up. */
 export interface WaitOptions {
   /**
-   * Milliseconds before the second poll (runs 3,000, exports 2,000); each later wait is half
-   * again longer, to 15 s for runs and 10 s for exports.
+   * Milliseconds before the second poll (runs 3,000, exports and enrichment jobs 2,000); each
+   * later wait is half again longer, to 15 s for runs, 10 s for exports and 30 s for enrichment
+   * jobs. A positive number: anything else throws `ClientValidationError` before the first poll.
    */
   readonly pollIntervalMs?: number;
-  /** Give up after this long (default 900,000 ms); `null` waits for as long as it takes. */
+  /**
+   * Give up after this long (default 900,000 ms; 1,800,000 for an enrichment job); `null`
+   * waits for as long as it takes. Zero or more: anything else throws `ClientValidationError`.
+   */
   readonly maxWaitMs?: number | null;
 }
 

@@ -55,12 +55,12 @@ describe('runs', () => {
     assertValidRequest('runs_create', r.body());
   });
 
-  it('U3: a caller key is sent as is, and one over 255 characters is refused', async () => {
+  it('U3: a caller key is sent as is, and one the API would refuse is refused', async () => {
     const r = rig([recorded('runs_create', 'company')]);
     const runs = new Runs(r.transport);
     await runs.create({ query: 'x' }, { idempotencyKey: 'nightly-2026-11-11' });
     expect(r.sent[0]?.headers.get('idempotency-key')).toBe('nightly-2026-11-11');
-    await expect(runs.create({ query: 'x' }, { idempotencyKey: 'k'.repeat(256) })).rejects.toBeInstanceOf(ClientValidationError);
+    await expect(runs.create({ query: 'x' }, { idempotencyKey: 'k'.repeat(121) })).rejects.toBeInstanceOf(ClientValidationError);
     await expect(runs.create({ query: '' })).rejects.toThrow('query: must be at least 1 characters');
     expect(r.sent).toHaveLength(1);
   });

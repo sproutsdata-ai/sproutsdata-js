@@ -2,14 +2,14 @@
   "body": {
     "complete": false,
     "credits_used": 0.0,
-    "job_id": "7c38bf33-b213-468c-92ce-f5f7ba1ad1ce",
+    "job_id": "b77b6d37-8426-4482-91ef-ecd3ffcf2ca1",
     "meta": {
-      "as_of": "2026-11-24T09:06:08.755227Z",
+      "as_of": "2026-11-26T20:16:22.670049Z",
       "credential": "api_key",
-      "credits_balance": 964.405,
+      "credits_balance": 963.43,
       "credits_charged": null,
       "environment": "live",
-      "request_id": "5fdabe86aa874e9b9bc0d85db78e2d9b"
+      "request_id": "8525908154894fd2b1d9112d55048a21"
     },
     "reason": "deadline",
     "results": [
@@ -29,7 +29,7 @@
         ],
         "input": {
           "company_domain": "example-5.de",
-          "external_id": "SLOW-5",
+          "external_id": "SLOW_5",
           "full_name": "Grace Example"
         },
         "outcome": "not_found",
@@ -44,8 +44,8 @@
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1998",
-    "ratelimit-reset": "52",
-    "x-request-id": "5fdabe86aa874e9b9bc0d85db78e2d9b"
+    "ratelimit-reset": "38",
+    "x-request-id": "8525908154894fd2b1d9112d55048a21"
   },
   "operation": "enrichment_lookup",
   "request": {
@@ -56,7 +56,7 @@
       "items": [
         {
           "company_domain": "example-5.de",
-          "external_id": "SLOW-5",
+          "external_id": "SLOW_5",
           "full_name": "Grace Example"
         }
       ]

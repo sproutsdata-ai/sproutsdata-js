@@ -2,9 +2,9 @@
   "body": {
     "code": "enrichment.results_expired",
     "detail": "This job's rows are no longer kept (7 days after it ended). Start a new job to enrich them again.",
-    "instance": "/v1/enrichment/jobs/95d0e24f-fab5-4c72-b7c8-1ab0f9e97222/results",
+    "instance": "/v1/enrichment/jobs/4497f5c1-17c5-48ef-b93e-08287874be7d/results",
     "next_step": "Start a new job to enrich these rows again.",
-    "request_id": "488a444a28644ddeb35b331c2d41564c",
+    "request_id": "e143a647202e413d861528c15618fe17",
     "status": 410,
     "title": "Results expired",
     "type": "https://dashboard.sproutsdata.ai/errors/enrichment-results-expired"
@@ -13,16 +13,16 @@
     "content-type": "application/problem+json",
     "ratelimit-limit": "600",
     "ratelimit-remaining": "598",
-    "ratelimit-reset": "52",
-    "x-request-id": "488a444a28644ddeb35b331c2d41564c"
+    "ratelimit-reset": "38",
+    "x-request-id": "e143a647202e413d861528c15618fe17"
   },
   "operation": "enrichment_results",
   "request": {
     "body": null,
     "method": "GET",
-    "path": "/v1/enrichment/jobs/95d0e24f-fab5-4c72-b7c8-1ab0f9e97222/results",
+    "path": "/v1/enrichment/jobs/4497f5c1-17c5-48ef-b93e-08287874be7d/results",
     "query": {
-      "cursor": "e2e-expired"
+      "cursor": "cursor-8188f9e10bdd8ef0a34a4393"
     }
   },
   "status": 410

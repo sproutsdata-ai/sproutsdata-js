@@ -1,0 +1,62 @@
+{
+  "name": "a_keyed_call_whose_retries_run_out_carries_its_key",
+  "description": "A search that may have reached the server is retried with the key of its first attempt. When the retries run out, the error carries that key and says the work may have run, so a repeat the caller sends with the same key is charged once instead of paying again under a new key.",
+  "max_retries": 2,
+  "responses": [
+    {
+      "network": "read_timeout"
+    },
+    {
+      "network": "read_timeout"
+    },
+    {
+      "network": "read_timeout"
+    },
+    {
+      "status": 200,
+      "headers": {
+        "X-Request-Id": "req_ok"
+      },
+      "body": {
+        "results": [],
+        "total": 0,
+        "total_is_estimate": false,
+        "has_more": false,
+        "next_cursor": null,
+        "resolved_search": null,
+        "attribution": [],
+        "degradation": [],
+        "meta": {
+          "request_id": "req_ok",
+          "environment": "live",
+          "as_of": "2026-11-11T00:00:00Z",
+          "credential": "api_key"
+        }
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 3,
+    "sent": [
+      {},
+      {
+        "same_header_as_index": {
+          "header": "Idempotency-Key",
+          "index": 0
+        }
+      },
+      {
+        "same_header_as_index": {
+          "header": "Idempotency-Key",
+          "index": 0
+        }
+      }
+    ],
+    "error": {
+      "concept": "timeout",
+      "reached_server": true,
+      "message_contains": "may have run",
+      "idempotency_key": "sent"
+    }
+  }
+}

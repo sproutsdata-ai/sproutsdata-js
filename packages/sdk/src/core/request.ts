@@ -6,13 +6,13 @@
  * request id or the idempotency key.
  */
 
+import { DEFAULTS } from '../generated/defaults.js';
 import type { OperationSpec, ResponseKind } from '../generated/operations.js';
 import {
   HEADER_API_KEY,
   HEADER_IDEMPOTENCY_KEY,
   HEADER_LAST_EVENT_ID,
   HEADER_REQUEST_ID,
-  IDEMPOTENCY_KEY_MAX_LENGTH,
   REQUEST_ID_PATTERN,
 } from './constants.js';
 import { ClientValidationError } from './errors.js';
@@ -101,8 +101,11 @@ function idempotencyKey(operation: OperationSpec & { readonly name: string }, gi
     return undefined;
   }
   if (given === undefined) return newIdempotencyKey();
-  if (given === '' || given.length > IDEMPOTENCY_KEY_MAX_LENGTH || /[^\x20-\x7e]/.test(given)) {
-    throw new ClientValidationError(`idempotencyKey must be 1-${String(IDEMPOTENCY_KEY_MAX_LENGTH)} printable characters.`);
+  // Checked at run time: callers are not all typed.
+  if (typeof given !== 'string' || !DEFAULTS.idempotencyKeyPattern.test(given)) {
+    throw new ClientValidationError(
+      `idempotencyKey must be 1 to 120 letters, digits or '.', '_', ':' or '-', as the API takes it: ${JSON.stringify(given)}.`,
+    );
   }
   return given;
 }

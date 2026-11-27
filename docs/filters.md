@@ -19,6 +19,34 @@ sending it (the field names, the shapes, the closed values and the rules
 below), and throws `ClientValidationError` for anything the server would
 refuse. Filters are never silently dropped.
 
+## Words and filters together
+
+The words of a `query` are read into filters as well (the filters you send win where
+the two disagree). `lock_filters: true` stops that: the words are searched as a
+description only, and `filters`, with the domain lists, is the whole filter set, so
+nothing in a query can add, change or remove a filter. `category: 'auto'` cannot lock
+its filters, since it reads everything from the question.
+
+```ts
+import { SproutsData } from 'sproutsdata';
+
+const client = new SproutsData();
+const page = await client.search({
+  query: 'payments infrastructure for marketplaces',
+  filters: { industry: { include: ['Software & Technology'] } },
+  lock_filters: true,
+  fields: ['account_name', 'domain', 'linkedin_url'],
+});
+```
+
+`fields` asks the server for only those fields of each row (plus `id`, `category` and
+`score`). It changes neither which rows come back nor what they cost. Keep `domain`
+and `linkedin_url` among them if you call `lookupRef()` on the rows.
+
+A `query` of only spaces is refused, with or without filters, as the API refuses it:
+`` `query` cannot be blank; send words, or leave it out ``. Leave `query` out to
+search by filters alone.
+
 ## The company and person vocabulary
 
 `DiscoverFilters` (industry, employee_count, revenue, technology,

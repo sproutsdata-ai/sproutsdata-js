@@ -15,6 +15,8 @@ export interface Outcome {
   readonly codes: readonly string[];
   /** Matches only when Retry-After is within (or beyond) the cap; `null`: either. */
   readonly retryAfter: 'within_cap' | 'beyond_cap' | null;
+  /** The work may have run (been charged, or taken effect) although no success came back. */
+  readonly mayHaveRun: boolean;
   readonly decisions: Readonly<Record<RouteClass, Decision>>;
 }
 
@@ -23,28 +25,40 @@ export const RETRY_AFTER_CAP_MS = 60000;
 /** Matched in order; the first row that matches a failed attempt decides. */
 export const OUTCOMES: readonly Outcome[] = [
   {
-    name: "not_sent",
-    network: ["connect_refused","dns_failure","connect_timeout"],
-    statuses: [],
-    codes: [],
-    retryAfter: null,
-    decisions: { safe: "retry", billed: "retry", keyed: "retry", once: "retry" },
-  },
-  {
-    name: "sent_no_answer",
-    network: ["read_timeout","reset_after_send"],
-    statuses: [408,502],
-    codes: [],
-    retryAfter: null,
-    decisions: { safe: "retry", billed: "raise", keyed: "retry", once: "raise" },
-  },
-  {
     name: "never_retried_code",
     network: [],
     statuses: [],
     codes: ["credits.refused","quota.concurrency_exceeded"],
     retryAfter: null,
+    mayHaveRun: false,
     decisions: { safe: "raise", billed: "raise", keyed: "raise", once: "raise" },
+  },
+  {
+    name: "upstream_timeout",
+    network: [],
+    statuses: [],
+    codes: ["upstream.timeout"],
+    retryAfter: null,
+    mayHaveRun: true,
+    decisions: { safe: "retry", billed: "raise", keyed: "retry", once: "raise" },
+  },
+  {
+    name: "not_sent",
+    network: ["connect_refused","dns_failure","connect_timeout"],
+    statuses: [],
+    codes: [],
+    retryAfter: null,
+    mayHaveRun: false,
+    decisions: { safe: "retry", billed: "retry", keyed: "retry", once: "retry" },
+  },
+  {
+    name: "sent_no_answer",
+    network: ["read_timeout","reset_after_send"],
+    statuses: [408,502,504],
+    codes: [],
+    retryAfter: null,
+    mayHaveRun: true,
+    decisions: { safe: "retry", billed: "raise", keyed: "retry", once: "raise" },
   },
   {
     name: "rate_limited",
@@ -52,6 +66,7 @@ export const OUTCOMES: readonly Outcome[] = [
     statuses: [429],
     codes: [],
     retryAfter: "within_cap",
+    mayHaveRun: false,
     decisions: { safe: "retry", billed: "retry", keyed: "retry", once: "retry" },
   },
   {
@@ -60,6 +75,7 @@ export const OUTCOMES: readonly Outcome[] = [
     statuses: [429],
     codes: [],
     retryAfter: "beyond_cap",
+    mayHaveRun: false,
     decisions: { safe: "raise", billed: "raise", keyed: "raise", once: "raise" },
   },
   {
@@ -68,6 +84,7 @@ export const OUTCOMES: readonly Outcome[] = [
     statuses: [400,401,402,403,404,405,409,410,413,415,422,501],
     codes: [],
     retryAfter: null,
+    mayHaveRun: false,
     decisions: { safe: "raise", billed: "raise", keyed: "raise", once: "raise" },
   },
   {
@@ -76,14 +93,16 @@ export const OUTCOMES: readonly Outcome[] = [
     statuses: [500],
     codes: [],
     retryAfter: null,
-    decisions: { safe: "retry", billed: "retry", keyed: "retry", once: "raise" },
+    mayHaveRun: true,
+    decisions: { safe: "retry", billed: "raise", keyed: "retry", once: "raise" },
   },
   {
     name: "unavailable",
     network: [],
-    statuses: [503,504],
+    statuses: [503],
     codes: [],
     retryAfter: null,
+    mayHaveRun: false,
     decisions: { safe: "retry", billed: "retry", keyed: "retry", once: "retry" },
   },
 ];

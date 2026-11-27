@@ -74,11 +74,14 @@ python -m scripts.gen_tool_schemas --check    # CI: fails while either is stale
 4. **Rules** (`messages.json` → `rules`), the first that applies refusing the
    call: search needs `query` or `filters` (`needs_query_or_filters`), where a
    `filters` that is `{}` once nulls are removed and a `query` that is empty or
-   only whitespace both count as absent; `category: "auto"` needs a `query`,
-   `mode: "auto"`, and no filters, domains or sort, and cannot run under
+   only whitespace both count as absent; a `query` of only whitespace beside
+   filters is refused (`query_blank`), not dropped: the API refuses it;
+   `category: "auto"` needs a `query`, `mode: "auto"`, and no filters, domains
+   or `sort` (an empty `sort` too), and cannot run under
    baseline filters; domain lists need a domain category; a document category
    takes no `filters` (they are company and person filters:
-   `documents_take_no_filters`); a sort field may appear once; a lookup `by`
+   `documents_take_no_filters`) and no `partial_matches`
+   (`partial_matches_entities_only`); a sort field may appear once; a lookup `by`
    must be one the category accepts (`shaping.json` → `lookup_by`).
 5. **Baseline filters** merge into the model's per sub-key: a filter the model
    did not set is added whole; one it did set keeps its own keys, and takes the
@@ -104,6 +107,7 @@ Search and look-alike:
 {
   "results": [{"id": "…", "category": "company", "account_name": "…", "technology": ["HubSpot", "…", "… +19 more"], "lookup": {"by": "domain", "value": "…"}}],
   "total": 13137,
+  "total_exact": 13020,
   "total_is_estimate": false,
   "has_more": true,
   "next_cursor": "…",
@@ -123,6 +127,14 @@ Search and look-alike:
   stable partition. "Asked for" is every literal in the effective filters and in
   `resolved_search.filters` under the same field name: a string, a list of
   strings, or an object's `include` list.
+- **A partial row** (one with a non-empty `unmet`, or a `match_score` below 1: it
+  meets only part of the search) keeps the fields in `shaping.json` → `partial_row_fields`
+  (`matched_filters`, `match_score`, `unmet`) whatever the projection, compacted
+  like any other, after its projected fields. An exact row keeps none of them: it
+  meets every filter in `interpreted_as`.
+- **`total_exact`**, the rows meeting every filter, follows `total` when the
+  response has it (a company or person search with partial matches on), and is
+  absent otherwise. `total` counts the partial rows too.
 - **`lookup`** is added to a row when the lookup tool is in the toolset:
   `{"by": "domain", "value": domain}` for a company with a domain, otherwise
   `{"by": "li_url", "value": linkedin_url}` for a company or person with one, and
@@ -139,15 +151,21 @@ Search and look-alike:
   of, share}`, thinnest first); otherwise the key is absent.
 - **`caveats`**, in order: each degradation as `"<reason>: <detail> (impact:
   <impact>)"`; `parser_not_run` when the call sent a `query` and `resolved_search` has
-  `parser_version` `"none"` (or empty) and no filters; then the call's own, in
+  `parser_version` `"none"` (or empty) and no filters; `partial_rows` when any row
+  shown is partial (how many, of how many shown, and `total_exact`; when the response
+  has no `total_exact`, `partial_rows_unknown_exact`, which leaves the exact count out
+  rather than claim none);
+  then the call's own, in
   this order — `application_filter` (one per replaced key), `anchors_unreported`
   (more than one anchor), `anchors_by_name`, `anchors_zero_weight`,
   `limit_capped`, `anchors_removed` — and last `rows_without_lookup`. The
   `anchors_*` caveats come before `limit_capped` because they describe the
   arguments, and `anchors_removed` after it because it describes the response
   (`fixtures/similar_caveat_order.json` pins the order).
-- **Look-alike** removes a row whose `domain` (else `id`), normalised —
-  lower-case, scheme, `www.` and path removed — equals a `by: "domain"` anchor's.
+- **Look-alike** removes a row whose own `domain`, normalised — lower-case,
+  scheme, `www.` and path removed — equals a `by: "domain"` anchor's, and names
+  it by that domain in `anchors_removed`. A row's `id` is never matched: a company
+  row's `id` is a sealed reference, not its domain.
 - **`suggestion`** is the response's, with empty members dropped, or `null`.
 
 Lookup:
@@ -165,7 +183,8 @@ shaped like rows, plus a `more_marker` when there were more; `ambiguous` is true
 when more than one record matched. `found: true` with an empty `matches` is a
 record that resolved but did not come back (`record_unavailable`), never a miss.
 For a company or person lookup without `by` (so `auto`), misses that match
-`search_id_pattern` (a person row's hash id) add `search_ids_not_found`.
+`search_id_pattern` (a company row's sealed id or a person row's hash) add
+`search_ids_not_found`.
 
 ## Errors
 
@@ -181,15 +200,25 @@ document's, or `http.<status>` without one; `message` its `detail`, else its
 `title`, else `HTTP <status>`, followed by its `next_step` (one sentence on what
 to do now) after a space when it has one; `field_errors` its `errors` as `path: msg`
 with a leading `body` or `query` segment dropped (`msg` defaults to `invalid`);
-`retry_after` in seconds. `retryable` is true for 429, 500, 503 and 504. A 502 or 408 is `gateway_no_answer`, and
-a timeout (`timeout`) or dropped connection (`connection_error`) after the
-request was sent is not retryable either: all three tools are charged once the
-server has done the work, so a repeat may be a second charge (the SDK's own retries
-resend the call's `Idempotency-Key` and are charged once; a new call is a new charge). A request that never left is
+`retry_after` in seconds. `retryable` is true when the answer's concept
+(`error-codes.json`: by its code, else by its status) is in `shaping.json` →
+`retryable_concepts`: a rate limit or an unavailable service, which the API
+answers before any work begins. Every tool here is charged, and calling a tool
+again sends a new request with a new `Idempotency-Key`, so nothing that may have
+run is retryable: an internal error or the API's own `upstream.timeout` (concepts
+in `may_have_run_concepts`, whose message gains `errors.may_have_run`), a gateway's
+answer (concept `gateway`: a 408, a 502, or a 504 without the API's code;
+`gateway_no_answer`), and a timeout (`timeout`) or dropped connection
+(`connection_error`) after the request was sent. The SDK's own retries resend the
+call's key and are charged once; by the time a tool reports one of these, those
+retries are spent. A code that says a repeat cannot help (`quota.concurrency_exceeded`,
+`credits.refused`) has its own concept and is not retryable. A free tool would need
+its own list. A request that never left is
 retryable. An unreadable success is `response_invalid`.
 
-Raised to the application: 401, 403 and 402 (a frozen wallet included), and the
-configuration errors a client raises before any call. A model can fix none of them.
+Raised to the application: 401, 403 and 402 (a frozen wallet included), a
+redirect (the client's base URL is not the API's), and the configuration errors a
+client raises before any call. A model can fix none of them.
 
 ## Canonical JSON
 

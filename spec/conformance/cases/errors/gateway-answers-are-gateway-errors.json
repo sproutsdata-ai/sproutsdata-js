@@ -1,0 +1,36 @@
+{
+  "name": "a_gateway_timeout_is_not_the_apis_timeout",
+  "description": "A 504 with no problem document is a gateway's, so it maps to the gateway concept, not to upstream_timeout, whose promise (abandoned, not charged) only the API can make. A free read is repeated until it gives up.",
+  "request": {
+    "method": "GET",
+    "path": "/v1/usage/history"
+  },
+  "responses": [
+    {
+      "status": 504,
+      "headers": {},
+      "raw_body": "",
+      "content_type": "text/plain"
+    },
+    {
+      "status": 504,
+      "headers": {},
+      "raw_body": "<html><body>504 Gateway Time-out</body></html>",
+      "content_type": "text/html"
+    },
+    {
+      "status": 504,
+      "headers": {},
+      "raw_body": "",
+      "content_type": "text/plain"
+    }
+  ],
+  "expect": {
+    "attempts": 3,
+    "error": {
+      "concept": "gateway",
+      "not_concept": "upstream_timeout",
+      "status": 504
+    }
+  }
+}

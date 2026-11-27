@@ -53,12 +53,18 @@ export interface ShapingSpec {
   readonly more_marker: string;
   readonly max_results_ceiling: number;
   readonly identity_fields: readonly string[];
+  /** Kept on a row meeting only part of the search, whatever the projection. */
+  readonly partial_row_fields: readonly string[];
   readonly default_projection: Readonly<Record<string, readonly string[]>>;
   readonly domain_categories: readonly string[];
   readonly lookup_by: Readonly<Record<string, { readonly accepts: readonly string[]; readonly default: string | null }>>;
   readonly search_id_pattern: string;
   readonly document_categories: readonly string[];
   readonly resolved_filters_skipped: readonly string[];
+  /** The error concepts (`spec/error-codes.json`) a tool error calls retryable. */
+  readonly retryable_concepts: readonly string[];
+  /** The error concepts whose work may have run: their message says a repeat can be charged. */
+  readonly may_have_run_concepts: readonly string[];
 }
 
 /** `spec/tools/messages.json`, without its `$comment` and `version`: sections of `{placeholder}` templates. */
@@ -170,7 +176,10 @@ export interface SparseFilterNote {
 export interface SearchToolResult {
   /** Projected, trimmed rows; a row a lookup can take carries `lookup: { by, value }`. */
   readonly results: readonly Readonly<Record<string, unknown>>[];
+  /** Every row found, partial matches included. */
   readonly total: number;
+  /** The rows meeting every filter, when partial matches are on (a company or person search). */
+  readonly total_exact?: number;
   /** When true, `total` is a floor. */
   readonly total_is_estimate: boolean;
   readonly has_more: boolean;

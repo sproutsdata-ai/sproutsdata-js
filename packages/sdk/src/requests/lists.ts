@@ -1,4 +1,4 @@
-/** The bodies of the saved-list and export routes, checked as the server checks them (be `src/dsp/features/lists/schemas.py`). */
+/** The bodies of the saved-list and export routes, checked as the server checks them (`spec/openapi.json`). */
 
 import type * as W from '../generated/wire.js';
 import type { PageParams } from '../types/index.js';
@@ -7,7 +7,7 @@ import { checkShape } from './shape.js';
 
 const MAX_PAGE_SIZE = 100;
 
-/** A list's name and kind (the server trims the name, so a blank one is refused: be schemas.py:33). */
+/** A list's name and kind (the server trims the name, so a blank one is refused). */
 export function listBody<T extends W.ListName>(what: string, type: string, params: T): T {
   if (typeof params.name === 'string' && params.name.trim() === '') refuse(what, 'name: a list needs a name');
   checkShape(what, params, type);

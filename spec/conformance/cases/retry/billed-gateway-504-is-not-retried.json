@@ -1,0 +1,49 @@
+{
+  "name": "billed_call_is_not_repeated_after_a_gateway_timeout",
+  "description": "Pins the retry table's `billed` class. A 504 without the API's upstream.timeout code is a gateway that stopped waiting while the API may still be working, and may still charge, so a billed call is not repeated and the error says it may have been charged.",
+  "route_class": "billed",
+  "responses": [
+    {
+      "status": 504,
+      "headers": {},
+      "raw_body": "<html><body>504 Gateway Time-out</body></html>",
+      "content_type": "text/html"
+    },
+    {
+      "status": 200,
+      "headers": {
+        "X-Request-Id": "req_ok"
+      },
+      "body": {
+        "results": [
+          {
+            "id": "a.com",
+            "category": "company",
+            "score": 1.0
+          }
+        ],
+        "total": 1,
+        "total_is_estimate": false,
+        "has_more": false,
+        "next_cursor": null,
+        "resolved_search": null,
+        "attribution": [],
+        "degradation": [],
+        "meta": {
+          "request_id": "req_ok",
+          "environment": "live",
+          "as_of": "2026-11-11T00:00:00Z",
+          "credential": "api_key"
+        }
+      }
+    }
+  ],
+  "expect": {
+    "attempts": 1,
+    "error": {
+      "concept": "gateway",
+      "status": 504,
+      "message_contains": "may have been charged"
+    }
+  }
+}

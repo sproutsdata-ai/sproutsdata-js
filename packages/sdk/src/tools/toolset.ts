@@ -12,7 +12,7 @@
  * 4. **Shape**: the response as the model reads it (`shape.ts`).
  */
 
-import type { SearchEnvelope, SproutsData } from '../index.js';
+import { ClientValidationError, type SearchEnvelope, type SearchHit, type SproutsData } from '../index.js';
 import { isLookupArguments, isSearchArguments, isSimilarArguments, parseArguments } from './args.js';
 import { Catalog, checkSettings, type OfferedTool } from './catalog-set.js';
 import { join, LOOKUP, MAX_RESULTS_CEILING, SIMILAR, text, toolName } from './catalog.js';
@@ -57,7 +57,7 @@ function checkBaseline(baseline: ToolSettings | undefined): Settings['baseline']
   for (const [name, given] of Object.entries(baseline ?? {})) {
     const value: unknown = given; // a caller without types may pass anything
     if (!isObject(value) || Object.keys(value).length === 0) {
-      throw new TypeError(`baselineFilters['${name}'] must be a non-empty filter object, such as { include: [...] } or { gte: ... }.`);
+      throw new ClientValidationError(`baselineFilters['${name}'] must be a non-empty filter object, such as { include: [...] } or { gte: ... }.`);
     }
     checked[name] = structuredClone(value);
   }
@@ -66,7 +66,7 @@ function checkBaseline(baseline: ToolSettings | undefined): Settings['baseline']
 
 function checkCap(maxResults: unknown): number {
   if (typeof maxResults !== 'number' || !Number.isInteger(maxResults) || maxResults < 1 || maxResults > MAX_RESULTS_CEILING) {
-    throw new TypeError(`maxResults must be an integer from 1 to ${String(MAX_RESULTS_CEILING)}, got ${String(maxResults)}.`);
+    throw new ClientValidationError(`maxResults must be an integer from 1 to ${String(MAX_RESULTS_CEILING)}, got ${String(maxResults)}.`);
   }
   return maxResults;
 }
@@ -94,6 +94,12 @@ function domainOf(value: string): string {
   return lowered.split('/', 1)[0] ?? '';
 }
 
+/** A result row's own domain, normalised, or `undefined` for a row without one. */
+function rowDomain(hit: SearchHit): string | undefined {
+  const domain: unknown = hit['domain'];
+  return typeof domain === 'string' && domain.trim() !== '' ? domainOf(domain) : undefined;
+}
+
 /**
  * The Sprouts tools over a `SproutsData` client.
  *
@@ -113,8 +119,9 @@ export class Toolset {
   readonly #settings: Settings;
 
   /**
-   * @throws {ClientValidationError} An option names an unknown tool or sets an invalid argument.
-   * @throws {TypeError} `client` is not a `SproutsData` client, or `maxResults` or `baselineFilters` is invalid.
+   * @throws {ClientValidationError} An option names an unknown tool or sets an invalid argument, or
+   * `maxResults` or `baselineFilters` is invalid.
+   * @throws {TypeError} `client` is not a `SproutsData` client.
    */
   constructor(client: SproutsData, options: ToolsetOptions = {}) {
     if (!isSproutsData(client)) throw new TypeError('Toolset needs a SproutsData client.');
@@ -123,7 +130,7 @@ export class Toolset {
     this.#defaults = checkSettings('defaults', options.defaults, this.#catalog.included);
     for (const [tool, values] of this.#defaults) {
       const clash = Object.keys(values).filter((key) => Object.hasOwn(this.#catalog.fixed.get(tool) ?? {}, key));
-      if (clash.length > 0) throw new TypeError(`${tool}: ${clash.join(', ')} cannot be both fixed and defaulted.`);
+      if (clash.length > 0) throw new ClientValidationError(`${tool}: ${clash.join(', ')} cannot be both fixed and defaulted.`);
     }
     this.#settings = { maxResults: checkCap(options.maxResults ?? MAX_RESULTS_CEILING), baseline: checkBaseline(options.baselineFilters) };
   }
@@ -151,7 +158,7 @@ export class Toolset {
   /**
    * Run one tool call: the result, or `{ error: {...} }` the model can act on.
    *
-   * @throws {AuthenticationError | PermissionDeniedError | InsufficientCreditsError} Only what the model cannot fix.
+   * @throws {AuthenticationError | PermissionDeniedError | InsufficientCreditsError | RedirectRefusedError} Only what the model cannot fix.
    */
   async run(name: string, args?: ToolArguments): Promise<ToolResult> {
     const plan = this.#prepare(name, args);
@@ -251,12 +258,18 @@ export class Toolset {
     let hits = page.results;
     const caveats = [...shaping.caveats];
     if (plan.tool === SIMILAR) {
-      // A company is not a look-alike of itself; only domain anchors can be matched with certainty.
+      // A company is not a look-alike of itself. Only a domain anchor can be matched to a row with
+      // certainty, and only by the row's own `domain`: its `id` is a sealed reference, not a domain.
+      // The caveat names what was removed by that domain.
       const anchors = new Set(plan.anchors.filter((a) => a.by === 'domain').map((a) => domainOf(a.value)));
-      const removed = hits.filter((h) => anchors.has(domainOf(typeof h['domain'] === 'string' ? h['domain'] : h.id))).map((h) => h.id);
-      if (removed.length > 0) {
-        hits = hits.filter((h) => !removed.includes(h.id));
-        caveats.push(text('caveats', 'anchors_removed', { ids: join(removed) }));
+      const removed = new Map<string, string>();
+      for (const hit of hits) {
+        const domain = rowDomain(hit);
+        if (domain !== undefined && anchors.has(domain)) removed.set(hit.id, domain);
+      }
+      if (removed.size > 0) {
+        hits = hits.filter((h) => !removed.has(h.id));
+        caveats.push(text('caveats', 'anchors_removed', { ids: join([...removed.values()]) }));
       }
     }
     return {

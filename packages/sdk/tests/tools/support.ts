@@ -10,10 +10,10 @@ import { BASE_URL, recordingFetch, type Scripted, type Sent, FIXTURE_KEY } from 
 
 type Json = Record<string, unknown>;
 
-/** A client with retries off, over `script`. */
-export function client(script: readonly Scripted[]): { client: SproutsData; sent: Sent[] } {
+/** A client over `script`, with retries off unless asked for. */
+export function client(script: readonly Scripted[], maxRetries = 0): { client: SproutsData; sent: Sent[] } {
   const { fetch, sent } = recordingFetch(script);
-  return { client: new SproutsData({ apiKey: FIXTURE_KEY, baseUrl: BASE_URL, maxRetries: 0, fetch }), sent };
+  return { client: new SproutsData({ apiKey: FIXTURE_KEY, baseUrl: BASE_URL, maxRetries, fetch }), sent };
 }
 
 /** A `Toolset` with `options`, over `script`. */

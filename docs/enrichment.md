@@ -97,7 +97,10 @@ with `rows` the number of records, basis `values_up_to`). It can be higher than
 a job's hold, never lower: an item that asks for fewer fields is held for fewer.
 When the work ends, only the values newly found are charged:
 
-- a value Sprouts already holds, a miss, and an error cost nothing;
+- a value already found for the same LinkedIn profile or Sprouts record, a miss,
+  and an error cost nothing. A row sent with only a name and a company is looked
+  up, and charged, each time: send its `linkedin_url` or `person_id` to get
+  repeats free;
 - `re_enrich: true` looks up values that are already known, and each costs
   again;
 - a failed or cancelled job is charged for the values it found before it

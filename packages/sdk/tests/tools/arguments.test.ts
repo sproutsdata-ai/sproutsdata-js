@@ -7,9 +7,11 @@ import { readFileSync } from 'node:fs';
 
 import { describe, expect, it } from 'vitest';
 
-import { AuthenticationError, InsufficientCreditsError, PermissionDeniedError } from '../../src/index.js';
+import { APIError, AuthenticationError, InsufficientCreditsError, PermissionDeniedError, RedirectRefusedError, SproutsData } from '../../src/index.js';
+import { Toolset } from '../../src/tools/index.js';
+import { BASE_URL, FIXTURE_KEY } from '../support/fakes.js';
 import type { ToolError, ToolResult } from '../../src/tools/index.js';
-import { problem, searchOk, toolset } from './support.js';
+import { client, problem, searchOk, toolset } from './support.js';
 
 const SPEC = new URL('../../../../spec/tools/sprouts_search.json', import.meta.url).pathname;
 const errorOf = (result: ToolResult): ToolError['error'] => {
@@ -116,12 +118,14 @@ describe('failures', () => {
 
   it.each([
     [problem('history.not_found', 404, { detail: 'No such run.' }), 'history.not_found', false],
-    [problem('internal', 500), 'internal', true],
+    [problem('internal', 500), 'internal', false],
     [problem('conflict', 409), 'conflict', false],
     [problem('upstream.unavailable', 503), 'upstream.unavailable', true],
-    [problem('upstream.timeout', 504), 'upstream.timeout', true],
+    [problem('upstream.timeout', 504), 'upstream.timeout', false],
+    [problem('credits.refused', 503), 'credits.refused', false],
+    [problem('quota.concurrency_exceeded', 429), 'quota.concurrency_exceeded', false],
     [problem('not_implemented', 501), 'not_implemented', false],
-    [{ status: 500, raw_body: '<html>oops</html>' }, 'http.500', true],
+    [{ status: 500, raw_body: '<html>oops</html>' }, 'http.500', false],
   ])('come back as data with six keys (%#)', async (answer, code, retryable) => {
     const { tools } = toolset([answer]);
     const error = errorOf(await tools.run('sprouts_search', { query: 'acme' }));
@@ -144,7 +148,12 @@ describe('failures', () => {
     expect([limited.retryable, limited.retry_after]).toEqual([true, 3]);
   });
 
-  it.each([[{ status: 502, raw_body: 'Bad Gateway' }], [problem('x', 408)]])('a gateway answer is not retryable, and says why (%#)', async (answer) => {
+  it.each([
+    [{ status: 502, raw_body: 'Bad Gateway' }],
+    [{ status: 504, raw_body: '' }],
+    [{ status: 504, raw_body: '<html>504 Gateway Time-out</html>' }],
+    [problem('x', 408)],
+  ])('a gateway answer is not retryable, and says why (%#)', async (answer) => {
     const { tools, sent } = toolset([answer]);
     const error = errorOf(await tools.run('sprouts_search', { query: 'acme' }));
     expect(error.retryable).toBe(false);
@@ -152,11 +161,43 @@ describe('failures', () => {
     expect(sent).toHaveLength(1);
   });
 
+  it('a redirect is thrown, however the fetch reports it: the application must fix its base URL', async () => {
+    const answered = toolset([{ status: 302, headers: { location: 'https://elsewhere.example' } }]);
+    await expect(answered.tools.run('sprouts_search', { query: 'acme' })).rejects.toBeInstanceOf(APIError);
+    const refused = new TypeError('fetch failed', { cause: new Error('unexpected redirect') });
+    const client = new SproutsData({ apiKey: FIXTURE_KEY, baseUrl: BASE_URL, maxRetries: 0, fetch: () => Promise.reject(refused) });
+    await expect(new Toolset(client).run('sprouts_search', { query: 'acme' })).rejects.toBeInstanceOf(RedirectRefusedError);
+  });
+
   it('a request that never left is retryable; one that may have is not', async () => {
     const unsent = errorOf(await toolset([{ network: 'connect_refused' }]).tools.run('sprouts_search', { query: 'acme' }));
     expect([unsent.code, unsent.retryable]).toEqual(['connection_error', true]);
     const reset = errorOf(await toolset([{ network: 'reset_after_send' }]).tools.run('sprouts_similar', { anchors: [{ value: 'acme.com' }] }));
-    expect([reset.code, reset.retryable, reset.message.includes('a charge may already have happened')]).toEqual(['connection_error', false, true]);
+    expect([reset.code, reset.retryable, reset.message.includes('may have run and been charged')]).toEqual(['connection_error', false, true]);
+  });
+
+  it.each([
+    [problem('internal', 500, { detail: 'Something failed.' }), 'Something failed.'],
+    [problem('upstream.timeout', 504), 'upstream.timeout'],
+    [{ status: 500, raw_body: '<html>oops</html>' }, 'HTTP 500'],
+  ])('work that may have run is not retryable and says a repeat may be charged (%#)', async (answer, said) => {
+    const error = errorOf(await toolset([answer]).tools.run('sprouts_search', { query: 'acme' }));
+    expect(error.retryable).toBe(false);
+    expect(error.message.startsWith(said)).toBe(true);
+    expect(error.message.endsWith(
+      'It may have run and been charged before it failed. Calling the tool again sends a new request, which can be ' +
+        'charged again. Do not retry it automatically.',
+    )).toBe(true);
+  });
+
+  it("by the time a tool reports a lost connection, the client's keyed retries are spent", async () => {
+    const lost = { network: 'reset_after_send' };
+    const made = client([lost, lost, lost], 2);
+    const error = errorOf(await new Toolset(made.client).run('sprouts_search', { query: 'acme' }));
+    const keys = new Set(made.sent.map((request) => request.headers.get('Idempotency-Key')));
+    expect([made.sent.length, keys.size]).toEqual([3, 1]);
+    expect([error.code, error.retryable]).toEqual(['connection_error', false]);
+    expect(error.message).toContain('Calling the tool again sends a new request');
   });
 
   it('an unreadable success comes back as data', async () => {

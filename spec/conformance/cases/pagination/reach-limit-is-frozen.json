@@ -32,7 +32,7 @@
         "total": 7,
         "total_is_estimate": false,
         "has_more": true,
-        "next_cursor": "CURSOR_R",
+        "next_cursor": "cursor-070490d744a5fce2aba5908c",
         "meta": {
           "request_id": "req_ok",
           "environment": "live",
@@ -74,7 +74,7 @@
     "sent": [
       {},
       {
-        "cursor": "CURSOR_R",
+        "cursor": "cursor-070490d744a5fce2aba5908c",
         "limit": 5,
         "body_equals_index": 0,
         "except_keys": [

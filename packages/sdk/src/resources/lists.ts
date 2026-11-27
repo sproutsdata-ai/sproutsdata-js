@@ -1,4 +1,13 @@
-/** Saved lists: make one, fill it, read it, export it. Free; exports are free too. */
+/**
+ * Saved lists: make one, fill it, read it, export it. Making, renaming and deleting a list,
+ * and removing items, are free. Adding items, reading them and exporting them charge, once per
+ * record: a paid workspace pays the lookup price for each record it is shown whole and has not
+ * unlocked in the last 90 days, all or nothing (`InsufficientCreditsError` when the balance is
+ * short, with nothing added, shown or exported); a free workspace sees the card fields, free.
+ * These calls read no `Idempotency-Key` and charge before they unlock the records, so one whose
+ * work may have run (a gateway's 502 or 504, a 500, the API's own timeout) is thrown, not
+ * repeated: its message says it may have been charged.
+ */
 
 import type { RequestOptions } from '../core/transport.js';
 import type * as W from '../generated/wire.js';
@@ -34,7 +43,12 @@ export class Lists extends Resource {
     await this.empty('listsDelete', { path: { list_id: listId } }, options);
   }
 
-  /** One page of a list's items, newest first; `added_by` is who added each (`"user:1"`). */
+  /**
+   * One page of a list's items, newest first; `added_by` is who added each (`"user:1"`).
+   * `credits_charged` is what it cost: records whose 90-day unlock has lapsed are charged again.
+   *
+   * @throws {InsufficientCreditsError} Too few credits for the records it would show whole.
+   */
   async items(listId: string, params: PageParams = {}, options?: RequestOptions): Promise<W.ListItemsResponse> {
     return this.json('listsItems', { path: { list_id: listId }, query: itemsQuery(params) }, options);
   }
@@ -47,8 +61,11 @@ export class Lists extends Resource {
 
   /**
    * Add up to 1,000 records, each `{ entity_category, entity_id }`. The answer counts what was
-   * `added`, `already_present`, `suppressed` (Do-Not-Contact) and `not_found`.
+   * `added`, `already_present`, `suppressed` (Do-Not-Contact) and `not_found`, and says what it
+   * cost (`credits_charged`): the lookup price for each record shown whole that the workspace
+   * had not unlocked, all or nothing.
    *
+   * @throws {InsufficientCreditsError} Too few credits: nothing was added.
    * @throws {InvalidRequestError} A record of another kind than the list holds (`lists.category_mismatch`).
    * @throws {ConflictError} The saved-items cap is reached (`lists.item_cap_reached`).
    */
@@ -63,7 +80,11 @@ export class Lists extends Resource {
 
   /**
    * Export a list's rows (newest first) as CSV: `{ kind: 'file', csv }` at once, or
-   * `{ kind: 'job', job }` for a larger list (`client.exports.wait` then `download`). Free.
+   * `{ kind: 'job', job }` for a larger list (`client.exports.wait` then `download`). Charged
+   * like `items`: a file says what it cost (`creditsCharged`), a job is charged when its file is
+   * ready.
+   *
+   * @throws {InsufficientCreditsError} Too few credits for the records it would show whole.
    */
   async export(listId: string, params: W.ListExportRequest = {}, options?: RequestOptions): Promise<ExportResult> {
     return this.fileOrJob('listsExport', { path: { list_id: listId }, body: listExportBody(params) }, options);

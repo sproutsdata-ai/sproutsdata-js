@@ -2,7 +2,7 @@
   "body": {
     "attribution": [
       {
-        "as_of": "2026-11-24T09:06:07.428222Z",
+        "as_of": "2026-11-26T20:16:21.182802Z",
         "domain": null,
         "quote": null,
         "source_corpus": "gtm_index",
@@ -13,14 +13,14 @@
     "degradation": [],
     "has_more": true,
     "meta": {
-      "as_of": "2026-11-24T09:06:07.428222Z",
+      "as_of": "2026-11-26T20:16:21.182802Z",
       "credential": "api_key",
-      "credits_balance": 999.5,
-      "credits_charged": 0.5,
+      "credits_balance": 999.405,
+      "credits_charged": 0.595,
       "environment": "live",
-      "request_id": "c0eb7701c7c54fbd905225fa1e52c00e"
+      "request_id": "9a3afc8869e24a4ead388e14f46fb4d5"
     },
-    "next_cursor": "eyJmIjoiOTJkYWY5MDBmMTljNDg3Nzg3MGI1N2FiYjNlOTI4NGIiLCJvIjoyLCJzIjoiMDIyNzdiZTJhNWQxNDQ0MGExZmVkOTE3ZmYyNDNmMTQiLCJ0IjoxNzk1NTExMTY3LCJ1IjoicHJpc218Y29tcGFueXwxIn0.5b49883e2468be36bb080c143c478ac5",
+    "next_cursor": "cursor-d1e9b65b8c9fa319c6d25ae9",
     "resolved_search": {
       "anchor_matches": [],
       "category": "company",
@@ -32,11 +32,11 @@
           ]
         }
       },
-      "filters_source": "none",
+      "filters_source": "parser",
       "keyword_query": null,
-      "mode": "fast",
+      "mode": "auto",
       "overrides": [],
-      "parser_version": "none",
+      "parser_version": "internal-search-v10",
       "query": "robotics",
       "read_as": [],
       "semantic_query": "industrial automation",
@@ -89,6 +89,10 @@
         "linkedin_followers": 48210,
         "linkedin_url": "https://www.linkedin.com/company/example-0",
         "listing_status": "private",
+        "match_score": 1.0,
+        "matched_filters": [
+          "industry"
+        ],
         "naics": [
           "333249"
         ],
@@ -116,6 +120,7 @@
           "HubSpot"
         ],
         "total_funding": 85000000,
+        "unmet": null,
         "website": "https://example-0.de"
       },
       {
@@ -162,6 +167,10 @@
         "linkedin_followers": 48210,
         "linkedin_url": "https://www.linkedin.com/company/example-1",
         "listing_status": "private",
+        "match_score": 1.0,
+        "matched_filters": [
+          "industry"
+        ],
         "naics": [
           "333249"
         ],
@@ -189,19 +198,21 @@
           "HubSpot"
         ],
         "total_funding": 85000000,
+        "unmet": null,
         "website": "https://example-1.de"
       }
     ],
     "suggestion": null,
     "total": 12345,
+    "total_exact": 12345,
     "total_is_estimate": false
   },
   "headers": {
     "content-type": "application/json",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "53",
-    "x-request-id": "c0eb7701c7c54fbd905225fa1e52c00e"
+    "ratelimit-reset": "39",
+    "x-request-id": "9a3afc8869e24a4ead388e14f46fb4d5"
   },
   "operation": "search",
   "request": {

@@ -130,14 +130,19 @@ definitions are available without a client from the module-level
 
 ## What a result looks like
 
+From `spec/tools/fixtures/search_company_parser_inferred.json`, one row of three shown and its
+fields shortened:
+
 ```json
 {
-  "caveats": ["vector_coverage_incomplete: … (impact: recall)"],
-  "environment": "test",
+  "caveats": [
+    "vector_coverage_incomplete: 12% of company records have no embedding and were matched lexically only. (impact: recall)",
+    "rows_without_lookup: 1 of 3 rows carry no domain or LinkedIn URL, so they have no `lookup` value and cannot be looked up."
+  ],
   "has_more": true,
   "interpreted_as": {
     "conflicts": [],
-    "filters": { "technology": { "include": ["hubspot"] } },
+    "filters": { "technology": { "include": ["hubspot"] }, "…": "…" },
     "source": "parser"
   },
   "next_cursor": "eyJvIjozfQ.c1a9",
@@ -147,7 +152,7 @@ definitions are available without a client from the module-level
       "account_name": "Brightloop",
       "category": "company",
       "domain": "brightloop.io",
-      "id": "brightloop.io",
+      "id": "d1_WMtEHkBEb68NgK1p035wCzgfKhx5wvrlQAnqihg3",
       "lookup": { "by": "domain", "value": "brightloop.io" },
       "technology": ["HubSpot", "Google Tag Manager", "…", "… +19 more"]
     }
@@ -163,12 +168,26 @@ definitions are available without a client from the module-level
   with a final `"… +N more"`. Values the request asked for come first.
 - **`lookup`** is how to fetch a row's full record with
   `sprouts_entity_lookup`: a company by its domain (or LinkedIn page), a person
-  by their LinkedIn URL, a document by its `d1_...` id. Rows carry `lookup`
+  by their LinkedIn URL, a document by its `d1_...` id. A company row's `id` is a
+  sealed reference and a person row's a hash: neither is a lookup key. Rows carry `lookup`
   only when the lookup tool is offered; a caveat counts the rows that have none.
 - **`interpreted_as`** shows the filters the engine applied; `source:
   "parser"` means it inferred them from the words. `sparse_filters`, present
   only when there are some, names applied filters whose field few records hold.
 - **`total_is_estimate: true`** makes `total` a floor: "at least N".
+- **Partial rows.** A company or person search also returns rows meeting only
+  part of the search, after the exact ones: a row with a non-empty `unmet`, or a
+  `match_score` below 1. Such a row keeps `unmet` (each filter it misses, and how),
+  `matched_filters` and `match_score` whatever the projection; `total_exact` counts
+  the exact rows (`total` counts both), and a `partial_rows` caveat tells the model
+  to report them as close matches (without the exact count when the response has
+  no `total_exact`)
+  (`spec/tools/fixtures/search_partial_matches.json`). The model can send
+  `partial_matches: false` for exact matches only.
+- **`mode`** is `fast` unless the model asks for `auto`: the tool tells the model
+  to put constraints in `filters`, and `fast` reads the words only for what they
+  are about. A search sent to the API without a mode would run in `auto`, so the
+  tool always sends one.
 - **`caveats`** lists anything the server could not do, and anything the
   toolset changed (a row cap, an application filter that replaced the model's).
   An empty answer's first caveat is `no_match`, with the reason.
@@ -196,9 +215,13 @@ API does.
 Every returned error has the same six keys: `code`, `message`, `retryable`,
 `retry_after` (seconds), `field_errors` and `request_id`. `retryable` answers
 "would the same call, unchanged, be both useful and safe?". All three tools are
-charged once the server has done the work, so a call that may have reached the
-server without an answer is not retryable, and the message tells the model not
-to repeat it.
+charged, and calling one again sends a new request with a new idempotency key. So
+nothing whose work may have run is retryable: a call that timed out or lost its
+connection after it was sent, a gateway's answer, a 500, or the API's own timeout. It
+may already have been charged, and the message tells the model not to repeat it. By
+then the client's own retries, which resend the call's key and are charged once, are
+spent. A rate limit or an unavailable service, answered before any work began, is
+retryable.
 
 What is thrown is what only the application can fix: a key, a scope, or
 credits. `isApplicationError(err)` tells those three apart, whichever copy of

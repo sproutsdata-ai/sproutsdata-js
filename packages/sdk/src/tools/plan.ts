@@ -106,15 +106,25 @@ const hasFilters = (args: SearchArguments): boolean => args.filters !== undefine
 
 /** The first tool rule this search breaks (`messages.json`, `rules`), or `undefined`. */
 function searchRefusal(settings: Settings, args: SearchArguments): string | undefined {
-  // An empty `filters` and a blank `query` say nothing, so they count as absent.
-  if ((args.query ?? '').trim() === '' && !hasFilters(args)) return text('rules', 'needs_query_or_filters');
-  return args.category === 'auto' ? autoRefusal(settings, args) : categoryRefusal(args);
+  return wordsRefusal(args) ?? (args.category === 'auto' ? autoRefusal(settings, args) : categoryRefusal(args));
+}
+
+/**
+ * A search that says nothing, or says it with a blank query. An empty `filters` and a blank
+ * `query` say nothing, so they count as absent; a blank query beside filters is refused rather
+ * than dropped, as the API refuses it.
+ */
+function wordsRefusal(args: SearchArguments): string | undefined {
+  const blank = args.query?.trim() === '';
+  if ((args.query === undefined || blank) && !hasFilters(args)) return text('rules', 'needs_query_or_filters');
+  return blank ? text('rules', 'query_blank') : undefined;
 }
 
 function categoryRefusal(args: SearchArguments): string | undefined {
   const { category } = args;
   if (hasDomains(args) && !SHAPING.domain_categories.includes(category)) return text('rules', 'domains_need_entity_category', { category });
   if (hasFilters(args) && DOCUMENTS.has(category)) return text('rules', 'documents_take_no_filters', { category });
+  if (args.partial_matches !== undefined && DOCUMENTS.has(category)) return text('rules', 'partial_matches_entities_only', { category });
   const duplicate = firstDuplicate(args.sort ?? []);
   return duplicate === undefined ? undefined : text('rules', 'sort_duplicate_field', { field: duplicate });
 }

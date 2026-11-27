@@ -1,0 +1,8 @@
+{
+  "$comment": "What public text may not say: the patterns. Both SDKs, their spec, their packages and their repositories are public; the services behind the API are not, and their names, repositories, branches, tickets and source paths together would map them. Their names (the denied words) are not here, since listing them would publish them: each SDK's check reads them from the SPROUTSDATA_DENIED_WORDS secret in CI, or a maintainer's stack profile locally, one per line, and a word matches anywhere in a line, inside longer words too, ignoring case. `denied_patterns`: regular expressions that may not match, case-sensitive unless they say otherwise. `ticket` is any project key and number (`ABC-123`: two letters or more, then letters or digits) but a standard's own name (UTF-8, SHA-256, ISO-8601 and the like) or a licence's (MPL-2.0, BSD-3-Clause: a version or a word follows the number). `service source path` is a backend module path: `src/dsp/...`, `features/<area>/<file>.py`, or `be <file>.py`. Each SDK's public-text check reads this file: sproutsdata-py `scripts/check_public_text.py`, sproutsdata-js `scripts/check-public-text.mjs`.",
+  "version": 2,
+  "denied_patterns": {
+    "ticket": "\\b(?!(?:UTF|ISO|SHA|IEEE|ECMA|RFC)-)[A-Z]{2}[A-Z0-9]{0,4}-\\d+\\b(?![.-]\\w)",
+    "service source path": "(?:\\bsrc/dsp/|\\bfeatures/\\w+/[\\w/]+\\.py\\b|\\bbe `?[\\w./-]+\\.py\\b)"
+  }
+}

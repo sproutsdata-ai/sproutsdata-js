@@ -3,8 +3,7 @@
  *
  * The API names the tiers `quick`, `basic`, `standard`, `detailed` and `maximum` (plus `auto`),
  * and still reads their earlier names. The spec lists only the new ones, so the SDK reads the
- * earlier names itself and always sends the new name (be `billing/prices.py` `PUBLIC_NAMES`,
- * `agents/schemas.py` `Effort._missing_`).
+ * earlier names itself and always sends the new name.
  */
 
 import type * as W from '../generated/wire.js';

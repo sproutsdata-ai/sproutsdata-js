@@ -4,8 +4,12 @@
     "content-type": "text/csv; charset=utf-8",
     "ratelimit-limit": "2000",
     "ratelimit-remaining": "1999",
-    "ratelimit-reset": "51",
-    "x-request-id": "4728fba2c91e42bb8ca2d7e1b0e1838a"
+    "ratelimit-reset": "37",
+    "x-credits-charged": "0",
+    "x-export-field-tier": "free",
+    "x-export-row-count": "1",
+    "x-export-skipped": "0",
+    "x-request-id": "97d6e97ca28a49629ee4c78ee1b1c9b6"
   },
   "operation": "search_export",
   "request": {
@@ -16,7 +20,7 @@
           "entity_id": "example-1.de"
         }
       ],
-      "request_id": "c0eb7701c7c54fbd905225fa1e52c00e"
+      "request_id": "9a3afc8869e24a4ead388e14f46fb4d5"
     },
     "method": "POST",
     "path": "/v1/search/export",

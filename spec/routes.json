@@ -1,6 +1,6 @@
 {
-  "$comment": "Every operation both SDKs wrap, keyed by METHOD + path exactly as openapi.json spells them. `operation_id` is the backend's (FastAPI generates some; never shown to users). `name` is the stable SDK operation name the generators key on: each language derives its method and type names from it. `class` decides what may be retried (retry-policy.json): `safe` - free, and a repeat changes nothing the first call did not (every GET, run and enrichment job cancel, credit quote, list rename, list item add and remove, feedback vote, and the CSV exports, which are free; a repeated export that becomes a background job starts a second job, which is harmless and expires); `billed` - charged after the work succeeds, as the last step, so a failure before it costs nothing; a first page of search or similar opens a new paid session, so a request that may have been sent is never repeated (no route is billed since dsp-backend DSP-449: each billed route reads Idempotency-Key and is `keyed`); `keyed` - the server reads Idempotency-Key, so a repeat with the same key is recognised (agent run start, enrichment job start and lookup, feedback, and the billed reads: search, similar, relationships, org chart and entity lookups, where the same key on the same request from the same credential on the same UTC day is charged once); `once` - free, but a repeat is not the same as one call (a second list create answers 409 lists.name_taken, a second delete 404). `idempotency` is how the server treats Idempotency-Key (`required`, `optional` or `none`). The SDK sends one wherever it is not `none` (the `keyed` routes): one key per call, generated unless the caller passes one, and reused on that call's retries. A `safe` route may take a key it has no need of (GET /v1/org-chart/taxonomy shares the org-chart router's): it stays `none`. `response` is the success body: `json`, `empty` (204), `sse` (text/event-stream), `csv`, or `csv_or_job` (200 text/csv for up to the server's sync row limit, else 202 JSON ExportJobView to poll at /v1/exports/{job_id}). `paging`, where present: `cursor` style sends `cursor` in the body or query and reads `next_cursor`, items under `items`; a page repeats the first request's other fields unchanged, and `binds_limit` means the cursor is also bound to `limit`, so the page size must not change between pages (POST /v1/relationships/reach); `page_number` style sends `page` and reads `has_more`. /v1/relationships/ask pages whichever envelope answered and is handled by each SDK by hand. A test fails if an operation in openapi.json is neither listed here nor under `not_wrapped`, which lists the operations no SDK wraps, each with its `reason`.",
-  "version": 2,
+  "$comment": "Every operation both SDKs wrap, keyed by METHOD + path exactly as openapi.json spells them. `operation_id` is the backend's (FastAPI generates some; never shown to users). `name` is the stable SDK operation name the generators key on: each language derives its method and type names from it. `class` decides what may be retried (retry-policy.json): `safe` - free, and a repeat changes nothing the first call did not (every GET but a list's items, run and enrichment job cancel, credit quote, list rename, list item removal, feedback vote, and a finished export's download); `billed` - charged as part of the work and reads no Idempotency-Key: the routes that show whole records, each one the workspace has not unlocked in the last 90 days charged at the lookup price, all or nothing (adding list items, reading a list's items, and the two CSV exports). They charge first and unlock the records after, so a failure that may come after the charge (a 500, the API's own 504 upstream.timeout, or a request that may have reached the API without its answer) is raised, never repeated: a repeat could charge the same records again. A repeat after a call that did finish is charged nothing, the records being unlocked by then. They become `keyed` once the API reads Idempotency-Key on them; `keyed` - the server reads Idempotency-Key, so a repeat with the same key is recognised (agent run start, enrichment job start and lookup, feedback, and the billed reads: search, similar, relationships, org chart and entity lookups, where the same key on the same request from the same credential on the same UTC day is charged once); `once` - free, but a repeat is not the same as one call (a second list create answers 409 lists.name_taken, a second delete 404). `idempotency` is how the server treats Idempotency-Key (`required`, `optional` or `none`). The SDK sends one wherever it is not `none` (the `keyed` routes): one key per call, generated unless the caller passes one, and reused on that call's retries. A `safe` route may take a key it has no need of (GET /v1/org-chart/taxonomy shares the org-chart router's): it stays `none`. `response` is the success body: `json`, `empty` (204), `sse` (text/event-stream), `csv`, or `csv_or_job` (200 text/csv for up to the server's sync row limit, else 202 JSON ExportJobView to poll at /v1/exports/{job_id}). `paging`, where present: `cursor` style sends `cursor` in the body or query and reads `next_cursor`, items under `items`; a page repeats the first request's other fields unchanged, and `binds_limit` means the cursor is also bound to `limit`, so the page size must not change between pages (POST /v1/relationships/reach); `page_number` style sends `page` and reads `has_more`. /v1/relationships/ask pages whichever envelope answered and is handled by each SDK by hand. A test fails if an operation in openapi.json is neither listed here nor under `not_wrapped`, which lists the operations no SDK wraps, each with its `reason`.",
+  "version": 4,
   "classes": [
     "safe",
     "billed",
@@ -374,7 +374,7 @@
       "path": "/v1/lists/{list_id}/export",
       "operation_id": "export_list_v1_lists__list_id__export_post",
       "name": "lists_export",
-      "class": "safe",
+      "class": "billed",
       "response": "csv_or_job",
       "idempotency": "none"
     },
@@ -392,7 +392,7 @@
       "path": "/v1/lists/{list_id}/items",
       "operation_id": "items_v1_lists__list_id__items_get",
       "name": "lists_items",
-      "class": "safe",
+      "class": "billed",
       "response": "json",
       "idempotency": "none",
       "paging": {
@@ -406,7 +406,7 @@
       "path": "/v1/lists/{list_id}/items",
       "operation_id": "add_items_v1_lists__list_id__items_post",
       "name": "lists_add_items",
-      "class": "safe",
+      "class": "billed",
       "response": "json",
       "idempotency": "none"
     },
@@ -526,7 +526,7 @@
       "path": "/v1/search/export",
       "operation_id": "export_search_v1_search_export_post",
       "name": "search_export",
-      "class": "safe",
+      "class": "billed",
       "response": "csv_or_job",
       "idempotency": "none"
     },
@@ -616,37 +616,37 @@
     {
       "method": "POST",
       "path": "/v1/relationships/institutions/lookup",
-      "reason": "Employer and school type-ahead for the dashboard's relationship filters (dsp-backend 7568d07); not wrapped by design."
+      "reason": "Employer and school type-ahead for the dashboard's relationship filters; not wrapped by design."
     },
     {
       "method": "GET",
       "path": "/v1/credits/pricing",
-      "reason": "The dashboard's billing page; buying credits and auto top-up are dashboard-only, so an API key gets 403 credits.purchase_not_allowed on the writes (dsp-backend 346c8f8)."
+      "reason": "The dashboard's billing page; buying credits and auto top-up are dashboard-only, so an API key gets 403 credits.purchase_not_allowed on the writes."
     },
     {
       "method": "GET",
       "path": "/v1/credits/purchases",
-      "reason": "The dashboard's billing page; buying credits and auto top-up are dashboard-only, so an API key gets 403 credits.purchase_not_allowed on the writes (dsp-backend 346c8f8)."
+      "reason": "The dashboard's billing page; buying credits and auto top-up are dashboard-only, so an API key gets 403 credits.purchase_not_allowed on the writes."
     },
     {
       "method": "POST",
       "path": "/v1/credits/purchases",
-      "reason": "The dashboard's billing page; buying credits and auto top-up are dashboard-only, so an API key gets 403 credits.purchase_not_allowed on the writes (dsp-backend 346c8f8)."
+      "reason": "The dashboard's billing page; buying credits and auto top-up are dashboard-only, so an API key gets 403 credits.purchase_not_allowed on the writes."
     },
     {
       "method": "GET",
       "path": "/v1/credits/purchases/{purchase_id}",
-      "reason": "The dashboard's billing page; buying credits and auto top-up are dashboard-only, so an API key gets 403 credits.purchase_not_allowed on the writes (dsp-backend 346c8f8)."
+      "reason": "The dashboard's billing page; buying credits and auto top-up are dashboard-only, so an API key gets 403 credits.purchase_not_allowed on the writes."
     },
     {
       "method": "GET",
       "path": "/v1/credits/auto-topup",
-      "reason": "The dashboard's billing page; buying credits and auto top-up are dashboard-only, so an API key gets 403 credits.purchase_not_allowed on the writes (dsp-backend 346c8f8)."
+      "reason": "The dashboard's billing page; buying credits and auto top-up are dashboard-only, so an API key gets 403 credits.purchase_not_allowed on the writes."
     },
     {
       "method": "PUT",
       "path": "/v1/credits/auto-topup",
-      "reason": "The dashboard's billing page; buying credits and auto top-up are dashboard-only, so an API key gets 403 credits.purchase_not_allowed on the writes (dsp-backend 346c8f8)."
+      "reason": "The dashboard's billing page; buying credits and auto top-up are dashboard-only, so an API key gets 403 credits.purchase_not_allowed on the writes."
     }
   ]
 }

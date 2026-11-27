@@ -19,12 +19,13 @@ first — revocation is effective immediately — then report.
   `console.log` and `JSON.stringify` of the client show it redacted
   (`sk_dsp_live_***`), and it is never included in an error message.
 - Redirects are never followed (`redirect: 'error'`), so the key is never
-  re-sent to wherever a redirect points. A 3xx raises `APIConnectionError`.
+  re-sent to wherever a redirect points. A redirect throws `RedirectRefusedError`
+  (or, from a custom `fetch` that hands it back, an `APIError` with its 3xx status).
 - `baseUrl` must be `https://`. Plain `http://` is accepted only for
   `localhost` and `127.0.0.1`, for local development.
-- The SDK checks only the key's *shape* locally
-  (`sk_<platform>_<live|test>_<secret>`); it never transmits the key anywhere
-  except to the configured `baseUrl`.
+- The SDK checks only the key's *shape* locally (`sk_dsp_live_<secret>`; a
+  retired `sk_dsp_test_` key is refused before anything is sent); it never
+  transmits the key anywhere except to the configured `baseUrl`.
 
 ## API keys are server-side credentials
 
@@ -59,6 +60,7 @@ frontend. The packages enforce it on their side too:
 
 ## Secret scanning
 
-Sprouts API keys match `sk_[a-z0-9]+_(live|test)_[A-Za-z0-9_-]+` (issued keys
-begin `sk_dsp_`). If you operate a fork or a mirror, enable push protection
+Sprouts API keys match `sk_dsp_live_[A-Za-z0-9_-]+`. Keys issued before test keys
+were retired may read `sk_dsp_test_…`; scan for `sk_dsp_(live|test)_[A-Za-z0-9_-]+`
+to catch both. If you operate a fork or a mirror, enable push protection
 with that pattern so a key cannot be committed.

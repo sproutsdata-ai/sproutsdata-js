@@ -1,4 +1,4 @@
-/** Prism's records read as their types: flexible lists made lists, nested records alike. */
+/** The entity records read as their types: flexible lists made lists, nested records alike. */
 
 import { describe, expect, it } from 'vitest';
 

@@ -1,8 +1,13 @@
 # Saved lists and export
 
 `client.lists` keeps named sets of records (accounts to work, people to reach),
-and `client.searchExport` turns rows of a search into a CSV file. Lists and
-exports are free, and need a key with `dsp.search.read` or `dsp.entities.read`.
+and `client.searchExport` turns rows of a search into a CSV file. Reading lists,
+their items and a list's export needs a key with `dsp.lists.read`; creating,
+renaming, deleting and adding or removing items needs `dsp.lists.write` (a key made
+without choosing scopes has both). Creating, renaming and deleting lists, removing
+items and following an export are free; adding items, reading them and exporting
+them can charge, once per record: see
+[Whole records are paid for once](#whole-records-are-paid-for-once).
 
 ```ts
 const saved = await client.lists.create({ name: 'Fintech targets', entity_category: 'company' });
@@ -120,11 +125,44 @@ A list that does not exist, was deleted, or belongs to another workspace throws
 the server: a repeat would make a second list (409), or answer 404 for the list
 the first call deleted. Check `client.lists.list()` before trying again.
 
+## Whole records are paid for once
+
+What a saved record shows depends on the workspace. A workspace that has bought
+credits, calling with a key that has `dsp.entities.read`, sees each record whole;
+any other workspace or key sees the fields a search row has (the card fields).
+`field_tier` on a page of items says which: `'unlocked'` or `'free'`.
+
+The first time a workspace sees a record whole, through a lookup, a saved list or an
+export, it pays the lookup price for it, and the record stays unlocked for 90 days by
+any of those routes. So adding records to a list charges the ones not yet unlocked,
+reading a list charges any whose unlock has lapsed, and an export charges the rows it
+shows whole. Card fields are always free. `addItems` and `items` report what they
+charged in `credits_charged`; an export file reports it in `creditsCharged`.
+
+```ts
+declare const listId: string;
+const stripe = { entity_category: 'company', entity_id: 'stripe.com' } as const;
+const added = await client.lists.addItems(listId, { items: [stripe] });
+console.log(added.added, added.credits_charged); // adding it again charges 0
+```
+
+It is all or nothing: what is due is checked against the balance first, and too few
+credits throws `InsufficientCreditsError` (402) with nothing added, shown or exported.
+
+These calls read no `Idempotency-Key`, so after a gateway's 502 or 504 (the request
+may still be running behind it) the SDK does not repeat them: a repeat could charge
+the same records twice. It throws `GatewayError` instead. An error the API itself
+answers (a 503, a 500, `upstream.timeout`) is retried, since it means nothing ran. A
+repeat after a call that did finish is free: its records are unlocked by then.
+
 ## CSV export
 
 `lists.export` and `searchExport` answer in one of two ways:
 
-- `{ kind: 'file', csv }`: the CSV text at once, for a small export;
+- `{ kind: 'file', csv, creditsCharged, fieldTier, rows, skipped }` (an
+  `ExportFile`): the CSV text at once, for a small export, with what the answer
+  said about it: what it cost, `'unlocked'` or `'free'` fields, its rows, and the
+  records left out (Do-Not-Contact). Each is `undefined` when the answer did not say;
 - `{ kind: 'job', job }`: an export job for a larger one. Wait for it with
   `client.exports.wait(job.job_id)`, then fetch the file with
   `client.exports.download(job.job_id)`.

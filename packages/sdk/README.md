@@ -62,7 +62,7 @@ else its LinkedIn page; a person by their LinkedIn URL; a document by its
 | `orgChart.retrieve`, `departments`, `locations`, `people`, `taxonomy` | A company's people, counted, and the people one count holds | [Org charts](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/org-chart.md) |
 | `enrichment.lookup`, `create`, `wait`, `results`, ... | Emails and phones for people, domains, phones and pages for companies | [Enrichment](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/enrichment.md) |
 | `runs.*` | Agents: start an agent run, follow it, read it | [Agent runs](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/runs.md) |
-| `lists.*`, `searchExport`, `exports.*` | Saved lists, and CSV export as a file or a job | [Saved lists](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/lists.md) |
+| `lists.*`, `searchExport`, `exports.*` | Saved lists, and CSV export as a file or a job; whole records are paid for once | [Saved lists](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/lists.md) |
 | `credits.retrieve`, `credits.transactions` | The balance and the ledger; free | [Credits and usage](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/usage.md) |
 | `history.list`, `retrieve`, `metrics` | The workspace's calls and daily totals; free | [Credits and usage](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/usage.md) |
 | `feedback.create`, `list`, `tags`, `votes.*` | Reports and votes on answers; free | [Feedback](https://github.com/sproutsdata-ai/sproutsdata-js/blob/main/docs/feedback.md) |
@@ -73,17 +73,23 @@ else its LinkedIn page; a person by their LinkedIn URL; a document by its
 const page = await client.search({
   query: 'payments companies in Germany with 500 to 5000 staff',
   category: 'company', // the default; or person, patent, news_article, funding_round, ...
-  mode: 'auto', // 'fast' (the default) does not turn the words into filters
+  mode: 'auto', // the default: a model turns the words into filters; 'fast' does not
   limit: 10,
 });
 console.log(page.resolved_search?.filters);
 ```
 
-- `fast` and `auto` both read the words into filters (the filters you send win)
-  and report them in `resolved_search`; `auto` is billed as an AI search. `deep`
-  is no longer offered: start an agent run (`runs.create`) instead.
+- `auto` (the default) has a model turn everything the words ask into filters (the
+  filters you send win) and is billed as an AI search; `fast` reads the words only
+  for what they are about and sets no other filter, so put hard constraints in
+  `filters`; it is billed as a basic search. `resolved_search` reports what was
+  read. `deep` is no longer offered: start an agent run (`runs.create`) instead.
+- A company or person search also returns, after the rows meeting every filter,
+  rows meeting only part of it: such a row has `unmet` (each filter it misses, and
+  how) and a `match_score` under 1; `total_exact` counts the exact rows and
+  `total` counts both. `partial_matches: false` asks for exact matches only.
 - `category: 'auto'` lets the question pick the category; it takes only
-  `query`, `mode`, `limit` and `cursor`.
+  `query`, `mode`, `partial_matches`, `fields`, `limit` and `cursor`.
 - Company and person searches take the typed `DiscoverFilters`; each document
   category takes its own filter type and refuses `DiscoverFilters`.
 - The SDK checks every request against the server's models before sending it,

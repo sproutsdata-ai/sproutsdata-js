@@ -7,9 +7,10 @@
  * is given its type, after checking it is the JSON object the operation answers with.
  */
 
+import { DEFAULTS } from '../generated/defaults.js';
 import { OPERATIONS, type OperationMap, type OperationName, type OperationSpec } from '../generated/operations.js';
 import type { ExportJobView } from '../generated/wire.js';
-import type { ExportResult } from '../types/index.js';
+import type { ExportFile, ExportResult } from '../types/index.js';
 import type { Answer, AnswerMeta } from './answer.js';
 import { APIResponseValidationError, isRecord } from './errors.js';
 import { follow, start, type PageInput } from './pagination.js';
@@ -109,18 +110,49 @@ export async function* callPages<K extends OperationName>(
   }
 }
 
-/** A later page's options: the caller's, but its own request id. */
+/**
+ * A later page's options: the caller's, without the first page's request id and idempotency key.
+ * Each page is its own call, so it gets its own key (one shared would make a later page read as a
+ * repeat of the first), and sharing one id would merge the pages in the server's logs.
+ */
 function laterPage(options: RequestOptions): RequestOptions {
-  const { requestId: _first, ...rest } = options;
+  const { requestId: _firstId, idempotencyKey: _firstKey, ...rest } = options;
   return rest;
 }
 
 /** Call an export: the CSV when the server answers with it (200), else the job it started (202). */
 export async function callExport<K extends OperationName>(transport: Transport, name: K, input: Input<K>, options?: RequestOptions): Promise<ExportResult> {
   const answer = await transport.send(operation(name), input, options);
-  if (answer.kind === 'csv') return { kind: 'file', csv: answer.text };
+  if (answer.kind === 'csv') return exportFile(answer.text, answer.meta.headers);
   if (answer.kind === 'json' && isRecord(answer.json)) return { kind: 'job', job: answer.json as unknown as ExportJobView };
   throw new APIResponseValidationError(`${name} answered with neither a CSV file nor an export job.`, { status: answer.meta.status, requestId: answer.meta.requestId });
+}
+
+/** A plain decimal, as the API writes a charge (`2`, `2.5`, `1e+06`); both SDKs read the same header the same way. */
+const DECIMAL = /^[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?$/;
+const COUNT = /^[0-9]+$/;
+
+/**
+ * A CSV answered at once, with what its headers say about it. A header that is missing or unreadable reads as
+ * unknown (`undefined`), never as an error: the file is made, and charged, by the time it arrives.
+ */
+export function exportFile(csv: string, headers: Readonly<Record<string, string>>): ExportFile {
+  const names = DEFAULTS.exportHeaders;
+  const charged = headers[names.creditsCharged]?.trim() ?? '';
+  const tier = headers[names.fieldTier]?.trim() ?? '';
+  return {
+    kind: 'file',
+    csv,
+    creditsCharged: DECIMAL.test(charged) ? Number(charged) : undefined,
+    fieldTier: tier === '' ? undefined : tier,
+    rows: count(headers[names.rows]),
+    skipped: count(headers[names.skipped]),
+  };
+}
+
+function count(raw: string | undefined): number | undefined {
+  const text = raw?.trim() ?? '';
+  return COUNT.test(text) ? Number(text) : undefined;
 }
 
 /** Call an operation that answers with a CSV file, and get its text. */

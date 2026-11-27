@@ -54,6 +54,10 @@ jobs:
             npm pack --dry-run -w "$ws"
           done
       - name: Nothing in the repository or the packages names a service behind the API
+        # The denied words come from their secret; a pull request from a fork has none, and is
+        # checked for the patterns only (release.yml requires the words).
+        env:
+          SPROUTSDATA_DENIED_WORDS: ${{ secrets.SPROUTSDATA_DENIED_WORDS }}
         run: npm run check:public-text
       - run: npm run audit
 
